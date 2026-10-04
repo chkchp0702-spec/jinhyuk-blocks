@@ -151,41 +151,67 @@ const RAR_P=[60,25,10,4,1];
 const RAR_BASE=[1,2.5,6,15,40];
 const BIOMES=[
  {name:"초원",ground:"#8fd46c",edge:"#71bf55",egg:"#fff1d0",spot:"#f0c674",decor:"tree",gs:5,gm:1,
-  guard:{n:"엄마 닭",kind:"bird",color:"#ffffff",crest:true,s:2.6},
+  guard:{n:"닭",kind:"bird",color:"#ffffff",crest:true,s:2.6},
   pets:[{n:"병아리",kind:"bird",color:"#ffe14d"},{n:"토끼",kind:"quad",ears:"long",color:"#f6f6f6",nose:"#ff9fb0"},
         {n:"아기돼지",kind:"quad",ears:"point",color:"#ffb3c6",nose:"#ff7f9e"},{n:"양",kind:"quad",ears:"round",color:"#fbfbf2",head:"#4a4a4a"},
         {n:"황금닭",kind:"bird",color:"#ffc61a",crest:true}]},
- {name:"숲",ground:"#4caa58",edge:"#3d9149",egg:"#d8f0c0",spot:"#6aa84f",decor:"pine",gs:9,gm:8,
-  guard:{n:"엄마 곰",kind:"quad",ears:"round",color:"#8a5a35",s:2.5},
-  pets:[{n:"다람쥐",kind:"quad",ears:"point",color:"#c77d3a",tail:"big"},{n:"여우",kind:"quad",ears:"point",color:"#ff8a3d",tail:"big"},
-        {n:"부엉이",kind:"bird",color:"#9a7650"},{n:"꽃사슴",kind:"quad",ears:"round",color:"#c38b56",horn:"antler"},
-        {n:"숲의 정령",kind:"quad",ears:"round",color:"#7dffb2",glow:true}]},
- {name:"사막",ground:"#f2d37f",edge:"#e3bd62",egg:"#ffe2a8",spot:"#d9893a",decor:"cactus",gs:13,gm:60,
-  guard:{n:"엄마 낙타",kind:"quad",ears:"round",color:"#d6a35a",hump:true,s:2.6},
+ {name:"호숫가",ground:"#9ad87a",edge:"#7cc35e",egg:"#e8f6ff",spot:"#7fc8ff",decor:"lake",gs:8,gm:5,
+  guard:{n:"백조",type:"swan",s:2.6,h:2.4},
+  pets:[{n:"아기 오리",kind:"bird",color:"#ffd84d"},{n:"개구리",kind:"quad",ears:"none",color:"#59c25a"},
+        {n:"수달",kind:"quad",ears:"round",color:"#8a6440",tail:"big"},{n:"비버",kind:"quad",ears:"round",color:"#7a4f2a",tail:"big"},
+        {n:"황금 백조",kind:"bird",color:"#ffd24a",glow:true}]},
+ {name:"사막",ground:"#f2d37f",edge:"#e3bd62",egg:"#ffe2a8",spot:"#d9893a",decor:"cactus",gs:11,gm:30,
+  guard:{n:"전갈",type:"scorpion",s:2.4,h:1.9},
   pets:[{n:"도마뱀",kind:"quad",ears:"none",color:"#8fbf4a"},{n:"사막여우",kind:"quad",ears:"long",color:"#f3d2a2"},
         {n:"미어캣",kind:"quad",ears:"round",color:"#c9a66b"},{n:"아기 낙타",kind:"quad",ears:"round",color:"#e0b26f",hump:true},
         {n:"황금 고양이",kind:"quad",ears:"point",color:"#ffd24a",glow:true}]},
- {name:"눈나라",ground:"#eef6ff",edge:"#d6e7fa",egg:"#dff2ff",spot:"#8cc8ff",decor:"snow",gs:17,gm:450,
-  guard:{n:"엄마 북극곰",kind:"quad",ears:"round",color:"#ffffff",s:2.8},
+ {name:"숲",ground:"#4caa58",edge:"#3d9149",egg:"#d8f0c0",spot:"#6aa84f",decor:"pine",gs:14,gm:150,
+  guard:{n:"호랑이",kind:"quad",ears:"round",color:"#ff9a2a",tail:"big",stripes:true,s:2.6},
+  pets:[{n:"다람쥐",kind:"quad",ears:"point",color:"#c77d3a",tail:"big"},{n:"여우",kind:"quad",ears:"point",color:"#ff8a3d",tail:"big"},
+        {n:"부엉이",kind:"bird",color:"#9a7650"},{n:"꽃사슴",kind:"quad",ears:"round",color:"#c38b56",horn:"antler"},
+        {n:"숲의 정령",kind:"quad",ears:"round",color:"#7dffb2",glow:true}]},
+ {name:"눈나라",ground:"#eef6ff",edge:"#d6e7fa",egg:"#dff2ff",spot:"#8cc8ff",decor:"snow",gs:17,gm:800,
+  guard:{n:"북극곰",kind:"quad",ears:"round",color:"#ffffff",s:2.8},
   pets:[{n:"펭귄",kind:"bird",color:"#2b3142",belly:"#ffffff"},{n:"북극여우",kind:"quad",ears:"point",color:"#f8fbff",tail:"big"},
         {n:"아기 북극곰",kind:"quad",ears:"round",color:"#fdfdfd"},{n:"눈표범",kind:"quad",ears:"round",color:"#e3e8ef",tail:"big"},
         {n:"매머드",kind:"quad",ears:"round",color:"#8a5a3a",tusk:true}]},
- {name:"화산",ground:"#6b5050",edge:"#563f3f",egg:"#ffb38a",spot:"#ff5a1f",decor:"lava",gs:21,gm:3500,
-  guard:{n:"엄마 용",kind:"quad",ears:"point",color:"#e0402f",wings:true,horn:"one",s:2.6},
+ {name:"화산",ground:"#6b5050",edge:"#563f3f",egg:"#ffb38a",spot:"#ff5a1f",decor:"lava",gs:20,gm:4000,sky:"#ffb08a",
+  guard:{n:"케르베로스",kind:"quad",ears:"point",color:"#3a3440",heads:3,eye:"#ff3b30",tail:"big",s:2.6},
   pets:[{n:"불도마뱀",kind:"quad",ears:"none",color:"#ff6a2a"},{n:"용암 개구리",kind:"quad",ears:"none",color:"#ff9a1f"},
         {n:"불새",kind:"bird",color:"#ff3b2f",crest:true},{n:"마그마 거북",kind:"quad",ears:"none",color:"#7a4a2a",shell:true},
         {n:"아기 용",kind:"quad",ears:"point",color:"#ff4d4d",wings:true,horn:"one"}]},
- {name:"구름섬",ground:"#f3e6ff",edge:"#e2cdfa",egg:"#ffffff",spot:"#ff9fe0",decor:"cloud",gs:25,gm:28000,
-  guard:{n:"엄마 유니콘",kind:"quad",ears:"point",color:"#ffffff",horn:"one",s:2.7},
+ {name:"바닷가",ground:"#f3e2a6",edge:"#e4cd86",egg:"#d6f3ff",spot:"#3ab0ff",decor:"beach",gs:24,gm:2e4,sky:"#8fdcff",
+  guard:{n:"고래",type:"whale",s:2.4,h:2.5},
+  pets:[{n:"꽃게",kind:"quad",ears:"none",color:"#ff5a4a"},{n:"물개",kind:"quad",ears:"none",color:"#9aa7b8"},
+        {n:"바다거북",kind:"quad",ears:"none",color:"#4f9a6a",shell:true},{n:"돌고래",kind:"quad",ears:"none",color:"#5aa8ff"},
+        {n:"아기 고래",kind:"quad",ears:"none",color:"#3a6fd8",glow:true}]},
+ {name:"공룡 계곡",ground:"#9bb35a",edge:"#7d9a45",egg:"#e8e0c8",spot:"#7a5a3a",decor:"fern",gs:28,gm:1e5,
+  guard:{n:"공룡",type:"trex",s:2.3,h:3.7},
+  pets:[{n:"랩터",kind:"quad",ears:"point",color:"#7bbf4a"},{n:"아기 트리케라톱스",kind:"quad",ears:"round",color:"#c98a4a",horn:"one"},
+        {n:"프테라노돈",kind:"bird",color:"#b07a5a",crest:true},{n:"스테고사우루스",kind:"quad",ears:"none",color:"#6aa86a",shell:true},
+        {n:"아기 티라노",kind:"quad",ears:"none",color:"#3f9a4f",glow:true}]},
+ {name:"유령 무덤",ground:"#4a4a5a",edge:"#3a3a48",egg:"#d8d8e8",spot:"#9a6aff",glowEgg:"#2a1a50",decor:"grave",gs:32,gm:5e5,sky:"#2b2a44",dark:true,
+  guard:{n:"검은 스켈레톤",type:"skeleton",s:2.7,h:3.0},
+  pets:[{n:"까마귀",kind:"bird",color:"#2b2b33"},{n:"검은 고양이",kind:"quad",ears:"point",color:"#2b2b33"},
+        {n:"박쥐",kind:"bird",color:"#4a3a5a"},{n:"유령 여우",kind:"quad",ears:"point",color:"#e6f0ff",tail:"big",glow:true},
+        {n:"해골 강아지",kind:"quad",ears:"round",color:"#f3f0e6"}]},
+ {name:"정글 산",ground:"#3f8f3f",edge:"#2f7a34",egg:"#ffe9a8",spot:"#3aa04a",decor:"jungle",gs:36,gm:2.5e6,
+  guard:{n:"고릴라",type:"gorilla",s:2.4,h:3.1},
+  pets:[{n:"원숭이",kind:"quad",ears:"round",color:"#9a6a3a"},{n:"앵무새",kind:"bird",color:"#ff4a3a",crest:true},
+        {n:"코뿔소",kind:"quad",ears:"round",color:"#8a8f99",horn:"one"},{n:"코끼리",kind:"quad",ears:"round",color:"#9aa0aa",tusk:true},
+        {n:"황금 고릴라",kind:"quad",ears:"round",color:"#ffcc33",glow:true}]},
+ {name:"구름섬",ground:"#f3e6ff",edge:"#e2cdfa",egg:"#ffffff",spot:"#ff9fe0",decor:"cloud",gs:40,gm:1.2e7,sky:"#cfe8ff",
+  guard:{n:"천사",type:"angel",s:2.4,h:3.5},
   pets:[{n:"구름양",kind:"quad",ears:"round",color:"#ffffff",head:"#d9d9ff"},{n:"무지개새",kind:"bird",color:"#7ad7ff",crest:true},
         {n:"별고양이",kind:"quad",ears:"point",color:"#4b5bd6",glow:true},{n:"페가수스",kind:"quad",ears:"point",color:"#fdfcff",wings:true},
         {n:"유니콘",kind:"quad",ears:"point",color:"#ffe6fa",horn:"one",glow:true}]},
- {name:"별빛 들판",ground:"#3a2a6e",edge:"#5b3fa8",egg:"#b98cff",spot:"#7df9ff",glowEgg:"#6a2cff",decor:"crystal",gs:22,gm:220000,boss:true,
-  guard:{n:"잠꾸러기 별곰",s:1},
-  pets:[{n:"별토끼",kind:"quad",ears:"long",color:"#c9b8ff",glow:true},{n:"은하 고양이",kind:"quad",ears:"point",color:"#6b4dff",glow:true},
-        {n:"달 부엉이",kind:"bird",color:"#e8e0ff",glow:true},{n:"혜성 여우",kind:"quad",ears:"point",color:"#7df9ff",tail:"big",glow:true},
-        {n:"우주 사자",kind:"quad",ears:"round",color:"#ffcf5a",mane:true,glow:true}]},
+ {name:"지옥",ground:"#5a1a1a",edge:"#3e1010",egg:"#ff9a6a",spot:"#ffcc33",glowEgg:"#ff3a00",decor:"hell",gs:44,gm:6e7,sky:"#3a0d12",dark:true,boss:true,
+  guard:{n:"악마",s:2.4},
+  pets:[{n:"불박쥐",kind:"bird",color:"#ff4a2a",glow:true},{n:"지옥 강아지",kind:"quad",ears:"point",color:"#7a1f1f",eye:"#ffcc00"},
+        {n:"용암 고양이",kind:"quad",ears:"point",color:"#ff7a1a",glow:true},{n:"그림자 늑대",kind:"quad",ears:"point",color:"#2a2030",tail:"big",eye:"#ff3b30"},
+        {n:"지옥 용",kind:"quad",ears:"point",color:"#b0181e",wings:true,horn:"one",glow:true}]},
 ];
+const OLDMAP={0:0,1:3,2:2,3:4,4:5,5:10,6:11};
 const PAD_COST=[0,0,0,0,150,800,4000,20000,100000,500000];
 const MAX_PADS=10;
 const BASE={x0:-20,x1:20,z0:4,z1:38};
@@ -212,12 +238,13 @@ function save(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
 
 /* ================= 저장 상태 ================= */
 const LOOK={hair:["#4a2c1d","#1d1d24","#ffd447","#ff8a3d","#ff7ac8","#4fa3ff"],shirt:["#ff6b4a","#3a8dff","#38c172","#b061ff","#ffcc33","#2b2f3a"],pants:["#2d4a8a","#1d1d24","#6b4a2a","#38c172","#ff7ac8"]};
-function freshSave(){ return { look:{hair:0,shirt:0,pants:0}, trails:0, trailOn:-1, money:0, speedStat:0, tread:1, pads:4, rebirth:0, slots:Array(MAX_PADS).fill(null), pending:0, name:"진혁이", t:Date.now(), best:0 }; }
+function freshSave(){ return { ver:5, look:{hair:0,shirt:0,pants:0}, trails:0, trailOn:-1, money:0, speedStat:0, tread:1, pads:4, rebirth:0, slots:Array(MAX_PADS).fill(null), pending:0, name:"진혁이", t:Date.now(), best:0 }; }
 let G;
 try { G=Object.assign(freshSave(), JSON.parse(load("egg-save","null"))||{}); } catch(e){ G=freshSave(); }
 if (!Array.isArray(G.slots)||G.slots.length!==MAX_PADS) G.slots=Array(MAX_PADS).fill(null);
 if (!G.look) G.look={hair:0,shirt:0,pants:0};
 if (G.trails==null){ G.trails=0; G.trailOn=-1; }
+try { const raw=JSON.parse(load("egg-save","null")); if (raw && !raw.ver){ G.slots=G.slots.map(c=>c&&OLDMAP[c.biome]!=null?Object.assign(c,{biome:OLDMAP[c.biome]}):c); G.ver=5; } } catch(e){}
 
 /* ================= 3D 기본 ================= */
 const canvas=$("view");
@@ -271,8 +298,13 @@ function makeAnimal(d,opt){
     g.userData.legs=legs;
     const hc=d.head||main;
     const head=box(.8,.74,.76,d.head?hc:mainMat,0,1.48,-.88,body); if(!d.head) tagMain(head);
-    box(.12,.14,.06,"#1d1d24",-.2,1.58,-1.27,body); box(.12,.14,.06,"#1d1d24",.2,1.58,-1.27,body);
+    const eyeM=d.eye?mat(d.eye,d.eye):"#1d1d24";
+    box(.12,.14,.06,eyeM,-.2,1.58,-1.27,body); box(.12,.14,.06,eyeM,.2,1.58,-1.27,body);
     box(.26,.17,.08,d.nose||shade(main,-.35),0,1.36,-1.28,body);
+    if (d.stripes){ for (let k=0;k<4;k++) box(1.04,.5,.1,"#2a1d14",0,1.02,-.5+k*.33,body); box(.82,.12,.78,"#2a1d14",0,1.82,-.88,body); }
+    if (d.heads===3){ [-.78,.78].forEach(sx=>{ const hh=box(.7,.66,.7,mainMat,sx,1.38,-.72,body); hh.rotation.y=sx>0?-.35:.35;
+      box(.11,.13,.06,eyeM,sx-.16,1.48,-1.09,body); box(.11,.13,.06,eyeM,sx+.16,1.48,-1.09,body); box(.24,.15,.08,"#1d1d24",sx,1.28,-1.09,body);
+      mesh(GEO.cone,mainMat,.15,.32,.15,sx-.22,1.86,-.68,body); mesh(GEO.cone,mainMat,.15,.32,.15,sx+.22,1.86,-.68,body); }); box(.9,.16,.4,"#c62828",0,1.2,-.6,body); }
     if (d.ears==="long"){ box(.16,.62,.12,main,-.2,2.1,-.8,body); box(.16,.62,.12,main,.2,2.1,-.8,body); }
     else if (d.ears==="point"){ mesh(GEO.cone,main,.17,.36,.17,-.26,2.0,-.82,body); mesh(GEO.cone,main,.17,.36,.17,.26,2.0,-.82,body); }
     else if (d.ears==="round"){ box(.24,.24,.12,dark,-.3,1.9,-.8,body); box(.24,.24,.12,dark,.3,1.9,-.8,body); }
@@ -281,7 +313,7 @@ function makeAnimal(d,opt){
     if (d.horn==="antler"){ box(.08,.5,.08,"#7a4f2a",-.22,2.05,-.82,body); box(.08,.5,.08,"#7a4f2a",.22,2.05,-.82,body); box(.3,.08,.08,"#7a4f2a",-.3,2.25,-.82,body); box(.3,.08,.08,"#7a4f2a",.3,2.25,-.82,body); }
     if (d.tusk){ box(.08,.08,.45,"#fffbe8",-.28,1.2,-1.35,body); box(.08,.08,.45,"#fffbe8",.28,1.2,-1.35,body); box(.16,.55,.16,main,0,1.0,-1.3,body); }
     if (d.hump) tagMain(box(.6,.45,.6,mainMat,0,1.5,.1,body));
-    if (d.shell) box(1.15,.5,1.3,"#3f7a3a",0,1.38,0,body);
+    if (d.shell) box(1.15,.5,1.3,shade(main,-.2),0,1.38,0,body);
     if (d.mane){ box(1.15,1.05,.4,"#ff8a2a",0,1.5,-.62,body); }
     if (d.wings){ box(.1,.5,1.0,shade(main,-.1),-.62,1.35,.1,body).rotation.z=.5; box(.1,.5,1.0,shade(main,-.1),.62,1.35,.1,body).rotation.z=-.5; }
   }
@@ -308,7 +340,7 @@ function makePlayer(){
 }
 
 /* ================= 세계 만들기 ================= */
-const ground=new THREE.Mesh(new THREE.PlaneGeometry(420,620),mat("#86cf66")); ground.rotation.x=-Math.PI/2; ground.position.set(15,0,-190); ground.receiveShadow=true; scene.add(ground);
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(420,BIOMES.length*BIOME_LEN+260),mat("#86cf66")); ground.rotation.x=-Math.PI/2; ground.position.set(15,0,(150+biomeZ(BIOMES.length-1)-110)/2); ground.receiveShadow=true; scene.add(ground);
 
 // 기지 바닥, 울타리
 box(BASE.x1-BASE.x0,.2,BASE.z1-BASE.z0,"#e6c992",0,.1,(BASE.z0+BASE.z1)/2);
@@ -364,7 +396,7 @@ BIOMES.forEach((b,i)=>{
   const zc=biomeZ(i); seed=101+i*37;
   box(BIOME_W*2,.12,BIOME_LEN,b.ground,0,.06,zc);
   box(6,.14,BIOME_LEN,b.edge,0,.07,zc);
-  const sg=textSprite(`${i+1}. ${b.name}`,"#ffffff",3); sg.position.set(0,7,zc+BIOME_LEN/2-1);
+  const sg=textSprite(`${i+1}단계 ${b.name}`,"#ffffff",3); sg.position.set(0,7,zc+BIOME_LEN/2-1);
   box(.7,6.5,.7,b.edge,-8,3.25,zc+BIOME_LEN/2-1); box(.7,6.5,.7,b.edge,8,3.25,zc+BIOME_LEN/2-1);
   // 장식
   for (let k=0;k<22;k++){
@@ -378,9 +410,88 @@ BIOMES.forEach((b,i)=>{
     const x=(k%2?1:-1)*(3+srnd()*15), z=zc-BIOME_LEN/2+8+k*(BIOME_LEN-16)/4+(srnd()-.5)*4;
     addNest(i,x,z,{});
   }
-  const gd=shadowify(makeAnimal(b.guard,{shadow:true})); gd.scale.setScalar(b.guard.s); gd.position.set(0,0,zc); scene.add(gd);
+  const gd=shadowify(makeGuardModel(b.guard)); gd.scale.setScalar(b.guard.s); gd.position.set(0,0,zc); scene.add(gd);
   guards.push({biome:i,g:gd,x:0,z:zc,tx:0,tz:zc,state:"wander",speed:b.gs,home:zc,alert:null,wait:0});
 });
+function makeGuardModel(d){
+  const f={swan:makeSwan,scorpion:makeScorpion,whale:makeWhale,trex:makeTrex,skeleton:makeSkeleton,gorilla:makeGorilla,angel:makeAngel}[d.type];
+  return f? f() : makeAnimal(d);
+}
+function grp(){ const g=new THREE.Group(), b=new THREE.Group(); g.add(b); g.userData.body=b; return [g,b]; }
+function makeSwan(){ const [g,b]=grp();
+  mesh(GEO.sph,"#ffffff",.85,.6,1.1,0,.75,.15,b); mesh(GEO.sph,"#f0f0f0",.3,.5,.85,-.65,.95,.3,b).rotation.z=.35; mesh(GEO.sph,"#f0f0f0",.3,.5,.85,.65,.95,.3,b).rotation.z=-.35;
+  box(.22,.75,.22,"#ffffff",0,1.35,-.6,b).rotation.x=.35; box(.22,.6,.22,"#ffffff",0,1.9,-.82,b);
+  box(.36,.34,.42,"#ffffff",0,2.25,-.9,b); box(.16,.14,.36,"#ff9f1c",0,2.17,-1.25,b); box(.12,.12,.08,"#1d1d24",0,2.27,-1.12,b);
+  box(.08,.1,.05,"#1d1d24",-.17,2.32,-1.0,b); box(.08,.1,.05,"#1d1d24",.17,2.32,-1.0,b);
+  mesh(GEO.cone,"#ffffff",.3,.5,.3,0,1.0,1.2,b).rotation.x=-1.2; mesh(GEO.cyl,mat("#7fc8ff"),1.2,.05,1.4,0,.05,.1,g);
+  return g; }
+function makeScorpion(){ const [g,b]=grp(); const c="#6b3a1f", d="#4a2412";
+  box(1.2,.45,1.6,c,0,.55,0,b); box(1.0,.4,.7,c,0,.55,-1.05,b);
+  for (let k=0;k<3;k++) [-1,1].forEach(sd=>{ const l=box(.9,.12,.12,d,sd*.95,.35,-.4+k*.45,b); l.rotation.z=sd*-.5; });
+  [-1,1].forEach(sd=>{ box(.18,.18,.8,d,sd*.62,.6,-1.6,b).rotation.y=sd*.3; box(.5,.32,.55,c,sd*.8,.62,-2.15,b); box(.18,.18,.4,d,sd*.62,.62,-2.5,b); });
+  for (let k=0;k<5;k++){ const a=k/4*2.4; mesh(GEO.sph,k%2?c:d,.32-k*.02,.32-k*.02,.32-k*.02,0,.7+Math.sin(a)*1.6,.9+Math.cos(a)*1.0-(k>3?.4:0),b); }
+  mesh(GEO.cone,mat("#ff3b30","#aa0000"),.18,.5,.18,0,2.0,-.15,b).rotation.x=Math.PI*.8;
+  box(.1,.1,.06,mat("#ff3b30","#ff0000"),-.2,.78,-1.42,b); box(.1,.1,.06,mat("#ff3b30","#ff0000"),.2,.78,-1.42,b);
+  return g; }
+function makeWhale(){ const [g,b]=grp();
+  mesh(GEO.sph,"#3a6fd8",1.3,1.0,2.4,0,1.15,0,b); mesh(GEO.sph,"#d6e8ff",1.0,.6,2.0,0,.78,-.15,b);
+  box(.35,.35,1.0,"#3a6fd8",0,1.25,2.4,b); box(1.8,.14,.65,"#2f5dbf",0,1.35,3.0,b);
+  box(1.0,.12,.5,"#2f5dbf",-1.2,.8,-.3,b).rotation.z=.4; box(1.0,.12,.5,"#2f5dbf",1.2,.8,-.3,b).rotation.z=-.4;
+  mesh(GEO.sph,"#1d1d24",.12,.12,.12,-.95,1.25,-1.45,b); mesh(GEO.sph,"#1d1d24",.12,.12,.12,.95,1.25,-1.45,b);
+  for (let k=0;k<3;k++){ const sp=mesh(GEO.sph,mat("#bfeaff"),.22-k*.04,.22-k*.04,.22-k*.04,(k-1)*.25,2.3+k*.35,-.6,b); sp.userData.noShadow=true; }
+  mesh(GEO.cyl,mat("#5ab8ff"),1.6,.05,2.6,0,.05,.2,g);
+  return g; }
+function makeTrex(){ const [g,b]=grp(); const c="#4caf50", d="#2f7a34";
+  const bd=box(1.2,1.3,1.9,c,0,2.0,.1,b); bd.rotation.x=-.25;
+  box(1.05,.9,1.45,c,0,3.15,-1.35,b); box(.95,.3,1.2,d,0,2.6,-1.45,b);
+  for (let k=0;k<4;k++){ box(.1,.16,.1,"#ffffff",-.38+k*.25,2.8,-2.0,b); }
+  box(.14,.16,.06,mat("#ffe14d","#aa8800"),-.36,3.35,-2.06,b); box(.14,.16,.06,mat("#ffe14d","#aa8800"),.36,3.35,-2.06,b);
+  box(.16,.5,.16,c,-.55,2.05,-1.0,b).rotation.x=.6; box(.16,.5,.16,c,.55,2.05,-1.0,b).rotation.x=.6;
+  const lL=box(.5,1.4,.65,d,-.45,.7,.3,b), lR=box(.5,1.4,.65,d,.45,.7,.3,b); g.userData.legs=[lL,lR];
+  [[1.2,1.8,.85],[2.0,1.5,.65],[2.7,1.2,.45]].forEach(([z,y,w])=>box(w,w,.9,c,0,y,z,b));
+  for (let k=0;k<4;k++) mesh(GEO.cone,d,.18,.4,.18,0,2.75-k*.08,-.5+k*.5,b);
+  return g; }
+function makeSkeleton(){ const [g,b]=grp(); const bone="#4a4458", hi="#6e6782", eye=mat("#ff2a2a","#ff0000");
+  const lL=box(.2,1.05,.2,bone,-.24,.52,0,b), lR=box(.2,1.05,.2,bone,.24,.52,0,b); g.userData.legs=[lL,lR];
+  box(.62,.22,.32,hi,0,1.12,0,b); box(.16,.85,.16,bone,0,1.55,0,b);
+  for (let k=0;k<4;k++) box(.72-k*.06,.08,.38,hi,0,1.35+k*.15,0,b);
+  box(.95,.16,.22,hi,0,2.0,0,b);
+  box(.15,.95,.15,bone,-.55,1.5,0,b); box(.15,.95,.15,bone,.55,1.5,0,b);
+  box(.65,.62,.62,hi,0,2.45,0,b); box(.48,.16,.42,bone,0,2.08,-.05,b);
+  mesh(GEO.sph,eye,.1,.1,.06,-.15,2.5,-.32,b); mesh(GEO.sph,eye,.1,.1,.06,.15,2.5,-.32,b);
+  box(.08,1.3,.08,"#6a6a78",.58,1.4,-.35,b).rotation.x=-.4; box(.35,.08,.08,"#6a6a78",.58,1.0,-.15,b);
+  return g; }
+function makeGorilla(){ const [g,b]=grp(); const c="#2f2a2e", p="#6b6470";
+  mesh(GEO.sph,c,1.15,1.05,.85,0,1.65,0,b); box(.95,.85,.1,p,0,1.6,-.82,b);
+  box(.78,.72,.72,c,0,2.6,-.25,b); box(.56,.46,.1,p,0,2.5,-.62,b); box(.76,.16,.18,c,0,2.82,-.6,b);
+  box(.1,.1,.05,"#1d1d24",-.15,2.62,-.68,b); box(.1,.1,.05,"#1d1d24",.15,2.62,-.68,b);
+  box(.42,1.7,.42,c,-1.1,1.2,-.15,b).rotation.z=.1; box(.42,1.7,.42,c,1.1,1.2,-.15,b).rotation.z=-.1;
+  mesh(GEO.sph,p,.32,.28,.32,-1.2,.3,-.15,b); mesh(GEO.sph,p,.32,.28,.32,1.2,.3,-.15,b);
+  const lL=box(.48,.75,.48,c,-.45,.38,.15,b), lR=box(.48,.75,.48,c,.45,.38,.15,b); g.userData.legs=[lL,lR];
+  return g; }
+function makeAngel(){ const [g,b]=grp(); b.position.y=.4;
+  mesh(GEO.cone,"#ffffff",.85,2.0,.85,0,1.0,0,b); mesh(GEO.cyl,"#ffe066",.55,.08,.55,0,1.75,0,b);
+  box(.72,.6,.45,"#ffffff",0,2.05,0,b); mesh(GEO.sph,"#ffd9b8",.38,.38,.38,0,2.65,0,b); box(.8,.2,.8,"#ffe066",0,2.98,.05,b);
+  box(.08,.1,.05,"#1d1d24",-.13,2.7,-.36,b); box(.08,.1,.05,"#1d1d24",.13,2.7,-.36,b);
+  const halo=new THREE.Mesh(new THREE.TorusGeometry(.42,.07,8,20),mat("#ffe066","#ffcc00")); halo.rotation.x=Math.PI/2; halo.position.y=3.35; b.add(halo);
+  [-1,1].forEach(sd=>{ const w=mesh(GEO.sph,"#f4f8ff",.15,1.1,.75,sd*.75,2.3,.4,b); w.rotation.z=sd*-.45; });
+  box(.18,.7,.18,"#ffffff",-.48,1.85,0,b); box(.18,.7,.18,"#ffffff",.48,1.85,0,b);
+  return g; }
+function makeDevil(){ const [g,b]=grp(); const red="#c62828", dk="#4a0c0f", gold=mat("#ffcc33","#aa7700");
+  box(.36,.9,.36,dk,-.26,.45,0,b); box(.36,.9,.36,dk,.26,.45,0,b);
+  box(1.1,1.1,.7,red,0,1.45,0,b); box(.25,.9,.25,red,-.7,1.5,0,b); box(.25,.9,.25,red,.7,1.5,0,b);
+  const head=new THREE.Group(); head.position.set(0,2.45,0); b.add(head);
+  box(.85,.8,.8,red,0,0,0,head);
+  [-1,1].forEach(sd=>{ const h=mesh(GEO.cone,"#f3e2c0",.14,.55,.14,sd*.32,.6,0,head); h.rotation.z=sd*-.45; });
+  const shut=[box(.24,.07,.06,"#1d1d24",-.2,.08,-.42,head),box(.24,.07,.06,"#1d1d24",.2,.08,-.42,head)];
+  const open=[mesh(GEO.sph,mat("#fff36b","#ffcc00"),.12,.12,.08,-.2,.08,-.41,head),mesh(GEO.sph,mat("#fff36b","#ffcc00"),.12,.12,.08,.2,.08,-.41,head)];
+  open.forEach(o=>o.visible=false);
+  box(.4,.07,.05,"#1d1d24",0,-.2,-.42,head); box(.06,.12,.05,"#ffffff",-.12,-.27,-.43,head); box(.06,.12,.05,"#ffffff",.12,-.27,-.43,head);
+  [-1,1].forEach(sd=>{ const w=box(.08,1.0,1.5,dk,sd*.75,2.0,.5,b); w.rotation.z=sd*-.5; w.rotation.y=sd*.25; });
+  box(.08,.08,1.2,red,0,1.0,.85,b).rotation.x=.4; mesh(GEO.cone,red,.16,.3,.16,0,.75,1.4,b).rotation.x=-Math.PI/2;
+  box(.08,2.6,.08,"#3a3a44",.95,1.4,-.25,b); [-.2,0,.2].forEach(x=>mesh(GEO.cone,gold,.06,.35,.06,.95+x,2.85,-.25,b)); box(.5,.08,.08,gold,.95,2.68,-.25,b);
+  g.userData.head=head; g.userData.shut=shut; g.userData.open=open;
+  return g; }
 function makeBoss(){
   const g=new THREE.Group(), body=new THREE.Group(); g.add(body);
   const fur="#6c58d8", belly="#b9adff", star=mat("#ffe66b","#ffcc00");
@@ -404,8 +515,8 @@ function makeBoss(){
 }
 function buildBossArea(i,zc){
   const bx=0,bz=zc-6;
-  const pad=mesh(GEO.cyl,mat("#4a3790","#1e1250"),9,.12,9,bx,.08,bz);
-  const boss=makeBoss(); boss.position.set(bx,0,bz); scene.add(boss);
+  const pad=mesh(GEO.cyl,mat("#3a0a0a","#2a0505"),9,.12,9,bx,.08,bz);
+  const boss=shadowify(makeDevil()); boss.scale.setScalar(BIOMES[i].guard.s); boss.position.set(bx,0,bz); scene.add(boss);
   const ring=[[-7,3],[7,3],[-6,-7],[6,-7]];
   ring.forEach(([dx,dz])=>addNest(i,bx+dx,bz+dz,{}));
   addNest(i,bx,bz-6.5,{big:true,rarMin:2,respawn:30});
@@ -424,6 +535,12 @@ function decor(type,x,z){
   else if (type==="cactus"){ box(.8,2.8,.8,"#3fa45a",x,1.4,z); box(.6,1.2,.6,"#3fa45a",x+.7,1.9,z); box(.6,1.2,.6,"#3fa45a",x-.7,1.5,z); }
   else if (type==="snow"){ mesh(GEO.cyl,"#6e4527",.3,1.2,.3,x,.6,z); mesh(GEO.cone,"#ffffff",1.7,3.2,1.7,x,2.8,z); mesh(GEO.sph,"#ffffff",1.3,.7,1.3,x+2,.3,z+1); }
   else if (type==="lava"){ mesh(GEO.cone,"#3d2f2f",1.8,2.8,1.8,x,1.4,z); const p=mesh(GEO.cyl,mat("#ff7a1a","#ff5a00"),1.6,.1,1.6,x+2.2,.14,z+1.5); }
+  else if (type==="lake"){ const w=mesh(GEO.cyl,mat("#5ab8ff","#1a4a88"),rnd(2.2,3.5),.08,rnd(1.8,3),x,.1,z); w.receiveShadow=true; for (let k=0;k<3;k++) box(.12,rnd(1,1.8),.12,"#5f9a3a",x+rnd(-2.5,2.5),.6,z+rnd(-2,2)); }
+  else if (type==="beach"){ mesh(GEO.cyl,mat("#3ab0ff","#0a4a88"),rnd(2.5,3.8),.08,rnd(2,3),x,.1,z); const t=box(.35,3.2,.35,"#a8743a",x+2.5,1.6,z); t.rotation.z=.15; for (let k=0;k<5;k++){ const l=box(1.8,.1,.5,"#3fa45a",x+2.9,3.2,z); l.rotation.y=k*1.25; l.rotation.z=-.3; } }
+  else if (type==="fern"){ for (let k=0;k<5;k++){ const l=box(.25,.08,2.2,"#3f8a35",x,.6,z); l.rotation.y=k*1.25; l.rotation.x=-.35; } mesh(GEO.sph,"#8a7a6a",1.0,.7,1.0,x+2,.35,z+1); }
+  else if (type==="grave"){ box(1.0,1.4,.3,"#8a8a9a",x,.7,z); box(.15,.6,.08,"#6a6a7a",x,.9,z-.17); box(.5,.12,.08,"#6a6a7a",x,1.0,z-.17); const tr=box(.3,2.6,.3,"#3a2f2f",x+2.2,1.3,z+.5); box(1.2,.15,.15,"#3a2f2f",x+2.5,2.2,z+.5).rotation.z=.5; }
+  else if (type==="jungle"){ mesh(GEO.cyl,"#6e4527",.4,3.4,.4,x,1.7,z); for (let k=0;k<5;k++){ const l=box(2.2,.1,.7,"#2f9a3a",x,3.4,z); l.rotation.y=k*1.25; l.rotation.z=-.25; } box(.08,2.4,.08,"#3f7a2a",x+.8,2.2,z); }
+  else if (type==="hell"){ const sp=mesh(GEO.cone,"#2a1010",.8,rnd(2,3.6),.8,x,1.4,z); mesh(GEO.cyl,mat("#ff5a00","#ff3a00"),1.6,.1,1.6,x+2.2,.12,z+1.4); }
   else if (type==="crystal"){ const c=pick(["#7df9ff","#c38bff","#ff8af0"]); const m=mat(c,shade(c,-.3)); mesh(GEO.cone,m,.7,2.6,.7,x,1.3,z); mesh(GEO.cone,m,.45,1.6,.45,x+.8,.8,z+.3).rotation.z=-.4; mesh(GEO.cone,m,.4,1.3,.4,x-.7,.65,z-.2).rotation.z=.4; }
   else if (type==="cloud"){ mesh(GEO.sph,"#ffffff",1.6,1,1.6,x,1.1,z); mesh(GEO.sph,"#ffffff",1.2,.8,1.2,x+1.4,1,z+.4); mesh(GEO.sph,"#ffe0f7",1,.7,1,x-1.3,.9,z-.3); }
 }
@@ -436,11 +553,13 @@ function makeEgg(biome,scale){
   return g;
 }
 
+let nightT=0;
 // 별하늘
 const DAY=new THREE.Color("#9fdcff"), NIGHT=new THREE.Color("#1a1240"), TMPC=new THREE.Color();
-const starGeo=new THREE.BufferGeometry(); { const a=[]; for (let k=0;k<140;k++){ a.push(rnd(-40,40),rnd(.4,4),rnd(biomeZ(6)-40,biomeZ(6)+26)); } starGeo.setAttribute("position",new THREE.Float32BufferAttribute(a,3)); }
+const starGeo=new THREE.BufferGeometry(); { const a=[]; BIOMES.forEach((b,i)=>{ if(!b.dark) return; for (let k=0;k<90;k++){ a.push(rnd(-40,40),rnd(.4,4),rnd(biomeZ(i)-27,biomeZ(i)+27)); } }); starGeo.setAttribute("position",new THREE.Float32BufferAttribute(a,3)); }
 const stars=new THREE.Points(starGeo,new THREE.PointsMaterial({color:"#fff3b0",size:.22,transparent:true,opacity:0,depthWrite:false})); scene.add(stars);
-box(240,.04,170,"#22184a",15,.02,biomeZ(6)-60);
+BIOMES.forEach((b,i)=>{ if (b.dark) box(160,.04,BIOME_LEN,shade(b.ground,-.12),15,.02,biomeZ(i)); });
+box(160,.04,120,"#2a0a0c",15,.02,biomeZ(BIOMES.length-1)-BIOME_LEN/2-60);
 // 반짝이 조각
 const sparks=[]; const sparkGeo=new THREE.OctahedronGeometry(.18);
 function burst(x,y,z,color,n){ for (let k=0;k<n;k++){ const m=new THREE.Mesh(sparkGeo,new THREE.MeshBasicMaterial({color,transparent:true})); m.position.set(x,y,z); scene.add(m); sparks.push({m,vx:rnd(-3,3),vy:rnd(3,7),vz:rnd(-3,3),life:1}); } }
@@ -478,8 +597,7 @@ guards.forEach(g=>{ g.lbl=makeLabel("alert"); g.nm=makeLabel(); });
 function petDef(b,r){ return BIOMES[b].pets[r]; }
 function petIncome(c){ return BIOMES[c.biome].gm*RAR_BASE[c.rar]*(c.mut===2?5:c.mut===1?2:1)*(1+.5*G.rebirth); }
 function totalIncome(){ let s=0; G.slots.forEach((c,i)=>{ if(c&&c.kind==="pet"&&i<G.pads) s+=petIncome(c); }); return s; }
-function hatchSecs(b){ return 6+b*5; }
-const NIGHT_Z=biomeZ(6)+BIOME_LEN/2;
+function hatchSecs(b){ return 6+b*3; }
 function rollRar(){ let t=Math.random()*100; for (let i=0;i<5;i++){ t-=RAR_P[i]; if (t<=0) return i; } return 0; }
 function rollMut(){ const r=Math.random(); return r<.02?2:r<.1?1:0; }
 const MUTN=["","황금 ","무지개 "];
@@ -494,7 +612,7 @@ const TRAILS=[
 ];
 function trailMult(){ return G.trailOn>=0&&G.trailOn<G.trails? TRAILS[G.trailOn].m : 1; }
 function speedVal(){ return 6+G.speedStat*.1; }
-function treadRate(){ return .5*G.tread*trailMult(); }
+function treadRate(){ return .05*G.tread*trailMult(); }
 function treadCost(){ return Math.round(60*Math.pow(3,G.tread-1)); }
 function rebirthCost(){ return 1e6*Math.pow(5,G.rebirth); }
 
@@ -610,7 +728,7 @@ function update(dt){
     n.egg.rotation.z=Math.sin(now/300+n.x)*.08;
     if (!P.carry && near(n.x,n.z,1.7)){
       n.has=false; n.egg.visible=false; n.respawn=n.respawnTime;
-      setCarry({kind:"egg",biome:n.biome,nest:n,rarMin:n.rarMin,big:n.big}); toast(n.big?"보스 알을 훔쳤다!":`${BIOMES[n.biome].name} 알을 훔쳤다!`, n.big?"에픽 이상 펫이 나와요! 별곰이 깨기 전에 도망쳐요!":"얼른 기지로 도망쳐요!"); jingle([523,784]); buzz(25);
+      setCarry({kind:"egg",biome:n.biome,nest:n,rarMin:n.rarMin,big:n.big}); toast(n.big?"보스 알을 훔쳤다!":`${BIOMES[n.biome].name} 알을 훔쳤다!`, n.big?"에픽 이상 펫이 나와요! 악마가 깨기 전에 도망쳐요!":"얼른 기지로 도망쳐요!"); jingle([523,784]); buzz(25);
       const gd=guards[n.biome]; if (!gd.boss && Math.hypot(gd.x-P.x,gd.z-P.z)<24) gd.state="chase";
     }
   });
@@ -635,12 +753,13 @@ function update(dt){
     if (gd.state==="chase" && dP<1.2+BIOMES[gd.biome].guard.s*.45 && P.hitCool<=0){
       if (P.carry && P.carry.kind==="egg"){
         const n=P.carry.nest; if (n){ n.has=true; n.egg.visible=true; }
-        setCarry(null); toast("들켰다!",`${BIOMES[gd.biome].guard.n}이 알을 되찾아 갔어요`); tone(220,.3,"sawtooth"); buzz([40,40,40]);
+        setCarry(null); toast("들켰다!",`${BIOMES[gd.biome].guard.n}에게 알을 뺏겼어요`); tone(220,.3,"sawtooth"); buzz([40,40,40]);
       }
       P.z+=5; P.hitCool=1; gd.state="wander"; gd.wait=2;
     }
-    placeLabel(gd.lbl,gd.x,BIOMES[gd.biome].guard.s*2.2+.6,gd.z,gd.state==="chase"?"!":"");
-    placeLabel(gd.nm,gd.x,BIOMES[gd.biome].guard.s*2.2+.2,gd.z,gd.state==="chase"?"":`${BIOMES[gd.biome].guard.n}<b>속도 ${gd.speed}</b>`);
+    const GD=BIOMES[gd.biome].guard, lh=GD.s*(GD.h||2.2);
+    placeLabel(gd.lbl,gd.x,lh+.6,gd.z,gd.state==="chase"?"!":"");
+    placeLabel(gd.nm,gd.x,lh+.2,gd.z,gd.state==="chase"?"":`<span style="color:#ffe14d">${gd.biome+1}단계 보스</span> ${GD.n}<b>속도 ${gd.speed}</b>`);
   });
 
   // 기지에 내려놓기
@@ -701,10 +820,12 @@ function update(dt){
   { const v=speedVal(); $("speed").textContent=v<1000?v.toFixed(1):fmt(v); }
 
   // 낮 → 밤
-  const night=clamp((NIGHT_Z+12-P.z)/24,0,1);
-  TMPC.copy(DAY).lerp(NIGHT,night); scene.background.copy(TMPC); scene.fog.color.copy(TMPC);
+  const bi=P.z>-2.5?-1:clamp(Math.floor((-2.5-P.z)/BIOME_LEN),0,BIOMES.length-1);
+  const BB=bi<0?null:BIOMES[bi];
+  TMPC.set(BB&&BB.sky?BB.sky:"#9fdcff"); scene.background.lerp(TMPC,Math.min(1,dt*2)); scene.fog.color.copy(scene.background);
+  nightT+=((BB&&BB.dark?1:0)-nightT)*Math.min(1,dt*2); const night=nightT;
   stars.material.opacity=night; hemi.intensity=.62-night*.25; sun.intensity=.62-night*.3;
-  sun.color.set(night>.5?"#b9a8ff":"#fff4dc");
+  sun.color.set(night>.5?(BB&&BB.boss?"#ff9a7a":"#b9a8ff"):"#fff4dc");
   sun.position.set(P.x-20,45,P.z+18); sun.target.position.set(P.x,0,P.z-4);
   updateSparks(dt);
 
@@ -751,13 +872,13 @@ function updateBoss(gd,dt,moving){
   const eyes=on=>{ u.shut.forEach(m=>m.visible=!on); u.open.forEach(m=>m.visible=on); };
   if (gd.state==="sleep"){
     eyes(false); u.body.scale.y=1+Math.sin(now/700)*.04; u.head.rotation.x=.25;
-    if (gd.t<=0){ gd.state="stir"; gd.t=1.6; if (inBand&&dP<30){ toast("별곰이 뒤척여요...","곧 깨요! 가만히 멈춰요!",1.5); tone(180,.4,"triangle"); } }
+    if (gd.t<=0){ gd.state="stir"; gd.t=1.6; if (inBand&&dP<30){ toast(`${BIOMES[gd.biome].guard.n}가 뒤척여요...`,"곧 깨요! 가만히 멈춰요!",1.5); tone(180,.4,"triangle"); } }
   } else if (gd.state==="stir"){
     u.head.rotation.x=.25-(1.6-gd.t)/1.6*.3; u.body.rotation.z=Math.sin(now/60)*.03;
     if (gd.t<=0){ gd.state="watch"; gd.t=4; eyes(true); u.body.rotation.z=0; }
   } else if (gd.state==="watch"){
     eyes(true); u.head.rotation.x=-.05; u.head.rotation.y=Math.sin(now/500)*.6;
-    if (inBand && dP<26 && moving){ gd.state="chase"; gd.t=7; toast("별곰이 깼다!!","도망쳐요!"); tone(140,.5,"sawtooth"); buzz([80,50,80]); }
+    if (inBand && dP<26 && moving){ gd.state="chase"; gd.t=7; toast(`${BIOMES[gd.biome].guard.n}가 깼다!!`,"도망쳐요!"); tone(140,.5,"sawtooth"); buzz([80,50,80]); }
     else if (gd.t<=0){ gd.state="back"; }
   } else if (gd.state==="chase"){
     eyes(true); u.head.rotation.y=0;
@@ -766,7 +887,7 @@ function updateBoss(gd,dt,moving){
       const dx=P.x-gd.x, dz=P.z-gd.z, L=Math.hypot(dx,dz)||1, st=Math.min(L,gd.speed*dt);
       gd.x+=dx/L*st; gd.z+=dz/L*st; gd.g.rotation.y=Math.atan2(-dx,-dz); u.body.position.y=Math.abs(Math.sin(now/110))*.25;
       if (dP<3.2 && P.hitCool<=0){
-        if (P.carry && P.carry.kind==="egg"){ const n=P.carry.nest; if (n){ n.has=true; n.egg.visible=true; } setCarry(null); toast("별곰에게 들켰다!","알을 되찾아 갔어요. 별곰이 잘 때 다시 도전!"); }
+        if (P.carry && P.carry.kind==="egg"){ const n=P.carry.nest; if (n){ n.has=true; n.egg.visible=true; } setCarry(null); toast(`${BIOMES[gd.biome].guard.n}에게 들켰다!`,"알을 뺏겼어요. 잘 때 다시 도전!"); }
         tone(220,.3,"sawtooth"); buzz([40,40,40]); P.z+=7; P.hitCool=1.2; gd.state="back";
       }
     }
@@ -777,8 +898,8 @@ function updateBoss(gd,dt,moving){
   }
   gd.g.position.set(gd.x,0,gd.z);
   const txt = gd.state==="sleep"?`<span style="color:#cfc4ff">Z z z</span>` : gd.state==="stir"?"?" : gd.state==="watch"?`<span style="color:#ffe66b">멈춰!</span>` : gd.state==="chase"?"!" : "";
-  placeLabel(gd.lbl,gd.x,6.4,gd.z,txt);
-  placeLabel(gd.nm,gd.x,5.4,gd.z,gd.state==="sleep"?`잠꾸러기 별곰<b>깨어 있을 때 움직이면 들켜요</b>`:"");
+  placeLabel(gd.lbl,gd.x,8.6,gd.z,txt);
+  placeLabel(gd.nm,gd.x,7.6,gd.z,gd.state==="sleep"?`<span style="color:#ffe14d">${gd.biome+1}단계 최종 보스</span> ${BIOMES[gd.biome].guard.n}<b>깨어 있을 때 움직이면 들켜요</b>`:"");
 }
 
 /* ---------- 도둑 ---------- */
@@ -839,7 +960,7 @@ function showShop(){
     <h2>상점</h2>
     <div class="row"><div class="t"><div>부화장 자리 늘리기</div><span>지금 ${G.pads}자리 / 최대 ${MAX_PADS}자리</span></div>
       <button class="buy" id="bPad" ${pc==null||G.money<pc?"disabled":""}>${pc==null?"최대":"$"+fmt(pc)}</button></div>
-    <div class="row"><div class="t"><div>러닝머신 업그레이드</div><span>Lv.${G.tread} → ${G.tread+1} · 초당 속도 +${fmtS(treadRate())} → +${fmtS(.5*(G.tread+1)*trailMult())}</span></div>
+    <div class="row"><div class="t"><div>러닝머신 업그레이드</div><span>Lv.${G.tread} → ${G.tread+1} · 초당 속도 +${fmtS(treadRate())} → +${fmtS(.05*(G.tread+1)*trailMult())}</span></div>
       <button class="buy" id="bTread" ${G.money<tc?"disabled":""}>$${fmt(tc)}</button></div>
     <div class="row"><div class="t"><div>리버스 (새로 시작)</div><span>돈·펫·업그레이드가 처음으로 돌아가는 대신 수입이 영원히 +50%! 지금 ${G.rebirth}회</span></div>
       <button class="buy" id="bReb" ${G.money<rc?"disabled":""}>$${fmt(rc)}</button></div>
