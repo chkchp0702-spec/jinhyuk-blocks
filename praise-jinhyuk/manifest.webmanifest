@@ -3,6 +3,7 @@
   "short_name": "진혁이 블록",
   "description": "진혁이를 위한 칭찬 블록 퍼즐",
   "lang": "ko",
+  "id": "/jinhyuk-blocks/praise-jinhyuk/",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
@@ -26,6 +27,5 @@
       "type": "image/png",
       "purpose": "maskable"
     }
-  ],
-  "id": "/jinhyuk-blocks/praise-jinhyuk/"
+  ]
 }

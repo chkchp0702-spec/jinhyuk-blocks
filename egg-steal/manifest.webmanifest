@@ -3,6 +3,7 @@
   "short_name": "알 훔치기",
   "description": "알을 훔쳐 펫을 키우는 3D 게임",
   "lang": "ko",
+  "id": "/jinhyuk-blocks/egg-steal/",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
@@ -26,6 +27,5 @@
       "type": "image/png",
       "purpose": "maskable"
     }
-  ],
-  "id": "/jinhyuk-blocks/egg-steal/"
+  ]
 }

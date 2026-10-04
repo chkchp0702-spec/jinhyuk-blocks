@@ -550,7 +550,14 @@ function showAlbum(){
     ${now.length?`<div class="chips">${chipsHTML(S.collected,now)}</div>`:`<p>줄을 지우면 그 블록에 적힌 칭찬이 여기에 모여요.</p>`}
     <h3>지금까지 모은 칭찬 ${all.length}가지</h3>
     ${all.length?`<div class="chips">${chipsHTML(album,all)}</div>`:`<p>아직 모은 칭찬이 없어요.</p>`}
+    <button class="ghostbtn" id="resetAll" type="button" style="align-self:center;margin-top:6px">기록 모두 지우기</button>
   </div></div>`;
+  $("resetAll").addEventListener("click",()=>{
+    layers.innerHTML=`<div class="layer"><div class="card"><h2>기록을 모두 지울까요?</h2><p>최고 점수와 모은 칭찬이 모두 사라져요.</p>
+      <button class="cta" id="yesReset" type="button">모두 지우기</button><button class="ghostbtn" id="noReset" type="button">그만둘래요</button></div></div>`;
+    $("noReset").onclick=closeLayers;
+    $("yesReset").onclick=()=>{ try{ Object.keys(localStorage).filter(k=>k.startsWith("jh-")).forEach(k=>localStorage.removeItem(k)); }catch(e){} location.reload(); };
+  });
   $("closeSheet").addEventListener("click",closeLayers);
   $("sheetBg").addEventListener("click",e=>{ if(e.target.id==="sheetBg") closeLayers(); });
 }

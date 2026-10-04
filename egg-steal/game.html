@@ -131,7 +131,7 @@ button{font:inherit;-webkit-tap-highlight-color:transparent}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 "use strict";
-const VER="v6";
+const VER="v7";
 /* ================= 데이터 ================= */
 const RAR=[{n:"일반",c:"#8f9bb0"},{n:"희귀",c:"#3a8dff"},{n:"에픽",c:"#b061ff"},{n:"전설",c:"#ffa600"},{n:"신화",c:"#ff4d6d"}];
 const RAR_P=[60,25,10,4,1];
@@ -935,7 +935,8 @@ function updateThief(dt){
 function dropThief(){ const t=thief; if (t.itemModel){ t.g.remove(t.itemModel); t.itemModel=null; } t.item=null; t.fromPad=null; t.state="idle"; t.g.visible=false; t.timer=rnd(80,120); }
 
 /* ================= 저장 ================= */
-function saveGame(){ G.t=Date.now(); save("egg-save-6",JSON.stringify(G)); }
+let wiping=false;
+function saveGame(){ if (wiping) { try{ localStorage.removeItem("egg-save-6"); }catch(e){} return; } G.t=Date.now(); save("egg-save-6",JSON.stringify(G)); }
 document.addEventListener("visibilitychange",()=>{ if (document.hidden) saveGame(); });
 
 /* ================= 화면(상점·펫·시작) ================= */
@@ -958,6 +959,7 @@ function showShop(){
       const btn= on?`<button class="buy" disabled>장착 중</button>` : owned?`<button class="buy tr-eq" data-k="${k}">장착</button>` : next?`<button class="buy tr-buy" data-k="${k}" ${G.money<t.price?"disabled":""}>$${fmt(t.price)}</button>` : `<button class="buy" disabled>잠김</button>`;
       return `<div class="row"><span style="width:26px;height:26px;border-radius:50%;flex:none;background:${sw};box-shadow:inset 0 -3px 0 rgba(0,0,0,.15)"></span><div class="t"><div>${k+1}. ${t.n}</div><span>속도 오르는 양 ×${fmt(t.m)}</span></div>${btn}</div>`; }).join("")}
     <div class="row"><div class="t"><div>트레일 빼기</div><span>지금 ×${fmt(trailMult())}</span></div><button class="buy" id="trOff" ${G.trailOn<0?"disabled":""}>빼기</button></div>
+    <div class="row"><div class="t"><div>기록 모두 지우기</div><span>처음부터 다시 시작해요</span></div><button class="buy sell" id="bWipe" type="button">지우기</button></div>
     <div class="row"><div class="t"><div>소리</div><span>효과음과 진동</span></div><button class="buy" id="bSnd">${soundOn?"켜짐":"꺼짐"}</button></div>
     <button class="close" id="cls" type="button">닫기</button></div></div>`;
   $("cls").onclick=closeLayer; $("bg").onclick=e=>{ if(e.target.id==="bg") closeLayer(); };
@@ -967,6 +969,9 @@ function showShop(){
   layers.querySelectorAll(".tr-buy").forEach(b=>b.onclick=()=>{ const k=+b.dataset.k, t=TRAILS[k]; if (k===G.trails && G.money>=t.price){ G.money-=t.price; G.trails++; G.trailOn=k; jingle([523,659,784,1046,1318]); toast(`${t.n} 트레일!`,`속도 오르는 양 ×${fmt(t.m)}`); saveGame(); showShop(); } });
   layers.querySelectorAll(".tr-eq").forEach(b=>b.onclick=()=>{ G.trailOn=+b.dataset.k; tone(660,.08); saveGame(); showShop(); });
   $("trOff").onclick=()=>{ G.trailOn=-1; saveGame(); showShop(); };
+  $("bWipe").onclick=()=>{ layers.innerHTML=`<div class="layer"><div class="card"><h2>기록을 모두 지울까요?</h2><p>돈, 펫, 속도, 트레일, 이름, 캐릭터 색이 모두 처음으로 돌아가요.</p>
+      <button class="go" id="wipeYes" type="button" style="align-self:center;background:#ff5a5f">모두 지우기</button><button class="close" id="wipeNo" type="button">그만둘래요</button></div></div>`;
+    $("wipeNo").onclick=closeLayer; $("wipeYes").onclick=()=>{ G=freshSave(); saveGame(); wiping=true; location.reload(); }; };
   $("bSnd").onclick=()=>{ soundOn=!soundOn; save("egg-sound",soundOn?"1":"0"); if(soundOn) initAudio(); showShop(); };
 }
 function showRebirth(){
