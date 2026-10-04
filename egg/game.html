@@ -226,11 +226,11 @@ function save(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
 const LOOK={hair:["#4a2c1d","#1d1d24","#ffd447","#ff8a3d","#ff7ac8","#4fa3ff"],shirt:["#ff6b4a","#3a8dff","#38c172","#b061ff","#ffcc33","#2b2f3a"],pants:["#2d4a8a","#1d1d24","#6b4a2a","#38c172","#ff7ac8"]};
 function freshSave(){ return { ver:5, look:{hair:0,shirt:0,pants:0}, trails:0, trailOn:-1, money:0, speedStat:0, tread:1, pads:4, rebirth:0, slots:Array(MAX_PADS).fill(null), pending:0, name:"진혁이", t:Date.now(), best:0 }; }
 let G;
-try { G=Object.assign(freshSave(), JSON.parse(load("egg-save","null"))||{}); } catch(e){ G=freshSave(); }
+try { localStorage.removeItem("egg-save"); } catch(e){}
+try { G=Object.assign(freshSave(), JSON.parse(load("egg-save-6","null"))||{}); } catch(e){ G=freshSave(); }
 if (!Array.isArray(G.slots)||G.slots.length!==MAX_PADS) G.slots=Array(MAX_PADS).fill(null);
 if (!G.look) G.look={hair:0,shirt:0,pants:0};
 if (G.trails==null){ G.trails=0; G.trailOn=-1; }
-try { const raw=JSON.parse(load("egg-save","null")); if (raw && !raw.ver){ G.slots=G.slots.map(c=>c&&OLDMAP[c.biome]!=null?Object.assign(c,{biome:OLDMAP[c.biome]}):c); G.ver=5; } } catch(e){}
 
 /* ================= 3D 기본 ================= */
 const canvas=$("view");
@@ -934,7 +934,7 @@ function updateThief(dt){
 function dropThief(){ const t=thief; if (t.itemModel){ t.g.remove(t.itemModel); t.itemModel=null; } t.item=null; t.fromPad=null; t.state="idle"; t.g.visible=false; t.timer=rnd(80,120); }
 
 /* ================= 저장 ================= */
-function saveGame(){ G.t=Date.now(); save("egg-save",JSON.stringify(G)); }
+function saveGame(){ G.t=Date.now(); save("egg-save-6",JSON.stringify(G)); }
 document.addEventListener("visibilitychange",()=>{ if (document.hidden) saveGame(); });
 
 /* ================= 화면(상점·펫·시작) ================= */

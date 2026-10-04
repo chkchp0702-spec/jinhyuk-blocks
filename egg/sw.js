@@ -1,4 +1,4 @@
-const V="egg-v5";
+const V="egg-v6";
 const CORE=["./","index.html","three.min.js","manifest.webmanifest","icons/icon-192.png","icons/icon-512.png"];
 self.addEventListener("install",e=>{e.waitUntil(caches.open(V).then(c=>c.addAll(CORE)));self.skipWaiting();});
 self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k.startsWith("egg-")&&k!==V).map(k=>caches.delete(k)))));self.clients.claim();});
