@@ -1,14 +1,15 @@
 {
-  "name": "진혁이네 게임방",
-  "short_name": "게임방",
-  "description": "진혁이·진율이 게임 모음",
+  "name": "무한게임",
+  "short_name": "무한게임",
+  "description": "총 훔치기·라이벌·돈 불리기·원숭이 탈출을 무한 반복하는 게임",
   "lang": "ko",
+  "id": "/jinhyuk-blocks/infinite-game/",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#7fd0ff",
-  "theme_color": "#7fd0ff",
+  "background_color": "#2a2f7a",
+  "theme_color": "#2a2f7a",
   "icons": [
     {
       "src": "icons/icon-192.png",
@@ -26,6 +27,5 @@
       "type": "image/png",
       "purpose": "maskable"
     }
-  ],
-  "id": "/jinhyuk-blocks/"
+  ]
 }

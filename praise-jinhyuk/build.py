@@ -17,13 +17,13 @@ head='''<!doctype html>
 i=frag.index('<div class="sky"')
 open('index.html','w',encoding='utf-8').write(head+frag[:i]+'</head>\n<body>\n'+frag[i:]+'\n</body>\n</html>\n')
 json.dump({"name":"진혁이 칭찬 블록","short_name":"진혁이 블록","description":"진혁이를 위한 칭찬 블록 퍼즐","lang":"ko",
- "start_url":"./","scope":"./","display":"standalone","orientation":"portrait","background_color":"#7fd0ff","theme_color":"#7fd0ff",
+ "id":"/jinhyuk-blocks/praise-jinhyuk/","start_url":"./","scope":"./","display":"standalone","orientation":"portrait","background_color":"#7fd0ff","theme_color":"#7fd0ff",
  "icons":[{"src":"icons/icon-192.png","sizes":"192x192","type":"image/png"},{"src":"icons/icon-512.png","sizes":"512x512","type":"image/png"},
  {"src":"icons/maskable-512.png","sizes":"512x512","type":"image/png","purpose":"maskable"}]},open('manifest.webmanifest','w',encoding='utf-8'),ensure_ascii=False,indent=2)
-open('sw.js','w').write('''const V="jh-v1";
+open('sw.js','w').write('''const V="pj-v1";
 const CORE=["./","index.html","manifest.webmanifest","icons/icon-192.png","icons/icon-512.png"];
 self.addEventListener("install",e=>{e.waitUntil(caches.open(V).then(c=>c.addAll(CORE)));self.skipWaiting();});
-self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==V).map(k=>caches.delete(k)))));self.clients.claim();});
+self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k.startsWith("pj-")&&k!==V).map(k=>caches.delete(k)))));self.clients.claim();});
 self.addEventListener("fetch",e=>{
   if(e.request.method!=="GET")return;
   e.respondWith(caches.open(V).then(async c=>{

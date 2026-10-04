@@ -1,7 +1,7 @@
 {
-  "name": "진혁이네 게임방",
-  "short_name": "게임방",
-  "description": "진혁이·진율이 게임 모음",
+  "name": "진혁이 칭찬 블록",
+  "short_name": "진혁이 블록",
+  "description": "진혁이를 위한 칭찬 블록 퍼즐",
   "lang": "ko",
   "start_url": "./",
   "scope": "./",
@@ -27,5 +27,5 @@
       "purpose": "maskable"
     }
   ],
-  "id": "/jinhyuk-blocks/"
+  "id": "/jinhyuk-blocks/praise-jinhyuk/"
 }

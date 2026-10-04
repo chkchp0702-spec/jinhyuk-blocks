@@ -1,14 +1,14 @@
 {
-  "name": "진혁이네 게임방",
-  "short_name": "게임방",
-  "description": "진혁이·진율이 게임 모음",
+  "name": "진율이 칭찬 블록",
+  "short_name": "진율이 블록",
+  "description": "진율이를 위한 칭찬 블록 퍼즐",
   "lang": "ko",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#7fd0ff",
-  "theme_color": "#7fd0ff",
+  "background_color": "#ffc48c",
+  "theme_color": "#ffc48c",
   "icons": [
     {
       "src": "icons/icon-192.png",
@@ -27,5 +27,5 @@
       "purpose": "maskable"
     }
   ],
-  "id": "/jinhyuk-blocks/"
+  "id": "/jinhyuk-blocks/praise-jinyul/"
 }

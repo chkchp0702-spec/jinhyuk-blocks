@@ -1,9 +1,6 @@
-const V="egg-v6";
-const CORE=["./","index.html","three.min.js","manifest.webmanifest","icons/icon-192.png","icons/icon-512.png"];
-self.addEventListener("install",e=>{e.waitUntil(caches.open(V).then(c=>c.addAll(CORE)));self.skipWaiting();});
-self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k.startsWith("egg-")&&k!==V).map(k=>caches.delete(k)))));self.clients.claim();});
-self.addEventListener("fetch",e=>{
-  if(e.request.method!=="GET")return;
-  e.respondWith(fetch(e.request,{cache:"no-cache"}).then(r=>{ if(r&&r.ok){ const cp=r.clone(); caches.open(V).then(c=>c.put(e.request,cp)); } return r; })
-    .catch(()=>caches.match(e.request,{ignoreSearch:true})));
-});
+self.addEventListener("install",()=>self.skipWaiting());
+self.addEventListener("activate",e=>{e.waitUntil((async()=>{
+  const ks=await caches.keys(); await Promise.all(ks.filter(k=>/^(jh|jy|egg|inf)-v\d+$/.test(k)).map(k=>caches.delete(k)));
+  await self.registration.unregister();
+  (await self.clients.matchAll({type:"window"})).forEach(c=>c.navigate(c.url));
+})());});

@@ -1,14 +1,14 @@
 {
-  "name": "진혁이네 게임방",
-  "short_name": "게임방",
-  "description": "진혁이·진율이 게임 모음",
+  "name": "알 훔치기 대작전",
+  "short_name": "알 훔치기",
+  "description": "알을 훔쳐 펫을 키우는 3D 게임",
   "lang": "ko",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#7fd0ff",
-  "theme_color": "#7fd0ff",
+  "background_color": "#9fdcff",
+  "theme_color": "#9fdcff",
   "icons": [
     {
       "src": "icons/icon-192.png",
@@ -27,5 +27,5 @@
       "purpose": "maskable"
     }
   ],
-  "id": "/jinhyuk-blocks/"
+  "id": "/jinhyuk-blocks/egg-steal/"
 }

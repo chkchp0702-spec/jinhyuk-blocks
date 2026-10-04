@@ -142,7 +142,7 @@ button,input{font:inherit;-webkit-tap-highlight-color:transparent}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 "use strict";
-const VER="v1";
+const VER="v2";
 /* ===================== 데이터 ===================== */
 const WEAPONS={
   pistol:{n:"권총",dmg:10,rate:3,range:20,spread:.03,pellets:1,color:"#ffcc33",tier:0},
@@ -658,10 +658,10 @@ function buildMonkey(){
     box(16,.15,SL,c,0,.075,z0-SL/2);
     const sg=textSprite(`${s+1}스테이지`,"#fff3a6",2.2); sg.position.set(0,5,z0-1); box(.5,5,.5,"#7a4a2a",-8,2.5,z0-1); box(.5,5,.5,"#7a4a2a",8,2.5,z0-1);
     for (let k=0;k<22;k++){ const sd=k%2?1:-1, x=sd*rnd(10,30), z=z0-rnd(0,SL); mesh(GEO.cyl,"#6e4527",.4,3.2,.4,x,1.6,z); for(let j=0;j<4;j++){ const l=box(2.4,.1,.7,"#2f9a3a",x,3.2,z); l.rotation.y=j*1.57+.3; l.rotation.z=-.3; } }
-    for (let k=0;k<2+s;k++){ const z=z0-12-k*(SL-18)/Math.max(1,1+s), gap=rnd(-4.5,4.5), gw=3.2-s*.25; const L=-8, R=8;
-      if (gap-gw/2>L) walls.push(wallBox(L,z-.5,gap-gw/2,z+.5,1.6,"#7a4a2a")); if (gap+gw/2<R) walls.push(wallBox(gap+gw/2,z-.5,R,z+.5,1.6,"#7a4a2a")); }
-    for (let k=0;k<3+s;k++){ const g=new THREE.Group(); mesh(GEO.cyl,"#8a5a35",.7,1.6,.7,0,0,0,g).rotation.z=Math.PI/2; g.position.set(rnd(-6,6),.7,z0-8-k*(SL-14)/(3+s)-rnd(0,4)); scene.add(g); obs.push({g,dir:Math.random()<.5?-1:1,sp:rnd(3,5)+s*1.2}); }
-    for (let k=0;k<4+s;k++){ const g=new THREE.Group(); const p=mesh(GEO.sph,"#ffe14d",.55,.12,.3,0,.1,0,g); g.position.set(rnd(-6.5,6.5),0,z0-rnd(4,SL-4)); scene.add(g); peels.push({g,x:g.position.x,z:g.position.z}); }
+    for (let k=0;k<1+Math.floor(s/2);k++){ const z=z0-14-k*(SL-24)/Math.max(1,1+Math.floor(s/2)), gap=rnd(-3.5,3.5), gw=5; const L=-8, R=8;
+      if (gap-gw/2>L) walls.push(wallBox(L,z-.5,gap-gw/2,z+.5,1.0,"#7a4a2a")); if (gap+gw/2<R) walls.push(wallBox(gap+gw/2,z-.5,R,z+.5,1.0,"#7a4a2a")); }
+    for (let k=0;k<2+Math.floor(s/2);k++){ const g=new THREE.Group(); mesh(GEO.cyl,"#8a5a35",.7,1.6,.7,0,0,0,g).rotation.z=Math.PI/2; g.position.set(rnd(-6,6),.7,z0-8-k*(SL-14)/(2+Math.floor(s/2))-rnd(0,4)); scene.add(g); obs.push({g,dir:Math.random()<.5?-1:1,sp:rnd(2,3.5)+s*.6}); }
+    for (let k=0;k<2+s;k++){ const g=new THREE.Group(); const p=mesh(GEO.sph,"#ffe14d",.55,.12,.3,0,.1,0,g); g.position.set(rnd(-6.5,6.5),0,z0-rnd(4,SL-4)); scene.add(g); peels.push({g,x:g.position.x,z:g.position.z}); }
   }
   const fin=textSprite("도착! 전설 무기","#ffe14d",2.6); fin.position.set(0,6,endZ+1); box(16,.2,1,"#ffcc33",0,.1,endZ);
   const chest=new THREE.Group(); chest.position.set(0,0,endZ-3); scene.add(chest); box(2.2,1.4,1.5,"#8a5a35",0,.7,0,chest); box(2.3,.4,1.6,"#ffcc33",0,1.45,0,chest);
@@ -675,24 +675,29 @@ function buildMonkey(){
   box(.25,.25,1.6,"#8a5a35",0,1.6,1.2,mb).rotation.x=-.6;
   mk.scale.setScalar(1.6); scene.add(mk);
   const ch=makeChar({}); setGun(ch,curW().w); scene.add(ch); P.ch=ch; P.x=0; P.z=14; P.px=0; P.pz=14;
-  const W={walls,obs,peels,running:false,mz:0,slow:0,stage:0,mkLbl:makeLabel("alert"),treadLbl:makeLabel(),nameL:makeLabel()};
+  const W={walls,obs,peels,running:false,mz:0,slow:0,stage:0,py:0,vy:0,jumpReq:false,mkLbl:makeLabel("alert"),treadLbl:makeLabel(),nameL:makeLabel()};
   $("hudC").innerHTML=`<div class="pill" id="mStage" style="font-size:16px">출발 전</div><div class="bigbar"><i id="mProg" style="width:0%"></i></div>`;
+  const jb=hudBtn("hudBR","점프","",()=>{},"jumpBtn"); jb.style.cssText="width:96px;height:96px;border-radius:50%;font-size:22px;background:radial-gradient(circle at 40% 35%,#6fe0ff,#2a9df4);border:4px solid rgba(255,255,255,.7)";
+  jb.addEventListener("pointerdown",e=>{ e.preventDefault(); W.jumpReq=true; initAudio(); });
   hudBtn("hudBR","스피드 상점","b-green",()=>showSpeedShop());
   hudBtn("hudBR","가방","b-purple",()=>showBag(null));
-  toast("4단계 · 원숭이 탈출!","러닝머신과 상점으로 빨라진 다음 출발선을 넘어요",2.8);
+  toast("4단계 · 원숭이 탈출!","점프 버튼으로 통나무·바나나·벽을 넘어요",2.8);
   function resetToLobby(){ W.running=false; P.x=0; P.z=14; mk.position.set(0,0,30); W.mz=30; }
   resetToLobby();
-  const monkeySpeed=()=>6.5+W.stage*2.2+G.cycle*1.6;
+  const monkeySpeed=()=>4.5+W.stage*1.0+G.cycle*1.0;
   W.update=dt=>{
-    let sp=speedVal(); if (W.slow>0){ W.slow-=dt; sp*=.45; }
-    const {moving,ix,iz}=movePlayer(dt,sp,walls,null);
+    let sp=speedVal(); if (W.slow>0){ W.slow-=dt; sp*=.6; }
+    if ((keys.k||keys.j||W.jumpReq) && W.py<=0){ W.vy=11; W.jumpReq=false; tone(620,.1,"triangle"); }
+    W.jumpReq=false; W.vy-=30*dt; W.py=Math.max(0,W.py+W.vy*dt); if (W.py<=0) W.vy=0;
+    const air=W.py>.5;
+    const {moving,ix,iz}=movePlayer(dt,sp,air?null:walls,null);
     P.z=clamp(P.z,endZ-6,22); P.x=clamp(P.x,P.z>.5?-14:-7.4,P.z>.5?14:7.4);
-    ch.position.set(P.x,0,P.z); if (moving) faceTo(ch,ix,iz,dt); animChar(ch,moving,P.walk,false);
+    ch.position.set(P.x,W.py,P.z); if (moving) faceTo(ch,ix,iz,dt); animChar(ch,moving&&!air,P.walk,false);
     const onTread=Math.abs(P.x-9)<1.6&&Math.abs(P.z-12)<2.5 && !W.running;
     if (onTread){ G.speedStat+=.3*G.tread*dt; belt.position.z=(belt.position.z+dt*3)%.5; }
     placeLabel(W.treadLbl,9,3.2,12, W.running?"":onTread?`속도 훈련 중! +${(.03*G.tread).toFixed(2)}/초`:`러닝머신 Lv.${G.tread}<b>올라가서 속도 올리기</b>`);
     // 출발
-    if (!W.running && P.z<0){ W.running=true; const cz=-G.checkpoint*SL; P.z=Math.min(P.z,cz-1); W.mz=cz+16; toast("원숭이가 쫓아와요!","끝까지 달려요!"); tone(200,.4,"sawtooth"); }
+    if (!W.running && P.z<0){ W.running=true; const cz=-G.checkpoint*SL; P.z=Math.min(P.z,cz-1); W.mz=cz+26; toast("원숭이가 쫓아와요!","점프로 장애물을 넘어요!"); tone(200,.4,"sawtooth"); }
     if (W.running){
       W.stage=clamp(Math.floor(-P.z/SL),0,NS-1);
       if (W.stage>G.checkpoint){ G.checkpoint=W.stage; saveGame(); toast(`체크포인트! ${W.stage+1}스테이지`,"잡혀도 여기서 다시 시작해요"); jingle([523,784]); }
@@ -700,14 +705,14 @@ function buildMonkey(){
       mk.position.set(clamp(P.x*.6,-6,6),0,W.mz); mk.rotation.y=0; mb.position.y=Math.abs(Math.sin(performance.now()/110))*.4; aL.rotation.x=Math.sin(performance.now()/110); aR.rotation.x=-Math.sin(performance.now()/110);
       const gapM=W.mz-P.z;
       placeLabel(W.mkLbl,mk.position.x,7.5,W.mz,gapM<10?"!!":"");
-      if (gapM<1.8){ toast("원숭이에게 잡혔다!",`체크포인트 ${G.checkpoint+1}스테이지부터 다시! 더 빨라져서 와요`,2.6); tone(150,.5,"sawtooth"); buzz([100,60,100]); resetToLobby(); }
+      if (gapM<1.8){ toast("원숭이에게 잡혔다!",`체크포인트 ${G.checkpoint+1}스테이지부터 다시 해요`,2.6); tone(150,.5,"sawtooth"); buzz([100,60,100]); resetToLobby(); }
       $("mStage").textContent=`${W.stage+1}/5 스테이지 · 원숭이와 ${Math.max(0,gapM).toFixed(0)}m`;
       $("mProg").style.width=clamp(-P.z/(-endZ)*100,0,100)+"%";
       if (P.z<=endZ+.5){ return monkeyWin(); }
-    } else { mk.position.set(0,0,30); $("mStage").textContent=`출발 전 · 원숭이 속도 ${(6.5+G.checkpoint*2.2+G.cycle*1.6).toFixed(1)}`; }
+    } else { mk.position.set(0,0,30); $("mStage").textContent=`출발 전 · 원숭이 속도 ${(4.5+G.checkpoint*1.0+G.cycle*1.0).toFixed(1)}`; }
     obs.forEach(o=>{ o.g.position.x+=o.dir*o.sp*dt; if (Math.abs(o.g.position.x)>6.5){ o.dir*=-1; o.g.position.x=clamp(o.g.position.x,-6.5,6.5); } o.g.rotation.x+=o.dir*dt*3;
-      if (W.running && Math.abs(o.g.position.x-P.x)<1.1 && Math.abs(o.g.position.z-P.z)<1.0){ P.z+=4; W.slow=.6; tone(180,.15,"square"); buzz(30); } });
-    peels.forEach(p=>{ if (W.running && Math.abs(p.x-P.x)<.8 && Math.abs(p.z-P.z)<.8 && W.slow<=0){ W.slow=1.2; toast("바나나 껍질! 미끄덩",null,1); tone(300,.2,"triangle"); } });
+      if (W.running && !air && W.slow<=0 && Math.abs(o.g.position.x-P.x)<1.1 && Math.abs(o.g.position.z-P.z)<1.0){ W.slow=.5; toast("통나무에 걸렸다!","점프로 넘어요",1); tone(180,.15,"square"); buzz(30); } });
+    peels.forEach(p=>{ if (W.running && !air && Math.abs(p.x-P.x)<.8 && Math.abs(p.z-P.z)<.8 && W.slow<=0){ W.slow=.8; toast("바나나 껍질! 미끄덩",null,1); tone(300,.2,"triangle"); } });
     placeLabel(W.nameL,P.x,3.2,P.z,esc(G.name));
     followCam(dt,22,15,6);
   };
