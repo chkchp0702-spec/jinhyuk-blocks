@@ -145,6 +145,7 @@ button{font:inherit;-webkit-tap-highlight-color:transparent}
 <script src="three.min.js"></script>
 <script>
 "use strict";
+const VER="v6";
 /* ================= 데이터 ================= */
 const RAR=[{n:"일반",c:"#8f9bb0"},{n:"희귀",c:"#3a8dff"},{n:"에픽",c:"#b061ff"},{n:"전설",c:"#ffa600"},{n:"신화",c:"#ff4d6d"}];
 const RAR_P=[60,25,10,4,1];
@@ -1012,7 +1013,7 @@ function showTitle(){
     <label class="namebox">내 이름<input id="nm" maxlength="8" value="${esc(G.name)}" autocomplete="off"></label>
     <div class="looks">${["hair","shirt","pants"].map(k=>`<div class="lookrow"><span>${{hair:"머리",shirt:"옷",pants:"바지"}[k]}</span>${LOOK[k].map((c,j)=>`<button type="button" class="sw${G.look[k]===j?" on":""}" data-k="${k}" data-j="${j}" style="background:${c}" aria-label="${{hair:"머리",shirt:"옷",pants:"바지"}[k]} 색 ${j+1}"></button>`).join("")}</div>`).join("")}</div>
     <button class="go" id="start" type="button">시작!</button>
-    <div class="help">알을 훔쳐 기지로 가져오면 펫이 태어나요.<br>펫이 돈을 벌면 러닝머신으로 더 빨라져서 먼 지역에 도전해요!</div>
+    <div class="help">알을 훔쳐 기지로 가져오면 펫이 태어나요.<br>펫이 돈을 벌면 러닝머신으로 더 빨라져서 먼 지역에 도전해요!<br><span style="opacity:.7;font-size:13px">버전 ${VER}</span></div>
   </div></div>`;
   layers.querySelectorAll(".sw").forEach(b=>b.onclick=()=>{ G.look[b.dataset.k]=+b.dataset.j; applyLook(); layers.querySelectorAll(`.sw[data-k="${b.dataset.k}"]`).forEach(x=>x.classList.toggle("on",x===b)); tone(660,.06); });
   $("start").onclick=()=>{ const v=$("nm").value.trim(); if(v) G.name=v; initAudio(); closeLayer(); started=true; jingle([392,523,659]); saveGame(); };
