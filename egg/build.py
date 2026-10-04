@@ -20,7 +20,7 @@ json.dump({"name":"알 훔치기 대작전","short_name":"알 훔치기","descri
  "start_url":"./","scope":"./","display":"standalone","orientation":"portrait","background_color":"#9fdcff","theme_color":"#9fdcff",
  "icons":[{"src":"icons/icon-192.png","sizes":"192x192","type":"image/png"},{"src":"icons/icon-512.png","sizes":"512x512","type":"image/png"},
  {"src":"icons/maskable-512.png","sizes":"512x512","type":"image/png","purpose":"maskable"}]},open('manifest.webmanifest','w',encoding='utf-8'),ensure_ascii=False,indent=2)
-open('sw.js','w').write('''const V="egg-v3";
+open('sw.js','w').write('''const V="egg-v4";
 const CORE=["./","index.html","three.min.js","manifest.webmanifest","icons/icon-192.png","icons/icon-512.png"];
 self.addEventListener("install",e=>{e.waitUntil(caches.open(V).then(c=>c.addAll(CORE)));self.skipWaiting();});
 self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k.startsWith("egg-")&&k!==V).map(k=>caches.delete(k)))));self.clients.claim();});

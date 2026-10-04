@@ -198,6 +198,7 @@ const $=id=>document.getElementById(id);
 const rnd=(a,b)=>a+Math.random()*(b-a);
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function fmtS(n){ return n<100?(Math.round(n*10)/10).toString():fmt(n); }
 function fmt(n){
   n=Math.floor(n);
   if (n<10000) return n.toLocaleString();
@@ -211,11 +212,12 @@ function save(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
 
 /* ================= 저장 상태 ================= */
 const LOOK={hair:["#4a2c1d","#1d1d24","#ffd447","#ff8a3d","#ff7ac8","#4fa3ff"],shirt:["#ff6b4a","#3a8dff","#38c172","#b061ff","#ffcc33","#2b2f3a"],pants:["#2d4a8a","#1d1d24","#6b4a2a","#38c172","#ff7ac8"]};
-function freshSave(){ return { look:{hair:0,shirt:0,pants:0}, money:0, speedStat:0, tread:1, pads:4, rebirth:0, slots:Array(MAX_PADS).fill(null), pending:0, name:"진혁이", t:Date.now(), best:0 }; }
+function freshSave(){ return { look:{hair:0,shirt:0,pants:0}, trails:0, trailOn:-1, money:0, speedStat:0, tread:1, pads:4, rebirth:0, slots:Array(MAX_PADS).fill(null), pending:0, name:"진혁이", t:Date.now(), best:0 }; }
 let G;
 try { G=Object.assign(freshSave(), JSON.parse(load("egg-save","null"))||{}); } catch(e){ G=freshSave(); }
 if (!Array.isArray(G.slots)||G.slots.length!==MAX_PADS) G.slots=Array(MAX_PADS).fill(null);
 if (!G.look) G.look={hair:0,shirt:0,pants:0};
+if (G.trails==null){ G.trails=0; G.trailOn=-1; }
 
 /* ================= 3D 기본 ================= */
 const canvas=$("view");
@@ -481,8 +483,18 @@ const NIGHT_Z=biomeZ(6)+BIOME_LEN/2;
 function rollRar(){ let t=Math.random()*100; for (let i=0;i<5;i++){ t-=RAR_P[i]; if (t<=0) return i; } return 0; }
 function rollMut(){ const r=Math.random(); return r<.02?2:r<.1?1:0; }
 const MUTN=["","황금 ","무지개 "];
-function speedVal(){ return Math.min(34, 6+G.speedStat*.1); }
-function treadRate(){ return .5*G.tread; }
+const TRAILS=[
+ {n:"반짝 별가루",c:"#fff3a6",m:10,price:500},
+ {n:"불꽃",c:"#ff6a2a",m:100,price:5000},
+ {n:"번개",c:"#5ad1ff",m:1000,price:50000},
+ {n:"얼음 결정",c:"#bfefff",m:10000,price:500000},
+ {n:"무지개",c:"rainbow",m:100000,price:5e6},
+ {n:"은하수",c:"#b46bff",m:1e6,price:5e7},
+ {n:"황금 혜성",c:"#ffcc33",m:1e7,price:5e8},
+];
+function trailMult(){ return G.trailOn>=0&&G.trailOn<G.trails? TRAILS[G.trailOn].m : 1; }
+function speedVal(){ return 6+G.speedStat*.1; }
+function treadRate(){ return .5*G.tread*trailMult(); }
 function treadCost(){ return Math.round(60*Math.pow(3,G.tread-1)); }
 function rebirthCost(){ return 1e6*Math.pow(5,G.rebirth); }
 
@@ -562,6 +574,7 @@ function update(dt){
   if (joy){ ix+=joy.dx; iz+=joy.dy; }
   const il=Math.hypot(ix,iz); if (il>1){ ix/=il; iz/=il; }
   const sp=speedVal();
+  P.px=P.x; P.pz=P.z;
   P.x+=ix*sp*dt; P.z+=iz*sp*dt;
   P.x=clamp(P.x,-BIOME_W+1,RIVAL.x1-1); P.z=clamp(P.z,biomeZ(BIOMES.length-1)-BIOME_LEN/2+1,BASE.z1-1);
   if (P.z<BASE.z0-2 && P.x>BIOME_W-1) P.x=BIOME_W-1;
@@ -574,17 +587,18 @@ function update(dt){
   const u=player.userData, sw=moving?Math.sin(P.walk)*.7:0;
   u.legL.rotation.x=sw; u.legR.rotation.x=-sw; u.armL.rotation.x=-sw; u.armR.rotation.x=sw; u.body.position.y=moving?Math.abs(Math.sin(P.walk))*.12:0;
   if (P.carryModel) P.carryModel.rotation.y+=dt*2;
+  updateTrail(dt,moving);
 
   // 러닝머신
   const onTread=Math.abs(P.x-tread.position.x)<1.6&&Math.abs(P.z-tread.position.z)<2.5;
   if (onTread){ G.speedStat+=treadRate()*dt; belt.position.z=(belt.position.z+dt*3)%.5; }
   // 수금
-  if (Math.hypot(P.x-collector.position.x,P.z-collector.position.z)<2.2 && G.pending>=1){
+  if (near(collector.position.x,collector.position.z,2.2) && G.pending>=1){
     const got=Math.floor(G.pending); G.money+=got; burst(collector.position.x,1.5,collector.position.z,"#7bd88f",10); G.pending-=got; toast(`+$${fmt(got)}`,"돈을 모았어요!",1.2); jingle([784,1046]); buzz(15);
   }
   cashPile.visible=G.pending>=1; cashPile.scale.y=clamp(.3+Math.log10(1+G.pending)*.25,.3,1.6);
   // 잠금 버튼
-  if (Math.hypot(P.x-lockBtn.position.x,P.z-lockBtn.position.z)<1.6 && lockUntil<now+1000){
+  if (near(lockBtn.position.x,lockBtn.position.z,1.6) && lockUntil<now+1000){
     lockUntil=now+60000; toast("기지를 잠갔어요!","60초 동안 도둑이 못 들어와요"); jingle([660,880]);
   }
   const locked=lockUntil>now; myLaser.visible=locked; lockTop.position.y=locked?.25:.4;
@@ -594,7 +608,7 @@ function update(dt){
   nests.forEach(n=>{
     if (!n.has){ n.respawn-=dt; if (n.respawn<=0){ n.has=true; n.egg.visible=true; } return; }
     n.egg.rotation.z=Math.sin(now/300+n.x)*.08;
-    if (!P.carry && Math.hypot(P.x-n.x,P.z-n.z)<1.7){
+    if (!P.carry && near(n.x,n.z,1.7)){
       n.has=false; n.egg.visible=false; n.respawn=n.respawnTime;
       setCarry({kind:"egg",biome:n.biome,nest:n,rarMin:n.rarMin,big:n.big}); toast(n.big?"보스 알을 훔쳤다!":`${BIOMES[n.biome].name} 알을 훔쳤다!`, n.big?"에픽 이상 펫이 나와요! 별곰이 깨기 전에 도망쳐요!":"얼른 기지로 도망쳐요!"); jingle([523,784]); buzz(25);
       const gd=guards[n.biome]; if (!gd.boss && Math.hypot(gd.x-P.x,gd.z-P.z)<24) gd.state="chase";
@@ -658,7 +672,7 @@ function update(dt){
   rivalRefill-=dt;
   if (rivalRefill<=0){ rivalRefill=35; const p=rpads.find(r=>!r.content); if (p){ const maxB=Math.min(BIOMES.length-2,Math.floor(G.speedStat/40)+1); p.content={kind:"egg",biome:Math.floor(Math.random()*(maxB+1)),rar:rollRar()}; refreshRpad(p); } }
   rpads.forEach(p=>{
-    if (p.content && !P.carry && !rivalLocked && Math.hypot(P.x-p.g.position.x,P.z-p.g.position.z)<1.8){
+    if (p.content && !P.carry && !rivalLocked && near(p.g.position.x,p.g.position.z,1.8)){
       setCarry(p.content); p.content=null; refreshRpad(p); toast("너구리 기지에서 훔쳤다!","기지로 가져가요"); jingle([523,784]);
     }
     if (p.model){ p.model.rotation.y+=dt; if (p.model.userData.body) p.model.userData.body.position.y=Math.abs(Math.sin(now/400+p.i))*.12; }
@@ -672,7 +686,7 @@ function update(dt){
   // 라벨
   placeLabel(nameLbl,P.x,P.carry?4.1:3.2,P.z,esc(G.name));
   placeLabel(cashLbl,collector.position.x,2.6,collector.position.z, G.pending>=1?`$${fmt(G.pending)}<b>밟아서 모으기</b>`:`<b>돈 모으는 곳</b>`);
-  placeLabel(treadLbl,tread.position.x,3.2,tread.position.z, onTread?`속도 훈련 중! +${treadRate().toFixed(1)}/초`:`러닝머신 Lv.${G.tread}<b>올라가서 속도 올리기</b>`);
+  placeLabel(treadLbl,tread.position.x,3.2,tread.position.z, onTread?`속도 훈련 중! +${treadRate()<100?treadRate().toFixed(1):fmt(treadRate())}/초`:`러닝머신 Lv.${G.tread}<b>올라가서 속도 올리기</b>`);
   placeLabel(lockLbl,lockBtn.position.x,1.8,lockBtn.position.z, locked?`<b>잠금 중</b>`:`기지 잠금<b>밟기</b>`);
 
   // 화살표
@@ -684,7 +698,7 @@ function update(dt){
 
   // HUD
   $("money").textContent=fmt(G.money); $("income").textContent="$"+fmt(totalIncome());
-  $("speed").textContent=speedVal().toFixed(1);
+  { const v=speedVal(); $("speed").textContent=v<1000?v.toFixed(1):fmt(v); }
 
   // 낮 → 밤
   const night=clamp((NIGHT_Z+12-P.z)/24,0,1);
@@ -696,11 +710,37 @@ function update(dt){
 
   // 카메라
   const cx=P.x, cz=P.z;
-  const portrait=innerHeight>innerWidth; camera.position.lerp(V.set(cx,portrait?27:22,cz+(portrait?18:16)),Math.min(1,dt*6)); camera.lookAt(cx,0,cz-(portrait?5:3));
+  const portrait=innerHeight>innerWidth; camera.position.lerp(V.set(cx,portrait?27:22,cz+(portrait?18:16)),Math.min(1,dt*6*Math.max(1,sp/15))); camera.lookAt(cx,0,cz-(portrait?5:3));
 
   saveT-=dt; if (saveT<=0){ saveT=4; saveGame(); }
 }
+function near(x,z,r){ const ax=P.px==null?P.x:P.px, az=P.pz==null?P.z:P.pz, bx=P.x-ax, bz=P.z-az, L2=bx*bx+bz*bz;
+  let t=L2>0?((x-ax)*bx+(z-az)*bz)/L2:1; t=clamp(t,0,1); return Math.hypot(ax+bx*t-x,az+bz*t-z)<r; }
 function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+/* ---------- 트레일 ---------- */
+const trailBits=[]; const trailGeo=new THREE.OctahedronGeometry(.34); let trailT=0;
+function updateTrail(dt,moving){
+  const on=G.trailOn>=0&&G.trailOn<G.trails;
+  if (on && moving){
+    trailT-=dt;
+    const segs=Math.min(12,Math.max(1,Math.ceil(Math.hypot(P.x-(P.px??P.x),P.z-(P.pz??P.z))/0.6)));
+    if (trailT<=0){
+      trailT=.025; const T=TRAILS[G.trailOn];
+      for (let k=0;k<segs;k++){
+        const f=(k+1)/segs, x=(P.px??P.x)+(P.x-(P.px??P.x))*f, z=(P.pz??P.z)+(P.z-(P.pz??P.z))*f;
+        const col=T.c==="rainbow"?new THREE.Color().setHSL((now/600+k*.05)%1,.9,.6):new THREE.Color(T.c);
+        const m=new THREE.Mesh(trailGeo,new THREE.MeshBasicMaterial({color:col,transparent:true,depthWrite:false}));
+        m.position.set(x+rnd(-.45,.45),rnd(.3,1.9),z+rnd(-.45,.45)); m.scale.setScalar(rnd(1,1.7)); scene.add(m);
+        trailBits.push({m,life:1,spin:rnd(-6,6)});
+        if (G.trailOn>=5 && Math.random()<.5){ const s2=new THREE.Mesh(trailGeo,new THREE.MeshBasicMaterial({color:"#ffffff",transparent:true,depthWrite:false})); s2.position.copy(m.position).add(new THREE.Vector3(rnd(-.6,.6),rnd(0,.6),rnd(-.6,.6))); s2.scale.setScalar(.4); scene.add(s2); trailBits.push({m:s2,life:1,spin:8}); }
+      }
+    }
+  }
+  for (let k=trailBits.length-1;k>=0;k--){ const b=trailBits[k]; b.life-=dt*1.2; b.m.rotation.y+=b.spin*dt; b.m.position.y+=dt*.6; b.m.material.opacity=Math.max(0,b.life); b.m.scale.multiplyScalar(1-dt*.8);
+    if (b.life<=0){ scene.remove(b.m); b.m.material.dispose(); trailBits.splice(k,1); } }
+  while (trailBits.length>260){ const b=trailBits.shift(); scene.remove(b.m); b.m.material.dispose(); }
+}
 
 /* ---------- 보스 ---------- */
 function updateBoss(gd,dt,moving){
@@ -799,16 +839,26 @@ function showShop(){
     <h2>상점</h2>
     <div class="row"><div class="t"><div>부화장 자리 늘리기</div><span>지금 ${G.pads}자리 / 최대 ${MAX_PADS}자리</span></div>
       <button class="buy" id="bPad" ${pc==null||G.money<pc?"disabled":""}>${pc==null?"최대":"$"+fmt(pc)}</button></div>
-    <div class="row"><div class="t"><div>러닝머신 업그레이드</div><span>Lv.${G.tread} → ${G.tread+1} · 초당 속도 +${treadRate().toFixed(1)} → +${(.5*(G.tread+1)).toFixed(1)}</span></div>
+    <div class="row"><div class="t"><div>러닝머신 업그레이드</div><span>Lv.${G.tread} → ${G.tread+1} · 초당 속도 +${fmtS(treadRate())} → +${fmtS(.5*(G.tread+1)*trailMult())}</span></div>
       <button class="buy" id="bTread" ${G.money<tc?"disabled":""}>$${fmt(tc)}</button></div>
     <div class="row"><div class="t"><div>리버스 (새로 시작)</div><span>돈·펫·업그레이드가 처음으로 돌아가는 대신 수입이 영원히 +50%! 지금 ${G.rebirth}회</span></div>
       <button class="buy" id="bReb" ${G.money<rc?"disabled":""}>$${fmt(rc)}</button></div>
+    <h2 style="font-size:21px;margin-top:4px">트레일</h2>
+    <p style="font-size:13px">트레일을 끼면 러닝머신에서 속도가 오르는 양이 몇 배로 늘어나요. 리버스해도 트레일은 남아요.</p>
+    ${TRAILS.map((t,k)=>{ const owned=k<G.trails, next=k===G.trails, on=G.trailOn===k;
+      const sw=t.c==="rainbow"?"linear-gradient(90deg,#ff5a5f,#ffcc33,#38c172,#3a8dff,#b061ff)":t.c;
+      const btn= on?`<button class="buy" disabled>장착 중</button>` : owned?`<button class="buy tr-eq" data-k="${k}">장착</button>` : next?`<button class="buy tr-buy" data-k="${k}" ${G.money<t.price?"disabled":""}>$${fmt(t.price)}</button>` : `<button class="buy" disabled>잠김</button>`;
+      return `<div class="row"><span style="width:26px;height:26px;border-radius:50%;flex:none;background:${sw};box-shadow:inset 0 -3px 0 rgba(0,0,0,.15)"></span><div class="t"><div>${k+1}. ${t.n}</div><span>속도 오르는 양 ×${fmt(t.m)}</span></div>${btn}</div>`; }).join("")}
+    <div class="row"><div class="t"><div>트레일 빼기</div><span>지금 ×${fmt(trailMult())}</span></div><button class="buy" id="trOff" ${G.trailOn<0?"disabled":""}>빼기</button></div>
     <div class="row"><div class="t"><div>소리</div><span>효과음과 진동</span></div><button class="buy" id="bSnd">${soundOn?"켜짐":"꺼짐"}</button></div>
     <button class="close" id="cls" type="button">닫기</button></div></div>`;
   $("cls").onclick=closeLayer; $("bg").onclick=e=>{ if(e.target.id==="bg") closeLayer(); };
   $("bPad").onclick=()=>{ if (pc!=null&&G.money>=pc){ G.money-=pc; G.pads++; refreshAllPads(); jingle([523,659,784]); saveGame(); showShop(); } };
   $("bTread").onclick=()=>{ if (G.money>=tc){ G.money-=tc; G.tread++; jingle([523,659,784]); saveGame(); showShop(); } };
   $("bReb").onclick=()=>{ if (G.money>=rc) showRebirth(); };
+  layers.querySelectorAll(".tr-buy").forEach(b=>b.onclick=()=>{ const k=+b.dataset.k, t=TRAILS[k]; if (k===G.trails && G.money>=t.price){ G.money-=t.price; G.trails++; G.trailOn=k; jingle([523,659,784,1046,1318]); toast(`${t.n} 트레일!`,`속도 오르는 양 ×${fmt(t.m)}`); saveGame(); showShop(); } });
+  layers.querySelectorAll(".tr-eq").forEach(b=>b.onclick=()=>{ G.trailOn=+b.dataset.k; tone(660,.08); saveGame(); showShop(); });
+  $("trOff").onclick=()=>{ G.trailOn=-1; saveGame(); showShop(); };
   $("bSnd").onclick=()=>{ soundOn=!soundOn; save("egg-sound",soundOn?"1":"0"); if(soundOn) initAudio(); showShop(); };
 }
 function showRebirth(){
@@ -816,7 +866,7 @@ function showRebirth(){
     <p>돈, 펫, 부화장 자리, 러닝머신, 속도가 모두 처음으로 돌아가요.<br>대신 앞으로 모든 펫 수입이 +50% 더 늘어나요.</p>
     <button class="go" id="yes" type="button" style="align-self:center">리버스!</button><button class="close" id="no" type="button">그만둘래요</button></div></div>`;
   $("no").onclick=closeLayer;
-  $("yes").onclick=()=>{ const keep={name:G.name,rebirth:G.rebirth+1}; G=Object.assign(freshSave(),keep); setCarry(null); refreshAllPads(); closeLayer(); P.x=0;P.z=28; toast(`리버스 ${G.rebirth}회!`,"수입 +50%"); jingle([392,523,659,784,1046]); saveGame(); };
+  $("yes").onclick=()=>{ const keep={name:G.name,rebirth:G.rebirth+1,look:G.look,trails:G.trails,trailOn:G.trailOn}; G=Object.assign(freshSave(),keep); setCarry(null); refreshAllPads(); closeLayer(); P.x=0;P.z=28; toast(`리버스 ${G.rebirth}회!`,"수입 +50%"); jingle([392,523,659,784,1046]); saveGame(); };
 }
 function showPets(){
   const rows=G.slots.slice(0,G.pads).map((c,i)=>{
