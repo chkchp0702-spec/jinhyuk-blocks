@@ -155,7 +155,7 @@ button{font:inherit;-webkit-tap-highlight-color:transparent}
 <div id="layers"></div>
 
 <script src="three.min.js"></script>
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js" async></script>
+<script src="https://unpkg.com/mqtt@5.10.1/dist/mqtt.min.js" async></script>
 <script>/* three.js r128 examples: EffectComposer, RenderPass, ShaderPass, UnrealBloomPass (MIT) */
 ( function () {
 
@@ -1066,7 +1066,7 @@ button{font:inherit;-webkit-tap-highlight-color:transparent}
 </script>
 <script>
 "use strict";
-const VER="v10";
+const VER="v11";
 /* ================= 데이터 ================= */
 const RAR=[{n:"일반",c:"#8f9bb0"},{n:"희귀",c:"#3a8dff"},{n:"에픽",c:"#b061ff"},{n:"전설",c:"#ffa600"},{n:"신화",c:"#ff4d6d"},{n:"시크릿",c:"#2a2440",fx:"#c05cff"},{n:"영원한",c:"#21c7d9",fx:"#9ffcff"},{n:"디바인",c:"#e8b400",fx:"#fff3a6"}];
 const RAR_P=[62,24,9.2,3.5,1.04,.2,.05,.01];
@@ -2056,44 +2056,36 @@ function updateBoss(gd,dt,moving){
   placeLabel(gd.nm,gd.x,7.6,gd.z,gd.state==="sleep"?`<span style="color:#ffe14d">${gd.biome+1}월드 최종 보스</span> ${BIOMES[gd.biome].guard.n}<b>깨어 있을 때 움직이면 들켜요</b>`:"");
 }
 
-/* ---------- 함께하기: 진혁이 폰 ↔ 진율이 폰 (PeerJS, 서로 직접 연결) ---------- */
+/* ---------- 함께하기: 진혁이 폰 ↔ 진율이 폰 (공개 중계 서버 2곳에 동시에 연결) ---------- */
 const net=(function(){
-  const N={peer:null,conn:null,sendT:0,retryT:0,rch:null,rLook:null,rCarryKey:"",rCarry:null,lbl:null,tx:0,tz:0,tf:0,moving:0,walk:0,rb:-1,started:false};
-  const idOf=w=>"chk0702-eggsteal-v1-"+w;
-  const initiator=()=>WHO<BUDDY().id;   // 진혁(jinhyuk)이 먼저 연결을 걸고, 진율이는 받기만 해요
-  function pill(t,ok){ const p=$("netPill"); if(!p) return; p.hidden=false; p.innerHTML=t; p.style.background=ok?"rgba(196,255,214,.97)":""; }
+  const BROKERS=["wss://broker.hivemq.com:8884/mqtt","wss://broker.emqx.io:8084/mqtt"];
+  const ROOT="chk0702/eggsteal/v2/";
+  const SID=Math.random().toString(36).slice(2,9);
+  const N={clients:[],up:0,sendT:0,lastRecv:0,with:false,seen:{},seenN:0,seq:0,rch:null,lbl:null,rCarryKey:"",rCarry:null,tx:0,tz:0,tf:0,moving:0,walk:0,rb:-1,started:false,look:null,hiT:0};
+  function pill(t,ok){ const p=$("netPill"); if(!p) return; p.hidden=false; if (p._t!==t){ p._t=t; p.innerHTML=t; } p.style.background=ok?"rgba(196,255,214,.97)":""; }
+  function status(){ if (N.with) return; pill(N.up>0?`서버 연결됨 · ${BUDDY().short} 기다리는 중…`:"같이하기 서버에 연결 중…"); }
   function start(){
     if (N.started||!WHO) return; N.started=true;
     if (!/^https?:/.test(location.protocol)) { pill("같이하기는 앱에서만 돼요"); return; }
     let tries=0; (function boot(){
-      if (!window.Peer){ if (++tries>20){ pill("같이하기를 불러오지 못했어요"); return; } pill("같이하기 준비 중…"); setTimeout(boot,700); return; }
-      try { N.peer=new Peer(idOf(WHO),{debug:0}); } catch(e){ pill("같이하기가 안 돼요"); return; }
-      pill(`${BUDDY().short} 기다리는 중…`);
-      N.peer.on("open",()=>{ if (initiator()) connect(); });
-      N.peer.on("connection",c=>attach(c));
-      N.peer.on("disconnected",()=>{ setTimeout(()=>{ try{ if(N.peer&&!N.peer.destroyed) N.peer.reconnect(); }catch(e){} },2000); });
-      N.peer.on("error",e=>{
-        if (e.type==="unavailable-id"){ pill(`다른 폰이 이미 ${ME().short}(으)로 하고 있어요`); }
-        else if (e.type==="peer-unavailable"){ /* 아직 안 들어옴 → 잠시 뒤 다시 */ }
-        else if (["network","server-error","socket-error","socket-closed"].includes(e.type)){ pill("인터넷 연결을 확인해요"); }
+      if (!window.mqtt){ if (++tries>25){ pill("같이하기를 불러오지 못했어요 (인터넷 확인)"); return; } pill("같이하기 준비 중…"); setTimeout(boot,600); return; }
+      BROKERS.forEach(url=>{
+        let c; try { c=mqtt.connect(url,{clientId:"egg_"+WHO+"_"+SID+"_"+Math.random().toString(36).slice(2,6),keepalive:20,reconnectPeriod:3000,connectTimeout:8000,clean:true}); } catch(e){ return; }
+        c._ok=false;
+        c.on("connect",()=>{ if(!c._ok){ c._ok=true; N.up++; } c.subscribe(ROOT+BUDDY().id); status(); hello(); });
+        c.on("close",()=>{ if (c._ok){ c._ok=false; N.up=Math.max(0,N.up-1); } status(); });
+        c.on("error",()=>{});
+        c.on("message",(topic,buf)=>{ let d; try{ d=JSON.parse(buf.toString()); }catch(e){ return; } recv(d); });
+        N.clients.push(c);
       });
+      status();
     })();
   }
-  function connect(){ if (!N.peer||N.peer.disconnected||N.peer.destroyed) return; if (N.conn&&N.conn.open) return; try{ attach(N.peer.connect(idOf(BUDDY().id),{reliable:true})); }catch(e){} }
-  function attach(c){
-    c.on("open",()=>{
-      if (N.conn&&N.conn!==c){ try{ N.conn.close(); }catch(e){} }
-      N.conn=c; pill(`${BUDDY().short}와 같이 하는 중`,true);
-      toast(`${BUDDY().short}와 연결됐어요!`,"같은 세상에서 함께 놀아요",2.6); jingle([523,659,784,1046]);
-      send({t:"hi",look:G.look});
-    });
-    c.on("data",recv);
-    c.on("close",()=>{ if (N.conn===c){ N.conn=null; hideRemote(); pill(`${BUDDY().short} 기다리는 중…`); toast(`${BUDDY().short}가 나갔어요`,"다시 들어오면 자동으로 연결돼요"); } });
-    c.on("error",()=>{});
-  }
-  function send(o){ try{ if (N.conn&&N.conn.open) N.conn.send(o); }catch(e){} }
+  function send(o){ if (!N.clients.length) return; o.w=WHO; o.s=SID; o.q=++N.seq; const msg=JSON.stringify(o);
+    N.clients.forEach(c=>{ try{ if (c._ok) c.publish(ROOT+WHO,msg,{qos:0}); }catch(e){} }); }
+  function hello(){ send({t:"hi",look:G.look}); }
   function ensureRemote(look){
-    if (N.rch) return; look=look||BUDDY().look;
+    if (N.rch) return; look=look||N.look||BUDDY().look;
     const LM={hair:toon({color:LOOK.hair[look.hair%LOOK.hair.length]}),shirt:toon({color:LOOK.shirt[look.shirt%LOOK.shirt.length]}),pants:toon({color:LOOK.pants[look.pants%LOOK.pants.length]})};
     N.rch=shadowify(makePlayer(LM)); scene.add(N.rch); N.lbl=makeLabel("name");
     const ring=new THREE.Mesh(new THREE.RingGeometry(.75,.95,32),new THREE.MeshBasicMaterial({color:BUDDY().c,transparent:true,opacity:.85,depthWrite:false})); ring.rotation.x=-Math.PI/2; ring.position.y=.06; N.rch.add(ring);
@@ -2101,13 +2093,17 @@ const net=(function(){
   }
   function hideRemote(){ if (N.rch){ scene.remove(N.rch); N.rch=null; } if (N.lbl){ N.lbl.remove(); N.lbl=null; } N.rCarryKey=""; N.rCarry=null; }
   function recv(d){
-    if (!d||!d.t) return;
-    if (d.t==="hi"){ hideRemote(); ensureRemote(d.look); }
+    if (!d||!d.t||d.w===WHO) return;
+    const key=d.s+":"+d.q; if (N.seen[key]) return; N.seen[key]=1;   // 두 서버에서 온 같은 메시지는 한 번만
+    if (++N.seenN>400){ N.seen={}; N.seenN=0; }
+    N.lastRecv=performance.now();
+    if (!N.with){ N.with=true; pill(`${BUDDY().short}와 같이 하는 중`,true); toast(`${BUDDY().short}와 연결됐어요!`,"같은 세상에서 함께 놀아요",2.6); jingle([523,659,784,1046]); hello(); }
+    if (d.t==="hi"){ if (JSON.stringify(d.look)!==JSON.stringify(N.look)){ N.look=d.look; hideRemote(); } ensureRemote(d.look); }
     else if (d.t==="st"){
-      if (!N.rch) ensureRemote(null);
+      ensureRemote(null);
       N.tx=d.x; N.tz=d.z; N.tf=d.f; N.moving=d.m; N.rb=d.b;
-      const key=d.c?d.c.join(","):"";
-      if (key!==N.rCarryKey){ N.rCarryKey=key; if (N.rCarry){ N.rch.remove(N.rCarry); N.rCarry=null; }
+      const ck=d.c?d.c.join(","):"";
+      if (ck!==N.rCarryKey){ N.rCarryKey=ck; if (N.rCarry){ N.rch.remove(N.rCarry); N.rCarry=null; }
         if (d.c){ N.rCarry=shadowify(makeEgg(d.c[0],.8,d.c[1])); N.rCarry.position.y=2.9; N.rch.add(N.rCarry); } }
     }
     else if (d.t==="take"){
@@ -2119,17 +2115,18 @@ const net=(function(){
   }
   function tick(dt,moving){
     if (!N.started) return;
-    if (initiator() && !(N.conn&&N.conn.open)){ N.retryT-=dt; if (N.retryT<=0){ N.retryT=4; connect(); } }
-    if (N.conn&&N.conn.open){ N.sendT-=dt; if (N.sendT<=0){ N.sendT=.1;
+    if (N.with && performance.now()-N.lastRecv>5000){ N.with=false; hideRemote(); status(); toast(`${BUDDY().short}가 나갔어요`,"다시 들어오면 자동으로 연결돼요"); }
+    if (N.up>0){ N.sendT-=dt; if (N.sendT<=0){ N.sendT=.15;
       const bi=P.z>-2.5?-1:clamp(Math.floor((-2.5-P.z)/BIOME_LEN),0,BIOMES.length-1);
-      send({t:"st",x:+P.x.toFixed(2),z:+P.z.toFixed(2),f:+player.rotation.y.toFixed(2),m:moving?1:0,b:bi,c:P.carry&&P.carry.kind==="egg"?[P.carry.biome,P.carry.rar||0]:null}); } }
+      send({t:"st",x:+P.x.toFixed(2),z:+P.z.toFixed(2),f:+player.rotation.y.toFixed(2),m:moving?1:0,b:bi,c:P.carry&&P.carry.kind==="egg"?[P.carry.biome,P.carry.rar||0]:null}); }
+      N.hiT-=dt; if (N.hiT<=0){ N.hiT=5; hello(); } }
     if (N.rch){
-      const p=N.rch.position; const dx=N.tx-p.x, dz=N.tz-p.z; if (Math.hypot(dx,dz)>40){ p.x=N.tx; p.z=N.tz; } else { p.x+=dx*Math.min(1,dt*10); p.z+=dz*Math.min(1,dt*10); }
+      const p=N.rch.position; const dx=N.tx-p.x, dz=N.tz-p.z; if (Math.hypot(dx,dz)>40){ p.x=N.tx; p.z=N.tz; } else { p.x+=dx*Math.min(1,dt*8); p.z+=dz*Math.min(1,dt*8); }
       let dr=N.tf-N.rch.rotation.y; while(dr>Math.PI) dr-=Math.PI*2; while(dr<-Math.PI) dr+=Math.PI*2; N.rch.rotation.y+=dr*Math.min(1,dt*12);
       if (N.moving) N.walk+=dt*9; const u=N.rch.userData, sw=N.moving?Math.sin(N.walk)*.7:0; u.legL.rotation.x=sw; u.legR.rotation.x=-sw; u.armL.rotation.x=-sw; u.armR.rotation.x=sw; u.body.position.y=N.moving?Math.abs(Math.sin(N.walk))*.12:0;
       if (N.rCarry) N.rCarry.rotation.y+=dt*2;
       placeLabel(N.lbl,p.x,N.rCarry?4.1:3.2,p.z,`<span style="color:${BUDDY().c};filter:brightness(1.5)">${BUDDY().short}</span>`);
-      const where=N.rb<0?"기지":`${N.rb+1}월드`; const ph=$("netPill"); if (ph&&N.conn) { const t=`${BUDDY().short}와 같이 하는 중 · ${where}`; if (ph._t!==t){ ph._t=t; ph.innerHTML=t; } }
+      if (N.with) pill(`${BUDDY().short}와 같이 하는 중 · ${N.rb<0?"기지":(N.rb+1)+"월드"}`,true);
     }
   }
   return {start,send,tick,_recv:recv};
@@ -2240,7 +2237,7 @@ if ("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navig
 </script>
 
 <!--auto-update--><script>
-(function(){ var CUR="7e99fd45";
+(function(){ var CUR="d2ccbc8d";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
