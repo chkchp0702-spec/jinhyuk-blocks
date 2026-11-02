@@ -44,9 +44,13 @@ function showSay(){ const list=SAY_COMMON.concat(RM().say); card(`<h2>대화</h2
 function showOnline(){ const rows=[{name:G.name+" (나)",realm:G.realm,rank:G.rank,lv:G.lv,x:P.x,z:P.z}].concat(Object.values(PEERS)).map(o=>{ const rg=regionAt(o.x,o.z); return `<div class="row"><div class="ic" style="color:${REALMS[o.realm].c1}">${REALMS[o.realm].icon}</div><div class="t"><div>${o.name}</div><span>${REALMS[o.realm].n} · ${REALMS[o.realm].ranks[o.rank]} Lv.${o.lv} · ${rg?rg.n:"황야"}</span></div></div>`; }).join("");
   card(`<h2>지금 접속 중</h2><p>${Object.keys(PEERS).length+1}명 · 중계 서버 ${net.up}/4 연결</p>${rows}<p style="font-size:12px">초대 코드 ${ROOM} · 같은 코드로 들어온 사람만 보여요</p><button class="buy alt" id="toChat" style="align-self:center">대화하기</button>`); $("toChat").onclick=showSay; }
 $("netPill").style.pointerEvents="auto"; $("netPill").onclick=showOnline;
+function lookRows(){ return ["hair","cloth","eye"].map(k=>`<div class="lookrow"><span>${{hair:"머리",cloth:"옷",eye:"눈"}[k]}</span>${LOOKS[k].map((c,j)=>`<button type="button" class="sw${(G.look&&G.look[k]||0)===j?" on":""}" data-k="${k}" data-j="${j}" style="background:${c==null?"linear-gradient(135deg,#888,#ddd)":"#"+c.toString(16).padStart(6,"0")}" aria-label="${k} ${j}"></button>`).join("")}</div>`).join(""); }
+function bindLook(after){ layers.querySelectorAll(".sw").forEach(b=>b.onclick=()=>{ G.look=G.look||{}; G.look[b.dataset.k]=+b.dataset.j; layers.querySelectorAll(`.sw[data-k="${b.dataset.k}"]`).forEach(x=>x.classList.toggle("on",x===b)); tone(660,.06); if(after) after(); }); }
+function showLook(){ card(`<h2>꾸미기</h2><p>머리·옷·눈 색을 골라요. 첫 칸은 세계 기본 색.</p><div class="looks">${lookRows()}</div>`); bindLook(()=>{ buildPlayer(); saveGame(); }); }
 function showMenu(){ card(`<h2>신들의 전쟁</h2><p>${G.name} · ${RM().n} ${RM().ranks[G.rank]} · 버전 ${VER}</p>
   <div class="row"><div class="t"><div>친구 초대 링크</div><span>이 링크를 받은 사람만 같은 세계에 들어와요</span></div><button class="buy alt" id="copyL">복사</button></div><div class="linkbox">${inviteLink()}</div>
   <div class="row"><div class="t"><div>함께하기 서버</div><span>4곳 중 ${net.up}곳 연결됨 · 같이 있는 사람 ${Object.keys(PEERS).length}명</span></div></div>
+  <div class="row"><div class="t"><div>꾸미기</div><span>머리·옷·눈 색 바꾸기</span></div><button class="buy alt" id="lookBtn">열기</button></div>
   <div class="row"><div class="t"><div>집(수도)으로 순간이동</div><span>전투 중엔 안 돼요</span></div><button class="buy" id="goHome">가기</button></div>
   <div class="row"><div class="t"><div>전체 화면</div><span>아이폰은 공유 → "홈 화면에 추가"로 앱처럼 설치하면 전체 화면</span></div><button class="buy alt" id="full">켜기</button></div>
   <div class="row"><div class="t"><div>그래픽</div><span>높음: 그림자·부드러움 / 보통: 폰이 느릴 때</span></div><button class="buy alt" id="gfx">${HIGH()?"높음":"보통"}</button></div>
@@ -55,7 +59,7 @@ function showMenu(){ card(`<h2>신들의 전쟁</h2><p>${G.name} · ${RM().n} ${
   <p style="font-size:12px">밤낮은 8분마다 바뀌고 모든 폰이 같은 시각이에요.<br>조작: 왼쪽 화면을 끌면 이동 · 공격/기술 3개/물약/점프 버튼 · 키보드 WASD, J 공격, K U I 기술, L 물약, 스페이스 점프</p>`);
   $("copyL").onclick=()=>{ const u=inviteLink(); (navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>toast("링크 복사됨!","카톡 등으로 보내 주세요"),()=>{ if(navigator.share) navigator.share({url:u}); else prompt("링크를 복사하세요",u); }); };
   $("goHome").onclick=()=>{ if(mobs.some(m=>m.state==="chase"&&Math.hypot(m.x-P.x,m.z-P.z)<16)){ toast("전투 중에는 안 돼요"); return; } spawnAtHome(); closeLayer(); toast("수도로 왔어요"); };
-  $("full").onclick=()=>{ goFull(); closeLayer(); }; $("gfx").onclick=()=>{ G.gfx=HIGH()?"low":"high"; saveGame(); location.reload(); };
+  $("full").onclick=()=>{ goFull(); closeLayer(); }; $("lookBtn").onclick=showLook; $("gfx").onclick=()=>{ G.gfx=HIGH()?"low":"high"; saveGame(); location.reload(); };
   $("snd").onclick=()=>{ soundOn=!soundOn; save("gw-sound",soundOn?"1":"0"); if(soundOn) initAudio(); showMenu(); };
   $("wipe").onclick=()=>{ card(`<h2>정말 지울까요?</h2><p>${G.name}의 모든 기록이 사라져요.</p><button class="go" id="yes" style="background:#ff5a5f;color:#fff">지우기</button>`); $("yes").onclick=()=>{ try{ localStorage.removeItem(SAVEKEY); }catch(e){} location.reload(); }; }; }
 function showTemple(){ const R=RM(); const next=G.rank+1; const can=canTrial();
@@ -72,9 +76,9 @@ function showTitle(){
     (G.realm>=0?`<p class="help"><b style="color:var(--gold)">${G.name}</b> · ${RM().n} ${RM().ranks[G.rank]} Lv.${G.lv}</p><button class="go" id="start">계속하기</button><p class="help" style="font-size:12px">초대 코드 ${ROOM}</p>`:
     `<p class="help">네 세계 중 하나를 골라요. 한 번 고르면 바꿀 수 없어요.<br>괴물을 잡고 승급 시험을 통과해 절대자 바로 아래까지 올라가고, 다른 세계와 싸워 영토를 넓혀요.</p>
      <div class="realms">${REALMS.map((R,i)=>`<button type="button" class="realm${i===pickRealm?" on":""}" data-r="${i}" style="--a:${R.a};--b:${R.b}"><em>${R.icon}</em><b>${R.n}</b><i>${R.sub}<br>절대자: ${R.absolute}<br>기술: ${R.skills.map(x=>x.n).join(", ")}</i></button>`).join("")}</div>
-     <input class="inp" id="nameIn" maxlength="8" placeholder="이름 (8자까지)" value="${G.name||""}"><button class="go" id="start" disabled>이 세계로!</button>`)}
+     <div class="looks">${lookRows()}</div><input class="inp" id="nameIn" maxlength="8" placeholder="이름 (8자까지)" value="${G.name||""}"><button class="go" id="start" disabled>이 세계로!</button>`)}
     <p class="help" style="font-size:12px;opacity:.7">버전 ${VER}</p></div></div>`; layerOpen=true;
-  let sel=pickRealm;
+  let sel=pickRealm; bindLook();
   layers.querySelectorAll(".realm").forEach(b=>b.onclick=()=>{ sel=+b.dataset.r; layers.querySelectorAll(".realm").forEach(x=>x.classList.toggle("on",x===b)); document.documentElement.style.setProperty("--c1",REALMS[sel].c1); $("start").disabled=!($("nameIn").value.trim()); tone(660,.06); });
   if($("nameIn")) $("nameIn").oninput=()=>{ $("start").disabled=!(sel>=0&&$("nameIn").value.trim()); };
   if($("roomGo")) $("roomGo").onclick=()=>{ const k=$("roomIn").value.trim().replace(/[^a-zA-Z0-9_-]/g,""); if(!k) return; location.search="?k="+k; };
@@ -102,12 +106,12 @@ function update(dt){
   if(P.trial){ P.trial.t-=dt; if(P.trial.t<=0){ toast("시간 초과…",null,2); finishTrial(false); } else if(Math.hypot(P.x-REGIONS[G.realm*3].x,P.z-REGIONS[G.realm*3].z)>60){ toast("시험장을 벗어났어요",null,2); finishTrial(false); } }
   if(P.dead){ P.deadT-=dt; const b=$("rsp"); if(b){ $("rspT").textContent=Math.max(0,Math.ceil(P.deadT)); if(P.deadT<=0&&b.disabled){ b.disabled=false; b.onclick=respawn; $("rspT").textContent=""; } } }
   const rg=regionAt(P.x,P.z); if(rg&&rg!==P.lastRg){ P.lastRg=rg; questEvent("visit",rg); if(!rg.cap||rg.realm!==G.realm) toast(rg.n,rg.realm>=0?`${REALMS[rg.realm].n}의 땅 · Lv.${rg.lv[0]}~${rg.lv[1]}`:`중립 · Lv.${rg.lv[0]}~${rg.lv[1]} · 세계 보스 출현`,1.6); }
-  tickMobs(dt); tickTerritory(dt); net.tick(dt); tickFX(dt);
+  tickMobs(dt); tickTerritory(dt); net.tick(dt); tickFX(dt); tickNPCs(dt);
   P.bubbleT=Math.max(0,(P.bubbleT||0)-dt); if(P.bubbleT>0) placeLabel(myLbl,P.x,4.9,P.z,`<span class="bub">${P.bubble}</span>`); else myLbl.style.display="none";
   // 하늘색: 지금 있는 세계의 색으로 천천히
-  const theme=P.x>=0?(P.z<0?REALMS[0]:REALMS[2]):(P.z<0?REALMS[1]:REALMS[3]); const center=Math.hypot(P.x,P.z)<70; dayNight(dt,center,theme); tickParticles(dt,P.x,P.z,center?1:REALMS.indexOf(theme)); CLOUDS.forEach(c=>{ c.position.x+=c.userData.v*dt; if(c.position.x>280) c.position.x=-280; });
+  const theme=P.x>=0?(P.z<0?REALMS[0]:REALMS[2]):(P.z<0?REALMS[1]:REALMS[3]); const center=Math.hypot(P.x,P.z)<70; dayNight(dt,center,theme); tickWeather(dt,REALMS.indexOf(theme),center); tickParticles(dt,P.x,P.z,center?1:REALMS.indexOf(theme)); CLOUDS.forEach(c=>{ c.position.x+=c.userData.v*dt; if(c.position.x>280) c.position.x=-280; });
   // 카메라
-  const cz=P.z+12.5*ZOOM, cy=11.5*ZOOM; P.shake=Math.max(0,(P.shake||0)-dt*3); const sh=P.shake*.35; const gy=P.gy||0; camera.position.lerp(new THREE.Vector3(P.x,gy+cy,cz),Math.min(1,dt*7)); camera.lookAt(P.x+rnd(-sh,sh),gy+2.2+rnd(-sh,sh),P.z-5*ZOOM); const tfov=(innerWidth<innerHeight?66:52)+(P.atkAnim>.2?3:0); camera.fov+=(tfov-camera.fov)*Math.min(1,dt*8); camera.updateProjectionMatrix(); TIME.value=performance.now()/1000; skyMat.uniforms.time.value=TIME.value; WATER.uniforms.sunDir.value.copy(sun.position).sub(new THREE.Vector3(P.x,0,P.z)).normalize(); if(POST) POST.comp.uniforms.hurt.value=P.hp/st.mhp<.3?.6+Math.sin(performance.now()/150)*.3:P.hitFlash>0?.8:0; P.hitFlash=Math.max(0,P.hitFlash-dt);
+  const cz=P.z+12.5*ZOOM, cy=11.5*ZOOM; P.shake=Math.max(0,(P.shake||0)-dt*3); const sh=P.shake*.35; const gy=P.gy||0; camera.position.lerp(new THREE.Vector3(P.x,gy+cy,cz),Math.min(1,dt*7)); camera.lookAt(P.x+rnd(-sh,sh),gy+2.2+rnd(-sh,sh),P.z-5*ZOOM); const tfov=(innerWidth<innerHeight?66:52)+(P.atkAnim>.2?3:0); camera.fov+=(tfov-camera.fov)*Math.min(1,dt*8); camera.updateProjectionMatrix(); TIME.value=performance.now()/1000; skyMat.uniforms.time.value=TIME.value; WATER.uniforms.sunDir.value.copy(sun.position).sub(new THREE.Vector3(P.x,0,P.z)).normalize(); if(POST){ P.tintA=Math.max(0,(P.tintA||0)-dt/(P.tintD||1)); POST.comp.uniforms.tintA.value=P.tintA; if(P.tintC) POST.comp.uniforms.tint.value.copy(P.tintC); } if(POST) POST.comp.uniforms.hurt.value=P.hp/st.mhp<.3?.6+Math.sin(performance.now()/150)*.3:P.hitFlash>0?.8:0; P.hitFlash=Math.max(0,P.hitFlash-dt);
   toastT-=dt; if(toastT<=0) $("toast").style.opacity=0; mmT-=dt; if(mmT<=0){ mmT=.5; drawMinimap(); } hud();
 }
 function resize(){ const w=innerWidth,h=innerHeight; renderer.setSize(w,h,false); camera.aspect=w/h; camera.fov=w<h?66:52; camera.updateProjectionMatrix(); }

@@ -12,8 +12,8 @@ const REALMS=[
    trials:["능천사 수비대장","주천사 사령관","좌천사 심판관","지천사 케루빔","치천사 세라핌","대천사 미카엘"],
    gods:[ {n:"하느님",p:"∞",d:"절대자. 모든 것의 시작.",top:1},{n:"예수",p:99,d:"구원자. 에덴의 길잡이."},{n:"미카엘",p:95,d:"천군 대장. 용을 물리친 대천사."},{n:"루시퍼",p:94,d:"타락한 새벽별. 세계의 중심에 숨어 있음.",boss:1},{n:"메타트론",p:92,d:"하늘의 서기관."},{n:"가브리엘",p:90,d:"소식을 전하는 대천사."},{n:"라파엘",p:88,d:"치유의 대천사."},{n:"우리엘",p:86,d:"불꽃의 대천사."},{n:"사마엘",p:84,d:"독의 천사.",boss:1},{n:"네피림",p:60,d:"거인의 후손.",boss:1} ],
    items:{ w:["빛의 단검","성가의 검","불꽃의 검","미카엘의 검"], a:["수련복","백의","천사의 흉갑","치천사의 갑주"], r:["작은 날개","후광","생명나무 잎","메타트론의 큐브"] },
-   mobs:[ {n:"길 잃은 영혼",shape:"ghost",c:0xdfe8ff},{n:"타락천사",shape:"angel",c:0x6a5a8a},{n:"네피림",shape:"giant",c:0xb9a37a},{n:"불뱀",shape:"snake",c:0xff6a3d} ],
-   boss:{ n:"네피림의 왕", shape:"giant", c:0x8a6a3a, p:60 }, worldBoss:{ n:"루시퍼", shape:"angel", c:0x301040, p:94 },
+   mobs:[ {n:"길 잃은 영혼",shape:"ghost",c:0xdfe8ff},{n:"타락천사",shape:"angel",c:0x6a5a8a},{n:"네피림",shape:"nephilim",c:0xb9a37a},{n:"불뱀",shape:"fireserpent",c:0xff6a3d} ],
+   boss:{ n:"네피림의 왕", shape:"nephilim", c:0x8a6a3a, p:60 }, worldBoss:{ n:"루시퍼", shape:"darkangel", c:0x301040, p:94 },
    regions:["생명의 들판","천사의 문"], capital:"에덴 성전", shrine:"생명나무",
    say:["하늘의 평화를!","빛이 함께하길","날개를 펴라!","심판의 시간이다"] },
  { id:"asgard", n:"아스가르드", sub:"북유럽의 신들", icon:"ᛟ", c1:"#8fd0ff", c2:"#eaf7ff", a:"#3a6ea8", b:"#13203a",
@@ -26,8 +26,8 @@ const REALMS=[
    trials:["아인헤랴르 대장","발키리 브륀힐드","광전사 왕","헤임달","티르","천둥신 토르"],
    gods:[ {n:"오딘",p:"∞",d:"절대자. 아스가르드의 왕.",top:1},{n:"토르",p:96,d:"천둥의 신. 묠니르의 주인."},{n:"수르트",p:95,d:"불의 거인. 라그나로크를 부름.",boss:1},{n:"요르문간드",p:93,d:"세계를 감싼 뱀.",boss:1},{n:"펜리르",p:92,d:"신을 삼킬 늑대.",boss:1},{n:"헬라",p:90,d:"죽음의 여신."},{n:"헤임달",p:86,d:"무지개 다리의 파수꾼."},{n:"로키",p:85,d:"장난의 신. 믿지 말 것."},{n:"프레이야",p:84,d:"사랑과 전쟁의 여신."},{n:"티르",p:83,d:"전쟁과 맹세의 신."} ],
    items:{ w:["전사의 도끼","룬 검","궁니르 조각","묠니르 조각"], a:["가죽 갑옷","사슬 갑옷","드워프 갑옷","메긴교르드"], r:["까마귀 깃털","룬 돌","드라우프니르","이둔의 황금사과"] },
-   mobs:[ {n:"서리 늑대",shape:"wolf",c:0xbcd0e0},{n:"서리 거인",shape:"giant",c:0x8fb4d6},{n:"드라우그",shape:"ghost",c:0x6a7f8a},{n:"트롤",shape:"giant",c:0x5e6b4a} ],
-   boss:{ n:"서리거인 흐림", shape:"giant", c:0x4f86b8, p:62 }, worldBoss:{ n:"펜리르", shape:"wolf", c:0x303040, p:92 },
+   mobs:[ {n:"서리 늑대",shape:"wolf",c:0xbcd0e0},{n:"서리 거인",shape:"icegiant",c:0x8fb4d6},{n:"드라우그",shape:"draugr",c:0x6a7f8a},{n:"트롤",shape:"troll",c:0x5e6b4a} ],
+   boss:{ n:"서리거인 흐림", shape:"icegiant", c:0x4f86b8, p:62 }, worldBoss:{ n:"펜리르", shape:"wolf", c:0x303040, p:92 },
    regions:["요툰하임 길목","비프로스트"], capital:"발할라 궁", shrine:"발할라",
    say:["발할라로!","스콜!","전투를 두려워 말라","라그나로크가 온다"] },
  { id:"india", n:"인도", sub:"천 개의 신", icon:"ॐ", c1:"#ff9f3d", c2:"#ffe3b3", a:"#e8742b", b:"#5a1f3a",
@@ -40,8 +40,8 @@ const REALMS=[
    trials:["간다르바 악사","약샤 왕 쿠베라","데바 아그니","바루나","하누만","인드라"],
    gods:[ {n:"브라흐만",p:"∞",d:"절대자. 우주의 근원.",top:1},{n:"시바",p:98,d:"파괴와 재생의 신."},{n:"비슈누",p:98,d:"유지의 신. 열 개의 화신."},{n:"브라흐마",p:97,d:"창조의 신."},{n:"칼리",p:92,d:"시간과 파괴의 여신."},{n:"두르가",p:91,d:"악마를 베는 전사 여신."},{n:"인드라",p:90,d:"천둥과 전쟁의 왕."},{n:"라바나",p:89,d:"열 개의 머리를 가진 왕.",boss:1},{n:"하누만",p:88,d:"원숭이 신. 산을 들어 옮김."},{n:"아그니",p:85,d:"불의 신."},{n:"가네샤",p:84,d:"장애를 없애는 코끼리 신."} ],
    items:{ w:["수행자의 지팡이","간디바 활","트리슐라","수다르샤나 차크라"], a:["도티","카바차","하누만의 갑옷","인드라의 갑주"], r:["루드락샤 염주","연꽃","소마의 잔","아므리타 병"] },
-   mobs:[ {n:"락샤사",shape:"demon",c:0x9a3a3a},{n:"나가",shape:"snake",c:0x3a8a5a},{n:"아수라",shape:"demon",c:0x6a2a7a},{n:"베탈라",shape:"ghost",c:0x5a5a3a} ],
-   boss:{ n:"라바나", shape:"demon", c:0x7a1a2a, p:89 }, worldBoss:{ n:"마히샤수라", shape:"giant", c:0x3a2a1a, p:90 },
+   mobs:[ {n:"락샤사",shape:"rakshasa",c:0x9a3a3a},{n:"나가",shape:"naga",c:0x3a8a5a},{n:"아수라",shape:"asura",c:0x6a2a7a},{n:"베탈라",shape:"vetala",c:0x5a5a3a} ],
+   boss:{ n:"라바나", shape:"ravana", c:0x7a1a2a, p:89 }, worldBoss:{ n:"마히샤수라", shape:"bull", c:0x3a2a1a, p:90 },
    regions:["연꽃 호수","아수라 황야"], capital:"황금 사원", shrine:"갠지스 강",
    say:["옴!","나마스테","다르마를 지켜라","차크라 발사!"] },
  { id:"olympus", n:"올림푸스", sub:"그리스의 신들", icon:"⚡", c1:"#7fe0ff", c2:"#f0fbff", a:"#2f7fc4", b:"#1c2b5a",
@@ -54,8 +54,8 @@ const REALMS=[
    trials:["헤라클레스","켄타우로스 케이론","헤르메스","아레스","아테나","포세이돈"],
    gods:[ {n:"제우스",p:"∞",d:"절대자. 번개의 왕.",top:1},{n:"티폰",p:97,d:"백 개의 뱀 머리를 가진 괴물.",boss:1},{n:"크로노스",p:96,d:"티탄의 왕. 시간의 낫.",boss:1},{n:"포세이돈",p:95,d:"바다의 신. 삼지창."},{n:"하데스",p:94,d:"지하 세계의 왕."},{n:"아테나",p:90,d:"지혜와 전략의 여신."},{n:"헤라",p:89,d:"신들의 여왕."},{n:"아폴론",p:88,d:"태양과 예언의 신."},{n:"아르테미스",p:86,d:"사냥의 여신."},{n:"아레스",p:85,d:"전쟁의 신."},{n:"헤파이스토스",p:84,d:"대장장이 신."},{n:"헤르메스",p:82,d:"전령의 신. 가장 빠름."},{n:"메두사",p:70,d:"눈을 보면 돌이 됨.",boss:1} ],
    items:{ w:["청동 검","아레스의 창","포세이돈의 삼지창","제우스의 번개 조각"], a:["튜닉","청동 흉갑","아이기스 조각","헤파이스토스의 갑옷"], r:["월계관","헤르메스의 샌들","아폴론의 리라","황금 양털"] },
-   mobs:[ {n:"하르피이",shape:"angel",c:0x8a7a5a},{n:"키클롭스",shape:"giant",c:0x9a8a6a},{n:"사티로스",shape:"demon",c:0x7a5a3a},{n:"히드라",shape:"snake",c:0x4a8a4a} ],
-   boss:{ n:"미노타우로스", shape:"giant", c:0x5a3a2a, p:60 }, worldBoss:{ n:"티폰", shape:"snake", c:0x2a1a3a, p:97 },
+   mobs:[ {n:"하르피이",shape:"harpy",c:0x8a7a5a},{n:"키클롭스",shape:"cyclops",c:0x9a8a6a},{n:"사티로스",shape:"satyr",c:0x7a5a3a},{n:"히드라",shape:"hydra",c:0x4a8a4a} ],
+   boss:{ n:"미노타우로스", shape:"bull", c:0x5a3a2a, p:60 }, worldBoss:{ n:"티폰", shape:"hydra", c:0x2a1a3a, p:97 },
    regions:["올리브 언덕","델포이 신탁소"], capital:"올림포스 신전", shrine:"스틱스 강",
    say:["제우스의 이름으로!","번개 맛을 봐라","영광을 올림포스에","카론, 배를 띄워라"] },
 ];
@@ -82,5 +82,6 @@ const REGIONS=[
  {id:12,realm:-1,n:"세계의 중심",x:0,z:0,r:62,lv:[18,40],center:1},
 ];
 const WORLD_HALF=215;
+const LOOKS={ hair:[null,0xfff1c4,0xc98a3a,0x1a1a1a,0x5a3a1a,0xff6b8a,0x4aa3ff,0x9dffb8,0xffffff], cloth:[null,0xffffff,0xff5a5f,0x3a8dff,0x3fd27a,0xffcf4a,0xb061ff,0x1b1430,0xff9f3d], eye:[null,0x3a7bd5,0x2f8f8f,0x4a2a1a,0x3a8a5a,0xb061ff,0xff5a5f] };
 const SAY_COMMON=["안녕!","같이 가자","도와줘!","제단으로 와","조심해, 적이다","ㅋㅋㅋ","잘했어!","이따 봐"];
 </script>

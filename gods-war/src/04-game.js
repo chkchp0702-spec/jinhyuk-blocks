@@ -2,7 +2,7 @@
 /* ================= 플레이어 ================= */
 const P={x:0,z:0,y:0,vy:0,rot:0,hp:1,walk:0,moving:false,atkCd:0,sklCd:[0,0,0],rage:0,haste:0,combat:0,dashT:0,atkAnim:0,slow:0,weak:0,shadow:0,dizzy:0,heat:0,dead:false,deadT:0,orbitT:0,orbitTick:0,capProg:0,capRg:-1,bag:null,trial:null,invul:0,hitFlash:0};
 let player=null, weaponMesh=null, orbitMesh=null;
-function buildPlayer(){ if(player){ scene.remove(player); } player=makeAvatar(G.realm,G.rank,false); scene.add(player); applyWeapon(); }
+function buildPlayer(){ if(player){ scene.remove(player); } player=makeAvatar(G.realm,G.rank,false,G.look||{}); scene.add(player); applyWeapon(); }
 function applyWeapon(){ if(!player) return; if(weaponMesh){ weaponMesh.parent.remove(weaponMesh); weaponMesh=null; } if(G.eq.w>=0){ weaponMesh=makeWeapon(G.realm,G.eq.w); weaponMesh.position.set(0,-1.2,.3); weaponMesh.rotation.x=-.3; player.userData.armR.add(weaponMesh); } }
 function homeShrine(){ const a=ALTARS[G.realm*3]; return a?a.shrine:new THREE.Vector3(0,0,0); }
 function spawnAtHome(){ const s=homeShrine(); const rg=REGIONS[G.realm*3]; const dir=rg.z>0?-1:1; P.x=s.x+rnd(-2,2); P.z=s.z+dir*16; P.y=0; P.vy=0; P.rot=0; }
@@ -40,7 +40,7 @@ function tickMobs(dt){
     const tnow=performance.now(); m.mesh.position.set(m.x,hAt(m.x,m.z)+(m.mesh.userData.float?Math.sin(tnow/400+m.x)*.3+.2:0)+(m.mesh.userData.lunge>0?.4:0)+(m.state==="chase"?Math.abs(Math.sin(tnow/90+m.x))*.25:0),m.z); if(m.mesh.userData.lunge>0) m.mesh.userData.lunge-=dt; m.mesh.rotation.x=m.state==="chase"&&!m.mesh.userData.float?Math.sin(tnow/90+m.x)*.08:0; if(m.aura){ m.aura.rotation.z+=dt*2; m.aura.scale.setScalar(1+Math.sin(tnow/250)*.12); }
     let dr=m.rot-m.mesh.rotation.y; while(dr>Math.PI) dr-=Math.PI*2; while(dr<-Math.PI) dr+=Math.PI*2; m.mesh.rotation.y+=dr*Math.min(1,dt*8);
     const sc=m.scale*(m.hit>0?1.12:1); m.mesh.scale.set(sc*(1+Math.sin(tnow/600+m.x)*.02),sc*(1+Math.sin(tnow/600+m.x+1)*.03),sc);
-    if(d<48){ const h=m.mesh.userData.float?3.6:(m.shape==="giant"?5.6:m.shape==="wolf"?2.8:m.shape==="snake"?2:4.4); placeLabel(m.lbl,m.x,h*m.scale,m.z,`${m.boss?"👑 ":""}${m.n} <b>Lv.${m.lv}${m.power?" · 파워 "+m.power:""}</b><span class="hp"><i style="width:${Math.round(m.hp/m.mhp*100)}%"></i></span>`); } else m.lbl.style.display="none";
+    if(d<48){ const h=m.mesh.userData.h||4; placeLabel(m.lbl,m.x,h*m.scale,m.z,`${m.boss?"👑 ":""}${m.n} <b>Lv.${m.lv}${m.power?" · 파워 "+m.power:""}</b><span class="hp"><i style="width:${Math.round(m.hp/m.mhp*100)}%"></i></span>`); } else m.lbl.style.display="none";
   }
   const bb=$("bossbar"); const near=mobs.find(m=>m.boss&&Math.hypot(m.x-P.x,m.z-P.z)<40); if(near){ bb.hidden=false; $("bossNm").textContent=(near.trialOf?"승급 시험: ":"")+near.n; $("bossHp").style.width=Math.round(near.hp/near.mhp*100)+"%"; } else bb.hidden=true;
 }
@@ -55,6 +55,15 @@ function killMob(m){ const st=stat(); G.kills++; gainXp(m.xp); G.gold+=m.gold; f
   if(m.boss){ G.bossKills++; toast(`${m.n} 처치!`,`경험치 +${m.xp} · 금화 +${m.gold}`,2.6); jingle([523,659,784,1046,1318]); buzz([40,30,80]); if(m.trialOf){ finishTrial(true); } }
   questEvent("kill",m); removeMob(m); saveGame(); }
 
+/* ================= NPC 신들 ================= */
+const NPC_SAY={"예수":["평화가 함께하길.","두려워 말라.","사랑으로 싸워라."],"가브리엘":["소식을 전하러 왔다.","하늘이 지켜보고 있다."],"라파엘":["상처는 내가 치유하마.","쉬어 가게."],"토르":["묠니르 맛을 보여주마!","스콜!","거인들이 또 왔군."],"프레이야":["용감한 자는 발할라로.","전쟁도 사랑도 내 것."],"헤임달":["다리를 지키는 중이다.","라그나로크는 아직 멀었다."],"하누만":["산도 들어 옮기지!","라마 만세!"],"가네샤":["장애물은 내가 치워주지.","달콤한 걸 좋아하나?"],"아그니":["불꽃이 길을 밝힌다.","제물을 바쳐라."],"아테나":["전략 없이 이길 수 없다.","지혜가 힘을 이긴다."],"아폴론":["태양이 떠오른다.","예언을 들어보겠나?"],"헤르메스":["빠른 게 최고지!","편지 배달 왔습니다~"]};
+function tickNPCs(dt){ NPCS.forEach(o=>{ if(!o.lbl) o.lbl=makeLabel("boss"); const d=Math.hypot(o.x-P.x,o.z-P.z); if(d>80){ o.lbl.style.display="none"; return; } o.t-=dt; o.sayT-=dt;
+    if(o.t<=0){ o.t=rnd(3,7); const a=rnd(0,6.283), r=rnd(6,24); o.tx=o.cap.x+Math.cos(a)*r; o.tz=o.cap.z+Math.sin(a)*r; }
+    if(o.sayT<=0&&d<30){ o.sayT=rnd(14,34); o.say=5; o.msg=pick(NPC_SAY[o.n]||["..."]); } o.say=Math.max(0,o.say-dt);
+    const dx=o.tx-o.x, dz=o.tz-o.z, L=Math.hypot(dx,dz); const moving=L>.6; if(moving){ o.x+=dx/L*2.2*dt; o.z+=dz/L*2.2*dt; o.walk+=dt*8; o.mesh.rotation.y=Math.atan2(dx,dz); } else if(d<6){ o.mesh.rotation.y=Math.atan2(P.x-o.x,P.z-o.z); }
+    o.mesh.position.set(o.x,hAt(o.x,o.z),o.z); const u=o.mesh.userData, sw=moving?Math.sin(o.walk)*.6:0; u.legL.rotation.x=sw; u.legR.rotation.x=-sw; u.armL.rotation.x=-sw; u.armR.rotation.x=sw; u.body.position.y=moving?Math.abs(Math.sin(o.walk))*.1:Math.sin(performance.now()/600)*.03; if(u.wings) u.wings.forEach(w=>{ w.rotation.y=w.userData.s*Math.sin(performance.now()/500)*.15; }); if(u.cape) u.cape.rotation.x=.15+(moving?.4:0); if(u.crown){ u.crown.rotation.y+=dt*2; }
+    placeLabel(o.lbl,o.x,5.6,o.z,`${o.say>0?`<span class="bub">${o.msg}</span>`:""}${o.n} <b>${REALMS[REGIONS.find(r=>r===o.cap).realm].n}의 신 · 파워 ${o.p}</b>`); }); }
+
 /* ================= 전투 ================= */
 function facingHit(x,z,r,ang){ const dx=x-P.x, dz=z-P.z, d=Math.hypot(dx,dz); if(d>r) return false; if(d<1.2) return true; let a=Math.atan2(dx,dz)-P.rot; while(a>Math.PI)a-=Math.PI*2; while(a<-Math.PI)a+=Math.PI*2; return Math.abs(a)<ang; }
 function attack(){ if(P.dead||P.atkCd>0||layerOpen) return; P.atkCd=.28; P.atkAnim=.25; P.combat=4; const st=stat(); let any=false; fxArc(P.x,P.z,P.rot,RM().c1);
@@ -62,7 +71,8 @@ function attack(){ if(P.dead||P.atkCd>0||layerOpen) return; P.atkCd=.28; P.atkAn
   for(const id in PEERS){ const o=PEERS[id]; if(o.realm===G.realm||o.dead) continue; if(inCapital(o.x,o.z)||inCapital(P.x,P.z)) continue; if(facingHit(o.x,o.z,3.4,1.0)){ const crit=Math.random()<st.crit; const dmg=Math.round(st.atk*rnd(.9,1.1)*(crit?1.8:1)*.55); net.send({t:"hit",to:id,d:dmg}); floatDmg(o.x,4,o.z,"-"+fmt(dmg),crit?"crit":""); any=true; } }
   if(any){ tone(220,.05,"square",0,.1); buzz(15); P.shake=Math.max(P.shake||0,.25); } else tone(180,.04,"triangle",0,.05);
   net.send({t:"a",k:"atk"}); }
-function useSkill(i){ i=i||0; if(P.dead||layerOpen) return; const S=RM().skills[i]; if(!S) return; if(G.rank<S.rank){ toast(`${RM().ranks[S.rank]}부터 쓸 수 있어요`,S.n,1.4); return; } if(P.sklCd[i]>0) return; const st=stat(); P.sklCd[i]=S.cd; P.atkAnim=.4; P.combat=4; net.send({t:"a",k:"skl"});
+function drama(color,amt,dur){ P.tintC=new THREE.Color(color); P.tintA=amt; P.tintD=dur||1.2; }
+function useSkill(i){ i=i||0; if(P.dead||layerOpen) return; const S=RM().skills[i]; if(!S) return; if(G.rank<S.rank){ toast(`${RM().ranks[S.rank]}부터 쓸 수 있어요`,S.n,1.4); return; } if(P.sklCd[i]>0) return; const st=stat(); P.sklCd[i]=S.cd; P.atkAnim=.4; P.combat=4; net.send({t:"a",k:"skl"}); drama(S.color,i===2?.7:i===1?.4:.45,i===2?2:1); P.shake=Math.max(P.shake||0,i===2?1:.5); if(i===2){ fxRing(P.x,P.z,S.color,30,1.6); for(let k=0;k<6;k++) setTimeout(()=>fxBolt(P.x+rnd(-14,14),P.z+rnd(-14,14),S.color),k*120); }
   const hitMob=(m,mult)=>{ const crit=Math.random()<st.crit; damageMob(m,st.atk*mult*rnd(.9,1.1)*(crit?1.8:1),crit); };
   const hitPl=(o,id,mult)=>{ if(o.realm===G.realm||o.dead||inCapital(o.x,o.z)||inCapital(P.x,P.z)) return; const dmg=Math.round(st.atk*mult*.55); net.send({t:"hit",to:id,d:dmg}); floatDmg(o.x,4,o.z,"-"+fmt(dmg)); };
   const aoe=(r,mult)=>{ fxRing(P.x,P.z,S.color,r*1.6,.5); fxFlash(P.x,2,P.z,S.color,r*.8,.4); fxSpark(P.x,2,P.z,S.color,40); mobs.forEach(m=>{ if(Math.hypot(m.x-P.x,m.z-P.z)<r) hitMob(m,mult); }); for(const id in PEERS){ const o=PEERS[id]; if(Math.hypot(o.x-P.x,o.z-P.z)<r) hitPl(o,id,mult); } };
