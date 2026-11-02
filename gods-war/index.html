@@ -56,6 +56,10 @@ button{font:inherit;-webkit-tap-highlight-color:transparent}
 
 #minimap{position:fixed;right:10px;top:calc(max(8px,env(safe-area-inset-top)) + 44px);width:164px;height:164px;z-index:5;border-radius:50%;border:0;background:#0e0a1e;pointer-events:auto;box-shadow:0 4px 14px rgba(0,0,0,.4)}
 #guide{position:fixed;left:50%;top:calc(max(8px,env(safe-area-inset-top)) + 70px);transform:translateX(-50%);z-index:5;display:flex;flex-direction:column;align-items:center;pointer-events:auto;background:rgba(20,14,40,.7);border:2px solid var(--gold);border-radius:16px;padding:4px 12px;color:#fff;font-size:13px;white-space:nowrap} #gArrow{font-size:34px;line-height:1;color:var(--gold);text-shadow:0 0 10px rgba(255,207,74,.8);transition:transform .15s}
+#zoomBtns #bAuto{width:auto;padding:0 12px;border-radius:18px;font-size:14px;font-weight:800;letter-spacing:.5px} #zoomBtns #bAuto.on{background:linear-gradient(180deg,#3fd27a,#1f9a52);border-color:#b8ffd2;box-shadow:0 0 12px rgba(63,210,122,.7);animation:autoPulse 1.6s infinite} @keyframes autoPulse{50%{box-shadow:0 0 22px rgba(63,210,122,.95)}}
+.idlegrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0} .idlegrid div{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px 6px;text-align:center;display:flex;flex-direction:column;gap:2px} .idlegrid b{font-size:20px;color:var(--gold)} .idlegrid span{font-size:12px;opacity:.8}
+.row .st{font-style:normal;font-size:11px;padding:1px 6px;border-radius:8px;background:rgba(255,255,255,.12);margin-left:4px;vertical-align:1px} .row .st.on{background:#1f9a52;color:#fff}
+.lbl .away{display:block;font-size:10px;opacity:.85;color:#bfe9ff}
 #zoomBtns{position:fixed;right:12px;top:calc(max(8px,env(safe-area-inset-top)) + 218px);z-index:5;display:flex;gap:6px} #zoomBtns button{width:36px;height:36px;border-radius:50%;border:2px solid rgba(255,255,255,.3);background:rgba(20,14,40,.75);color:#fff;font-size:20px;line-height:1;cursor:pointer}
 #quest{position:fixed;left:10px;top:calc(max(8px,env(safe-area-inset-top)) + 96px);z-index:5;pointer-events:auto;max-width:200px;display:flex;flex-direction:column;gap:4px}
 .q{background:rgba(20,14,40,.66);border-left:4px solid var(--c1);border-radius:10px;padding:5px 9px;font-size:12.5px;line-height:1.25;color:#fff}
@@ -183,7 +187,7 @@ button{font:inherit;-webkit-tap-highlight-color:transparent}
 </div>
 <div id="guide" hidden><div id="gArrow">➤</div><span id="gTxt"></span></div>
 <canvas id="minimap" width="480" height="480"></canvas>
-<div id="zoomBtns"><button id="zIn" type="button">+</button><button id="zOut" type="button">−</button></div>
+<div id="zoomBtns"><button id="zIn" type="button">+</button><button id="zOut" type="button">−</button><button id="bAuto" type="button">자동</button></div>
 <div id="quest"></div>
 <div id="warbar" hidden></div>
 <div id="bossbar" hidden><div class="nm" id="bossNm"></div><div class="bar"><i id="bossHp" style="width:100%"></i></div></div>
@@ -212,7 +216,7 @@ button{font:inherit;-webkit-tap-highlight-color:transparent}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v10";
+const VER="v11";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -318,8 +322,15 @@ let toastT=0; function toast(msg,sub,dur){ const t=$("toast"); t.innerHTML=msg+(
 function goFull(){ try{ const el=document.documentElement; const f=el.requestFullscreen||el.webkitRequestFullscreen; if(f&&!document.fullscreenElement) f.call(el,{navigationUI:"hide"}).catch(()=>{}); }catch(e){} }
 
 /* ================= 방(초대 링크) ================= */
-const ROOM=(function(){ const u=new URL(location.href); let k=u.searchParams.get("k"); if(k){ k=k.replace(/[^a-zA-Z0-9_-]/g,"").slice(0,24); save("gw-room",k); } else k=load("gw-room"); return k||""; })();
-function inviteLink(){ const u=new URL(location.href); u.search="?k="+ROOM; return u.toString(); }
+const PASS="1004";            // 비밀번호 (v11~). 바꾸려면 여기만 고치면 됨
+const ROOM="gods-7h3k9q";      // 내부 방 이름 — 저장·영토·중계 주제가 여기에 묶여 있으니 바꾸지 않음
+const ACCESS=(function(){ const u=new URL(location.href); const k=u.searchParams.get("k");
+  if(k===PASS) save("gw-ok","1");
+  if(load("gw-room")===ROOM) save("gw-ok","1");   // 예전 초대 링크로 이미 들어와 있던 폰은 그대로 통과
+  if(k!==null){ try{ u.searchParams.delete("k"); history.replaceState(null,"",u.pathname+u.search+u.hash); }catch(e){} }
+  return load("gw-ok")==="1"; })();
+function tryPass(v){ if(String(v).trim()===PASS){ save("gw-ok","1"); return true; } return false; }
+function inviteLink(){ const u=new URL(location.href); u.search="?k="+PASS; u.hash=""; return u.toString(); }
 
 /* ================= 저장 ================= */
 const SAVEKEY="gw-save-"+ROOM;
@@ -1090,6 +1101,90 @@ function tickWar(dt){ const now=Date.now(); const slot=warSlotNow();
 function forceWar(rgId,att){ const now=Date.now(); cleanupUnits(); const slot=warSlotNow(); const def=W.o[rgId]; WAR.cur={slot,rg:rgId,att,def,notice:now-1,start:now+1500,end:now+60000,baseAtt:40,baseDef:40,resolved:false}; WAR.contrib={}; WAR.my=0; WAR.joined=false; WAR.side=null; WAR.announced=false; WAR.spawnT=0; }
 </script>
 <script>
+/* ================= MMO (v11) =================
+   1) 자리 비움 성장: 앱을 끈 동안(최대 24시간) 캐릭터가 자기 세계 사냥터에서 자동사냥 → 다시 열면 보고서.
+      다음 승급에 필요한 레벨 +6 에서 멈춤(승급 시험은 직접 해야 더 자람).
+   2) 자동사냥 버튼: 켜 두면 가까운 괴물을 찾아가 공격·기술·물약을 알아서 씀. 조이스틱을 만지면 그동안은 내가 조종.
+   3) 모험가 명부: 각자 캐릭터 정보를 중계 서버에 보관(retained) → 접속 안 한 친구도 사냥터에 "💤 자동사냥 중"으로 보이고
+      지금쯤 레벨(같은 계산식)으로 표시. 공격은 안 됨.
+*/
+const IDLE_MAX_H=24, IDLE_KPM=0.4, IDLE_EFF=0.5;          // 최대 시간 · 분당 처치 수 · 보상 비율
+function idleRegion(lv,realm){ const own=[realm*3,realm*3+1,realm*3+2].map(i=>REGIONS[i]); const list=own.concat([REGIONS[12]]); let best=list[0]; list.forEach(r=>{ if(r.lv[0]<=lv) best=r; }); return best; }
+function idleCap(rank){ return rank>=RANK_LV.length-1?60:Math.min(60,RANK_LV[rank+1]+6); }
+// 같은 입력이면 어느 폰에서 계산해도 같은 결과(친구 화면의 "지금쯤 레벨"도 이걸로 계산)
+function idleSim(lv,xp,realm,rank,ms){ const mins=Math.min(IDLE_MAX_H*60,Math.max(0,ms/60000)); const cap=idleCap(rank); let kills=0,gold=0,gxp=0,left=mins; const lv0=lv;
+  while(left>0){ const step=Math.min(10,left); left-=step; const rg=idleRegion(lv,realm); const L=clamp(lv,rg.lv[0],rg.lv[1]); const k=step*IDLE_KPM; const ex=(10+L*7)*IDLE_EFF*k, gd=(4+L*2)*IDLE_EFF*k; kills+=k; gold+=gd;
+    if(lv<cap){ xp+=ex; gxp+=ex; while(lv<cap&&xp>=xpNeed(lv)){ xp-=xpNeed(lv); lv++; } if(lv>=cap) xp=Math.min(xp,xpNeed(lv)-1); } }
+  return {lv,xp:Math.round(xp),kills:Math.floor(kills),gold:Math.round(gold),gxp:Math.round(gxp),mins:Math.round(mins),capped:lv>=cap,rg:idleRegion(lv,realm)}; }
+let lastIdle=null;
+function grantIdle(){ if(G.realm<0||!G.t) return null; const ms=Date.now()-G.t; if(ms<2*60000) return null;
+  const r=idleSim(G.lv,G.xp,G.realm,G.rank,ms); const lv0=G.lv; G.lv=r.lv; G.xp=r.xp; G.gold+=r.gold; G.kills+=r.kills;
+  const pots=Math.min(6,Math.floor(r.kills/40)); G.pots+=pots; let items=[]; const tries=Math.min(12,Math.floor(r.kills/25)); for(let i=0;i<tries;i++){ if(Math.random()<.12){ const t=Math.min(3,Math.floor(r.rg.lv[0]/8)); const s=pick(["w","a","r"]); G.bag.push({s,t}); items.push(itemName(s,t)); } }
+  G.idleTot=(G.idleTot||0)+r.mins; saveGame(); lastIdle=Object.assign({lv0,pots,items,away:ms},r); return lastIdle; }
+function fmtDur(min){ const h=Math.floor(min/60), m=Math.round(min%60); return h>0?`${h}시간${m?" "+m+"분":""}`:`${m}분`; }
+function showIdleReport(r){ if(!r) return; const lvUp=r.lv-r.lv0;
+  card(`<h2>💤 자동사냥 보고서</h2><p>${fmtDur(r.away/60000)} 동안 쉬는 사이 <b style="color:var(--gold)">${r.rg.n}</b>에서 혼자 사냥했어요${r.away/60000>IDLE_MAX_H*60?` (최대 ${IDLE_MAX_H}시간까지만 쳐 줘요)`:""}.</p>
+  <div class="idlegrid"><div><b>${fmt(r.kills)}</b><span>괴물 처치</span></div><div><b>+${fmt(r.gxp)}</b><span>경험치</span></div><div><b>+${fmt(r.gold)}</b><span>금화</span></div><div><b>${lvUp>0?`Lv.${r.lv0} → ${r.lv}`:`Lv.${r.lv}`}</b><span>${lvUp>0?`레벨 +${lvUp}!`:"레벨"}</span></div></div>
+  ${r.pots?`<p>물약 +${r.pots}개</p>`:""}${r.items.length?`<p>주운 아이템: ${r.items.join(", ")} (가방에 넣어 뒀어요)</p>`:""}
+  ${r.capped?`<p style="color:#ffcf4a">Lv.${idleCap(G.rank)}에서 멈췄어요. 성전에서 <b>승급 시험</b>을 통과해야 자는 동안에도 더 자라요.</p>`:""}
+  <button class="buy" id="idleOk" style="align-self:center">좋아요!</button>`); $("idleOk").onclick=closeLayer; jingle([523,659,784,1046]); if(lvUp>0){ P.hp=stat().mhp; fxRing(P.x,P.z,0xffffff,6); } }
+let hiddenAt=0;
+document.addEventListener("visibilitychange",()=>{ if(document.hidden){ hiddenAt=Date.now(); try{ net.pushProfile(0); }catch(e){} }
+  else if(started&&hiddenAt&&Date.now()-hiddenAt>2*60000){ const r=grantIdle(); hiddenAt=0; if(r&&!P.dead&&!layerOpen) showIdleReport(r); try{ net.pushProfile(1); }catch(e){} hud(); } });
+addEventListener("pagehide",()=>{ try{ saveGame(); net.pushProfile(0); }catch(e){} });
+
+/* ---------- 자동사냥 (앱 켜 둔 동안) ---------- */
+P.auto=load("gw-auto")==="1";
+function setAuto(on){ P.auto=on; save("gw-auto",on?"1":"0"); const b=$("bAuto"); if(b){ b.classList.toggle("on",on); b.textContent=on?"자동 ON":"자동"; } toast(on?"자동사냥 켬":"자동사냥 끔",on?"가까운 괴물을 찾아 싸워요 · 조이스틱을 만지면 그동안은 내가 조종":null,1.6); tone(on?880:440,.08); }
+function autoStep(){ if(!P.auto||P.dead||layerOpen) return null; const st=stat();
+  if(P.hp<st.mhp*.35&&G.pots>0) usePotion();
+  let best=null,bd=1e9; for(const m of mobs){ if(m.war&&!(typeof WAR!=="undefined"&&WAR.joined)) continue; if(m.hp<=0) continue; if(m.boss&&!m.trialOf&&P.hp<st.mhp*.5) continue; const d=Math.hypot(m.x-P.x,m.z-P.z); if(d<bd&&d<45){ bd=d; best=m; } }
+  if(best){ const dx=best.x-P.x, dz=best.z-P.z; const reach=best.boss?3.2:2.3;
+    if(bd>reach) return {x:dx/bd,z:dz/bd};
+    P.rot=Math.atan2(dx,dz); if(P.atkCd<=0) attack();
+    const R=RM(); for(let i=2;i>=0;i--){ const S=R.skills[i]; if(S&&G.rank>=S.rank&&P.sklCd[i]<=0){ useSkill(i); break; } }
+    return {x:0,z:0}; }
+  // 근처에 괴물이 없으면 내 레벨에 맞는 사냥터로
+  const rg=P.trial?REGIONS[G.realm*3]:idleRegion(G.lv,G.realm); const tx=rg.x+(rg.cap?0:0), tz=rg.z; const d=Math.hypot(tx-P.x,tz-P.z);
+  if(d>rg.r*.5) return {x:(tx-P.x)/d,z:(tz-P.z)/d};
+  // 사냥터 안에서는 천천히 돌아다님
+  P.autoWT=(P.autoWT||0)-1/60; if(P.autoWT<=0||!P.autoW){ P.autoWT=3; const a=Math.random()*6.283; P.autoW={x:rg.x+Math.cos(a)*rg.r*.45,z:rg.z+Math.sin(a)*rg.r*.45}; }
+  const wx=P.autoW.x-P.x, wz=P.autoW.z-P.z, wd=Math.hypot(wx,wz); return wd>2?{x:wx/wd*.7,z:wz/wd*.7}:{x:0,z:0}; }
+
+/* ---------- 모험가 명부 · 쉬는 친구 캐릭터 ---------- */
+const ROSTER=(function(){ try{ return JSON.parse(load("gw-roster")||"{}")||{}; }catch(e){ return {}; } })();
+const GHOSTS={};
+function myProfile(on){ return {i:G.id,n:G.name,r:G.realm,k:G.rank,l:G.lv,x:Math.round(G.xp),lk:(()=>{ const l=G.look||{}; return [l.face||0,l.body||0,l.hat||0,l.cape||0,l.weapon||0,l.tint||0]; })(),t:Date.now(),on:on?1:0,kills:G.kills}; }
+function mmoProfile(d){ if(!d||!d.i||d.i===G.id||d.r==null||d.r<0||!REALMS[d.r]) return; const old=ROSTER[d.i]; if(old&&old.t>d.t) return; ROSTER[d.i]=d; save("gw-roster",JSON.stringify(ROSTER)); }
+function isAway(p){ return !PEERS[p.i]&&(p.on===0||Date.now()-p.t>3*60000); }
+function projected(p){ return idleSim(p.l,p.x||0,p.r,p.k,isAway(p)?Date.now()-p.t:0); }
+function ghostLook(a){ a=a||[0,0,0,0,0,0]; return {face:a[0]||0,body:a[1]||0,hat:a[2]||0,cape:a[3]||0,weapon:a[4]||0,tint:a[5]||0}; }
+function makeGhost(p){ const lk=ghostLook(p.lk); const mesh=(typeof avatarGL==="function"&&avatarGL(p.r,p.k,lk))||makeAvatar(p.r,p.k,false,lk); scene.add(mesh); return mesh; }
+function dropGhost(id){ const g=GHOSTS[id]; if(!g) return; scene.remove(g.mesh); g.lbl.remove(); delete GHOSTS[id]; }
+let ghostT=0;
+function tickGhosts(dt){ if(!started) return; ghostT-=dt;
+  if(ghostT<=0){ ghostT=2; let n=0;
+    for(const id in ROSTER){ const p=ROSTER[id]; const away=isAway(p); const pr=away?projected(p):null; const rg=pr?pr.rg:null; const near=rg&&Math.hypot(rg.x-P.x,rg.z-P.z)<rg.r+110;
+      if(!away||!near||n>=10||Date.now()-p.t>14*86400000){ dropGhost(id); continue; } n++;
+      let g=GHOSTS[id]; if(!g){ const a=Math.random()*6.283, r=rnd(6,rg.r*.6); g=GHOSTS[id]={id,mesh:makeGhost(p),lbl:makeLabel("ally"),x:rg.x+Math.cos(a)*r,z:rg.z+Math.sin(a)*r,tx:0,tz:0,t:0,walk:0,act:0,rg:rg.id}; g.tx=g.x; g.tz=g.z; }
+      if(g.rg!==rg.id){ g.rg=rg.id; g.x=rg.x; g.z=rg.z; g.tx=g.x; g.tz=g.z; }
+      if(!g.mesh.userData.glAvatar&&typeof avatarGL==="function"){ const m2=avatarGL(p.r,p.k,ghostLook(p.lk)); if(m2){ scene.remove(g.mesh); g.mesh=m2; scene.add(m2); } }
+      g.p=p; g.pr=pr; } }
+  for(const id in GHOSTS){ const g=GHOSTS[id]; const rg=REGIONS[g.rg]; g.t-=dt; g.act=Math.max(0,g.act-dt);
+    if(g.t<=0){ g.t=rnd(2,5); const m=mobs.find(m=>!m.war&&m.rg===g.rg&&Math.hypot(m.x-g.x,m.z-g.z)<16); if(m&&Math.random()<.6){ g.tx=m.x+rnd(-1.5,1.5); g.tz=m.z+rnd(-1.5,1.5); g.fight=m; } else { const a=rnd(0,6.283), r=rnd(4,rg.r*.65); g.tx=rg.x+Math.cos(a)*r; g.tz=rg.z+Math.sin(a)*r; g.fight=null; } }
+    const dx=g.tx-g.x, dz=g.tz-g.z, L=Math.hypot(dx,dz); const moving=L>1;
+    if(moving){ g.x+=dx/L*4*dt; g.z+=dz/L*4*dt; g.walk+=dt*10; g.mesh.rotation.y=Math.atan2(dx,dz); }
+    else if(g.fight&&mobs.indexOf(g.fight)>=0){ g.mesh.rotation.y=Math.atan2(g.fight.x-g.x,g.fight.z-g.z); if(g.act<=0){ g.act=.9; if(Math.hypot(g.x-P.x,g.z-P.z)<50) fxSpark(g.fight.x,1.6,g.fight.z,0xffffff,5); } }
+    g.mesh.position.set(g.x,hAt(g.x,g.z),g.z); const u=g.mesh.userData;
+    if(u.gl) animState(g.mesh,g.act>.6?"attack":moving?"run":"idle"); else if(u.legL){ const sw=moving?Math.sin(g.walk)*.7:0; u.legL.rotation.x=sw; u.legR.rotation.x=-sw; u.armL.rotation.x=-sw; u.armR.rotation.x=g.act>.6?-2.2:sw; }
+    if(Math.hypot(g.x-P.x,g.z-P.z)<55){ const p=g.p, pr=g.pr; placeLabel(g.lbl,g.x,4.6,g.z,`💤 ${p.n} <b>${REALMS[p.r].n} · ${REALMS[p.r].ranks[p.k]} Lv.${pr?pr.lv:p.l}</b><span class="away">자동사냥 중 · ${fmtDur((Date.now()-p.t)/60000)}째</span>`); } else g.lbl.style.display="none"; } }
+function showRoster(){ const me=`<div class="row"><div class="ic" style="color:${REALMS[G.realm].c1}">${REALMS[G.realm].icon}</div><div class="t"><div>${G.name} (나) <i class="st on">접속 중</i></div><span>${REALMS[G.realm].n} · ${REALMS[G.realm].ranks[G.rank]} Lv.${G.lv} · ${(regionAt(P.x,P.z)||{n:"황야"}).n}</span></div></div>`;
+  const live=Object.values(PEERS).map(o=>{ const rg=regionAt(o.x,o.z); return {s:1e15+o.lv,h:`<div class="row"><div class="ic" style="color:${REALMS[o.realm].c1}">${REALMS[o.realm].icon}</div><div class="t"><div>${o.name} <i class="st on">접속 중</i></div><span>${REALMS[o.realm].n} · ${REALMS[o.realm].ranks[o.rank]} Lv.${o.lv} · ${rg?rg.n:"황야"}</span></div></div>`}; });
+  const away=Object.values(ROSTER).filter(p=>isAway(p)&&Date.now()-p.t<30*86400000).map(p=>{ const pr=projected(p); const hrs=(Date.now()-p.t)/60000; return {s:pr.lv*1e6-hrs,h:`<div class="row"><div class="ic" style="color:${REALMS[p.r].c1}">${REALMS[p.r].icon}</div><div class="t"><div>${p.n} <i class="st">💤 자동사냥 중</i></div><span>${REALMS[p.r].n} · ${REALMS[p.r].ranks[p.k]} Lv.${pr.lv}${pr.lv>p.l?` <b style="color:#3fd27a">(+${pr.lv-p.l})</b>`:""} · ${pr.rg.n} · ${fmtDur(hrs)} 전 접속${pr.capped?" · 승급 기다리는 중":""}</span></div></div>`}; });
+  const rows=live.concat(away).sort((a,b)=>b.s-a.s).map(x=>x.h).join("");
+  card(`<h2>모험가 명부</h2><p>접속 중 ${Object.keys(PEERS).length+1}명 · 쉬는 중 ${away.length}명 · 중계 서버 ${net.up}/4</p>${me}${rows}<p style="font-size:12px">쉬는 친구도 자기 세계 사냥터에서 자동사냥으로 자라고 있어요(최대 ${IDLE_MAX_H}시간). 사냥터에 가면 💤 표시로 보여요.</p><button class="buy alt" id="toChat" style="align-self:center">대화하기</button>`); $("toChat").onclick=showSay; }
+</script>
+<script>
 /* ================= 아주 작은 MQTT 클라이언트 (웹소켓) — 외부 라이브러리 없이 ================= */
 function MiniMQTT(url,opt){
   const self={url,ok:false,ws:null,buf:new Uint8Array(0),pid:1,pingT:null,retry:null,closed:false,subs:[],opt};
@@ -1119,17 +1214,18 @@ function MiniMQTT(url,opt){
 const PEERS={};   // 다른 플레이어들
 const net=(function(){
   const BROKERS=window.GW_BROKERS||["wss://broker.emqx.io:8084/mqtt","wss://broker.hivemq.com:8884/mqtt","wss://mqtt.eclipseprojects.io:443/mqtt","wss://test.mosquitto.org:8081"];
-  const ROOT="chk0702/godswar/"+ROOM+"/"; const TOPIC=ROOT+"all", WTOPIC=ROOT+"world";
+  const ROOT="chk0702/godswar/"+ROOM+"/"; const TOPIC=ROOT+"all", WTOPIC=ROOT+"world", PTOPIC=ROOT+"p/";
   const N={clients:[],up:0,seq:0,seen:{},seenN:0,sendT:0,started:false,hiT:0,worldT:0,lastWorld:""};
   function dots(){ N.clients.forEach((c,i)=>{ const d=$("netPill").querySelector(`.dot[data-i="${i}"]`); if(d) d.classList.toggle("on",c.ok); }); const n=Object.keys(PEERS).length; $("netTxt").textContent=N.up>0?(n>0?`${n}명과 함께`:"접속 중 · 친구 기다리는 중"):"연결 중…"; }
-  function start(){ if(N.started||G.realm<0||!ROOM) return; N.started=true; if(!/^https?:/.test(location.protocol)){ $("netTxt").textContent="앱에서만 함께하기 가능"; return; }
+  function start(){ if(N.started||G.realm<0||!ACCESS) return; N.started=true; if(!/^https?:/.test(location.protocol)){ $("netTxt").textContent="앱에서만 함께하기 가능"; return; }
     BROKERS.forEach((url,i)=>{ const c=MiniMQTT(url,{clientId:"gw_"+G.id+"_"+i+"_"+Math.random().toString(36).slice(2,6),keepalive:25,
-      onconnect:()=>{ N.up++; c.subscribe(TOPIC); c.subscribe(WTOPIC); dots(); hello(); },
+      onconnect:()=>{ N.up++; c.subscribe(TOPIC); c.subscribe(WTOPIC); c.subscribe(PTOPIC+"+"); dots(); hello(); try{ c.publish(PTOPIC+G.id,JSON.stringify(myProfile(1)),true); }catch(e){} },
       onclose:()=>{ N.up=Math.max(0,N.up-1); dots(); },
-      onmessage:(topic,msg,retain)=>{ let d; try{ d=JSON.parse(msg); }catch(e){ return; } if(topic===WTOPIC){ mergeWorld(d); return; } recv(d); } });
+      onmessage:(topic,msg,retain)=>{ let d; try{ d=JSON.parse(msg); }catch(e){ return; } if(topic===WTOPIC){ mergeWorld(d); return; } if(topic.indexOf(PTOPIC)===0){ if(typeof mmoProfile==="function") mmoProfile(d); return; } recv(d); } });
       N.clients.push(c); }); dots(); }
   function send(o){ if(!N.started) return; o.i=G.id; o.q=++N.seq; const s=JSON.stringify(o); N.clients.forEach(c=>{ try{ c.publish(TOPIC,s); }catch(e){} }); }
   function pushWorld(){ const s=JSON.stringify(W); N.clients.forEach(c=>{ try{ c.publish(WTOPIC,s,true); }catch(e){} }); }
+  function pushProfile(on){ if(!N.started||G.realm<0) return; const s=JSON.stringify(myProfile(on)); N.clients.forEach(c=>{ try{ c.publish(PTOPIC+G.id,s,true); }catch(e){} }); }
   function hello(){ send({t:"hi",n:G.name,r:G.realm,k:G.rank,l:G.lv,lk:lookArr()}); }
   function lookArr(){ const l=G.look||{}; return [l.face||0,l.body||0,l.hat||0,l.cape||0,l.weapon||0,l.tint||0]; }
   function lookObj(a){ a=a||[0,0,0,0,0,0]; return {face:a[0]||0,body:a[1]||0,hat:a[2]||0,cape:a[3]||0,weapon:a[4]||0,tint:a[5]||0}; }
@@ -1156,8 +1252,8 @@ const net=(function(){
       if(o.m) o.walk+=dt*9; const u=o.mesh.userData, sw=o.m?Math.sin(o.walk)*.7:0; o.anim=Math.max(0,o.anim-dt); if(u.gl){ animState(o.mesh,o.dead?"dead":o.anim>.25?(o.skl?"skill":"attack"):o.m?"run":"idle"); if(u.crown) u.crown.rotation.y+=dt*2; } else { u.legL.rotation.x=sw; u.legR.rotation.x=-sw; u.armL.rotation.x=-sw; o.anim=Math.max(0,o.anim-dt); u.armR.rotation.x=o.anim>0?-2.2:sw; u.body.position.y=o.m?Math.abs(Math.sin(o.walk))*.12:0; }
       if(Math.hypot(o.x-P.x,o.z-P.z)<60&&!o.dead){ const foe=o.realm!==G.realm; o.lbl.className="lbl "+(foe?"foe":"ally"); placeLabel(o.lbl,o.x,4.6,o.z,`${o.bubbleT>0?`<span class="bub">${o.bubble}</span>`:""}${o.name} <b>${REALMS[o.realm].n} · ${REALMS[o.realm].ranks[o.rank]} Lv.${o.lv}</b><span class="hp"><i style="width:${Math.round(o.hp/o.mhp*100)}%;background:${foe?"#ff5a5f":"#3fd27a"}"></i></span>`); } else o.lbl.style.display="none"; }
     if(N.up>0){ N.sendT-=dt; if(N.sendT<=0){ N.sendT=.16; send({t:"st",n:G.name,x:+P.x.toFixed(1),z:+P.z.toFixed(1),f:+P.rot.toFixed(2),m:P.moving?1:0,h:Math.round(P.hp),H:stat().mhp,l:G.lv,k:G.rank,r:G.realm,w:G.eq.w,D:P.dead?1:0}); }
-      N.hiT-=dt; if(N.hiT<=0){ N.hiT=6; hello(); } N.worldT-=dt; if(N.worldT<=0){ N.worldT=45; pushWorld(); } } }
-  return {start,send,tick,pushWorld,chat,rebuild,get up(){ return N.up; }};
+      N.hiT-=dt; if(N.hiT<=0){ N.hiT=6; hello(); } N.worldT-=dt; if(N.worldT<=0){ N.worldT=45; pushWorld(); } N.profT=(N.profT||20)-dt; if(N.profT<=0){ N.profT=60; pushProfile(1); } } }
+  return {start,send,tick,pushWorld,pushProfile,chat,rebuild,get up(){ return N.up; }};
 })();
 </script>
 <script>
@@ -1169,7 +1265,7 @@ canvas.addEventListener("pointerdown",e=>{ initAudio(); PTS[e.pointerId]={x:e.cl
 addEventListener("pointermove",e=>{ if(PTS[e.pointerId]){ PTS[e.pointerId].x=e.clientX; PTS[e.pointerId].y=e.clientY; } if(pinch){ const ids=Object.keys(PTS); if(ids.length>=2){ const a=PTS[ids[0]],b=PTS[ids[1]]; const d=Math.hypot(a.x-b.x,a.y-b.y); setZoom(pinch.z*pinch.d/Math.max(20,d)); } return; } if(!joy||e.pointerId!==joy.id) return; let dx=e.clientX-joy.x, dy=e.clientY-joy.y; const L=Math.hypot(dx,dy), Rr=52; if(L>Rr){ dx*=Rr/L; dy*=Rr/L; } joy.dx=dx/Rr; joy.dy=dy/Rr; knob.style.transform=`translate(${dx}px,${dy}px)`; });
 const endJoy=e=>{ delete PTS[e.pointerId]; if(Object.keys(PTS).length<2) pinch=null; if(joy&&e.pointerId===joy.id){ joy=null; joyEl.hidden=true; } };
 canvas.addEventListener("wheel",e=>{ e.preventDefault(); setZoom(ZOOM*(e.deltaY>0?1.08:.92)); },{passive:false});
-$("zIn").onclick=()=>setZoom(ZOOM*.85); $("zOut").onclick=()=>setZoom(ZOOM*1.18);
+$("zIn").onclick=()=>setZoom(ZOOM*.85); $("zOut").onclick=()=>setZoom(ZOOM*1.18); $("bAuto").onclick=()=>setAuto(!P.auto);
 addEventListener("pointerup",endJoy); addEventListener("pointercancel",endJoy);
 const keys={}; addEventListener("keydown",e=>{ keys[e.key.toLowerCase()]=1; if(e.key===" ") jump(); if(e.key.toLowerCase()==="j") attack(); if(e.key.toLowerCase()==="k") useSkill(0); if(e.key.toLowerCase()==="u") useSkill(1); if(e.key.toLowerCase()==="i") useSkill(2); if(e.key.toLowerCase()==="l") usePotion(); }); addEventListener("keyup",e=>{ keys[e.key.toLowerCase()]=0; });
 function jump(){ if(P.dead||P.y>0.01) return; P.vy=9; tone(300,.08,"triangle"); if(player&&player.userData.gl) animState(player,"jump"); }
@@ -1204,15 +1300,15 @@ function showSay(){ const list=SAY_COMMON.concat(RM().say); card(`<h2>대화</h2
   const send=m=>{ m=(m||"").trim().slice(0,60); if(!m) return; net.send({t:"say",m}); net.chat(G.name,m,G.realm); closeLayer(); };
   layers.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>send(b.dataset.s)); $("chatGo").onclick=()=>send($("chatIn").value); $("chatIn").onkeydown=e=>{ if(e.key==="Enter") send($("chatIn").value); }; const lg=$("chatlog"); lg.scrollTop=lg.scrollHeight; setTimeout(()=>{ try{ $("chatIn").focus(); }catch(e){} },350); }
 function showOnline(){ const rows=[{name:G.name+" (나)",realm:G.realm,rank:G.rank,lv:G.lv,x:P.x,z:P.z}].concat(Object.values(PEERS)).map(o=>{ const rg=regionAt(o.x,o.z); return `<div class="row"><div class="ic" style="color:${REALMS[o.realm].c1}">${REALMS[o.realm].icon}</div><div class="t"><div>${o.name}</div><span>${REALMS[o.realm].n} · ${REALMS[o.realm].ranks[o.rank]} Lv.${o.lv} · ${rg?rg.n:"황야"}</span></div></div>`; }).join("");
-  card(`<h2>지금 접속 중</h2><p>${Object.keys(PEERS).length+1}명 · 중계 서버 ${net.up}/4 연결</p>${rows}<p style="font-size:12px">초대 코드 ${ROOM} · 같은 코드로 들어온 사람만 보여요</p><button class="buy alt" id="toChat" style="align-self:center">대화하기</button>`); $("toChat").onclick=showSay; }
-$("netPill").style.pointerEvents="auto"; $("netPill").onclick=showOnline;
+  card(`<h2>지금 접속 중</h2><p>${Object.keys(PEERS).length+1}명 · 중계 서버 ${net.up}/4 연결</p>${rows}<p style="font-size:12px">비밀번호로 들어온 사람만 보여요</p><button class="buy alt" id="toChat" style="align-self:center">대화하기</button>`); $("toChat").onclick=showSay; }
+$("netPill").style.pointerEvents="auto"; $("netPill").onclick=()=>showRoster();
 function lookRows(){ return LOOK_ROWS.map(([k,label,list])=>`<div class="lookrow"><span>${label}</span><div class="chips">${list.map((it,j)=>`<button type="button" class="chip${((G.look&&G.look[k])||0)===j?" on":""}" data-k="${k}" data-j="${j}">${it[0]}</button>`).join("")}</div></div>`).join(""); }
 function bindLook(after){ layers.querySelectorAll(".chip").forEach(b=>b.onclick=()=>{ G.look=G.look||{}; G.look[b.dataset.k]=+b.dataset.j; layers.querySelectorAll(`.chip[data-k="${b.dataset.k}"]`).forEach(x=>x.classList.toggle("on",x===b)); tone(660,.06); if(after) after(); }); }
 function showLook(){ layers.innerHTML=`<div class="layer sheet" id="bg"><div class="card"><h2>꾸미기</h2><p>얼굴·옷·머리·망토·무기·빛깔을 섞어서 나만의 신을 만들어요. "자동"은 세계와 계급에 맞게 저절로 바뀜.</p><div class="looks">${lookRows()}</div><button class="close" id="cls" type="button">닫기</button></div></div>`; layerOpen=true; P.preview=true;
   const done=()=>{ closeLayer(); P.preview=false; }; $("cls").onclick=done; $("bg").onclick=e=>{ if(e.target.id==="bg") done(); };
   bindLook(()=>{ buildPlayer(); saveGame(); }); }
 function showMenu(){ card(`<h2>신들의 전쟁</h2><p>${G.name} · ${RM().n} ${RM().ranks[G.rank]} · 버전 ${VER}</p>
-  <div class="row"><div class="t"><div>친구 초대 링크</div><span>이 링크를 받은 사람만 같은 세계에 들어와요</span></div><button class="buy alt" id="copyL">복사</button></div><div class="linkbox">${inviteLink()}</div>
+  <div class="row"><div class="t"><div>친구 초대 링크</div><span>비밀번호 1004가 들어 있는 링크예요</span></div><button class="buy alt" id="copyL">복사</button></div><div class="linkbox">${inviteLink()}</div>
   <div class="row"><div class="t"><div>함께하기 서버</div><span>4곳 중 ${net.up}곳 연결됨 · 같이 있는 사람 ${Object.keys(PEERS).length}명</span></div></div>
   <div class="row"><div class="t"><div>꾸미기</div><span>얼굴·옷·머리·망토·무기·빛깔</span></div><button class="buy alt" id="lookBtn">열기</button></div>
   <div class="row"><div class="t"><div>집(수도)으로 순간이동</div><span>전투 중엔 안 돼요</span></div><button class="buy" id="goHome">가기</button></div>
@@ -1236,8 +1332,8 @@ function showDeath(by,lost){ const R=RM(); layers.innerHTML=`<div class="layer d
 function showTitle(){
   const pickRealm=G.realm>=0?G.realm:-1;
   layers.innerHTML=`<div class="layer" id="title"><div class="titlebox"><div class="logo">신들의 전쟁<span>WAR OF GODS</span></div>
-    ${!ROOM?`<p class="help" style="color:#ff8d8d">초대 링크가 필요해요. 링크를 받은 사람만 같은 세계에 들어올 수 있어요.</p><input class="inp" id="roomIn" placeholder="초대 코드"><button class="go" id="roomGo">들어가기</button>`:
-    (G.realm>=0?`<p class="help"><b style="color:var(--gold)">${G.name}</b> · ${RM().n} ${RM().ranks[G.rank]} Lv.${G.lv}</p><button class="go" id="start">계속하기</button><p class="help" style="font-size:12px">초대 코드 ${ROOM}</p>`:
+    ${!ACCESS?`<p class="help">비밀번호를 아는 사람만 들어올 수 있어요.</p><input class="inp" id="roomIn" type="password" inputmode="numeric" maxlength="12" placeholder="비밀번호" autocomplete="off"><button class="go" id="roomGo">들어가기</button><p class="help" id="passErr" style="color:#ff8d8d;min-height:1.2em"></p>`:
+    (G.realm>=0?`<p class="help"><b style="color:var(--gold)">${G.name}</b> · ${RM().n} ${RM().ranks[G.rank]} Lv.${G.lv}</p><button class="go" id="start">계속하기</button>`:
     `<p class="help">네 세계 중 하나를 골라요. 한 번 고르면 바꿀 수 없어요.<br>괴물을 잡고 승급 시험을 통과해 절대자 바로 아래까지 올라가고, 다른 세계와 싸워 영토를 넓혀요.</p>
      <div class="realms">${REALMS.map((R,i)=>`<button type="button" class="realm${i===pickRealm?" on":""}" data-r="${i}" style="--a:${R.a};--b:${R.b}"><em>${R.icon}</em><b>${R.n}</b><i>${R.sub}<br>절대자: ${R.absolute}<br>기술: ${R.skills.map(x=>x.n).join(", ")}</i></button>`).join("")}</div>
      <input class="inp" id="nameIn" maxlength="8" placeholder="이름 (8자까지)" value="${G.name||""}"><button class="go" id="start" disabled>이 세계로!</button>`)}
@@ -1245,10 +1341,10 @@ function showTitle(){
   let sel=pickRealm;
   layers.querySelectorAll(".realm").forEach(b=>b.onclick=()=>{ sel=+b.dataset.r; layers.querySelectorAll(".realm").forEach(x=>x.classList.toggle("on",x===b)); document.documentElement.style.setProperty("--c1",REALMS[sel].c1); $("start").disabled=!($("nameIn").value.trim()); tone(660,.06); });
   if($("nameIn")) $("nameIn").oninput=()=>{ $("start").disabled=!(sel>=0&&$("nameIn").value.trim()); };
-  if($("roomGo")) $("roomGo").onclick=()=>{ const k=$("roomIn").value.trim().replace(/[^a-zA-Z0-9_-]/g,""); if(!k) return; location.search="?k="+k; };
+  if($("roomGo")){ const go=()=>{ if(tryPass($("roomIn").value)){ location.reload(); } else { $("passErr").textContent="비밀번호가 달라요"; buzz(60); $("roomIn").value=""; } }; $("roomGo").onclick=go; $("roomIn").onkeydown=e=>{ if(e.key==="Enter") go(); }; }
   if($("start")) $("start").onclick=()=>{ initAudio(); goFull(); if(G.realm<0){ G.name=$("nameIn").value.trim().slice(0,8); G.realm=sel; saveGame(); } begin(); };
 }
-function begin(){ closeLayer(); try{ warCatchUp(); }catch(e){ console.warn(e); } setRealmTheme(); buildPlayer(); spawnAtHome(); P.hp=stat().mhp; ensureQuests(); hud(); started=true; net.start(); jingle([392,523,659,784]); toast(`${RM().n}에 온 것을 환영해요`,`${RM().absolute}의 세계 · ${RM().ranks[G.rank]} ${G.name}`,3); }
+function begin(){ closeLayer(); try{ warCatchUp(); }catch(e){ console.warn(e); } let idle=null; try{ idle=grantIdle(); }catch(e){ console.warn(e); } setRealmTheme(); buildPlayer(); spawnAtHome(); P.hp=stat().mhp; ensureQuests(); hud(); started=true; net.start(); jingle([392,523,659,784]); toast(`${RM().n}에 온 것을 환영해요`,`${RM().absolute}의 세계 · ${RM().ranks[G.rank]} ${G.name}`,3); setAuto&&$("bAuto")&&($("bAuto").classList.toggle("on",P.auto),$("bAuto").textContent=P.auto?"자동 ON":"자동"); if(idle) setTimeout(()=>{ if(!layerOpen&&!P.dead) showIdleReport(idle); },900); }
 
 /* ================= 매 프레임 ================= */
 const myLbl=makeLabel("ally"); let started=false, last=performance.now(), skyCur=new THREE.Color(0x9fd4ff), fogCur=new THREE.Color(0xdcefff);
@@ -1256,7 +1352,7 @@ function update(dt){
   const st=stat(); if(P.hp>st.mhp) P.hp=st.mhp;
   P.atkCd-=dt; for(let i=0;i<3;i++) P.sklCd[i]=Math.max(0,P.sklCd[i]-dt); P.rage=Math.max(0,P.rage-dt); P.haste=Math.max(0,P.haste-dt); P.combat=Math.max(0,P.combat-dt); const enemyNear=mobs.some(m=>m.state==="chase"&&Math.hypot(m.x-P.x,m.z-P.z)<18); if(!enemyNear&&!P.moving&&!P.dead&&P.hp<st.mhp){ P.restT=(P.restT||0)+dt; if(P.restT>2){ P.hp=Math.min(st.mhp,P.hp+st.mhp*.04*dt); if(Math.random()<dt*3) fxSpark(P.x+rnd(-.6,.6),1+rnd(0,2),P.z,0x9dffb8,2); } } else P.restT=0; P.atkAnim=Math.max(0,P.atkAnim-dt); P.invul=Math.max(0,P.invul-dt); P.slow=Math.max(0,P.slow-dt); P.weak=Math.max(0,P.weak-dt); P.shadow=Math.max(0,P.shadow-dt); P.dizzy=Math.max(0,P.dizzy-dt); P.heat=Math.max(0,P.heat-dt);
   // 이동
-  let ix=0,iz=0; if(joy&&!layerOpen){ ix+=joy.dx; iz+=joy.dy; } if(keys.a||keys.arrowleft) ix-=1; if(keys.d||keys.arrowright) ix+=1; if(keys.w||keys.arrowup) iz-=1; if(keys.s||keys.arrowdown) iz+=1;
+  let ix=0,iz=0; if(joy&&!layerOpen){ ix+=joy.dx; iz+=joy.dy; } if(keys.a||keys.arrowleft) ix-=1; if(keys.d||keys.arrowright) ix+=1; if(keys.w||keys.arrowup) iz-=1; if(keys.s||keys.arrowdown) iz+=1; if(Math.hypot(ix,iz)<.1&&P.auto){ const a=autoStep(); if(a){ ix=a.x; iz=a.z; } }
   const L=Math.hypot(ix,iz); P.moving=L>.1&&!P.dead&&!layerOpen;
   if(P.moving){ if(L>1){ ix/=L; iz/=L; } let spd=10.5*(P.slow>0?.7:1)*(P.heat>0?1.15:1)*(P.haste>0?1.5:1)*(G.eq.r===1?1.1:1); P.x+=ix*spd*dt; P.z+=iz*spd*dt; P.rot=Math.atan2(ix,iz); P.walk+=dt*13; }
   if(P.dashT>0){ P.dashT-=dt; P.x+=P.dashX*dt; P.z+=P.dashZ*dt; } P.x=clamp(P.x,-WORLD_HALF+2,WORLD_HALF-2); P.z=clamp(P.z,-WORLD_HALF+2,WORLD_HALF-2);
@@ -1270,7 +1366,7 @@ function update(dt){
   if(P.trial){ P.trial.t-=dt; if(P.trial.t<=0){ toast("시간 초과…",null,2); finishTrial(false); } else if(Math.hypot(P.x-REGIONS[G.realm*3].x,P.z-REGIONS[G.realm*3].z)>60){ toast("시험장을 벗어났어요",null,2); finishTrial(false); } }
   if(P.dead){ P.deadT-=dt; const b=$("rsp"); if(b){ $("rspT").textContent=Math.max(0,Math.ceil(P.deadT)); if(P.deadT<=0&&b.disabled){ b.disabled=false; b.onclick=respawn; $("rspT").textContent=""; } } }
   const rg=regionAt(P.x,P.z); if(rg&&rg!==P.lastRg){ P.lastRg=rg; questEvent("visit",rg); if(!rg.cap||rg.realm!==G.realm) toast(rg.n,rg.realm>=0?`${REALMS[rg.realm].n}의 땅 · Lv.${rg.lv[0]}~${rg.lv[1]}`:`중립 · Lv.${rg.lv[0]}~${rg.lv[1]} · 세계 보스 출현`,1.6); }
-  tickMobs(dt); tickWar(dt); tickTerritory(dt); net.tick(dt); tickFX(dt); tickNPCs(dt); tickMixers(dt);
+  tickMobs(dt); tickWar(dt); tickTerritory(dt); net.tick(dt); tickGhosts(dt); tickFX(dt); tickNPCs(dt); tickMixers(dt);
   if(P.guide){ const dx=P.guide.x-P.x, dz=P.guide.z-P.z, dist=Math.hypot(dx,dz); if(dist<7){ const lb=P.guide.label; setGuide(null); toast("도착!",lb,1.5); } else { $("gArrow").style.transform=`rotate(${Math.atan2(dx,-dz)-Math.PI/2}rad)`; $("gTxt").textContent=`${P.guide.label} · ${Math.round(dist)}m`; } }
   P.bubbleT=Math.max(0,(P.bubbleT||0)-dt); if(P.bubbleT>0) placeLabel(myLbl,P.x,4.9,P.z,`<span class="bub">${P.bubble}</span>`); else myLbl.style.display="none";
   // 하늘색: 지금 있는 세계의 색으로 천천히
@@ -1285,11 +1381,11 @@ camera.position.set(0,30,60); camera.lookAt(0,10,0);
 function frame(t){ const dt=Math.min(.05,(t-last)/1000); last=t; if(started) update(dt); else { const a=t/9000; camera.position.set(Math.sin(a)*70,30,Math.cos(a)*70); camera.lookAt(0,18,0); tickFX(dt); dayNight(dt,true,REALMS[0]); } if(POST&&started) POST.render(); else { renderer.setRenderTarget(null); renderer.render(scene,camera); } requestAnimationFrame(frame); }
 $("bQuest").onclick=()=>{ if(P.nearTemple) showTemple(); else showQuests(); };
 showTitle(); requestAnimationFrame(frame);
-window.__gw={G,P,mobs,W,net,PEERS,WAR,forceWar,resolveWar,joinWar,begin,update,spawnMob,spawnAtHome,REGIONS,attack,useSkill,startTrial,die,respawn};
+window.__gw={idleSim,grantIdle,showIdleReport,setAuto,autoStep,ROSTER,GHOSTS,mmoProfile,showRoster,G,P,mobs,W,net,PEERS,WAR,forceWar,resolveWar,joinWar,begin,update,spawnMob,spawnAtHome,REGIONS,attack,useSkill,startTrial,die,respawn};
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="9788cf22";
+(function(){ var CUR="a68a3bd3";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);

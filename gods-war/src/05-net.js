@@ -28,17 +28,18 @@ function MiniMQTT(url,opt){
 const PEERS={};   // 다른 플레이어들
 const net=(function(){
   const BROKERS=window.GW_BROKERS||["wss://broker.emqx.io:8084/mqtt","wss://broker.hivemq.com:8884/mqtt","wss://mqtt.eclipseprojects.io:443/mqtt","wss://test.mosquitto.org:8081"];
-  const ROOT="chk0702/godswar/"+ROOM+"/"; const TOPIC=ROOT+"all", WTOPIC=ROOT+"world";
+  const ROOT="chk0702/godswar/"+ROOM+"/"; const TOPIC=ROOT+"all", WTOPIC=ROOT+"world", PTOPIC=ROOT+"p/";
   const N={clients:[],up:0,seq:0,seen:{},seenN:0,sendT:0,started:false,hiT:0,worldT:0,lastWorld:""};
   function dots(){ N.clients.forEach((c,i)=>{ const d=$("netPill").querySelector(`.dot[data-i="${i}"]`); if(d) d.classList.toggle("on",c.ok); }); const n=Object.keys(PEERS).length; $("netTxt").textContent=N.up>0?(n>0?`${n}명과 함께`:"접속 중 · 친구 기다리는 중"):"연결 중…"; }
-  function start(){ if(N.started||G.realm<0||!ROOM) return; N.started=true; if(!/^https?:/.test(location.protocol)){ $("netTxt").textContent="앱에서만 함께하기 가능"; return; }
+  function start(){ if(N.started||G.realm<0||!ACCESS) return; N.started=true; if(!/^https?:/.test(location.protocol)){ $("netTxt").textContent="앱에서만 함께하기 가능"; return; }
     BROKERS.forEach((url,i)=>{ const c=MiniMQTT(url,{clientId:"gw_"+G.id+"_"+i+"_"+Math.random().toString(36).slice(2,6),keepalive:25,
-      onconnect:()=>{ N.up++; c.subscribe(TOPIC); c.subscribe(WTOPIC); dots(); hello(); },
+      onconnect:()=>{ N.up++; c.subscribe(TOPIC); c.subscribe(WTOPIC); c.subscribe(PTOPIC+"+"); dots(); hello(); try{ c.publish(PTOPIC+G.id,JSON.stringify(myProfile(1)),true); }catch(e){} },
       onclose:()=>{ N.up=Math.max(0,N.up-1); dots(); },
-      onmessage:(topic,msg,retain)=>{ let d; try{ d=JSON.parse(msg); }catch(e){ return; } if(topic===WTOPIC){ mergeWorld(d); return; } recv(d); } });
+      onmessage:(topic,msg,retain)=>{ let d; try{ d=JSON.parse(msg); }catch(e){ return; } if(topic===WTOPIC){ mergeWorld(d); return; } if(topic.indexOf(PTOPIC)===0){ if(typeof mmoProfile==="function") mmoProfile(d); return; } recv(d); } });
       N.clients.push(c); }); dots(); }
   function send(o){ if(!N.started) return; o.i=G.id; o.q=++N.seq; const s=JSON.stringify(o); N.clients.forEach(c=>{ try{ c.publish(TOPIC,s); }catch(e){} }); }
   function pushWorld(){ const s=JSON.stringify(W); N.clients.forEach(c=>{ try{ c.publish(WTOPIC,s,true); }catch(e){} }); }
+  function pushProfile(on){ if(!N.started||G.realm<0) return; const s=JSON.stringify(myProfile(on)); N.clients.forEach(c=>{ try{ c.publish(PTOPIC+G.id,s,true); }catch(e){} }); }
   function hello(){ send({t:"hi",n:G.name,r:G.realm,k:G.rank,l:G.lv,lk:lookArr()}); }
   function lookArr(){ const l=G.look||{}; return [l.face||0,l.body||0,l.hat||0,l.cape||0,l.weapon||0,l.tint||0]; }
   function lookObj(a){ a=a||[0,0,0,0,0,0]; return {face:a[0]||0,body:a[1]||0,hat:a[2]||0,cape:a[3]||0,weapon:a[4]||0,tint:a[5]||0}; }
@@ -65,7 +66,7 @@ const net=(function(){
       if(o.m) o.walk+=dt*9; const u=o.mesh.userData, sw=o.m?Math.sin(o.walk)*.7:0; o.anim=Math.max(0,o.anim-dt); if(u.gl){ animState(o.mesh,o.dead?"dead":o.anim>.25?(o.skl?"skill":"attack"):o.m?"run":"idle"); if(u.crown) u.crown.rotation.y+=dt*2; } else { u.legL.rotation.x=sw; u.legR.rotation.x=-sw; u.armL.rotation.x=-sw; o.anim=Math.max(0,o.anim-dt); u.armR.rotation.x=o.anim>0?-2.2:sw; u.body.position.y=o.m?Math.abs(Math.sin(o.walk))*.12:0; }
       if(Math.hypot(o.x-P.x,o.z-P.z)<60&&!o.dead){ const foe=o.realm!==G.realm; o.lbl.className="lbl "+(foe?"foe":"ally"); placeLabel(o.lbl,o.x,4.6,o.z,`${o.bubbleT>0?`<span class="bub">${o.bubble}</span>`:""}${o.name} <b>${REALMS[o.realm].n} · ${REALMS[o.realm].ranks[o.rank]} Lv.${o.lv}</b><span class="hp"><i style="width:${Math.round(o.hp/o.mhp*100)}%;background:${foe?"#ff5a5f":"#3fd27a"}"></i></span>`); } else o.lbl.style.display="none"; }
     if(N.up>0){ N.sendT-=dt; if(N.sendT<=0){ N.sendT=.16; send({t:"st",n:G.name,x:+P.x.toFixed(1),z:+P.z.toFixed(1),f:+P.rot.toFixed(2),m:P.moving?1:0,h:Math.round(P.hp),H:stat().mhp,l:G.lv,k:G.rank,r:G.realm,w:G.eq.w,D:P.dead?1:0}); }
-      N.hiT-=dt; if(N.hiT<=0){ N.hiT=6; hello(); } N.worldT-=dt; if(N.worldT<=0){ N.worldT=45; pushWorld(); } } }
-  return {start,send,tick,pushWorld,chat,rebuild,get up(){ return N.up; }};
+      N.hiT-=dt; if(N.hiT<=0){ N.hiT=6; hello(); } N.worldT-=dt; if(N.worldT<=0){ N.worldT=45; pushWorld(); } N.profT=(N.profT||20)-dt; if(N.profT<=0){ N.profT=60; pushProfile(1); } } }
+  return {start,send,tick,pushWorld,pushProfile,chat,rebuild,get up(){ return N.up; }};
 })();
 </script>

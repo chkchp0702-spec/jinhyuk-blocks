@@ -18,8 +18,15 @@ let toastT=0; function toast(msg,sub,dur){ const t=$("toast"); t.innerHTML=msg+(
 function goFull(){ try{ const el=document.documentElement; const f=el.requestFullscreen||el.webkitRequestFullscreen; if(f&&!document.fullscreenElement) f.call(el,{navigationUI:"hide"}).catch(()=>{}); }catch(e){} }
 
 /* ================= 방(초대 링크) ================= */
-const ROOM=(function(){ const u=new URL(location.href); let k=u.searchParams.get("k"); if(k){ k=k.replace(/[^a-zA-Z0-9_-]/g,"").slice(0,24); save("gw-room",k); } else k=load("gw-room"); return k||""; })();
-function inviteLink(){ const u=new URL(location.href); u.search="?k="+ROOM; return u.toString(); }
+const PASS="1004";            // 비밀번호 (v11~). 바꾸려면 여기만 고치면 됨
+const ROOM="gods-7h3k9q";      // 내부 방 이름 — 저장·영토·중계 주제가 여기에 묶여 있으니 바꾸지 않음
+const ACCESS=(function(){ const u=new URL(location.href); const k=u.searchParams.get("k");
+  if(k===PASS) save("gw-ok","1");
+  if(load("gw-room")===ROOM) save("gw-ok","1");   // 예전 초대 링크로 이미 들어와 있던 폰은 그대로 통과
+  if(k!==null){ try{ u.searchParams.delete("k"); history.replaceState(null,"",u.pathname+u.search+u.hash); }catch(e){} }
+  return load("gw-ok")==="1"; })();
+function tryPass(v){ if(String(v).trim()===PASS){ save("gw-ok","1"); return true; } return false; }
+function inviteLink(){ const u=new URL(location.href); u.search="?k="+PASS; u.hash=""; return u.toString(); }
 
 /* ================= 저장 ================= */
 const SAVEKEY="gw-save-"+ROOM;
