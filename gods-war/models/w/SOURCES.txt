@@ -1,0 +1,6 @@
+무기 3D 모델 출처 (모두 CC0 — 무료, 출처 표시 의무 없음)
+- KayKit Adventurers 2.0 (Kay Lousberg): sword_1handed, sword_2handed, sword_2handed_color, axe_1handed, axe_2handed, dagger, staff, druid_staff, wand, bow_withString, crossbow_1handed, spellbook_open, engineer_Wrench, shield_badge_color, shield_round, shield_round_color, shield_round_barbarian, shield_square_color, shield_spikes_color
+- KayKit Mystery Monthly 시리즈 4~6: paladin_hammer, paladin_shield, BlackKnight_Sword, Caveman_Spear, PlantWarrior_Spear, PlantWarrior_Bow_withString, Cleric_Mace, Lorekeeper_Staff, MagicalGirl_Wand, AvianSwordsman_Sword, Vampire_Sword, Tiefling_Sword
+- 받은 곳(GitHub): https://github.com/GeorgeQLe/assets-kaykit-3d-characters  (원본: https://kaylousberg.com · https://github.com/KayKit-Game-Assets)
+- 라이선스 사본: ../LICENSE-KayKit-CC0.txt, ../LICENSE-KayKit-2.0-CC0.txt
+- 게임에서 쓰는 곳: src/03c-models.js 의 GEAR_W(세계별 무기 단계), GEAR_A(방어구 단계)

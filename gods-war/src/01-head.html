@@ -56,10 +56,10 @@ button{font:inherit;-webkit-tap-highlight-color:transparent}
 
 #minimap{position:fixed;right:10px;top:calc(max(8px,env(safe-area-inset-top)) + 44px);width:164px;height:164px;z-index:5;border-radius:50%;border:0;background:#0e0a1e;pointer-events:auto;box-shadow:0 4px 14px rgba(0,0,0,.4)}
 #guide{position:fixed;left:50%;top:calc(max(8px,env(safe-area-inset-top)) + 70px);transform:translateX(-50%);z-index:5;display:flex;flex-direction:column;align-items:center;pointer-events:auto;background:rgba(20,14,40,.7);border:2px solid var(--gold);border-radius:16px;padding:4px 12px;color:#fff;font-size:13px;white-space:nowrap} #gArrow{font-size:34px;line-height:1;color:var(--gold);text-shadow:0 0 10px rgba(255,207,74,.8);transition:transform .15s}
-#zoomBtns #bAuto{width:auto;padding:0 12px;border-radius:18px;font-size:14px;font-weight:800;letter-spacing:.5px} #zoomBtns #bAuto.on{background:linear-gradient(180deg,#3fd27a,#1f9a52);border-color:#b8ffd2;box-shadow:0 0 12px rgba(63,210,122,.7);animation:autoPulse 1.6s infinite} @keyframes autoPulse{50%{box-shadow:0 0 22px rgba(63,210,122,.95)}}
 .idlegrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0} .idlegrid div{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px 6px;text-align:center;display:flex;flex-direction:column;gap:2px} .idlegrid b{font-size:20px;color:var(--gold)} .idlegrid span{font-size:12px;opacity:.8}
 .row .st{font-style:normal;font-size:11px;padding:1px 6px;border-radius:8px;background:rgba(255,255,255,.12);margin-left:4px;vertical-align:1px} .row .st.on{background:#1f9a52;color:#fff}
 .lbl .away{display:block;font-size:10px;opacity:.85;color:#bfe9ff}
+.gearpop{position:fixed;left:50%;top:38%;transform:translate(-50%,-50%);z-index:30;pointer-events:none;text-align:center;font-weight:900;font-size:22px;color:#fff;text-shadow:0 2px 0 #000,0 0 14px var(--rc);animation:gearPop 1.6s ease-out forwards} .gearpop small{display:block;font-size:13px;font-weight:700;opacity:.9} @keyframes gearPop{0%{opacity:0;transform:translate(-50%,-30%) scale(.7)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}75%{opacity:1}100%{opacity:0;transform:translate(-50%,-70%) scale(1)}}
 #zoomBtns{position:fixed;right:12px;top:calc(max(8px,env(safe-area-inset-top)) + 218px);z-index:5;display:flex;gap:6px} #zoomBtns button{width:36px;height:36px;border-radius:50%;border:2px solid rgba(255,255,255,.3);background:rgba(20,14,40,.75);color:#fff;font-size:20px;line-height:1;cursor:pointer}
 #quest{position:fixed;left:10px;top:calc(max(8px,env(safe-area-inset-top)) + 96px);z-index:5;pointer-events:auto;max-width:200px;display:flex;flex-direction:column;gap:4px}
 .q{background:rgba(20,14,40,.66);border-left:4px solid var(--c1);border-radius:10px;padding:5px 9px;font-size:12.5px;line-height:1.25;color:#fff}
@@ -187,7 +187,7 @@ button{font:inherit;-webkit-tap-highlight-color:transparent}
 </div>
 <div id="guide" hidden><div id="gArrow">➤</div><span id="gTxt"></span></div>
 <canvas id="minimap" width="480" height="480"></canvas>
-<div id="zoomBtns"><button id="zIn" type="button">+</button><button id="zOut" type="button">−</button><button id="bAuto" type="button">자동</button></div>
+<div id="zoomBtns"><button id="zIn" type="button">+</button><button id="zOut" type="button">−</button></div>
 <div id="quest"></div>
 <div id="warbar" hidden></div>
 <div id="bossbar" hidden><div class="nm" id="bossNm"></div><div class="bar"><i id="bossHp" style="width:100%"></i></div></div>

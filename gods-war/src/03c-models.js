@@ -31,36 +31,66 @@ const CAPES=[["자동",null],["없음","none"],["기사 망토",{m:"Knight",p:["
 const WEAPONS=[["자동",null],["없음","none"],["한손검","sword_1handed"],["대검","sword_2handed"],["도끼","axe_1handed"],["큰 도끼","axe_2handed"],["지팡이","staff"],["드루이드 지팡이","druid_staff"],["마법봉","wand"],["쌍단검","dagger2"],["활","bow_withString"],["렌치","engineer_Wrench"]];
 const TINTS=[["자동",null],["붉은빛",0xffd0d0],["푸른빛",0xd0e0ff],["초록빛",0xd0ffd0],["황금빛",0xfff0b0],["보랏빛",0xe8d0ff],["어둠",0x9a9aaa]];
 const LOOK_ROWS=[["face","얼굴",FACES],["body","옷",BODIES],["hat","머리",HATS],["cape","망토",CAPES],["weapon","무기",WEAPONS],["tint","빛깔",TINTS]];
+/* ---- 장비 → 겉모습 (v12) ----
+   무기 칸: 세계별 단계(일반·희귀·영웅·신화)마다 다른 3D 무기(+방패). 무기 GLTF는 GitHub KayKit(CC0) 저장소에서 받아 models/w/에 둠.
+   방어구 칸: 단계마다 옷(몸통 모델)·망토·투구가 바뀜. 유물 칸: 머리 둘레를 도는 보석(단계가 오를수록 개수·빛).
+   희귀 이상은 장비에 등급 색 빛이 남(블룸으로 반짝). 꾸미기에서 직접 고른 칸(자동 아님)은 꾸미기가 우선. */
+const GEAR_W=[
+ [{w:"dagger"},{w:"sword_1handed",off:"shield_badge_color"},{w:"AvianSwordsman_Sword",off:"paladin_shield"},{w:"sword_2handed_color"}],
+ [{w:"axe_1handed",off:"shield_round_barbarian"},{w:"BlackKnight_Sword",off:"shield_round_barbarian"},{w:"PlantWarrior_Spear"},{w:"paladin_hammer"}],
+ [{w:"staff"},{w:"PlantWarrior_Bow_withString"},{w:"Caveman_Spear"},{w:"MagicalGirl_Wand",chakra:true}],
+ [{w:"sword_1handed",off:"shield_round_color"},{w:"PlantWarrior_Spear",off:"shield_square_color"},{w:"Caveman_Spear",off:"shield_spikes_color"},{w:"Lorekeeper_Staff",spark:true}]];
+const CAPE_OF=m=>({m,p:[m+"_Cape"]});
+const GEAR_A=[
+ [{body:"Cleric"},{body:"Paladin"},{body:"Paladin",cape:CAPE_OF("Paladin")},{body:"Paladin",cape:CAPE_OF("Paladin"),hat:{m:"Paladin_with_Helmet",p:["Paladin_Helmet"]},btint:0xfff2c8}],
+ [{body:"Barbarian"},{body:"Knight",btint:0xc8dcff},{body:"Knight",btint:0xc8dcff,cape:CAPE_OF("Knight")},{body:"Knight",btint:0xb8ccff,cape:CAPE_OF("Knight"),hat:{m:"Knight",p:["Knight_Helmet","Knight_HelmetVisor"]}}],
+ [{body:"Druid"},{body:"Ranger",cape:CAPE_OF("Ranger")},{body:"Rogue",cape:CAPE_OF("Rogue")},{body:"Superhero",cape:CAPE_OF("Superhero")}],
+ [{body:"Hiker"},{body:"Knight",btint:0xffd9a8},{body:"Knight",btint:0xffd9a8,cape:CAPE_OF("Knight")},{body:"Knight",btint:0xffe08a,cape:CAPE_OF("Knight"),hat:{m:"Knight",p:["Knight_Helmet","Knight_HelmetVisor"]}}]];
+const RAR_HEX=[0x8d93a8,0x3a8dff,0xb061ff,0xffcf4a];
+const TWO_HAND_W=/^(sword_2handed|axe_2handed|PlantWarrior_Spear|Caveman_Spear|paladin_hammer|Lorekeeper_Staff|staff|druid_staff|PlantWarrior_Bow_withString|bow_withString)/;
 /* 세계·계급별 기본 모습(자동) */
 function realmDefault(realm,rank){ const r=rank||0;
   if(realm===0) return {body:"Paladin",head:"Paladin",hat:r>=2?{m:"Paladin_with_Helmet",p:["Paladin_Helmet"]}:null,cape:r>=1?{m:"Paladin",p:["Paladin_Cape"]}:null,wings:r>=1,weapon:r>=4?"sword_2handed":"sword_1handed",offhand:r>=1&&r<4?"shield_badge_color":null};
-  if(realm===1) return {body:"Barbarian",head:"Barbarian",hat:r>=2?{m:"Barbarian",p:["Barbarian_BearHat"]}:null,cape:r>=3?{m:"BlackKnight",p:["BlackKnight_Cape"]}:null,weapon:r>=2?"axe_2handed":"axe_1handed",offhand:r<2?"shield_round":null};
+  if(realm===1) return {body:"Barbarian",head:"Barbarian",hat:r>=2?{m:"Barbarian",p:["Barbarian_BearHat"]}:null,cape:r>=3?{m:"Knight",p:["Knight_Cape"]}:null,weapon:r>=2?"axe_2handed":"axe_1handed",offhand:r<2?"shield_round":null};
   if(realm===2) return {body:"Druid",head:"Druid",hat:r>=2?{m:"Lorekeeper",p:["Lorekeeper_Glasses"]}:null,cape:r>=3?{m:"PlantWarrior",p:["PlantWarrior_Cloak"]}:null,weapon:r>=2?"druid_staff":"staff",offhand:null};
   return {body:"Knight",head:"Knight",hat:r>=2?{m:"Knight",p:["Knight_Helmet","Knight_HelmetVisor"]}:null,cape:r>=3?{m:"Knight",p:["Knight_Cape"]}:null,weapon:r>=4?"sword_2handed":"sword_1handed",offhand:r>=1&&r<4?"shield_badge_color":null}; }
-function lookSpec(realm,rank,look){ look=look||{}; const d=realmDefault(realm,rank); const pick=(list,i)=>list[i]&&list[i][1];
+function lookSpec(realm,rank,look,eq){ look=look||{}; const d=realmDefault(realm,rank); const pick=(list,i)=>list[i]&&list[i][1];
+  eq=eq||{}; const R=Math.max(0,Math.min(3,realm|0)); const wt=eq.w==null?-1:eq.w, at=eq.a==null?-1:eq.a, rt=eq.r==null?-1:eq.r;
+  if(wt>=0){ const W=GEAR_W[R][wt]; d.weapon=W.w; d.offhand=W.off||null; d.chakra=!!W.chakra; d.spark=!!W.spark; }
+  if(at>=0){ const A=GEAR_A[R][at]; d.body=A.body; if(A.cape) d.cape=A.cape; if(A.hat) d.hat=A.hat; d.btint=A.btint||null; }
   const face=pick(FACES,look.face), body=pick(BODIES,look.body), hat=pick(HATS,look.hat), cape=pick(CAPES,look.cape), weapon=pick(WEAPONS,look.weapon), tint=pick(TINTS,look.tint);
-  const s={body:body||d.body,head:face||d.head,hat:hat===undefined||hat===null?d.hat:(hat==="none"?null:hat),cape:null,wings:false,weapon:weapon===undefined||weapon===null?d.weapon:(weapon==="none"?null:weapon),offhand:d.offhand,tint:tint||null};
+  const s={body:body||d.body,head:face||d.head,hat:hat===undefined||hat===null?d.hat:(hat==="none"?null:hat),cape:null,wings:false,weapon:weapon===undefined||weapon===null?d.weapon:(weapon==="none"?null:weapon),offhand:d.offhand,tint:tint||null,wt,at,rt,chakra:d.chakra,spark:d.spark,btint:body?null:(d.btint||null)};
   if(cape===undefined||cape===null){ s.cape=d.cape; s.wings=!!d.wings; } else if(cape==="wings"){ s.wings=true; } else if(cape!=="none"){ s.cape=cape; }
-  if(s.weapon&&s.weapon!==d.weapon) s.offhand=null; return s; }
+  if(s.weapon&&s.weapon!==d.weapon){ s.offhand=null; s.chakra=false; }
+  if(s.weapon&&TWO_HAND_W.test(s.weapon)) s.offhand=null; return s; }
 function specNeeds(s){ const names=[s.body,s.head]; if(s.hat) names.push(s.hat.m); if(s.cape) names.push(s.cape.m); const w=[]; if(s.weapon) w.push(s.weapon==="dagger2"?"dagger":s.weapon); if(s.offhand) w.push(s.offhand); return {names:names.filter(Boolean),weapons:w}; }
 
+function gemMat(col){ return new THREE.MeshStandardMaterial({color:col,emissive:col,emissiveIntensity:.55,metalness:.3,roughness:.25}); }
+function glowUp(o,col,amt){ o.traverse(m=>{ if(m.isMesh&&m.material){ m.material=m.material.clone(); m.material.emissive=new THREE.Color(col); m.material.emissiveIntensity=amt; } }); }
 /* ---- 조립: 뼈대 하나에 여러 캐릭터의 부품을 붙임 ---- */
 const EXTRA_RE=/(Cape|Cloak|Hat|Helmet|HelmetVisor|Headband|Mask|Goggles|Sunglasses|Glasses|Hood|FaceNet|Wing(Left|Right)|Visor)$/;
 function composeChar(s,opts){ opts=opts||{}; const src=MODELS.chars[s.body]; if(!src||!MODELS.animsReady) return null;
   const base=THREE.SkeletonUtils.clone(src); const bones={}; base.traverse(o=>{ if(o.isBone) bones[o.name]=o; });
   base.traverse(o=>{ if(o.isSkinnedMesh){ if(EXTRA_RE.test(o.name)&&!opts.keepExtras) o.visible=false; if(/_Head$/.test(o.name)&&s.head&&s.head!==s.body) o.visible=false; } });
-  function addPart(modelName,partName){ const m=MODELS.chars[modelName]; if(!m) return; let sm=null; m.traverse(o=>{ if(o.isSkinnedMesh&&o.name===partName) sm=o; }); if(!sm) return; const mesh=new THREE.SkinnedMesh(sm.geometry,sm.material); mesh.name=partName; const bl=sm.skeleton.bones.map(b=>bones[b.name]||bones.hips); mesh.bind(new THREE.Skeleton(bl,sm.skeleton.boneInverses.map(x=>x.clone())),sm.bindMatrix.clone()); mesh.frustumCulled=false; mesh.castShadow=HIGH(); base.add(mesh); }
+  function addPart(modelName,partName){ const m=MODELS.chars[modelName]; if(!m) return; const found=[]; m.traverse(o=>{ if(o.name===partName){ if(o.isSkinnedMesh) found.push(o); else o.traverse(c=>{ if(c.isSkinnedMesh) found.push(c); }); } });   /* 여러 재질로 된 부품은 Group 아래에 나뉘어 있음 */
+    found.forEach(sm=>{ const mesh=new THREE.SkinnedMesh(sm.geometry,sm.material); mesh.name=partName; const bl=sm.skeleton.bones.map(b=>bones[b.name]||bones.hips); mesh.bind(new THREE.Skeleton(bl,sm.skeleton.boneInverses.map(x=>x.clone())),sm.bindMatrix.clone()); mesh.frustumCulled=false; mesh.castShadow=HIGH(); base.add(mesh); }); }
+  if(s.btint){ const bc=new THREE.Color(s.btint); base.traverse(o=>{ if(o.isSkinnedMesh&&o.visible&&!/_Head$/.test(o.name)&&o.material){ o.material=o.material.clone(); o.material.color.multiply(bc); } }); }
   if(s.head&&s.head!==s.body) addPart(s.head,s.head.replace(/_with_Helmet$/,"")+"_Head");
   if(s.hat) s.hat.p.forEach(p=>addPart(s.hat.m,p)); if(s.cape) s.cape.p.forEach(p=>addPart(s.cape.m,p));
   if(s.tint){ base.traverse(o=>{ if(o.isMesh&&o.material){ o.material=o.material.clone(); o.material.color.multiply(new THREE.Color(s.tint)); } }); }
-  const attach=(wname,slot,mirror)=>{ const w=MODELS.weap[wname]; const b=bones[slot]; if(!w||!b) return; const o=w.clone(); if(mirror) o.scale.x=-1; b.add(o); };
-  if(s.weapon){ if(s.weapon==="dagger2"){ attach("dagger","handslot.r"); attach("dagger","handslot.l",true); } else attach(s.weapon,"handslot.r"); } if(s.offhand) attach(s.offhand,"handslot.l");
+  const attach=(wname,slot,mirror,glow)=>{ const w=MODELS.weap[wname]; const b=bones[slot]||bones[slot.replace(/\./g,"")];   /* 로더가 이름의 '.'을 지움: handslot.r → handslotr */ if(!w||!b) return; const o=w.clone(); if(mirror) o.scale.x=-1; if(glow>0) glowUp(o,RAR_HEX[glow],[0,.18,.3,.42][glow]); b.add(o); return o; };
+  const wg=s.wt>=0?s.wt:0;
+  if(s.weapon){ if(s.weapon==="dagger2"){ attach("dagger","handslot.r",false,wg); attach("dagger","handslot.l",true,wg); } else attach(s.weapon,"handslot.r",false,wg); } if(s.offhand) attach(s.offhand,"handslot.l",false,s.at>=2?s.at:0);
+  const handL=bones["handslot.l"]||bones["handslotl"]; if(s.chakra&&handL){ const ck=new THREE.Group(); const gm=gemMat(0xffcf4a); const ring=new THREE.Mesh(new THREE.TorusGeometry(.32,.045,8,28),gm); ck.add(ring); for(let k=0;k<8;k++){ const sp=new THREE.Mesh(new THREE.BoxGeometry(.04,.3,.03),gm); sp.rotation.z=k*Math.PI/4; ck.add(sp); } ck.position.set(0,.1,.1); handL.add(ck); base.userData.spin=(base.userData.spin||[]).concat([ck]); }
   if(s.wings&&bones.chest){ const wm=mat({color:0xffffff,roughness:.9}); [-1,1].forEach(sg=>{ const wg=new THREE.Group(); wg.position.set(sg*.12,.1,-.12); wg.userData.s=sg; for(let f=0;f<4;f++){ const fe=sph(.07,wm,sg*(.16+f*.17),.1+f*.1-(f>2?.08:0),-.04); fe.scale.multiply(new THREE.Vector3(1.1,2.6+f*.35,.5)); fe.rotation.z=sg*(.45+f*.22); wg.add(fe); } bones.chest.add(wg); (base.userData.wings=base.userData.wings||[]).push(wg); }); }
   const g=new THREE.Group(); base.scale.setScalar(opts.scale||2.1); g.add(base);
+  if(s.rt>=0){ const orb=new THREE.Group(); const n=[1,1,2,3][s.rt]; for(let k=0;k<n;k++){ const gem=new THREE.Mesh(new THREE.OctahedronGeometry(.2+.04*s.rt,0),gemMat(RAR_HEX[s.rt])); const a=k/n*Math.PI*2; gem.position.set(Math.cos(a)*1.15,0,Math.sin(a)*1.15); orb.add(gem); } orb.position.y=3.3; g.add(orb); g.userData.relic=orb; }
+  if(s.at>=1){ const rg=new THREE.Mesh(new THREE.RingGeometry(.75,.95+.08*s.at,40),glowMat(RAR_HEX[s.at],.28+.08*s.at)); rg.rotation.x=-Math.PI/2; rg.position.y=.06; g.add(rg); g.userData.gearRing=rg; }
+  if(s.spark){ const sp=new THREE.Mesh(new THREE.OctahedronGeometry(.22,0),glowMat(0xfff27a,.95)); g.add(sp); g.userData.zap=sp; }
   const mixer=new THREE.AnimationMixer(base); const actions={}; MODELS.anims.forEach(c=>{ actions[c.name]=mixer.clipAction(c); });
   const two=s.weapon==="sword_2handed"||s.weapon==="axe_2handed", magic=s.weapon==="staff"||s.weapon==="druid_staff"||s.weapon==="wand"||s.weapon==="spellbook_open", dual=s.weapon==="dagger2", bow=s.weapon==="bow_withString";
   g.userData.gl={mixer,actions,cur:null,onceUntil:0,attack:opts.attack||(two?"Melee_2H_Attack_Chop":magic?"Ranged_Magic_Shoot":dual?"Melee_Dualwield_Attack_Slice":bow?"Ranged_Bow_Release":s.weapon?"Melee_1H_Attack_Slice_Diagonal":"Melee_Unarmed_Attack_Punch_A"),skill:opts.skill||(two?"Melee_2H_Attack_Spin":"Ranged_Magic_Spellcasting"),alias:{Idle:"Idle_A",Walking_A:"Walking_A",Running_A:"Running_A",Hit_A:"Hit_A",Death_A:"Death_A",Jump_Full_Short:"Jump_Full_Short",Cheer:"Interact"}};
-  if(base.userData.wings) g.userData.wings=base.userData.wings; MIXERS.push(g); playAnim(g,"Idle"); return g; }
+  if(base.userData.wings) g.userData.wings=base.userData.wings; if(base.userData.spin) g.userData.spin=base.userData.spin; MIXERS.push(g); playAnim(g,"Idle"); return g; }
 
 /* ---- 애니메이션 제어 ---- */
 function playAnim(g,name,once,fade){ const G=g.userData.gl; if(!G) return; if(G.alias&&G.alias[name]) name=G.alias[name]; const a=G.actions[name]; if(!a) return; const now=performance.now();
@@ -69,7 +99,7 @@ function playAnim(g,name,once,fade){ const G=g.userData.gl; if(!G) return; if(G.
   a.reset(); a.setLoop(THREE.LoopRepeat,Infinity); a.enabled=true; a.fadeIn(fade||.18); a.play(); if(G.curA&&G.curA!==a) G.curA.fadeOut(fade||.18); G.cur=name; G.curA=a; }
 function animState(g,st){ if(!g||!g.userData.gl) return; const G=g.userData.gl; if(st==="dead"){ if(G.cur!=="Death_A") playAnim(g,"Death_A",true,.1); return; } if(st==="attack"){ playAnim(g,G.attack,true,.05); return; } if(st==="skill"){ playAnim(g,G.skill,true,.05); return; } if(st==="hit"){ playAnim(g,"Hit_A",true,.05); return; } if(st==="jump"){ playAnim(g,"Jump_Full_Short",true,.05); return; } if(st==="cheer"){ playAnim(g,"Cheer",true,.1); return; }
   if(performance.now()<G.onceUntil&&G.curA&&G.curA.loop===THREE.LoopOnce) return; playAnim(g,st==="run"?"Running_A":st==="walk"?"Walking_A":"Idle"); }
-function tickMixers(dt){ for(let i=MIXERS.length-1;i>=0;i--){ const g=MIXERS[i]; if(!g.parent){ MIXERS.splice(i,1); continue; } g.userData.gl.mixer.update(dt); if(g.userData.wings) g.userData.wings.forEach(w=>{ w.rotation.y=w.userData.s*Math.sin(performance.now()/450)*.25; }); } }
+function tickMixers(dt){ for(let i=MIXERS.length-1;i>=0;i--){ const g=MIXERS[i]; if(!g.parent){ MIXERS.splice(i,1); continue; } g.userData.gl.mixer.update(dt); const U=g.userData; if(U.relic){ U.relic.rotation.y+=dt*1.6; U.relic.position.y=3.3+Math.sin(performance.now()/500)*.12; U.relic.children.forEach(c=>{ c.rotation.y+=dt*3; }); } if(U.gearRing){ U.gearRing.rotation.z+=dt*.8; } if(U.spin) U.spin.forEach(c=>{ c.rotation.z+=dt*9; }); if(U.zap){ const t=performance.now()/90; U.zap.visible=Math.sin(t*1.7)>-.3; U.zap.position.set(Math.sin(t)*.5+.6,2.2+Math.cos(t*1.3)*.6,.4); U.zap.scale.setScalar(.6+Math.random()*.6); } if(g.userData.wings) g.userData.wings.forEach(w=>{ w.rotation.y=w.userData.s*Math.sin(performance.now()/450)*.25; }); } }
 
 /* ---- 해골(1.0 팩, 자체 애니메이션) ---- */
 function makeCharGL(modelName,opts){ const src=MODELS.chars[modelName]; const clips=SKEL_ANIMS[modelName]; if(!src||!clips) return null; opts=opts||{}; const obj=THREE.SkeletonUtils.clone(src); const g=new THREE.Group(); obj.scale.setScalar(opts.scale||2.1); g.add(obj);
@@ -85,13 +115,16 @@ function mobGL(name,scale){ const sk=SKEL_OF[name]; if(sk){ if(!MODELS.chars[sk]
   const g=composeChar(s,{scale:2.1*(d.scale||1)*scale,keepExtras:true}); if(!g) return null; g.userData.h=4.3*(d.scale||1)*scale; g.userData.glMob=name; const sh=new THREE.Mesh(new THREE.CircleGeometry(1*(d.scale||1),20),new THREE.MeshBasicMaterial({color:0,transparent:true,opacity:.22,depthWrite:false})); sh.rotation.x=-Math.PI/2; sh.position.y=.05; g.add(sh); return g; }
 
 /* ---- 플레이어/친구/NPC 아바타 ---- */
-function avatarGL(realm,rank,look,scale){ const s=lookSpec(realm,rank,look); const need=specNeeds(s); if(!ensure(need.names,need.weapons)||!MODELS.animsReady) return null;
+function avatarGL(realm,rank,look,scale,eq){ const s=lookSpec(realm,rank,look,eq); const need=specNeeds(s); if(!ensure(need.names,need.weapons)||!MODELS.animsReady) return null;
   const g=composeChar(s,{scale:scale||2.1}); if(!g) return null; const R=REALMS[realm];
   if(rank>=4){ const aura=new THREE.Mesh(new THREE.RingGeometry(1.1,1.5,40),glowMat(R.c1,.7)); aura.rotation.x=-Math.PI/2; aura.position.y=.08; g.add(aura); g.userData.aura=aura; }
   if(rank>=6){ const crown=new THREE.Mesh(new THREE.TorusGeometry(.9,.05,8,24),glowMat(R.c1,.9)); crown.position.y=4.6; g.userData.crown=crown; g.add(crown); }
   if(realm===0){ const halo=new THREE.Mesh(new THREE.TorusGeometry(.5,.05,10,32),mat({color:0xffe27a,emissive:0xffd05a,emissiveIntensity:1.2,metalness:.5,roughness:.3})); halo.rotation.x=Math.PI/2; halo.position.y=4.35; g.add(halo); }
   const sh=new THREE.Mesh(new THREE.CircleGeometry(.9,24),new THREE.MeshBasicMaterial({color:0,transparent:true,opacity:.22,depthWrite:false})); sh.rotation.x=-Math.PI/2; sh.position.y=.05; g.add(sh);
-  g.userData.glAvatar=true; g.userData.lookKey=JSON.stringify([realm,rank,look||{}]); return g; }
+  g.userData.glAvatar=true; g.userData.lookKey=JSON.stringify([realm,rank,look||{},eq||{}]); return g; }
+/* 장비가 바뀌면: 필요한 모델을 받은 뒤 내 캐릭터를 다시 조립 + 친구에게 알림 */
+function gearNeeds(eq){ const s=lookSpec(G.realm,G.rank,G.look||{},eq); return specNeeds(s); }
+function refreshGear(slot){ const nd=gearNeeds(G.eq); const go=()=>{ buildPlayer(); try{ net.hello&&net.hello(); }catch(e){} const t=G.eq[slot]; if(t>=0&&player){ fxRing(P.x,P.z,RAR_HEX[t],5,.6); fxSpark(P.x,2.5,P.z,RAR_HEX[t],30); const el=document.createElement("div"); el.className="gearpop"; el.style.setProperty("--rc",RAR[t].c); el.innerHTML=`${{w:"⚔",a:"🛡",r:"✨"}[slot]} ${itemName(slot,t)}<small>${RAR[t].n} · 모습이 바뀌었어요</small>`; document.body.appendChild(el); setTimeout(()=>el.remove(),1700); } }; if(ensure(nd.names,nd.weapons,go)) go(); }
 const NPC_LOOK={"예수":{body:8,hat:1,cape:1,weapon:6,tint:4},"가브리엘":{body:1,face:9,cape:11,weapon:2},"라파엘":{body:9,hat:1,cape:1,weapon:8},"토르":{body:4,hat:3,cape:8,weapon:5},"프레이야":{body:6,face:12,cape:4,weapon:10},"헤임달":{body:2,hat:4,cape:2,weapon:3},"하누만":{body:14,hat:1,cape:1,weapon:1},"가네샤":{body:16,hat:12,cape:1,weapon:6},"아그니":{body:7,hat:1,cape:9,weapon:7,tint:1},"아테나":{body:2,hat:4,cape:2,weapon:2},"아폴론":{body:11,hat:1,cape:7,weapon:10,tint:4},"헤르메스":{body:10,hat:1,cape:7,weapon:1}};
 function refreshGL(){ if(!MODELS.animsReady) return;
   if(typeof player!=="undefined"&&player&&!player.userData.glAvatar&&typeof buildPlayer==="function") buildPlayer();
