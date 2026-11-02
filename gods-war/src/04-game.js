@@ -40,7 +40,7 @@ function tickMobs(dt){
     const tnow=performance.now(); m.mesh.position.set(m.x,hAt(m.x,m.z)+(m.mesh.userData.float?Math.sin(tnow/400+m.x)*.3+.2:0)+(m.mesh.userData.lunge>0?.4:0)+(m.state==="chase"?Math.abs(Math.sin(tnow/90+m.x))*.25:0),m.z); if(m.mesh.userData.lunge>0) m.mesh.userData.lunge-=dt; m.mesh.rotation.x=m.state==="chase"&&!m.mesh.userData.float?Math.sin(tnow/90+m.x)*.08:0; if(m.aura){ m.aura.rotation.z+=dt*2; m.aura.scale.setScalar(1+Math.sin(tnow/250)*.12); }
     let dr=m.rot-m.mesh.rotation.y; while(dr>Math.PI) dr-=Math.PI*2; while(dr<-Math.PI) dr+=Math.PI*2; m.mesh.rotation.y+=dr*Math.min(1,dt*8);
     if(m.mesh.userData.gl){ animState(m.mesh,m.hit>0&&m.hp>0?"hit":m.state==="chase"?(d>(m.boss?3.4:2.3)?"run":"idle"):m.state==="wander"?"walk":"idle"); if(m.mesh.userData.lunge>.2) animState(m.mesh,"attack"); m.mesh.rotation.x=0; }
-    const sc=m.scale*(m.hit>0?1.12:1); m.mesh.scale.set(sc*(1+Math.sin(tnow/600+m.x)*.02),sc*(1+Math.sin(tnow/600+m.x+1)*.03),sc);
+    hitTint(m.mesh,m.hit/.15); const sc=m.scale*(m.hit>0?1.12:1); m.mesh.scale.set(sc*(1+Math.sin(tnow/600+m.x)*.02),sc*(1+Math.sin(tnow/600+m.x+1)*.03),sc);
     if(d<48){ const h=m.mesh.userData.h||4; placeLabel(m.lbl,m.x,h*m.scale,m.z,`${m.boss?"👑 ":""}${m.n} <b>Lv.${m.lv}${m.power?" · 파워 "+m.power:""}</b><span class="hp"><i style="width:${Math.round(m.hp/m.mhp*100)}%"></i></span>`); } else m.lbl.style.display="none";
   }
   const bb=$("bossbar"); const near=mobs.find(m=>m.boss&&Math.hypot(m.x-P.x,m.z-P.z)<40); if(near){ bb.hidden=false; $("bossNm").textContent=(near.trialOf?"승급 시험: ":"")+near.n; $("bossHp").style.width=Math.round(near.hp/near.mhp*100)+"%"; } else bb.hidden=true;

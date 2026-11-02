@@ -318,7 +318,7 @@ function makeMob(shape,color,scale){ const g=new THREE.Group(); const m=mat({col
 const labelsEl=$("labels"); const _v=new THREE.Vector3();
 function makeLabel(cls){ const d=document.createElement("div"); d.className="lbl "+(cls||""); labelsEl.appendChild(d); return d; }
 function placeLabel(el,x,y,z,html){ _v.set(x,y+hAt(x,z),z).project(camera); if(_v.z>1||Math.abs(_v.x)>1.2||Math.abs(_v.y)>1.2){ el.style.display="none"; return; } el.style.display=""; const sx=(_v.x+1)/2*innerWidth, sy=(1-_v.y)/2*innerHeight; el.style.transform=`translate(${sx}px,${sy}px) translate(-50%,-100%)`; if(html!==undefined&&el._h!==html){ el._h=html; el.innerHTML=html; } }
-function floatDmg(x,y,z,txt,cls){ const el=makeLabel("dmg "+(cls||"")); placeLabel(el,x,y,z,txt); setTimeout(()=>el.remove(),800); }
+function floatDmg(x,y,z,txt,cls){ txt=String(txt); cls=cls||""; if(!cls&&txt[0]==="+") cls="gain"; const el=makeLabel("dmg "+cls); const dx=Math.round((Math.random()-.5)*44); placeLabel(el,x,y,z,`<em class="${cls==="crit"&&txt[0]==="-"?"c":""}" style="--dx:${dx}px">${txt}</em>`); setTimeout(()=>el.remove(),1150); }
 
 /* ================= 효과 ================= */
 const FX=[];

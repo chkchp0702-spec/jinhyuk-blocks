@@ -5,6 +5,12 @@ const OUTLINE_MAT=new THREE.MeshBasicMaterial({color:0x1b1430,side:THREE.BackSid
 function outlined(g,thick){ const list=[]; g.traverse(m=>{ if(m.isMesh&&m.material&&!m.material.transparent&&m.material.type!=="MeshBasicMaterial"&&!m.userData.noOutline) list.push(m); });
   list.forEach(m=>{ const o=new THREE.Mesh(m.geometry,OUTLINE_MAT); o.position.copy(m.position); o.rotation.copy(m.rotation); o.scale.copy(m.scale).multiplyScalar(thick||1.07); o.castShadow=false; o.receiveShadow=false; o.userData.outline=true; m.parent.add(o); }); return g; }
 
+/* ---- 맞으면 번쩍(히트 플래시): 그 캐릭터만 재질을 한 번 복사해 빛깔을 잠깐 바꿈 ---- */
+const _HFC=new THREE.Color();
+function hitTint(obj,k,col){ if(!obj) return; k=Math.max(0,Math.min(1,k||0)); const prev=obj._hfk||0; if(k===0&&prev===0) return;
+  if(prev===0){ let n=0; obj.traverse(o=>{ if(o.isMesh) n++; }); if(!obj._hf||obj._hfn!==n){ const L=[]; obj.traverse(o=>{ if(!o.isMesh||o.userData.outline||!o.material||Array.isArray(o.material)||!o.material.emissive) return; if(!o._hfOwn){ o.material=o.material.clone(); o._hfOwn=1; } L.push({m:o.material,c:o.material.emissive.clone(),i:o.material.emissiveIntensity}); }); obj._hf=L; obj._hfn=n; } }
+  obj._hfk=k; _HFC.set(col||0xffffff); for(const e of obj._hf){ e.m.emissive.copy(e.c).lerp(_HFC,k); e.m.emissiveIntensity=e.i+(1-e.i)*k*.9; } }
+
 /* ---- 풀·꽃·눈덩이: 인스턴스 한 번에 그리기 ---- */
 (function vegetation(){
   const dummy=new THREE.Object3D();

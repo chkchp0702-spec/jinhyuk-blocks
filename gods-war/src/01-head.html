@@ -35,8 +35,14 @@ button{font:inherit;-webkit-tap-highlight-color:transparent}
 .lbl .hp{display:block;width:64px;height:6px;margin:3px auto 0;background:rgba(0,0,0,.55);border-radius:4px;overflow:hidden}
 .lbl .hp i{display:block;height:100%;background:#ff5a5f;border-radius:4px}
 .lbl.ally{color:#9dffb8} .lbl.foe{color:#ff8d8d} .lbl.boss{font-size:19px;color:#ffcf4a}
-.lbl.dmg{font-size:22px;color:#fff;animation:dmg .8s ease-out forwards} .lbl.dmg.crit{color:#ffcf4a;font-size:28px} .lbl.dmg.me{color:#ff6b6b}
-@keyframes dmg{to{transform:translate(-50%,-70px);opacity:0}}
+.lbl.dmg{z-index:2} .lbl.dmg em{display:block;font-style:normal;font-weight:900;font-size:25px;color:#fff;letter-spacing:-.5px;text-shadow:0 0 1px #000,2px 2px 0 #1b1430,-2px 2px 0 #1b1430,2px -2px 0 #1b1430,-2px -2px 0 #1b1430,0 3px 0 #1b1430,0 4px 8px rgba(0,0,0,.6);transform-origin:50% 80%;animation:dmgPop .95s cubic-bezier(.2,.8,.3,1) forwards}
+.lbl.dmg.crit em{font-size:33px;color:#ffe066;text-shadow:0 0 1px #000,2px 2px 0 #7a2a00,-2px 2px 0 #7a2a00,2px -2px 0 #7a2a00,-2px -2px 0 #7a2a00,0 3px 0 #7a2a00,0 0 16px rgba(255,150,40,.95);animation:dmgCrit 1.05s cubic-bezier(.2,.8,.3,1) forwards}
+.lbl.dmg.crit em.c::before{content:"치명타!";display:block;font-size:13px;color:#fff6c8;letter-spacing:1px;margin-bottom:-2px}
+.lbl.dmg.me em{color:#ff5b5b;font-size:23px;text-shadow:0 0 1px #000,2px 2px 0 #3a0010,-2px 2px 0 #3a0010,2px -2px 0 #3a0010,-2px -2px 0 #3a0010,0 3px 0 #3a0010}
+.lbl.dmg.gain em{font-size:18px;color:#ffe27a;animation:dmgGain 1.1s ease-out forwards}
+@keyframes dmgPop{0%{transform:translate(0,10px) scale(.3);opacity:0}12%{transform:translate(calc(var(--dx)*.15),-8px) scale(1.45);opacity:1}30%{transform:translate(calc(var(--dx)*.35),-16px) scale(1)}72%{opacity:1}100%{transform:translate(var(--dx),-66px) scale(.8);opacity:0}}
+@keyframes dmgCrit{0%{transform:translate(0,10px) scale(.2) rotate(-8deg);opacity:0}12%{transform:translate(0,-10px) scale(1.7) rotate(4deg);opacity:1}22%{transform:translate(-3px,-14px) scale(1.15) rotate(-3deg)}30%{transform:translate(3px,-16px) scale(1.25) rotate(0)}75%{opacity:1}100%{transform:translate(var(--dx),-74px) scale(.9);opacity:0}}
+@keyframes dmgGain{0%{transform:translate(0,6px) scale(.6);opacity:0}15%{transform:translate(0,-6px) scale(1.12);opacity:1}70%{opacity:1}100%{transform:translate(0,-56px) scale(.95);opacity:0}}
 
 .hud{position:fixed;z-index:5;pointer-events:none;display:flex;gap:6px}
 .tl{top:max(8px,env(safe-area-inset-top));left:10px;flex-direction:column;align-items:flex-start}
