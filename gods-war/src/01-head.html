@@ -148,6 +148,9 @@ button{font:inherit;-webkit-tap-highlight-color:transparent}
 .looks{display:flex;flex-direction:column;gap:6px;background:rgba(255,255,255,.08);padding:10px 12px;border-radius:16px;width:100%}
 .lookrow{display:flex;align-items:center;gap:5px;color:#fff;font-size:14px;flex-wrap:wrap} .lookrow span{width:34px;text-align:left}
 .sw{width:28px;height:28px;border-radius:50%;border:3px solid rgba(255,255,255,.5);cursor:pointer;padding:0;box-shadow:0 2px 0 rgba(0,0,0,.3)} .sw.on{border-color:#fff;transform:scale(1.18);box-shadow:0 0 0 3px var(--gold)}
+.layer.sheet{align-items:flex-end;background:rgba(8,4,20,.25);backdrop-filter:none;padding-bottom:max(10px,env(safe-area-inset-bottom))} .layer.sheet .card{max-height:52%}
+.chips{display:flex;flex-wrap:wrap;gap:5px;flex:1} .chip{border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.08);color:#fff;border-radius:999px;padding:4px 9px;font-size:12.5px;cursor:pointer} .chip.on{background:var(--gold);color:#1b1430;border-color:var(--gold)}
+.lookrow span{width:34px;flex:none;font-size:13px}
 .sw.txt{width:auto;height:28px;border-radius:14px;padding:0 10px;background:rgba(255,255,255,.12);color:#fff;font-size:13px;font-family:var(--font)}
 .chatlog{max-height:200px;overflow:auto;background:rgba(0,0,0,.3);border-radius:12px;padding:8px 10px;font-size:14px;display:flex;flex-direction:column;gap:4px;text-align:left} .chatlog b{font-weight:400}
 .chatin{display:flex;gap:6px;align-items:center}

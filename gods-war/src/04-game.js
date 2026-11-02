@@ -90,7 +90,7 @@ function hurtPlayer(dmg,from){ if(P.dead||P.invul>0) return; dmg=Math.max(1,Math
   if(P.hp<=0){ P.hp=0; die(from); } }
 
 /* ================= 죽음과 부활 ================= */
-function die(by){ const R=RM(); P.dead=true; P.deadT=6; net.send({t:"dead",by:typeof by==="string"?by:(by||"")});
+function die(by){ const R=RM(); P.dead=true; P.deadT=6; if(player.userData.gl) animState(player,"dead"); net.send({t:"dead",by:typeof by==="string"?by:(by||"")});
   const lost=Math.round(G.gold*R.respawn.gold); G.gold-=lost; G.deaths++;
   if(R.respawn.xp){ G.xp=Math.max(0,G.xp-Math.round(xpNeed(G.lv)*R.respawn.xp)); }
   if(lost>0){ if(P.bag){ scene.remove(P.bag.mesh); } const bm=new THREE.Group(); bm.add(box(1,.9,.8,toon({color:0x8a5a2a}),0,.45,0)); bm.add(new THREE.Mesh(GEO.sph,toon({color:0xffd05a}))); bm.children[1].position.y=1.1; bm.children[1].scale.set(.6,.6,.6); bm.position.set(P.x,hAt(P.x,P.z),P.z); scene.add(bm); P.bag={mesh:bm,x:P.x,z:P.z,gold:Math.round(lost*.5),t:120}; }
