@@ -1,11 +1,11 @@
 # 모든 게임을 다시 만들고, 바뀐 내용으로 버전을 자동으로 붙여요.
 # 사용법: python3 stamp.py  (그 다음 git add/commit/push)
 import os, re, json, hashlib, subprocess
-APPS={"praise-jinhyuk":"pj","praise-jinyul":"py","egg-steal":"es","infinite-game":"ig"}
-CORE={"praise-jinhyuk":["icons/icon-192.png"],"praise-jinyul":["icons/icon-192.png"],"egg-steal":["three.min.js","icons/icon-192.png"],"infinite-game":["three.min.js","icons/icon-192.png"]}
+APPS={"praise-jinhyuk":"pj","praise-jinyul":"py","egg-steal":"es","infinite-game":"ig","gods-war":"gw"}
+CORE={"praise-jinhyuk":["icons/icon-192.png"],"praise-jinyul":["icons/icon-192.png"],"egg-steal":["three.min.js","icons/icon-192.png"],"infinite-game":["three.min.js","icons/icon-192.png"],"gods-war":["three.min.js","icons/icon-192.png"]}
 def run(cwd,script): subprocess.run(["python3",script],cwd=cwd,check=True)
 run("praise-jinhyuk","build.py"); run("praise-jinhyuk","make_jinyul.py")
-run("egg-steal","build.py"); run("infinite-game","build.py")
+run("egg-steal","build.py"); run("infinite-game","build.py"); run("gods-war","build.py")
 SNIP_START="<!--auto-update-->"; SNIP_END="<!--/auto-update-->"
 def snippet(ver): return SNIP_START+'''<script>
 (function(){ var CUR="'''+ver+'''";
