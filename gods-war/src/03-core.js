@@ -48,9 +48,9 @@ function itemName(s,t){ return RM().items[s][t]; }
 function itemDesc(s,t){ return s==="w"?`공격 +${TIER.w[t]}`:s==="a"?`체력 +${TIER.a[t]} · 방어 +${(t+1)*5}`:`치명타 ${Math.round(TIER.r[t]*100)}%`; }
 
 /* ================= 세계 상태(영토) ================= */
-let W=(function(){ const o=REGIONS.map(r=>r.cap?r.realm:-1), ts=REGIONS.map(()=>0); try{ const s=JSON.parse(load("gw-world-"+ROOM)||"null"); if(s&&s.o&&s.o.length===REGIONS.length){ for(let i=0;i<REGIONS.length;i++){ if(!REGIONS[i].cap){ o[i]=s.o[i]; ts[i]=s.ts[i]||0; } } } }catch(e){} return {o,ts}; })();
+let W=(function(){ const o=REGIONS.map(r=>r.cap?r.realm:-1), ts=REGIONS.map(()=>0); let sim=null; try{ const s=JSON.parse(load("gw-world-"+ROOM)||"null"); if(s&&s.o&&s.o.length===REGIONS.length){ for(let i=0;i<REGIONS.length;i++){ if(!REGIONS[i].cap){ o[i]=s.o[i]; ts[i]=s.ts[i]||0; } } if(s.sim!=null) sim=s.sim; } }catch(e){} return {o,ts,sim}; })();
 function saveWorld(){ save("gw-world-"+ROOM,JSON.stringify(W)); }
-function mergeWorld(s){ if(!s||!s.o||!s.ts) return false; let ch=false; for(let i=0;i<REGIONS.length;i++){ if(REGIONS[i].cap) continue; if((s.ts[i]||0)>(W.ts[i]||0)){ W.o[i]=s.o[i]; W.ts[i]=s.ts[i]; ch=true; } } if(ch){ saveWorld(); paintTerritory(); } return ch; }
+function mergeWorld(s){ if(!s||!s.o||!s.ts) return false; let ch=false; if(s.sim!=null&&(W.sim==null||s.sim>W.sim)) W.sim=s.sim; for(let i=0;i<REGIONS.length;i++){ if(REGIONS[i].cap) continue; if((s.ts[i]||0)>(W.ts[i]||0)){ W.o[i]=s.o[i]; W.ts[i]=s.ts[i]; ch=true; } } if(ch){ saveWorld(); paintTerritory(); } return ch; }
 function regionAt(x,z){ let best=null,bd=1e9; for(const r of REGIONS){ const d=Math.hypot(x-r.x,z-r.z); if(d<r.r&&d<bd){ bd=d; best=r; } } return best; }
 function inCapital(x,z){ const r=regionAt(x,z); return r&&r.cap?r:null; }
 

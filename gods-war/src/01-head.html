@@ -85,6 +85,11 @@ button{font:inherit;-webkit-tap-highlight-color:transparent}
 #chat{position:fixed;left:50%;bottom:calc(max(12px,env(safe-area-inset-bottom)) + 150px);transform:translateX(-50%);z-index:5;display:flex;flex-direction:column;gap:3px;align-items:center;pointer-events:none;width:min(80vw,360px)}
 .msg{background:rgba(20,14,40,.75);border-radius:12px;padding:4px 10px;font-size:13px;color:#fff;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;animation:fadeout 6s forwards} .msg b{font-weight:400;color:var(--gold)}
 @keyframes fadeout{80%{opacity:1}to{opacity:0}}
+#warbar{position:fixed;left:50%;top:calc(max(8px,env(safe-area-inset-top)) + 122px);transform:translateX(-50%);z-index:6;width:min(78vw,330px);background:linear-gradient(135deg,rgba(90,10,20,.85),rgba(20,8,30,.85));border:2px solid #ff5a5f;border-radius:14px;padding:6px 10px;text-align:center;box-shadow:0 0 18px rgba(255,60,80,.45);animation:warp 1.6s ease-in-out infinite}
+@keyframes warp{50%{box-shadow:0 0 28px rgba(255,60,80,.75)}}
+#warbar .wt{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis} #warbar .wt b{font-weight:400}
+#warbar .wb{position:relative;display:flex;height:14px;border-radius:7px;overflow:hidden;margin:4px 0;background:#000} #warbar .wb i{display:block;height:100%} #warbar .wb span{position:absolute;inset:0;font-size:11px;line-height:14px;text-shadow:0 1px 0 #000}
+#warbar .wm{font-size:12px;color:var(--gold)} #warbar button{margin-top:4px;border:0;border-radius:10px;padding:5px 14px;background:var(--gold);color:#1b1430;font-family:var(--font);font-size:14px;cursor:pointer}
 #bossbar{position:fixed;left:50%;top:calc(max(8px,env(safe-area-inset-top)) + 180px);transform:translateX(-50%);z-index:5;width:min(70vw,300px);pointer-events:none;text-align:center}
 #bossbar .nm{font-size:16px;color:#ffcf4a;text-shadow:0 2px 0 #000} #bossbar .bar{height:12px;border:2px solid #ffcf4a} #bossbar .bar i{background:linear-gradient(90deg,#b01030,#ff3d4a)}
 
@@ -180,6 +185,7 @@ button{font:inherit;-webkit-tap-highlight-color:transparent}
 <canvas id="minimap" width="200" height="200"></canvas>
 <div id="zoomBtns"><button id="zIn" type="button">+</button><button id="zOut" type="button">−</button></div>
 <div id="quest"></div>
+<div id="warbar" hidden></div>
 <div id="bossbar" hidden><div class="nm" id="bossNm"></div><div class="bar"><i id="bossHp" style="width:100%"></i></div></div>
 <div id="chat"></div>
 

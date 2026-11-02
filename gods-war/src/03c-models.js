@@ -97,7 +97,7 @@ function refreshGL(){ if(!MODELS.animsReady) return;
   if(typeof player!=="undefined"&&player&&!player.userData.glAvatar&&typeof buildPlayer==="function") buildPlayer();
   if(typeof PEERS!=="undefined") for(const id in PEERS){ const o=PEERS[id]; if(!o.mesh.userData.glAvatar&&net.rebuild) net.rebuild(o); }
   if(typeof NPCS!=="undefined") NPCS.forEach(o=>{ if(o.mesh.userData.glAvatar) return; const realm=REGIONS.find(r=>r===o.cap).realm; const g=avatarGL(realm,6,NPC_LOOK[o.n]||{},2.3); if(g){ scene.remove(o.mesh); o.mesh=g; scene.add(g); g.position.set(o.x,hAt(o.x,o.z),o.z); } });
-  if(typeof mobs!=="undefined") mobs.forEach(m=>{ if(m.mesh.userData.gl||m.trialOf) return; const g=mobGL(m.n,m.scale); if(g){ g.position.copy(m.mesh.position); g.rotation.y=m.mesh.rotation.y; scene.remove(m.mesh); m.mesh=g; scene.add(g); if(m.aura){ g.add(m.aura); } } }); }
+  if(typeof mobs!=="undefined") mobs.forEach(m=>{ if(m.mesh.userData.gl||m.trialOf||m.war) return; const g=mobGL(m.n,m.scale); if(g){ g.position.copy(m.mesh.position); g.rotation.y=m.mesh.rotation.y; scene.remove(m.mesh); m.mesh=g; scene.add(g); if(m.aura){ g.add(m.aura); } } }); }
 
 /* ---- 건물·나무: 준비되면 절차 소품을 진짜 모델로 교체 ---- */
 function onHexReady(){ try{ PLACED.forEach(p=>{ if(p.obj) scene.remove(p.obj); const o=hexFor(p); if(o){ o.position.set(p.x,hAt(p.x,p.z)-.05,p.z); o.rotation.y=p.rot||0; scene.add(o); p.obj=o; } }); }catch(e){ console.warn(e); } }

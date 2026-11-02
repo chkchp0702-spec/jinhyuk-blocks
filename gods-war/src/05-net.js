@@ -54,7 +54,8 @@ const net=(function(){
     else if(d.t==="hit"){ if(d.to!==G.id||P.dead) return; if(inCapital(P.x,P.z)) return; const st=stat(); hurtPlayer(d.d*(1-dmgReduce(st.def))*.7,o.name); toast(`${o.name}의 공격!`,null,.8); }
     else if(d.t==="dead"){ if(d.by===G.name){ G.war++; G.gold+=40+o.lv*5; gainXp(60+o.lv*12); toast(`${o.name} 격파!`,`전쟁 점수 +1 · 금화 +${40+o.lv*5}`,2.6); jingle([659,784,1046,1318]); saveGame(); } else toast(`${o.name}이(가) 쓰러졌어요`,null,1.4); }
     else if(d.t==="cap"){ if(mergeWorld({o:d.o,ts:d.ts})) toast(`${o.name}이(가) 영토를 점령했어요!`,`${REALMS[o.realm].n} 세력 확장`,2.4); }
-    else if(d.t==="say"){ chat(o.name,d.m,o.realm,o); } }
+    else if(d.t==="say"){ chat(o.name,d.m,o.realm,o); }
+    else if(d.t==="wc"){ if(typeof warContrib==="function") warContrib(d.i,d); } }
   function chat(who,m,realm,o){ if(typeof CHATLOG!=="undefined") CHATLOG.push({who,m,realm,t:Date.now()}); if(o){ o.bubble=m; o.bubbleT=5; } else { P.bubble=m; P.bubbleT=5; } const el=document.createElement("div"); el.className="msg"; el.innerHTML=`<b style="color:${realm>=0?REALMS[realm].c1:"#fff"}">${who}</b> ${m}`; $("chat").appendChild(el); setTimeout(()=>el.remove(),6000); tone(880,.05,"sine",0,.05); }
   function tick(dt){ if(!N.started) return;
     const now=performance.now();

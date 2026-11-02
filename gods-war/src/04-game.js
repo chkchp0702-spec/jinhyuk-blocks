@@ -23,10 +23,10 @@ function spawnMob(rg,boss,world){
 function removeMob(m){ scene.remove(m.mesh); m.lbl.remove(); const i=mobs.indexOf(m); if(i>=0) mobs.splice(i,1); if(m.boss){ const s=REG_STATE[m.rg]; if(s.boss===m) s.boss=null; } }
 function tickMobs(dt){
   // 지역별 스폰: 내가 근처에 있는 지역만
-  REGIONS.forEach(rg=>{ const d=Math.hypot(P.x-rg.x,P.z-rg.z); const s=REG_STATE[rg.id]; if(d>rg.r+50) return; const cnt=mobs.filter(m=>m.rg===rg.id&&!m.boss).length; const want=rg.cap?3:rg.center?7:5; if(cnt<want&&Math.random()<dt*.8) spawnMob(rg,false,false);
+  REGIONS.forEach(rg=>{ const d=Math.hypot(P.x-rg.x,P.z-rg.z); const s=REG_STATE[rg.id]; if(d>rg.r+50) return; if(typeof warActive==="function"&&warActive()&&WAR.cur.rg===rg.id) return; const cnt=mobs.filter(m=>m.rg===rg.id&&!m.boss).length; const want=rg.cap?3:rg.center?7:5; if(cnt<want&&Math.random()<dt*.8) spawnMob(rg,false,false);
     if(!rg.cap&&!P.trial){ s.bossT-=dt; if(s.bossT<=0&&!s.boss&&d<rg.r+10){ spawnMob(rg,true,!!rg.center); s.bossT=rg.center?300:240; } } });
   const st=stat();
-  for(let i=mobs.length-1;i>=0;i--){ const m=mobs[i]; const dx=P.x-m.x, dz=P.z-m.z, d=Math.hypot(dx,dz);
+  for(let i=mobs.length-1;i>=0;i--){ const m=mobs[i]; if(m.war) continue; const dx=P.x-m.x, dz=P.z-m.z, d=Math.hypot(dx,dz);
     if(d>150){ removeMob(m); continue; }
     m.hit=Math.max(0,m.hit-dt); m.cd-=dt; m.t-=dt;
     const spd=(m.boss?3.4:m.shape==="wolf"?5.2:3.6)*(m.scale>1.5?1.1:1);
@@ -47,7 +47,7 @@ function tickMobs(dt){
 }
 function damageMob(m,dmg,crit){ if(m.hp<=0) return; dmg=Math.round(dmg); m.hp-=dmg; m.hit=.15; P.combat=4; floatDmg(m.x,3.5*m.scale,m.z,"-"+fmt(dmg),crit?"crit":""); fxSpark(m.x,1.8*m.scale,m.z,crit?0xffe08a:0xffffff,crit?16:8); tone(crit?660:440,.06,"square",0,.08);
   if(m.hp<=0){ killMob(m); } }
-function killMob(m){ const st=stat(); G.kills++; gainXp(m.xp); G.gold+=m.gold; fxFlash(m.x,2,m.z,0xffe08a,m.boss?6:2.2,.45); fxRing(m.x,m.z,0xffffff,m.boss?10:3);
+function killMob(m){ if(m.war&&typeof warOnKill==="function") warOnKill(m); const st=stat(); G.kills++; gainXp(m.xp); G.gold+=m.gold; fxFlash(m.x,2,m.z,0xffe08a,m.boss?6:2.2,.45); fxRing(m.x,m.z,0xffffff,m.boss?10:3);
   floatDmg(m.x,4,m.z,`+${m.gold} 금화`,"");
   // 드랍
   const rg=REGIONS[m.rg]; const roll=Math.random(); let tier=-1; if(m.boss){ tier=m.world?3:Math.min(3,Math.floor(rg.lv[1]/10)+1); if(Math.random()<.35) tier=Math.min(3,tier+1); } else if(roll<.06){ tier=Math.min(3,Math.floor(rg.lv[0]/8)); if(Math.random()<.15) tier=Math.min(3,tier+1); }
@@ -116,6 +116,7 @@ function finishTrial(win){ const T=P.trial; if(!T) return; P.trial=null; const R
 /* ================= 영토 점령 ================= */
 function tickTerritory(dt){ const rg=regionAt(P.x,P.z); $("region").innerHTML=rg?`${rg.n} <b>${W.o[rg.id]>=0?REALMS[W.o[rg.id]].n+" 영토":"중립"}</b>`:"황야";
   if(!rg||rg.cap||P.dead){ P.capProg=0; P.capRg=-1; return; }
+  if(typeof warActive==="function"&&warActive()&&WAR.cur.rg===rg.id){ P.capProg=0; P.capRg=-1; return; }
   const g=TERR_RINGS[rg.id]; const d=Math.hypot(P.x-g.position.x,P.z-g.position.z);
   if(d<8&&W.o[rg.id]!==G.realm){ let blocked=false; for(const id in PEERS){ const o=PEERS[id]; if(o.realm===W.o[rg.id]&&!o.dead&&Math.hypot(o.x-g.position.x,o.z-g.position.z)<16) blocked=true; }
     if(blocked){ toast("상대 세계 플레이어가 제단을 지키고 있어요",null,.6); return; }
@@ -160,7 +161,8 @@ function drawMinimap(ctxIn,size){ const ctx=ctxIn||mctx, S=size||mm.width; const
     if(!big){ ctx.fillStyle="#fff"; ctx.font=`${Math.round(S*.075)}px sans-serif`; ctx.textAlign="center"; ctx.shadowColor="#000"; ctx.shadowBlur=3; ctx.fillText(rg.n,tx(rg.x),tz(rg.z)+(rg.cap?S*.12:S*.03)); ctx.shadowBlur=0; }
     // 제단 점
     ctx.fillStyle="#fff"; ctx.beginPath(); ctx.arc(tx(TERR_RINGS[rg.id].position.x),tz(TERR_RINGS[rg.id].position.z),S*.012,0,6.3); ctx.fill(); });
-  mobs.forEach(m=>{ ctx.fillStyle=m.boss?"#ffcf4a":"rgba(255,90,95,.8)"; ctx.beginPath(); ctx.arc(tx(m.x),tz(m.z),S*(m.boss?.02:.01),0,6.3); ctx.fill(); });
+  if(typeof warActive==="function"&&warActive()){ const g=TERR_RINGS[WAR.cur.rg].position; ctx.font=`${Math.round(S*(big?.06:.12))}px sans-serif`; ctx.textAlign="center"; ctx.fillStyle=(performance.now()/300|0)%2?"#ff5a5f":"#ffcf4a"; ctx.fillText("⚔",tx(g.x),tz(g.z)+S*.035); WAR.units.forEach(u=>{ if(u.dead) return; ctx.fillStyle=WAR.joined?(u.side===WAR.side?"#3fd27a":"#ff5a5f"):(u.side==="att"?"#ffb070":"#8fd0ff"); ctx.beginPath(); ctx.arc(tx(u.x),tz(u.z),S*.012,0,6.3); ctx.fill(); }); }
+  mobs.forEach(m=>{ if(m.war) return; ctx.fillStyle=m.boss?"#ffcf4a":"rgba(255,90,95,.8)"; ctx.beginPath(); ctx.arc(tx(m.x),tz(m.z),S*(m.boss?.02:.01),0,6.3); ctx.fill(); });
   for(const id in PEERS){ const o=PEERS[id]; ctx.fillStyle=o.realm===G.realm?"#3fd27a":"#ff5a5f"; ctx.beginPath(); ctx.arc(tx(o.x),tz(o.z),S*.022,0,6.3); ctx.fill(); ctx.strokeStyle="#000"; ctx.stroke(); }
   if(player){ ctx.save(); ctx.translate(tx(P.x),tz(P.z)); ctx.rotate(-P.rot); ctx.fillStyle="#fff"; ctx.strokeStyle="#000"; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(0,-S*.035); ctx.lineTo(S*.025,S*.025); ctx.lineTo(-S*.025,S*.025); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore(); }
   ctx.restore(); }

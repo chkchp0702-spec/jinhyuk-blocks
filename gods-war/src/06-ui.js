@@ -86,7 +86,7 @@ function showTitle(){
   if($("roomGo")) $("roomGo").onclick=()=>{ const k=$("roomIn").value.trim().replace(/[^a-zA-Z0-9_-]/g,""); if(!k) return; location.search="?k="+k; };
   if($("start")) $("start").onclick=()=>{ initAudio(); goFull(); if(G.realm<0){ G.name=$("nameIn").value.trim().slice(0,8); G.realm=sel; saveGame(); } begin(); };
 }
-function begin(){ closeLayer(); setRealmTheme(); buildPlayer(); spawnAtHome(); P.hp=stat().mhp; ensureQuests(); hud(); started=true; net.start(); jingle([392,523,659,784]); toast(`${RM().n}에 온 것을 환영해요`,`${RM().absolute}의 세계 · ${RM().ranks[G.rank]} ${G.name}`,3); }
+function begin(){ closeLayer(); try{ warCatchUp(); }catch(e){ console.warn(e); } setRealmTheme(); buildPlayer(); spawnAtHome(); P.hp=stat().mhp; ensureQuests(); hud(); started=true; net.start(); jingle([392,523,659,784]); toast(`${RM().n}에 온 것을 환영해요`,`${RM().absolute}의 세계 · ${RM().ranks[G.rank]} ${G.name}`,3); }
 
 /* ================= 매 프레임 ================= */
 const myLbl=makeLabel("ally"); let started=false, last=performance.now(), skyCur=new THREE.Color(0x9fd4ff), fogCur=new THREE.Color(0xdcefff);
@@ -108,7 +108,7 @@ function update(dt){
   if(P.trial){ P.trial.t-=dt; if(P.trial.t<=0){ toast("시간 초과…",null,2); finishTrial(false); } else if(Math.hypot(P.x-REGIONS[G.realm*3].x,P.z-REGIONS[G.realm*3].z)>60){ toast("시험장을 벗어났어요",null,2); finishTrial(false); } }
   if(P.dead){ P.deadT-=dt; const b=$("rsp"); if(b){ $("rspT").textContent=Math.max(0,Math.ceil(P.deadT)); if(P.deadT<=0&&b.disabled){ b.disabled=false; b.onclick=respawn; $("rspT").textContent=""; } } }
   const rg=regionAt(P.x,P.z); if(rg&&rg!==P.lastRg){ P.lastRg=rg; questEvent("visit",rg); if(!rg.cap||rg.realm!==G.realm) toast(rg.n,rg.realm>=0?`${REALMS[rg.realm].n}의 땅 · Lv.${rg.lv[0]}~${rg.lv[1]}`:`중립 · Lv.${rg.lv[0]}~${rg.lv[1]} · 세계 보스 출현`,1.6); }
-  tickMobs(dt); tickTerritory(dt); net.tick(dt); tickFX(dt); tickNPCs(dt); tickMixers(dt);
+  tickMobs(dt); tickWar(dt); tickTerritory(dt); net.tick(dt); tickFX(dt); tickNPCs(dt); tickMixers(dt);
   if(P.guide){ const dx=P.guide.x-P.x, dz=P.guide.z-P.z, dist=Math.hypot(dx,dz); if(dist<7){ const lb=P.guide.label; setGuide(null); toast("도착!",lb,1.5); } else { $("gArrow").style.transform=`rotate(${Math.atan2(dx,-dz)-Math.PI/2}rad)`; $("gTxt").textContent=`${P.guide.label} · ${Math.round(dist)}m`; } }
   P.bubbleT=Math.max(0,(P.bubbleT||0)-dt); if(P.bubbleT>0) placeLabel(myLbl,P.x,4.9,P.z,`<span class="bub">${P.bubble}</span>`); else myLbl.style.display="none";
   // 하늘색: 지금 있는 세계의 색으로 천천히
@@ -123,7 +123,7 @@ camera.position.set(0,30,60); camera.lookAt(0,10,0);
 function frame(t){ const dt=Math.min(.05,(t-last)/1000); last=t; if(started) update(dt); else { const a=t/9000; camera.position.set(Math.sin(a)*70,30,Math.cos(a)*70); camera.lookAt(0,18,0); tickFX(dt); dayNight(dt,true,REALMS[0]); } if(POST&&started) POST.render(); else { renderer.setRenderTarget(null); renderer.render(scene,camera); } requestAnimationFrame(frame); }
 $("bQuest").onclick=()=>{ if(P.nearTemple) showTemple(); else showQuests(); };
 showTitle(); requestAnimationFrame(frame);
-window.__gw={G,P,mobs,W,net,PEERS,stat,begin,update,spawnMob,spawnAtHome,REGIONS,attack,useSkill,startTrial,die,respawn};
+window.__gw={G,P,mobs,W,net,PEERS,WAR,forceWar,resolveWar,joinWar,begin,update,spawnMob,spawnAtHome,REGIONS,attack,useSkill,startTrial,die,respawn};
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 </body>
