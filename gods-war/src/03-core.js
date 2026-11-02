@@ -129,11 +129,17 @@ const TERRAIN=(function(){ const S=WORLD_HALF*2+40, seg=190; const geo=new THREE
 /* ---- 물: 물결 + 반짝임 셰이더 ---- */
 const TIME={value:0};
 const WATER=new THREE.ShaderMaterial({transparent:true,depthWrite:false,fog:true,uniforms:THREE.UniformsUtils.merge([THREE.UniformsLib.fog,{time:TIME,deep:{value:new THREE.Color(0x1f5fb8)},shallow:{value:new THREE.Color(0x6fd0ff)},sunDir:{value:new THREE.Vector3(.4,.6,.3)}}]),
-  vertexShader:`varying vec3 vW; varying vec3 vN; varying vec2 vUv; #include <fog_pars_vertex>
-    void main(){ vUv=uv; vec4 wp=modelMatrix*vec4(position,1.); vW=wp.xyz; vN=normalize(mat3(modelMatrix)*normal); vec4 mv=viewMatrix*wp; gl_Position=projectionMatrix*mv; #include <fog_vertex> }`,
-  fragmentShader:`uniform float time; uniform vec3 deep,shallow,sunDir; varying vec3 vW; varying vec3 vN; varying vec2 vUv; #include <fog_pars_fragment>
-    void main(){ float w=sin(vW.x*1.3+time*1.6)*.5+sin(vW.z*1.1-time*1.3)*.5+sin((vW.x+vW.z)*2.2+time*2.4)*.25; vec3 n=normalize(vN+vec3(w*.12,0.,w*.1)); vec3 v=normalize(cameraPosition-vW); float fr=pow(1.-max(dot(n,v),0.),2.); vec3 c=mix(deep,shallow,.35+w*.25); c=mix(c,vec3(.9,.97,1.),fr*.5); vec3 h=normalize(normalize(sunDir)+v); c+=vec3(1.)*pow(max(dot(n,h),0.),90.)*.9; float ring=smoothstep(.98,1.,fract(length(vUv-.5)*6.-time*.4)); c+=ring*.08; gl_FragColor=vec4(c,.86); #include <fog_fragment> }`});
-const TERR_RINGS={}, ALTARS={};
+  vertexShader:`varying vec3 vW; varying vec3 vN; varying vec2 vUv;
+#include <fog_pars_vertex>
+    void main(){ vUv=uv; vec4 wp=modelMatrix*vec4(position,1.); vW=wp.xyz; vN=normalize(mat3(modelMatrix)*normal); vec4 mvPosition=viewMatrix*wp; gl_Position=projectionMatrix*mvPosition;
+#include <fog_vertex>
+}`,
+  fragmentShader:`uniform float time; uniform vec3 deep,shallow,sunDir; varying vec3 vW; varying vec3 vN; varying vec2 vUv;
+#include <fog_pars_fragment>
+    void main(){ float w=sin(vW.x*1.3+time*1.6)*.5+sin(vW.z*1.1-time*1.3)*.5+sin((vW.x+vW.z)*2.2+time*2.4)*.25; vec3 n=normalize(vN+vec3(w*.12,0.,w*.1)); vec3 v=normalize(cameraPosition-vW); float fr=pow(1.-max(dot(n,v),0.),2.); vec3 c=mix(deep,shallow,.35+w*.25); c=mix(c,vec3(.9,.97,1.),fr*.5); vec3 h=normalize(normalize(sunDir)+v); c+=vec3(1.)*pow(max(dot(n,h),0.),90.)*.9; float ring=smoothstep(.98,1.,fract(length(vUv-.5)*6.-time*.4)); c+=ring*.08; gl_FragColor=vec4(c,.86);
+#include <fog_fragment>
+}`});
+const TERR_RINGS={}, ALTARS={}; const PLACED=[];  // 건물·나무 배치 기록 {kind, realm, x, z, rot, obj}
 const M={ gold:mat({color:0xffd05a,metalness:.6,roughness:.35}), white:mat({color:0xfaf6ec}), trunk:mat({color:0x7a4e2e,roughness:1}), pine:mat({color:0x2e6b4a}), snow:mat({color:0xf6f9ff,roughness:1}), ice:mat({color:0xa6dcff,transparent:true,opacity:.8,roughness:.2,metalness:.1}), rock:mat({color:0x66707f,roughness:1}), temple:mat({color:0xd8602a}), tgold:mat({color:0xf5c04a,metalness:.6,roughness:.3}), lotus:mat({color:0xff8fb8}), water:WATER, marble:mat({color:0xf4f1ea,roughness:.5}), laurel:mat({color:0x5a9a4a}), dark:mat({color:0x3a3250,roughness:.95}), stone:mat({color:0x8a8a9a,roughness:.95}), red:mat({color:0x9a2030}), wood:mat({color:0x5a3a22,roughness:1}), leaf:mat({color:0x3fa36a}), shield:mat({color:0xc9a24a,metalness:.4,roughness:.5}) };
 const EMBLEM={}; function emblemMat(realm){ if(EMBLEM[realm]) return EMBLEM[realm]; const c=document.createElement("canvas"); c.width=c.height=64; const x=c.getContext("2d"); x.fillStyle=["#c9a227","#2d4e7a","#b8471e","#2f6fb0"][realm]; x.beginPath(); x.arc(32,32,30,0,6.3); x.fill(); x.fillStyle="#fff"; x.font="bold 40px serif"; x.textAlign="center"; x.textBaseline="middle"; x.fillText(REALMS[realm].icon,32,34); const t=new THREE.CanvasTexture(c); t.encoding=THREE.sRGBEncoding; return EMBLEM[realm]=mat({map:t,transparent:true,roughness:.5,metalness:.3}); }
 function tree(x,z,R){ const g=new THREE.Group(); const kind=R.prop;
@@ -157,9 +163,12 @@ function house(i){ const g=new THREE.Group();
   else { g.add(box(4.4,2.8,3.6,M.marble,0,1.4,0)); const rf=new THREE.Mesh(new THREE.ConeGeometry(3.2,1.6,4),mat({color:0xb0523a})); rf.rotation.y=Math.PI/4; rf.scale.set(1.25,1,1); rf.position.y=3.6; g.add(rf); [-1.5,1.5].forEach(x=>g.add(cyl(.22,.26,2.6,M.marble,x,1.3,1.9,10))); g.add(box(.9,1.7,.2,mat({color:0x4a3a2a}),0,.85,1.85)); }
   return shadowify(g); }
 function cityProps(i,cap){ const R=REALMS[i]; const inward=Math.atan2(-cap.z,-cap.x);
-  for(let k=0;k<7;k++){ const a=inward+Math.PI+(k-3)*.42; const r=rnd(38,48); const x=cap.x+Math.cos(a)*r, z=cap.z+Math.sin(a)*r; const h=house(i); h.position.set(x,hAt(x,z),z); h.rotation.y=-a+Math.PI/2; scene.add(h); }
+  for(let k=0;k<7;k++){ const a=inward+Math.PI+(k-3)*.42; const r=rnd(38,48); const x=cap.x+Math.cos(a)*r, z=cap.z+Math.sin(a)*r; const h=house(i); h.position.set(x,hAt(x,z),z); h.rotation.y=-a+Math.PI/2; scene.add(h); PLACED.push({kind:"house",realm:i,x,z,rot:-a+Math.PI/2,obj:h}); }
+  for(let k=0;k<2;k++){ const a=inward+Math.PI+(k?1.6:-1.6); const x=cap.x+Math.cos(a)*44, z=cap.z+Math.sin(a)*44; PLACED.push({kind:"church",realm:i,x,z,rot:-a+Math.PI/2,obj:null}); }
+  for(let k=0;k<6;k++){ const a=rnd(0,6.283); const r=rnd(34,40); const x=cap.x+Math.cos(a)*r, z=cap.z+Math.sin(a)*r; PLACED.push({kind:"prop",realm:i,x,z,rot:rnd(0,6.3),obj:null}); }
+  for(let k=0;k<4;k++){ const a=k*Math.PI/2+Math.PI/4; PLACED.push({kind:"flag",realm:i,x:cap.x+Math.cos(a)*33,z:cap.z+Math.sin(a)*33,rot:0,obj:null}); }
   // 시장 노점
-  for(let k=0;k<3;k++){ const a=inward+Math.PI/2+(k-1)*.5; const x=cap.x+Math.cos(a)*25, z=cap.z+Math.sin(a)*25; const g=new THREE.Group(); g.add(box(3,.9,1.6,M.wood,0,.45,0)); [-1.3,1.3].forEach(xx=>g.add(cyl(.08,.08,2.6,M.wood,xx,1.3,-.6))); const aw=new THREE.Mesh(new THREE.PlaneGeometry(3.4,2),mat({color:k%2?0xff5a5f:R.c1,side:THREE.DoubleSide})); aw.rotation.x=-1.1; aw.position.set(0,2.5,-.2); g.add(aw); for(let j=0;j<4;j++) g.add(sph(.22,mat({color:[0xff5a5f,0xffcf4a,0x3fd27a,0xff9f3d][j]}),-1+j*.65,1.05,.2)); g.position.set(x,0,z); g.rotation.y=-a-Math.PI/2; scene.add(shadowify(g)); }
+  for(let k=0;k<3;k++){ const a=inward+Math.PI/2+(k-1)*.5; const x=cap.x+Math.cos(a)*25, z=cap.z+Math.sin(a)*25; const g=new THREE.Group(); g.add(box(3,.9,1.6,M.wood,0,.45,0)); [-1.3,1.3].forEach(xx=>g.add(cyl(.08,.08,2.6,M.wood,xx,1.3,-.6))); const aw=new THREE.Mesh(new THREE.PlaneGeometry(3.4,2),mat({color:k%2?0xff5a5f:R.c1,side:THREE.DoubleSide})); aw.rotation.x=-1.1; aw.position.set(0,2.5,-.2); g.add(aw); for(let j=0;j<4;j++) g.add(sph(.22,mat({color:[0xff5a5f,0xffcf4a,0x3fd27a,0xff9f3d][j]}),-1+j*.65,1.05,.2)); g.position.set(x,0,z); g.rotation.y=-a-Math.PI/2; scene.add(shadowify(g)); PLACED.push({kind:"market",realm:i,x,z,rot:-a-Math.PI/2,obj:g}); }
   // 분수
   const f=new THREE.Group(); f.add(cyl(4,4.3,.6,M.marble,0,.3,0,24)); const w=new THREE.Mesh(new THREE.CircleGeometry(3.6,28),WATER); w.rotation.x=-Math.PI/2; w.position.y=.62; f.add(w); f.add(cyl(.5,.7,2.2,M.marble,0,1.5,0,12)); f.add(cyl(1.4,1.2,.3,M.marble,0,2.6,0,20)); f.add(sph(.5,glowMat(R.c1,.8),0,3.3,0)); f.position.set(cap.x,0,cap.z); scene.add(shadowify(f));
   // 돌아다니는 신들(NPC)
@@ -178,8 +187,8 @@ function capitalBuilding(i,x,z){ const g=new THREE.Group();
   g.position.set(x,0,z); return shadowify(g); }
 (function props(){
   REALMS.forEach((R,i)=>{ const sx=(i===0||i===2)?1:-1, sz=(i>=2)?1:-1;
-    for(let k=0;k<70;k++){ const x=sx*rnd(10,WORLD_HALF-8), z=sz*rnd(10,WORLD_HALF-8); if(Math.hypot(x,z)<REGIONS[12].r+6) continue; const cap=REGIONS[i*3]; if(Math.hypot(x-cap.x,z-cap.z)<34) continue; let near=false; for(const rg of REGIONS){ if(Math.hypot(x-rg.x,z-rg.z)<10) near=true; } if(near) continue; { const o=k%3===0?deco(x,z,R):tree(x,z,R); o.position.y=hAt(x,z)-.15; scene.add(o); } }
-    const cap=REGIONS[i*3]; scene.add(capitalBuilding(i,cap.x+(cap.x>0?14:-14),cap.z+(cap.z>0?-14:14))); cityProps(i,cap);
+    for(let k=0;k<70;k++){ const x=sx*rnd(10,WORLD_HALF-8), z=sz*rnd(10,WORLD_HALF-8); if(Math.hypot(x,z)<REGIONS[12].r+6) continue; const cap=REGIONS[i*3]; if(Math.hypot(x-cap.x,z-cap.z)<34) continue; let near=false; for(const rg of REGIONS){ if(Math.hypot(x-rg.x,z-rg.z)<10) near=true; } if(near) continue; { const isDeco=k%3===0; const o=isDeco?deco(x,z,R):tree(x,z,R); o.position.y=hAt(x,z)-.15; scene.add(o); if(!isDeco||R.prop==="pine") PLACED.push({kind:isDeco?"rock":"tree",realm:i,x,z,rot:rnd(0,6.3),obj:o}); } }
+    const cap=REGIONS[i*3]; { const bx=cap.x+(cap.x>0?14:-14), bz=cap.z+(cap.z>0?-14:14); const b=capitalBuilding(i,bx,bz); scene.add(b); PLACED.push({kind:"castle",realm:i,x:bx,z:bz,rot:Math.atan2(-cap.x,-cap.z),obj:b}); } cityProps(i,cap);
     // 수도 둘레 가로등/횃불
     for(let j=0;j<10;j++){ const a=j/10*6.283; const px=cap.x+Math.cos(a)*31, pz=cap.z+Math.sin(a)*31; const g=new THREE.Group(); g.add(cyl(.15,.2,4,M.dark,0,2,0,8)); g.add(sph(.4,glowMat(R.c1,.9),0,4.3,0)); g.position.set(px,0,pz); scene.add(g); } });
   // 빛 기둥(광선): 에덴 수도와 세계의 중심
@@ -221,11 +230,11 @@ function makeAvatar(realm,rank,statue,look){ look=look||{};
   const R=REALMS[realm]||REALMS[0]; const g=new THREE.Group();
   const skin=mat({color:statue?0xd9d4c8:[0xffdcc0,0xf3cfb0,0xd29a6e,0xf0c6a8][realm],roughness:.75});
   const clothC=[[0xf7f2e6,0xffffff,0xfff3c4],[0x3b5a8a,0x2b3f66,0x5a7fb0],[0xff8a2a,0xd84a2a,0xffb347],[0xf2eee3,0xffffff,0xe8dcc0]][realm];
-  const cloth=mat({color:statue?0xcfcabd:(LOOKS.cloth[look.cloth]||clothC[Math.min(2,Math.floor(rank/3))]),roughness:.8});
+  const cloth=mat({color:statue?0xcfcabd:(typeof LOOKS.cloth[look.cloth]==="number"?LOOKS.cloth[look.cloth]:clothC[Math.min(2,Math.floor(rank/3))]),roughness:.8});
   const accC=[0xffd05a,0x9fd6ff,0xffd05a,0x7fe0ff][realm]; const acc=mat({color:statue?0xbdb6a8:accC,metalness:.7,roughness:.3});
   const armor=mat({color:statue?0xbdb6a8:(rank>=5?0xffd05a:rank>=3?[0xe8e2d0,0x8fa8c8,0xd8a040,0xd8e4f0][realm]:0x6b6b7a),metalness:rank>=3?.75:.3,roughness:.35});
   const pants=mat({color:statue?0xbdb6a8:[0x4a4a66,0x2a2a3a,0x6a2a1a,0x3a3a50][realm],roughness:.9});
-  const hair=mat({color:statue?0xbdb6a8:(LOOKS.hair[look.hair]||[0xfff1c4,0xc98a3a,0x1a1a1a,0x5a3a1a][realm]),roughness:.9});
+  const hair=mat({color:statue?0xbdb6a8:(typeof LOOKS.hair[look.hair]==="number"?LOOKS.hair[look.hair]:[0xfff1c4,0xc98a3a,0x1a1a1a,0x5a3a1a][realm]),roughness:.9});
   const body=new THREE.Group(); g.add(body); g.userData.body=body;
   // 몸통: 허리에서 어깨로 넓어지는 곡선
   const torso=new THREE.Mesh(new THREE.LatheGeometry([new THREE.Vector2(.45,0),new THREE.Vector2(.52,.3),new THREE.Vector2(.6,.8),new THREE.Vector2(.68,1.25),new THREE.Vector2(.6,1.5),new THREE.Vector2(.25,1.6)],18),cloth); torso.position.y=1.2; body.add(torso);
@@ -234,7 +243,7 @@ function makeAvatar(realm,rank,statue,look){ look=look||{};
   body.add(box(.5,.5,.06,emblemMat(realm),0,2.05,.6));
   // 머리: 둥근 얼굴 + 큰 눈
   const head=sph(.66,skin,0,3.25,0); head.scale.y*=.95; body.add(head); g.userData.head=head;
-  const eyeW=new THREE.MeshBasicMaterial({color:0xffffff}), iris=new THREE.MeshBasicMaterial({color:LOOKS.eye[look.eye]||[0x3a7bd5,0x2f8f8f,0x4a2a1a,0x3a8a5a][realm]}), pupil=new THREE.MeshBasicMaterial({color:0x101020}), hl=new THREE.MeshBasicMaterial({color:0xffffff});
+  const eyeW=new THREE.MeshBasicMaterial({color:0xffffff}), iris=new THREE.MeshBasicMaterial({color:(typeof LOOKS.eye[look.eye]==="number"?LOOKS.eye[look.eye]:[0x3a7bd5,0x2f8f8f,0x4a2a1a,0x3a8a5a][realm])}), pupil=new THREE.MeshBasicMaterial({color:0x101020}), hl=new THREE.MeshBasicMaterial({color:0xffffff});
   [-.24,.24].forEach(x=>{ const e=sph(.15,eyeW,x,3.3,.56); e.scale.multiply(new THREE.Vector3(1,1.25,.5)); body.add(e); const ir=sph(.09,iris,x+(x>0?-.01:.01),3.29,.66); ir.scale.multiply(new THREE.Vector3(1,1.25,.4)); body.add(ir); const pu=sph(.045,pupil,x,3.28,.7); body.add(pu); body.add(sph(.03,hl,x+.04,3.35,.72)); const br=box(.26,.05,.04,hair,x,3.55,.6); br.rotation.z=x>0?-.2:.2; body.add(br); });
   body.add(box(.22,.04,.03,new THREE.MeshBasicMaterial({color:0xc0604a}),0,3.02,.64)); [-.4,.4].forEach(x=>body.add(sph(.09,new THREE.MeshBasicMaterial({color:0xff9aa0,transparent:true,opacity:.55}),x,3.12,.52)));
   // 머리카락: 세계별 스타일

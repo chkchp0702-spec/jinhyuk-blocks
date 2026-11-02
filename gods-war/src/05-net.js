@@ -43,14 +43,14 @@ const net=(function(){
   function lookArr(){ const l=G.look||{}; return [l.hair||0,l.cloth||0,l.eye||0]; }
   function lookObj(a){ a=a||[0,0,0]; return {hair:a[0],cloth:a[1],eye:a[2]}; }
   function ensure(id,d){ let o=PEERS[id]; if(!o){ o=PEERS[id]={id,name:d.n||"?",realm:d.r||0,rank:d.k||0,lv:d.l||1,x:d.x||0,z:d.z||0,tx:d.x||0,tz:d.z||0,tf:0,m:0,walk:0,hp:1,mhp:1,dead:false,last:performance.now(),mesh:null,lbl:makeLabel(""),w:-1,anim:0};
-      o.lk=(d.lk||[0,0,0]).join(","); o.mesh=makeAvatar(o.realm,o.rank,false,lookObj(d.lk)); scene.add(o.mesh); o.mesh.position.set(o.x,0,o.z); toast(`${o.name} 입장!`,`${REALMS[o.realm].n} · ${REALMS[o.realm].ranks[o.rank]}`,2.2); jingle([523,659,784]); dots(); }
+      o.lk=(d.lk||[0,0,0]).join(","); o.mesh=(typeof avatarGL==="function"&&avatarGL(o.realm,o.rank,lookObj(d.lk)))||makeAvatar(o.realm,o.rank,false,lookObj(d.lk)); scene.add(o.mesh); o.mesh.position.set(o.x,0,o.z); toast(`${o.name} 입장!`,`${REALMS[o.realm].n} · ${REALMS[o.realm].ranks[o.rank]}`,2.2); jingle([523,659,784]); dots(); }
     return o; }
-  function rebuild(o){ scene.remove(o.mesh); o.mesh=makeAvatar(o.realm,o.rank,false,lookObj(o.lk?o.lk.split(",").map(Number):null)); scene.add(o.mesh); o.mesh.position.set(o.x,0,o.z); if(o.w>=0){ const w=makeWeapon(o.realm,o.w); w.position.set(0,-1.2,.3); o.mesh.userData.armR.add(w); } }
+  function rebuild(o){ scene.remove(o.mesh); const lk=lookObj(o.lk?o.lk.split(",").map(Number):null); o.mesh=(typeof avatarGL==="function"&&avatarGL(o.realm,o.rank,lk))||makeAvatar(o.realm,o.rank,false,lk); scene.add(o.mesh); o.mesh.position.set(o.x,0,o.z); if(o.w>=0&&!o.mesh.userData.glAvatar){ const w=makeWeapon(o.realm,o.w); w.position.set(0,-1.2,.3); o.mesh.userData.armR.add(w); } }
   function recv(d){ if(!d||!d.t||!d.i||d.i===G.id) return; const key=d.i+":"+d.q; if(N.seen[key]) return; N.seen[key]=1; if(++N.seenN>600){ N.seen={}; N.seenN=0; }
     if(!PEERS[d.i]&&d.t!=="hi"&&d.t!=="st") return; const o=ensure(d.i,d); o.last=performance.now();
     if(d.t==="hi"){ const lk=(d.lk||[0,0,0]).join(","); if(o.realm!==d.r||o.rank!==d.k||o.lk!==lk){ o.realm=d.r; o.rank=d.k; o.lk=lk; rebuild(o); } o.name=d.n; o.lv=d.l; }
     else if(d.t==="st"){ if(d.n) o.name=d.n; o.tx=d.x; o.tz=d.z; o.tf=d.f; o.m=d.m; o.hp=d.h; o.mhp=d.H; o.lv=d.l; o.dead=!!d.D; if(o.rank!==d.k||o.realm!==d.r||o.w!==d.w){ o.rank=d.k; o.realm=d.r; o.w=d.w; rebuild(o); } o.mesh.visible=!o.dead; }
-    else if(d.t==="a"){ o.anim=.3; if(d.k==="skl") fxRing(o.x,o.z,REALMS[o.realm].skills[0].color,6,.5); }
+    else if(d.t==="a"){ o.anim=.3; o.skl=d.k==="skl"; if(d.k==="skl") fxRing(o.x,o.z,REALMS[o.realm].skills[0].color,6,.5); }
     else if(d.t==="hit"){ if(d.to!==G.id||P.dead) return; if(inCapital(P.x,P.z)) return; const st=stat(); hurtPlayer(d.d*(1-dmgReduce(st.def))*.7,o.name); toast(`${o.name}의 공격!`,null,.8); }
     else if(d.t==="dead"){ if(d.by===G.name){ G.war++; G.gold+=40+o.lv*5; gainXp(60+o.lv*12); toast(`${o.name} 격파!`,`전쟁 점수 +1 · 금화 +${40+o.lv*5}`,2.6); jingle([659,784,1046,1318]); saveGame(); } else toast(`${o.name}이(가) 쓰러졌어요`,null,1.4); }
     else if(d.t==="cap"){ if(mergeWorld({o:d.o,ts:d.ts})) toast(`${o.name}이(가) 영토를 점령했어요!`,`${REALMS[o.realm].n} 세력 확장`,2.4); }
@@ -61,10 +61,10 @@ const net=(function(){
     for(const id in PEERS){ const o=PEERS[id]; if(now-o.last>8000){ scene.remove(o.mesh); o.lbl.remove(); toast(`${o.name} 퇴장`,null,1.4); delete PEERS[id]; dots(); continue; }
       o.bubbleT=Math.max(0,(o.bubbleT||0)-dt); const p=o.mesh.position; const dx=o.tx-p.x, dz=o.tz-p.z; if(Math.hypot(dx,dz)>40){ p.x=o.tx; p.z=o.tz; } else { p.x+=dx*Math.min(1,dt*8); p.z+=dz*Math.min(1,dt*8); } o.x=p.x; o.z=p.z; p.y=hAt(p.x,p.z);
       let dr=o.tf-o.mesh.rotation.y; while(dr>Math.PI) dr-=Math.PI*2; while(dr<-Math.PI) dr+=Math.PI*2; o.mesh.rotation.y+=dr*Math.min(1,dt*12);
-      if(o.m) o.walk+=dt*9; const u=o.mesh.userData, sw=o.m?Math.sin(o.walk)*.7:0; u.legL.rotation.x=sw; u.legR.rotation.x=-sw; u.armL.rotation.x=-sw; o.anim=Math.max(0,o.anim-dt); u.armR.rotation.x=o.anim>0?-2.2:sw; u.body.position.y=o.m?Math.abs(Math.sin(o.walk))*.12:0;
+      if(o.m) o.walk+=dt*9; const u=o.mesh.userData, sw=o.m?Math.sin(o.walk)*.7:0; o.anim=Math.max(0,o.anim-dt); if(u.gl){ animState(o.mesh,o.dead?"dead":o.anim>.25?(o.skl?"skill":"attack"):o.m?"run":"idle"); if(u.crown) u.crown.rotation.y+=dt*2; } else { u.legL.rotation.x=sw; u.legR.rotation.x=-sw; u.armL.rotation.x=-sw; o.anim=Math.max(0,o.anim-dt); u.armR.rotation.x=o.anim>0?-2.2:sw; u.body.position.y=o.m?Math.abs(Math.sin(o.walk))*.12:0; }
       if(Math.hypot(o.x-P.x,o.z-P.z)<60&&!o.dead){ const foe=o.realm!==G.realm; o.lbl.className="lbl "+(foe?"foe":"ally"); placeLabel(o.lbl,o.x,4.6,o.z,`${o.bubbleT>0?`<span class="bub">${o.bubble}</span>`:""}${o.name} <b>${REALMS[o.realm].n} · ${REALMS[o.realm].ranks[o.rank]} Lv.${o.lv}</b><span class="hp"><i style="width:${Math.round(o.hp/o.mhp*100)}%;background:${foe?"#ff5a5f":"#3fd27a"}"></i></span>`); } else o.lbl.style.display="none"; }
     if(N.up>0){ N.sendT-=dt; if(N.sendT<=0){ N.sendT=.16; send({t:"st",n:G.name,x:+P.x.toFixed(1),z:+P.z.toFixed(1),f:+P.rot.toFixed(2),m:P.moving?1:0,h:Math.round(P.hp),H:stat().mhp,l:G.lv,k:G.rank,r:G.realm,w:G.eq.w,D:P.dead?1:0}); }
       N.hiT-=dt; if(N.hiT<=0){ N.hiT=6; hello(); } N.worldT-=dt; if(N.worldT<=0){ N.worldT=45; pushWorld(); } } }
-  return {start,send,tick,pushWorld,chat,get up(){ return N.up; }};
+  return {start,send,tick,pushWorld,chat,rebuild,get up(){ return N.up; }};
 })();
 </script>

@@ -2,8 +2,8 @@
 /* ================= 플레이어 ================= */
 const P={x:0,z:0,y:0,vy:0,rot:0,hp:1,walk:0,moving:false,atkCd:0,sklCd:[0,0,0],rage:0,haste:0,combat:0,dashT:0,atkAnim:0,slow:0,weak:0,shadow:0,dizzy:0,heat:0,dead:false,deadT:0,orbitT:0,orbitTick:0,capProg:0,capRg:-1,bag:null,trial:null,invul:0,hitFlash:0};
 let player=null, weaponMesh=null, orbitMesh=null;
-function buildPlayer(){ if(player){ scene.remove(player); } player=makeAvatar(G.realm,G.rank,false,G.look||{}); scene.add(player); applyWeapon(); }
-function applyWeapon(){ if(!player) return; if(weaponMesh){ weaponMesh.parent.remove(weaponMesh); weaponMesh=null; } if(G.eq.w>=0){ weaponMesh=makeWeapon(G.realm,G.eq.w); weaponMesh.position.set(0,-1.2,.3); weaponMesh.rotation.x=-.3; player.userData.armR.add(weaponMesh); } }
+function buildPlayer(){ if(player){ scene.remove(player); } player=(typeof avatarGL==="function"&&avatarGL(G.realm,G.rank,G.look||{}))||makeAvatar(G.realm,G.rank,false,G.look||{}); scene.add(player); applyWeapon(); }
+function applyWeapon(){ if(!player||player.userData.glAvatar) return; if(weaponMesh){ weaponMesh.parent.remove(weaponMesh); weaponMesh=null; } if(G.eq.w>=0){ weaponMesh=makeWeapon(G.realm,G.eq.w); weaponMesh.position.set(0,-1.2,.3); weaponMesh.rotation.x=-.3; player.userData.armR.add(weaponMesh); } }
 function homeShrine(){ const a=ALTARS[G.realm*3]; return a?a.shrine:new THREE.Vector3(0,0,0); }
 function spawnAtHome(){ const s=homeShrine(); const rg=REGIONS[G.realm*3]; const dir=rg.z>0?-1:1; P.x=s.x+rnd(-2,2); P.z=s.z+dir*16; P.y=0; P.vy=0; P.rot=0; }
 function setRealmTheme(){ const R=RM(); document.documentElement.style.setProperty("--c1",R.c1); document.documentElement.style.setProperty("--c2",R.c2); R.skills.forEach((S,i)=>{ $("sklNm"+i).textContent=S.n; }); }
@@ -17,7 +17,7 @@ function spawnMob(rg,boss,world){
   const lv=boss?(world?rint(34,40):rg.lv[1]+2):rint(rg.lv[0],rg.lv[1]);
   const st=mobStats(lv,boss); const scale=boss?(world?2.6:1.9):rnd(.85,1.15);
   let x,z; for(let k=0;k<12;k++){ const a=rnd(0,6.3), d=rg.cap?rnd(28,rg.r-6):rnd(8,rg.r-8); x=rg.x+Math.cos(a)*d; z=rg.z+Math.sin(a)*d; if(Math.hypot(x-P.x,z-P.z)>14) break; }
-  const m={n:def.n,shape:def.shape,mesh:makeMob(def.shape,def.c,scale),x,z,hx:x,hz:z,lv,boss:!!boss,world:!!world,hp:st.mhp,mhp:st.mhp,atk:st.atk,xp:st.xp,gold:st.gold,rg:rg.id,cd:0,state:"idle",t:rnd(0,3),lbl:makeLabel(boss?"boss":""),rot:rnd(0,6.3),hit:0,scale,power:boss?def.p:0};
+  const m={n:def.n,shape:def.shape,mesh:(typeof mobGL==="function"&&mobGL(def.n,scale))||makeMob(def.shape,def.c,scale),x,z,hx:x,hz:z,lv,boss:!!boss,world:!!world,hp:st.mhp,mhp:st.mhp,atk:st.atk,xp:st.xp,gold:st.gold,rg:rg.id,cd:0,state:"idle",t:rnd(0,3),lbl:makeLabel(boss?"boss":""),rot:rnd(0,6.3),hit:0,scale,power:boss?def.p:0};
   m.mesh.position.set(x,0,z); scene.add(m.mesh); mobs.push(m); if(boss){ const aura=new THREE.Mesh(new THREE.RingGeometry(1.6,2.4,40),glowMat(world?0xb08cff:0xff6a3d,.7)); aura.rotation.x=-Math.PI/2; aura.position.y=.1; m.mesh.add(aura); m.aura=aura; REG_STATE[rg.id].boss=m; toast(world?`세계 보스 ${def.n} 출현!`:`${def.n}이(가) 나타났다!`,world?`파워 ${def.p} · 세계의 중심`:rg.n,2.6); tone(90,.4,"sawtooth",0,.2); buzz([60,40,60]); }
   return m; }
 function removeMob(m){ scene.remove(m.mesh); m.lbl.remove(); const i=mobs.indexOf(m); if(i>=0) mobs.splice(i,1); if(m.boss){ const s=REG_STATE[m.rg]; if(s.boss===m) s.boss=null; } }
@@ -33,12 +33,13 @@ function tickMobs(dt){
     const safe=inCapital(P.x,P.z); const shrineD=safe?Math.hypot(P.x-ALTARS[safe.id].shrine.x,P.z-ALTARS[safe.id].shrine.z):99;
     const aggro=!P.dead&&d<(m.boss?26:13)&&shrineD>18&&!(m.trial===false);
     if(m.trialOf&&!P.trial){ removeMob(m); continue; }
-    if(aggro){ m.state="chase"; if(d>(m.boss?3.4:2.3)){ m.x+=dx/d*spd*dt; m.z+=dz/d*spd*dt; m.rot=Math.atan2(dx,dz); } else if(m.cd<=0){ m.cd=m.boss?1.6:1.3; hurtPlayer(m.atk*(1-dmgReduce(st.def)),m.n); m.mesh.userData.lunge=.25; } }
+    if(aggro){ m.state="chase"; if(d>(m.boss?3.4:2.3)){ m.x+=dx/d*spd*dt; m.z+=dz/d*spd*dt; m.rot=Math.atan2(dx,dz); } else if(m.cd<=0){ m.cd=m.boss?1.6:1.3; hurtPlayer(m.atk*(1-dmgReduce(st.def)),m.n); m.mesh.userData.lunge=.25; if(m.mesh.userData.gl) animState(m.mesh,"attack"); } }
     else { if(m.t<=0){ m.t=rnd(1.5,4); m.state=Math.random()<.5?"idle":"wander"; m.wx=m.hx+rnd(-8,8); m.wz=m.hz+rnd(-8,8); } if(m.state==="wander"){ const wx=m.wx-m.x, wz=m.wz-m.z, wd=Math.hypot(wx,wz); if(wd>.5){ m.x+=wx/wd*1.6*dt; m.z+=wz/wd*1.6*dt; m.rot=Math.atan2(wx,wz); } } }
     const rg=REGIONS[m.rg]; const rd=Math.hypot(m.x-rg.x,m.z-rg.z); if(rd>rg.r+6){ m.x+= (rg.x-m.x)/rd*spd*dt; m.z+=(rg.z-m.z)/rd*spd*dt; }
     m.x=clamp(m.x,-WORLD_HALF+3,WORLD_HALF-3); m.z=clamp(m.z,-WORLD_HALF+3,WORLD_HALF-3);
     const tnow=performance.now(); m.mesh.position.set(m.x,hAt(m.x,m.z)+(m.mesh.userData.float?Math.sin(tnow/400+m.x)*.3+.2:0)+(m.mesh.userData.lunge>0?.4:0)+(m.state==="chase"?Math.abs(Math.sin(tnow/90+m.x))*.25:0),m.z); if(m.mesh.userData.lunge>0) m.mesh.userData.lunge-=dt; m.mesh.rotation.x=m.state==="chase"&&!m.mesh.userData.float?Math.sin(tnow/90+m.x)*.08:0; if(m.aura){ m.aura.rotation.z+=dt*2; m.aura.scale.setScalar(1+Math.sin(tnow/250)*.12); }
     let dr=m.rot-m.mesh.rotation.y; while(dr>Math.PI) dr-=Math.PI*2; while(dr<-Math.PI) dr+=Math.PI*2; m.mesh.rotation.y+=dr*Math.min(1,dt*8);
+    if(m.mesh.userData.gl){ animState(m.mesh,m.hit>0&&m.hp>0?"hit":m.state==="chase"?(d>(m.boss?3.4:2.3)?"run":"idle"):m.state==="wander"?"walk":"idle"); if(m.mesh.userData.lunge>.2) animState(m.mesh,"attack"); m.mesh.rotation.x=0; }
     const sc=m.scale*(m.hit>0?1.12:1); m.mesh.scale.set(sc*(1+Math.sin(tnow/600+m.x)*.02),sc*(1+Math.sin(tnow/600+m.x+1)*.03),sc);
     if(d<48){ const h=m.mesh.userData.h||4; placeLabel(m.lbl,m.x,h*m.scale,m.z,`${m.boss?"👑 ":""}${m.n} <b>Lv.${m.lv}${m.power?" · 파워 "+m.power:""}</b><span class="hp"><i style="width:${Math.round(m.hp/m.mhp*100)}%"></i></span>`); } else m.lbl.style.display="none";
   }
@@ -61,18 +62,18 @@ function tickNPCs(dt){ NPCS.forEach(o=>{ if(!o.lbl) o.lbl=makeLabel("boss"); con
     if(o.t<=0){ o.t=rnd(3,7); const a=rnd(0,6.283), r=rnd(6,24); o.tx=o.cap.x+Math.cos(a)*r; o.tz=o.cap.z+Math.sin(a)*r; }
     if(o.sayT<=0&&d<30){ o.sayT=rnd(14,34); o.say=5; o.msg=pick(NPC_SAY[o.n]||["..."]); } o.say=Math.max(0,o.say-dt);
     const dx=o.tx-o.x, dz=o.tz-o.z, L=Math.hypot(dx,dz); const moving=L>.6; if(moving){ o.x+=dx/L*2.2*dt; o.z+=dz/L*2.2*dt; o.walk+=dt*8; o.mesh.rotation.y=Math.atan2(dx,dz); } else if(d<6){ o.mesh.rotation.y=Math.atan2(P.x-o.x,P.z-o.z); }
-    o.mesh.position.set(o.x,hAt(o.x,o.z),o.z); const u=o.mesh.userData, sw=moving?Math.sin(o.walk)*.6:0; u.legL.rotation.x=sw; u.legR.rotation.x=-sw; u.armL.rotation.x=-sw; u.armR.rotation.x=sw; u.body.position.y=moving?Math.abs(Math.sin(o.walk))*.1:Math.sin(performance.now()/600)*.03; if(u.wings) u.wings.forEach(w=>{ w.rotation.y=w.userData.s*Math.sin(performance.now()/500)*.15; }); if(u.cape) u.cape.rotation.x=.15+(moving?.4:0); if(u.crown){ u.crown.rotation.y+=dt*2; }
+    o.mesh.position.set(o.x,hAt(o.x,o.z),o.z); const u=o.mesh.userData, sw=moving?Math.sin(o.walk)*.6:0; if(u.gl){ animState(o.mesh,o.say>4.5?"cheer":moving?"walk":"idle"); if(u.crown) u.crown.rotation.y+=dt*2; } else { u.legL.rotation.x=sw; u.legR.rotation.x=-sw; u.armL.rotation.x=-sw; u.armR.rotation.x=sw; u.body.position.y=moving?Math.abs(Math.sin(o.walk))*.1:Math.sin(performance.now()/600)*.03; if(u.wings) u.wings.forEach(w=>{ w.rotation.y=w.userData.s*Math.sin(performance.now()/500)*.15; }); if(u.cape) u.cape.rotation.x=.15+(moving?.4:0); if(u.crown){ u.crown.rotation.y+=dt*2; } }
     placeLabel(o.lbl,o.x,5.6,o.z,`${o.say>0?`<span class="bub">${o.msg}</span>`:""}${o.n} <b>${REALMS[REGIONS.find(r=>r===o.cap).realm].n}의 신 · 파워 ${o.p}</b>`); }); }
 
 /* ================= 전투 ================= */
 function facingHit(x,z,r,ang){ const dx=x-P.x, dz=z-P.z, d=Math.hypot(dx,dz); if(d>r) return false; if(d<1.2) return true; let a=Math.atan2(dx,dz)-P.rot; while(a>Math.PI)a-=Math.PI*2; while(a<-Math.PI)a+=Math.PI*2; return Math.abs(a)<ang; }
-function attack(){ if(P.dead||P.atkCd>0||layerOpen) return; P.atkCd=.28; P.atkAnim=.25; P.combat=4; const st=stat(); let any=false; fxArc(P.x,P.z,P.rot,RM().c1);
+function attack(){ if(P.dead||P.atkCd>0||layerOpen) return; P.atkCd=.28; P.atkAnim=.25; P.combat=4; if(player.userData.gl) animState(player,"attack"); const st=stat(); let any=false; fxArc(P.x,P.z,P.rot,RM().c1);
   mobs.forEach(m=>{ if(facingHit(m.x,m.z,3.4+(m.scale>1.5?1.5:0),1.0)){ const crit=Math.random()<st.crit; damageMob(m,st.atk*rnd(.9,1.1)*(crit?1.8:1),crit); any=true; } });
   for(const id in PEERS){ const o=PEERS[id]; if(o.realm===G.realm||o.dead) continue; if(inCapital(o.x,o.z)||inCapital(P.x,P.z)) continue; if(facingHit(o.x,o.z,3.4,1.0)){ const crit=Math.random()<st.crit; const dmg=Math.round(st.atk*rnd(.9,1.1)*(crit?1.8:1)*.55); net.send({t:"hit",to:id,d:dmg}); floatDmg(o.x,4,o.z,"-"+fmt(dmg),crit?"crit":""); any=true; } }
   if(any){ tone(220,.05,"square",0,.1); buzz(15); P.shake=Math.max(P.shake||0,.25); } else tone(180,.04,"triangle",0,.05);
   net.send({t:"a",k:"atk"}); }
 function drama(color,amt,dur){ P.tintC=new THREE.Color(color); P.tintA=amt; P.tintD=dur||1.2; }
-function useSkill(i){ i=i||0; if(P.dead||layerOpen) return; const S=RM().skills[i]; if(!S) return; if(G.rank<S.rank){ toast(`${RM().ranks[S.rank]}부터 쓸 수 있어요`,S.n,1.4); return; } if(P.sklCd[i]>0) return; const st=stat(); P.sklCd[i]=S.cd; P.atkAnim=.4; P.combat=4; net.send({t:"a",k:"skl"}); drama(S.color,i===2?.7:i===1?.4:.45,i===2?2:1); P.shake=Math.max(P.shake||0,i===2?1:.5); if(i===2){ fxRing(P.x,P.z,S.color,30,1.6); for(let k=0;k<6;k++) setTimeout(()=>fxBolt(P.x+rnd(-14,14),P.z+rnd(-14,14),S.color),k*120); }
+function useSkill(i){ i=i||0; if(P.dead||layerOpen) return; const S=RM().skills[i]; if(!S) return; if(G.rank<S.rank){ toast(`${RM().ranks[S.rank]}부터 쓸 수 있어요`,S.n,1.4); return; } if(P.sklCd[i]>0) return; const st=stat(); P.sklCd[i]=S.cd; P.atkAnim=.4; P.combat=4; if(player.userData.gl) animState(player,"skill"); net.send({t:"a",k:"skl"}); drama(S.color,i===2?.7:i===1?.4:.45,i===2?2:1); P.shake=Math.max(P.shake||0,i===2?1:.5); if(i===2){ fxRing(P.x,P.z,S.color,30,1.6); for(let k=0;k<6;k++) setTimeout(()=>fxBolt(P.x+rnd(-14,14),P.z+rnd(-14,14),S.color),k*120); }
   const hitMob=(m,mult)=>{ const crit=Math.random()<st.crit; damageMob(m,st.atk*mult*rnd(.9,1.1)*(crit?1.8:1),crit); };
   const hitPl=(o,id,mult)=>{ if(o.realm===G.realm||o.dead||inCapital(o.x,o.z)||inCapital(P.x,P.z)) return; const dmg=Math.round(st.atk*mult*.55); net.send({t:"hit",to:id,d:dmg}); floatDmg(o.x,4,o.z,"-"+fmt(dmg)); };
   const aoe=(r,mult)=>{ fxRing(P.x,P.z,S.color,r*1.6,.5); fxFlash(P.x,2,P.z,S.color,r*.8,.4); fxSpark(P.x,2,P.z,S.color,40); mobs.forEach(m=>{ if(Math.hypot(m.x-P.x,m.z-P.z)<r) hitMob(m,mult); }); for(const id in PEERS){ const o=PEERS[id]; if(Math.hypot(o.x-P.x,o.z-P.z)<r) hitPl(o,id,mult); } };
@@ -85,7 +86,7 @@ function useSkill(i){ i=i||0; if(P.dead||layerOpen) return; const S=RM().skills[
   else if(S.type==="dash"){ P.dashT=.25; P.dashX=Math.sin(P.rot)*S.dist/.25; P.dashZ=Math.cos(P.rot)*S.dist/.25; P.vy=7; P.invul=Math.max(P.invul,.5); setTimeout(()=>{ aoe(S.r,S.mult); thud(); },300); tone(500,.2,"triangle"); }
   $("hurt").style.opacity=0; }
 function usePotion(){ if(P.dead||G.pots<=0||layerOpen) return; const st=stat(); if(P.hp>=st.mhp){ toast("체력이 가득해요"); return; } G.pots--; P.hp=Math.min(st.mhp,P.hp+Math.round(st.mhp*.5)); fxRing(P.x,P.z,0x9dffb8,4); jingle([523,659]); saveGame(); }
-function hurtPlayer(dmg,from){ if(P.dead||P.invul>0) return; dmg=Math.max(1,Math.round(dmg)); P.hp-=dmg; P.combat=5; P.shake=Math.max(P.shake||0,.6); P.hitFlash=.25; floatDmg(P.x,4.2,P.z,"-"+fmt(dmg),"me"); $("hurt").style.opacity=Math.min(1,.4+ (1-P.hp/stat().mhp)); setTimeout(()=>{ $("hurt").style.opacity=P.hp/stat().mhp<.3?.5:0; },250); thud(); buzz(25);
+function hurtPlayer(dmg,from){ if(P.dead||P.invul>0) return; dmg=Math.max(1,Math.round(dmg)); P.hp-=dmg; P.combat=5; P.shake=Math.max(P.shake||0,.6); if(player.userData.gl&&P.atkAnim<=0) animState(player,"hit"); P.hitFlash=.25; floatDmg(P.x,4.2,P.z,"-"+fmt(dmg),"me"); $("hurt").style.opacity=Math.min(1,.4+ (1-P.hp/stat().mhp)); setTimeout(()=>{ $("hurt").style.opacity=P.hp/stat().mhp<.3?.5:0; },250); thud(); buzz(25);
   if(P.hp<=0){ P.hp=0; die(from); } }
 
 /* ================= 죽음과 부활 ================= */
@@ -104,7 +105,7 @@ function respawn(){ const R=RM(); P.dead=false; closeLayer(); spawnAtHome(); P.h
 function canTrial(){ return G.rank<6&&G.lv>=RANK_LV[G.rank+1]&&G.gold>=RANK_GOLD[G.rank+1]; }
 function startTrial(){ const R=RM(); if(!canTrial()||P.trial) return; const next=G.rank+1; G.gold-=RANK_GOLD[next]; closeLayer();
   const rg=REGIONS[G.realm*3]; const lv=RANK_LV[next]+5; const st=mobStats(lv,true); const god=R.trials[G.rank];
-  const m={n:god,shape:["angel","giant","demon","giant"][G.realm],mesh:makeAvatar(G.realm,next,false),x:rg.x,z:rg.z-6,hx:rg.x,hz:rg.z,lv,boss:true,world:false,hp:Math.round(st.mhp*.8),mhp:Math.round(st.mhp*.8),atk:st.atk*.85,xp:st.xp,gold:Math.round(RANK_GOLD[next]*.4),rg:rg.id,cd:1,state:"chase",t:0,lbl:makeLabel("boss"),rot:0,hit:0,scale:1.6,power:R.gods.find(g=>g.n.indexOf(god.split(" ").pop())>=0)?.p||40+next*9,trialOf:next};
+  const m={n:god,shape:["angel","giant","demon","giant"][G.realm],mesh:(typeof avatarGL==="function"&&avatarGL(G.realm,next,{hair:2,cloth:2}))||makeAvatar(G.realm,next,false),x:rg.x,z:rg.z-6,hx:rg.x,hz:rg.z,lv,boss:true,world:false,hp:Math.round(st.mhp*.8),mhp:Math.round(st.mhp*.8),atk:st.atk*.85,xp:st.xp,gold:Math.round(RANK_GOLD[next]*.4),rg:rg.id,cd:1,state:"chase",t:0,lbl:makeLabel("boss"),rot:0,hit:0,scale:1.6,power:R.gods.find(g=>g.n.indexOf(god.split(" ").pop())>=0)?.p||40+next*9,trialOf:next};
   m.mesh.scale.set(1.6,1.6,1.6); m.mesh.position.set(m.x,0,m.z); scene.add(m.mesh); mobs.push(m); P.trial={m,t:90,next};
   toast(`승급 시험: ${god}`,"90초 안에 이기면 "+R.ranks[next]+"(으)로 승급!",3); tone(80,.6,"sawtooth",0,.2); buzz([80,40,80]); }
 function finishTrial(win){ const T=P.trial; if(!T) return; P.trial=null; const R=RM();
@@ -139,7 +140,13 @@ function questEvent(type,obj){ let ch=false; G.quests.forEach(q=>{ if(q.done) re
   if(type==="rank"&&q.k==="rank"){ q.done=true; ch=true; } });
   if(ch){ renderQuests(); const d=G.quests.find(q=>q.done); if(d) toast("임무 완료!","임무 창에서 보상을 받아요",1.6); } }
 function claimQuest(i){ const q=G.quests[i]; if(!q||!q.done) return; G.gold+=q.gold; gainXp(q.xp); G.qdone++; G.quests.splice(i,1); jingle([659,784,1046]); toast(`보상: 금화 ${q.gold} · 경험치 ${q.xp}`); ensureQuests(); saveGame(); }
-function renderQuests(){ $("quest").innerHTML=G.quests.map((q,i)=>`<div class="q${q.done?" done":""}" data-i="${i}">${q.done?"✔ ":""}${q.txt}${q.k==="kill"?` <small>${q.c}/${q.n}</small>`:""}</div>`).join(""); $("quest").querySelectorAll(".q").forEach(el=>el.onclick=()=>{ const i=+el.dataset.i; if(G.quests[i].done) claimQuest(i); else showQuests(); }); }
+function questTarget(q){ if(q.k==="visit"||q.k==="cap"){ const g=TERR_RINGS[q.rg]; return {x:g.position.x,z:g.position.z,label:REGIONS[q.rg].n}; }
+  if(q.k==="kill"){ const ri=REALMS.findIndex(R=>R.mobs.some(m=>m.n===q.mob)); const cands=REGIONS.filter(r=>r.realm===ri); let best=null,bd=1e9; cands.forEach(r=>{ const d=Math.hypot(r.x-P.x,r.z-P.z); if(d<bd){ bd=d; best=r; } }); return best?{x:best.x,z:best.z,label:best.n+" ("+q.mob+")"}:null; }
+  if(q.k==="boss"){ let best=null,bd=1e9; REGIONS.forEach(r=>{ if(r.cap) return; const d=Math.hypot(r.x-P.x,r.z-P.z); if(d<bd){ bd=d; best=r; } }); return {x:best.x,z:best.z,label:best.n+" 보스"}; }
+  if(q.k==="rank"){ const a=ALTARS[G.realm*3].trial; return {x:a.x,z:a.z,label:RM().capital+" 승급 제단"}; } return null; }
+function setGuide(t){ if(!t||(P.guide&&P.guide.label===t.label)){ P.guide=null; $("guide").hidden=true; toast("길 안내 끔",null,1); return; } P.guide=t; $("guide").hidden=false; toast("길 안내: "+t.label,"화살표를 따라가요",1.6); tone(880,.08); }
+function nearestCapturable(){ let best=null,bd=1e9; REGIONS.forEach(r=>{ if(r.cap||W.o[r.id]===G.realm) return; const g=TERR_RINGS[r.id]; const d=Math.hypot(g.position.x-P.x,g.position.z-P.z); if(d<bd){ bd=d; best={x:g.position.x,z:g.position.z,label:r.n+" 제단 점령"}; } }); return best; }
+function renderQuests(){ $("quest").innerHTML=G.quests.map((q,i)=>`<div class="q${q.done?" done":""}" data-i="${i}">${q.done?"✔ ":""}${q.txt}${q.k==="kill"?` <small>${q.c}/${q.n}</small>`:""}</div>`).join(""); $("quest").querySelectorAll(".q").forEach(el=>el.onclick=()=>{ const i=+el.dataset.i; if(G.quests[i].done) claimQuest(i); else setGuide(questTarget(G.quests[i])); }); }
 
 /* ================= 미니맵 ================= */
 const mm=$("minimap"), mctx=mm.getContext("2d");

@@ -1,6 +1,6 @@
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v6";
+const VER="v7";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -82,6 +82,7 @@ const REGIONS=[
  {id:12,realm:-1,n:"세계의 중심",x:0,z:0,r:62,lv:[18,40],center:1},
 ];
 const WORLD_HALF=215;
-const LOOKS={ hair:[null,0xfff1c4,0xc98a3a,0x1a1a1a,0x5a3a1a,0xff6b8a,0x4aa3ff,0x9dffb8,0xffffff], cloth:[null,0xffffff,0xff5a5f,0x3a8dff,0x3fd27a,0xffcf4a,0xb061ff,0x1b1430,0xff9f3d], eye:[null,0x3a7bd5,0x2f8f8f,0x4a2a1a,0x3a8a5a,0xb061ff,0xff5a5f] };
+const LOOKS={ hair:[null,"벗기","쓰기"], cloth:[null,"벗기","입기"], eye:[null,0xffd6d6,0xd6e4ff,0xd6ffd6,0xfff0c0,0xe8d6ff,0xc8c8c8] };
+const LOOK_LABEL={hair:"모자",cloth:"망토",eye:"빛깔"};
 const SAY_COMMON=["안녕!","같이 가자","도와줘!","제단으로 와","조심해, 적이다","ㅋㅋㅋ","잘했어!","이따 봐"];
 </script>

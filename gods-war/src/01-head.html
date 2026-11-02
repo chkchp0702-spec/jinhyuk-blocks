@@ -55,6 +55,7 @@ button{font:inherit;-webkit-tap-highlight-color:transparent}
 #region b{font-weight:400;color:var(--c1)}
 
 #minimap{position:fixed;right:10px;top:calc(max(8px,env(safe-area-inset-top)) + 44px);width:150px;height:150px;z-index:5;border-radius:50%;border:3px solid rgba(255,255,255,.35);background:rgba(20,14,40,.6);pointer-events:auto;box-shadow:0 4px 14px rgba(0,0,0,.4)}
+#guide{position:fixed;left:50%;top:calc(max(8px,env(safe-area-inset-top)) + 70px);transform:translateX(-50%);z-index:5;display:flex;flex-direction:column;align-items:center;pointer-events:auto;background:rgba(20,14,40,.7);border:2px solid var(--gold);border-radius:16px;padding:4px 12px;color:#fff;font-size:13px;white-space:nowrap} #gArrow{font-size:34px;line-height:1;color:var(--gold);text-shadow:0 0 10px rgba(255,207,74,.8);transition:transform .15s}
 #zoomBtns{position:fixed;right:12px;top:calc(max(8px,env(safe-area-inset-top)) + 200px);z-index:5;display:flex;gap:6px} #zoomBtns button{width:36px;height:36px;border-radius:50%;border:2px solid rgba(255,255,255,.3);background:rgba(20,14,40,.75);color:#fff;font-size:20px;line-height:1;cursor:pointer}
 #quest{position:fixed;left:10px;top:calc(max(8px,env(safe-area-inset-top)) + 96px);z-index:5;pointer-events:auto;max-width:200px;display:flex;flex-direction:column;gap:4px}
 .q{background:rgba(20,14,40,.66);border-left:4px solid var(--c1);border-radius:10px;padding:5px 9px;font-size:12.5px;line-height:1.25;color:#fff}
@@ -147,6 +148,7 @@ button{font:inherit;-webkit-tap-highlight-color:transparent}
 .looks{display:flex;flex-direction:column;gap:6px;background:rgba(255,255,255,.08);padding:10px 12px;border-radius:16px;width:100%}
 .lookrow{display:flex;align-items:center;gap:5px;color:#fff;font-size:14px;flex-wrap:wrap} .lookrow span{width:34px;text-align:left}
 .sw{width:28px;height:28px;border-radius:50%;border:3px solid rgba(255,255,255,.5);cursor:pointer;padding:0;box-shadow:0 2px 0 rgba(0,0,0,.3)} .sw.on{border-color:#fff;transform:scale(1.18);box-shadow:0 0 0 3px var(--gold)}
+.sw.txt{width:auto;height:28px;border-radius:14px;padding:0 10px;background:rgba(255,255,255,.12);color:#fff;font-size:13px;font-family:var(--font)}
 .chatlog{max-height:200px;overflow:auto;background:rgba(0,0,0,.3);border-radius:12px;padding:8px 10px;font-size:14px;display:flex;flex-direction:column;gap:4px;text-align:left} .chatlog b{font-weight:400}
 .chatin{display:flex;gap:6px;align-items:center}
 .lbl .bub{position:relative}
@@ -171,6 +173,7 @@ button{font:inherit;-webkit-tap-highlight-color:transparent}
 <div class="hud tr">
   <span class="pill" id="netPill"><span class="dot" data-i="0"></span><span class="dot" data-i="1"></span><span class="dot" data-i="2"></span><span class="dot" data-i="3"></span><span id="netTxt">연결 중</span></span>
 </div>
+<div id="guide" hidden><div id="gArrow">➤</div><span id="gTxt"></span></div>
 <canvas id="minimap" width="200" height="200"></canvas>
 <div id="zoomBtns"><button id="zIn" type="button">+</button><button id="zOut" type="button">−</button></div>
 <div id="quest"></div>
@@ -196,3 +199,5 @@ button{font:inherit;-webkit-tap-highlight-color:transparent}
 <div id="toast"></div>
 <div id="layers"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="GLTFLoader.js"></script>
+<script src="SkeletonUtils.js"></script>
