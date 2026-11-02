@@ -56,7 +56,7 @@ button{font:inherit;-webkit-tap-highlight-color:transparent}
 .bar.hp i{background:linear-gradient(90deg,#ff3d4a,#ff8a5c)} .bar.xp i{background:linear-gradient(90deg,#4aa3ff,#9be7ff)} .bar.xp{height:7px}
 .bar span{position:absolute;inset:0;font-size:10px;line-height:11px;text-align:center;text-shadow:0 1px 0 #000}
 .gold{color:var(--gold)}
-#netPill{font-size:12px;gap:6px} #netPill .dot{width:9px;height:9px;border-radius:50%;background:#777;display:inline-block;box-shadow:0 0 4px #000} #netPill .dot.on{background:#3fd27a;box-shadow:0 0 6px #3fd27a}
+#titanPill{position:fixed;right:10px;top:calc(max(8px,env(safe-area-inset-top)) + 262px);z-index:5;font-size:13px;cursor:pointer;pointer-events:auto;border:1px solid rgba(255,140,80,.6);color:#ffd9b0;font-family:inherit} #netPill{font-size:12px;gap:6px} #netPill .dot{width:9px;height:9px;border-radius:50%;background:#777;display:inline-block;box-shadow:0 0 4px #000} #netPill .dot.on{background:#3fd27a;box-shadow:0 0 6px #3fd27a}
 #region{font-size:14px;color:#fff;letter-spacing:.5px}
 #region b{font-weight:400;color:var(--c1)}
 
@@ -190,6 +190,7 @@ button{font:inherit;-webkit-tap-highlight-color:transparent}
 </div>
 <div class="hud tr">
   <span class="pill" id="netPill"><span class="dot" data-i="0"></span><span class="dot" data-i="1"></span><span class="dot" data-i="2"></span><span class="dot" data-i="3"></span><span id="netTxt">연결 중</span></span>
+  <button class="pill" id="titanPill" type="button">🌋</button>
 </div>
 <div id="guide" hidden><div id="gArrow">➤</div><span id="gTxt"></span></div>
 <canvas id="minimap" width="480" height="480"></canvas>

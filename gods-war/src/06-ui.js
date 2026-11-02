@@ -16,7 +16,7 @@ hold($("bAtk"),attack,120); hold($("bSkill0"),()=>useSkill(0)); hold($("bSkill1"
 $("bBag").onclick=()=>showBag(); $("bQuest").onclick=()=>showQuests(); $("bMap").onclick=()=>showMap(); $("bSay").onclick=()=>showSay(); $("bMenu").onclick=()=>showMenu(); $("minimap").onclick=()=>showMap();
 
 /* ================= HUD ================= */
-function hud(){ const st=stat(); $("pname").textContent=G.name||"-"; $("prank").textContent=RM().ranks[G.rank]; $("hpBar").style.width=clamp(P.hp/st.mhp*100,0,100)+"%"; $("hpTxt").textContent=`${fmt(P.hp)} / ${fmt(st.mhp)}`; $("xpBar").style.width=clamp(G.xp/xpNeed(G.lv)*100,0,100)+"%"; $("plv").textContent=G.lv; $("pgold").textContent=fmt(G.gold); $("pwar").textContent=G.war?`⚔ ${G.war}`:""; $("potN").textContent=G.pots;
+function hud(){ const st=stat(); $("pname").textContent=(G.hero!=null&&typeof TB!=="undefined"&&G.hero>=TB.w-1?"🏅 ":"")+(G.name||"-"); $("prank").textContent=RM().ranks[G.rank]; $("hpBar").style.width=clamp(P.hp/st.mhp*100,0,100)+"%"; $("hpTxt").textContent=`${fmt(P.hp)} / ${fmt(st.mhp)}`; $("xpBar").style.width=clamp(G.xp/xpNeed(G.lv)*100,0,100)+"%"; $("plv").textContent=G.lv; $("pgold").textContent=fmt(G.gold); $("pwar").textContent=G.war?`⚔ ${G.war}`:""; $("potN").textContent=G.pots;
   RM().skills.forEach((S,i)=>{ const lock=G.rank<S.rank; const b=$("bSkill"+i); b.classList.toggle("lock",lock); $("sklCd"+i).textContent=lock?`${RM().ranks[S.rank]}`:(P.sklCd[i]>0?Math.ceil(P.sklCd[i])+"초":""); $("sklCdV"+i).style.setProperty("--p",P.sklCd[i]>0?Math.round(P.sklCd[i]/S.cd*100)+"%":"0%"); }); }
 
 /* ================= 화면(창) ================= */
@@ -43,7 +43,7 @@ function showSay(){ const list=SAY_COMMON.concat(RM().say); card(`<h2>대화</h2
   layers.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>send(b.dataset.s)); $("chatGo").onclick=()=>send($("chatIn").value); $("chatIn").onkeydown=e=>{ if(e.key==="Enter") send($("chatIn").value); }; const lg=$("chatlog"); lg.scrollTop=lg.scrollHeight; setTimeout(()=>{ try{ $("chatIn").focus(); }catch(e){} },350); }
 function showOnline(){ const rows=[{name:G.name+" (나)",realm:G.realm,rank:G.rank,lv:G.lv,x:P.x,z:P.z}].concat(Object.values(PEERS)).map(o=>{ const rg=regionAt(o.x,o.z); return `<div class="row"><div class="ic" style="color:${REALMS[o.realm].c1}">${REALMS[o.realm].icon}</div><div class="t"><div>${o.name}</div><span>${REALMS[o.realm].n} · ${REALMS[o.realm].ranks[o.rank]} Lv.${o.lv} · ${rg?rg.n:"황야"}</span></div></div>`; }).join("");
   card(`<h2>지금 접속 중</h2><p>${Object.keys(PEERS).length+1}명 · 중계 서버 ${net.up}/4 연결</p>${rows}<p style="font-size:12px">비밀번호로 들어온 사람만 보여요</p><button class="buy alt" id="toChat" style="align-self:center">대화하기</button>`); $("toChat").onclick=showSay; }
-$("netPill").style.pointerEvents="auto"; $("netPill").onclick=()=>showRoster();
+$("netPill").style.pointerEvents="auto"; $("netPill").onclick=()=>showRoster(); $("titanPill").onclick=()=>showTitan();
 function lookRows(){ return LOOK_ROWS.map(([k,label,list])=>`<div class="lookrow"><span>${label}</span><div class="chips">${list.map((it,j)=>`<button type="button" class="chip${((G.look&&G.look[k])||0)===j?" on":""}" data-k="${k}" data-j="${j}">${it[0]}</button>`).join("")}</div></div>`).join(""); }
 function bindLook(after){ layers.querySelectorAll(".chip").forEach(b=>b.onclick=()=>{ G.look=G.look||{}; G.look[b.dataset.k]=+b.dataset.j; layers.querySelectorAll(`.chip[data-k="${b.dataset.k}"]`).forEach(x=>x.classList.toggle("on",x===b)); tone(660,.06); if(after) after(); }); }
 function showLook(){ layers.innerHTML=`<div class="layer sheet" id="bg"><div class="card"><h2>꾸미기</h2><p>얼굴·옷·머리·망토·무기·빛깔을 섞어서 나만의 신을 만들어요. "자동"은 세계와 계급에 맞게 저절로 바뀜.</p><div class="looks">${lookRows()}</div><button class="close" id="cls" type="button">닫기</button></div></div>`; layerOpen=true; P.preview=true;
@@ -52,6 +52,9 @@ function showLook(){ layers.innerHTML=`<div class="layer sheet" id="bg"><div cla
 function showMenu(){ card(`<h2>신들의 전쟁</h2><p>${G.name} · ${RM().n} ${RM().ranks[G.rank]} · 버전 ${VER}</p>
   <div class="row"><div class="t"><div>친구 초대 링크</div><span>비밀번호 1004가 들어 있는 링크예요</span></div><button class="buy alt" id="copyL">복사</button></div><div class="linkbox">${inviteLink()}</div>
   <div class="row"><div class="t"><div>함께하기 서버</div><span>4곳 중 ${net.up}곳 연결됨 · 같이 있는 사람 ${Object.keys(PEERS).length}명</span></div></div>
+  <div class="row"><div class="ic">🐣</div><div class="t"><div>신수</div><span>알 품기 · 짝꿍 신수 데려가기 · 도감 ${Object.keys(G.pets||{}).length}/4</span></div><button class="buy" id="petBtn">열기</button></div>
+  <div class="row"><div class="ic">🤝</div><div class="t"><div>합체 기술 도감</div><span>같은 세계 친구와 3초 안에 기술 쓰기</span></div><button class="buy" id="comboBtn">열기</button></div>
+  <div class="row"><div class="ic">🌋</div><div class="t"><div>이번 주 거대 보스</div><span>모두 함께 체력 깎기 · 용사 뽑기</span></div><button class="buy" id="titanBtn">열기</button></div>
   <div class="row"><div class="t"><div>꾸미기</div><span>얼굴·옷·머리·망토·무기·빛깔</span></div><button class="buy alt" id="lookBtn">열기</button></div>
   <div class="row"><div class="t"><div>집(수도)으로 순간이동</div><span>전투 중엔 안 돼요</span></div><button class="buy" id="goHome">가기</button></div>
   <div class="row"><div class="t"><div>전체 화면</div><span>아이폰은 공유 → "홈 화면에 추가"로 앱처럼 설치하면 전체 화면</span></div><button class="buy alt" id="full">켜기</button></div>
@@ -61,7 +64,7 @@ function showMenu(){ card(`<h2>신들의 전쟁</h2><p>${G.name} · ${RM().n} ${
   <p style="font-size:12px">밤낮은 8분마다 바뀌고 모든 폰이 같은 시각이에요.<br>3D 모델: KayKit 1.0·2.0·Mystery 시리즈 (CC0, 무료, GitHub) · 엔진: three.js<br>조작: 왼쪽 화면을 끌면 이동 · 공격/기술 3개/물약/점프 버튼 · 키보드 WASD, J 공격, K U I 기술, L 물약, 스페이스 점프</p>`);
   $("copyL").onclick=()=>{ const u=inviteLink(); (navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>toast("링크 복사됨!","카톡 등으로 보내 주세요"),()=>{ if(navigator.share) navigator.share({url:u}); else prompt("링크를 복사하세요",u); }); };
   $("goHome").onclick=()=>{ if(mobs.some(m=>m.state==="chase"&&Math.hypot(m.x-P.x,m.z-P.z)<16)){ toast("전투 중에는 안 돼요"); return; } spawnAtHome(); closeLayer(); toast("수도로 왔어요"); };
-  $("full").onclick=()=>{ goFull(); closeLayer(); }; $("lookBtn").onclick=showLook; $("gfx").onclick=()=>{ G.gfx=HIGH()?"low":"high"; saveGame(); location.reload(); };
+  $("full").onclick=()=>{ goFull(); closeLayer(); }; $("lookBtn").onclick=showLook; $("petBtn").onclick=showPets; $("comboBtn").onclick=showCombos; $("titanBtn").onclick=showTitan; $("gfx").onclick=()=>{ G.gfx=HIGH()?"low":"high"; saveGame(); location.reload(); };
   $("snd").onclick=()=>{ soundOn=!soundOn; save("gw-sound",soundOn?"1":"0"); if(soundOn) initAudio(); showMenu(); };
   $("wipe").onclick=()=>{ card(`<h2>정말 지울까요?</h2><p>${G.name}의 모든 기록이 사라져요.</p><button class="go" id="yes" style="background:#ff5a5f;color:#fff">지우기</button>`); $("yes").onclick=()=>{ try{ localStorage.removeItem(SAVEKEY); }catch(e){} location.reload(); }; }; }
 function showTemple(){ const R=RM(); const next=G.rank+1; const can=canTrial();
@@ -108,7 +111,7 @@ function update(dt){
   if(P.trial){ P.trial.t-=dt; if(P.trial.t<=0){ toast("시간 초과…",null,2); finishTrial(false); } else if(Math.hypot(P.x-REGIONS[G.realm*3].x,P.z-REGIONS[G.realm*3].z)>60){ toast("시험장을 벗어났어요",null,2); finishTrial(false); } }
   if(P.dead){ P.deadT-=dt; const b=$("rsp"); if(b){ $("rspT").textContent=Math.max(0,Math.ceil(P.deadT)); if(P.deadT<=0&&b.disabled){ b.disabled=false; b.onclick=respawn; $("rspT").textContent=""; } } }
   const rg=regionAt(P.x,P.z); if(rg&&rg!==P.lastRg){ P.lastRg=rg; questEvent("visit",rg); if(!rg.cap||rg.realm!==G.realm) toast(rg.n,rg.realm>=0?`${REALMS[rg.realm].n}의 땅 · Lv.${rg.lv[0]}~${rg.lv[1]}`:`중립 · Lv.${rg.lv[0]}~${rg.lv[1]} · 세계 보스 출현`,1.6); }
-  tickMobs(dt); tickWar(dt); tickTerritory(dt); net.tick(dt); tickGhosts(dt); tickFX(dt); tickNPCs(dt); tickMixers(dt);
+  tickMobs(dt); tickWar(dt); tickTerritory(dt); net.tick(dt); tickGhosts(dt); try{ tickPets(dt); tickTitan(dt); }catch(e){ console.warn(e); } CB.cd=Math.max(0,CB.cd-dt); tickFX(dt); tickNPCs(dt); tickMixers(dt);
   if(P.guide){ const dx=P.guide.x-P.x, dz=P.guide.z-P.z, dist=Math.hypot(dx,dz); if(dist<7){ const lb=P.guide.label; setGuide(null); toast("도착!",lb,1.5); } else { $("gArrow").style.transform=`rotate(${Math.atan2(dx,-dz)-Math.PI/2}rad)`; $("gTxt").textContent=`${P.guide.label} · ${Math.round(dist)}m`; } }
   P.bubbleT=Math.max(0,(P.bubbleT||0)-dt); if(P.bubbleT>0) placeLabel(myLbl,P.x,4.9,P.z,`<span class="bub">${P.bubble}</span>`); else myLbl.style.display="none";
   // 하늘색: 지금 있는 세계의 색으로 천천히
@@ -123,7 +126,7 @@ camera.position.set(0,30,60); camera.lookAt(0,10,0);
 function frame(t){ const dt=Math.min(.05,(t-last)/1000); last=t; if(started) update(dt); else { const a=t/9000; camera.position.set(Math.sin(a)*70,30,Math.cos(a)*70); camera.lookAt(0,18,0); tickFX(dt); dayNight(dt,true,REALMS[0]); } if(POST&&started) POST.render(); else { renderer.setRenderTarget(null); renderer.render(scene,camera); } requestAnimationFrame(frame); }
 $("bQuest").onclick=()=>{ if(P.nearTemple) showTemple(); else showQuests(); };
 showTitle(); requestAnimationFrame(frame);
-window.__gw={idleSim,grantIdle,showIdleReport,ROSTER,autoFace,buildPlayer,GHOSTS,mmoProfile,showRoster,G,P,mobs,W,net,PEERS,WAR,forceWar,resolveWar,joinWar,begin,update,spawnMob,spawnAtHome,REGIONS,attack,useSkill,startTrial,die,respawn};
+window.__gw={TB,titanHit,titanDefeated,showTitan,titanGo,showPets,hatchEgg,petOnKill,comboFire,comboRecv,showCombos,PETMESH,idleSim,grantIdle,showIdleReport,ROSTER,autoFace,buildPlayer,GHOSTS,mmoProfile,showRoster,G,P,mobs,W,net,PEERS,WAR,forceWar,resolveWar,joinWar,begin,update,spawnMob,spawnAtHome,REGIONS,attack,useSkill,startTrial,die,respawn};
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 </body>

@@ -18,12 +18,14 @@ let lastIdle=null;
 function grantIdle(){ if(G.realm<0||!G.t) return null; const ms=Date.now()-G.t; if(ms<2*60000) return null;
   const r=idleSim(G.lv,G.xp,G.realm,G.rank,ms); const lv0=G.lv; G.lv=r.lv; G.xp=r.xp; G.gold+=r.gold; G.kills+=r.kills;
   const pots=Math.min(6,Math.floor(r.kills/40)); G.pots+=pots; let items=[]; const tries=Math.min(12,Math.floor(r.kills/25)); for(let i=0;i<tries;i++){ if(Math.random()<.12){ const t=Math.min(3,Math.floor(r.rg.lv[0]/8)); const s=pick(["w","a","r"]); G.bag.push({s,t}); items.push(itemName(s,t)); } }
-  G.idleTot=(G.idleTot||0)+r.mins; saveGame(); lastIdle=Object.assign({lv0,pots,items,away:ms},r); return lastIdle; }
+  let pet=null,titan=null; try{ pet=petIdle(r); }catch(e){} try{ titan=titanIdle(Object.assign({},r,{away:ms})); }catch(e){}
+  G.idleTot=(G.idleTot||0)+r.mins; saveGame(); lastIdle=Object.assign({lv0,pots,items,away:ms,pet,titan},r); return lastIdle; }
 function fmtDur(min){ const h=Math.floor(min/60), m=Math.round(min%60); return h>0?`${h}시간${m?" "+m+"분":""}`:`${m}분`; }
 function showIdleReport(r){ if(!r) return; const lvUp=r.lv-r.lv0;
   card(`<h2>💤 쉬는 동안 수련 보고서</h2><p>${fmtDur(r.away/60000)} 동안 쉬는 사이 <b style="color:var(--gold)">${r.rg.n}</b>에서 혼자 사냥했어요${r.away/60000>IDLE_MAX_H*60?` (최대 ${IDLE_MAX_H}시간까지만 쳐 줘요)`:""}.</p>
   <div class="idlegrid"><div><b>${fmt(r.kills)}</b><span>괴물 처치</span></div><div><b>+${fmt(r.gxp)}</b><span>경험치</span></div><div><b>+${fmt(r.gold)}</b><span>금화</span></div><div><b>${lvUp>0?`Lv.${r.lv0} → ${r.lv}`:`Lv.${r.lv}`}</b><span>${lvUp>0?`레벨 +${lvUp}!`:"레벨"}</span></div></div>
   ${r.pots?`<p>물약 +${r.pots}개</p>`:""}${r.items.length?`<p>주운 아이템: ${r.items.join(", ")} (가방에 넣어 뒀어요)</p>`:""}
+  ${r.pet?`<p>🐣 ${r.pet.n}도 같이 수련했어요${r.pet.lv>r.pet.lv0?` · Lv.${r.pet.lv0} → ${r.pet.lv}`:""}</p>`:""}${r.titan?`<p>🌋 ${r.titan.n}에게 쉬는 동안 <b style="color:var(--gold)">${fmt(r.titan.d)}</b> 데미지를 보탰어요</p>`:""}
   ${r.capped?`<p style="color:#ffcf4a">Lv.${idleCap(G.rank)}에서 멈췄어요. 성전에서 <b>승급 시험</b>을 통과해야 자는 동안에도 더 자라요.</p>`:""}
   <button class="buy" id="idleOk" style="align-self:center">좋아요!</button>`); $("idleOk").onclick=closeLayer; jingle([523,659,784,1046]); if(lvUp>0){ P.hp=stat().mhp; fxRing(P.x,P.z,0xffffff,6); } }
 let hiddenAt=0;
@@ -34,7 +36,7 @@ addEventListener("pagehide",()=>{ try{ saveGame(); net.pushProfile(0); }catch(e)
 /* ---------- 모험가 명부 · 쉬는 친구 캐릭터 ---------- */
 const ROSTER=(function(){ try{ return JSON.parse(load("gw-roster")||"{}")||{}; }catch(e){ return {}; } })();
 const GHOSTS={};
-function myProfile(on){ return {i:G.id,n:G.name,r:G.realm,k:G.rank,l:G.lv,x:Math.round(G.xp),lk:(()=>{ const l=G.look||{}; return [l.face||0,l.body||0,l.hat||0,l.cape||0,l.weapon||0,l.tint||0]; })(),e:[G.eq.w,G.eq.a,G.eq.r],t:Date.now(),on:on?1:0,kills:G.kills}; }
+function myProfile(on){ return {i:G.id,n:G.name,r:G.realm,k:G.rank,l:G.lv,x:Math.round(G.xp),lk:(()=>{ const l=G.look||{}; return [l.face||0,l.body||0,l.hat||0,l.cape||0,l.weapon||0,l.tint||0]; })(),e:[G.eq.w,G.eq.a,G.eq.r],t:Date.now(),on:on?1:0,kills:G.kills,pt:(typeof petArr==="function"?petArr():null)}; }
 function mmoProfile(d){ if(!d||!d.i||d.i===G.id||d.r==null||d.r<0||!REALMS[d.r]) return; const old=ROSTER[d.i]; if(old&&old.t>d.t) return; ROSTER[d.i]=d; save("gw-roster",JSON.stringify(ROSTER)); }
 function isAway(p){ return !PEERS[p.i]&&(p.on===0||Date.now()-p.t>3*60000); }
 function projected(p){ return idleSim(p.l,p.x||0,p.r,p.k,isAway(p)?Date.now()-p.t:0); }
