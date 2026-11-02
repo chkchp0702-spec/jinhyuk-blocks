@@ -54,7 +54,7 @@ button{font:inherit;-webkit-tap-highlight-color:transparent}
 #region{font-size:14px;color:#fff;letter-spacing:.5px}
 #region b{font-weight:400;color:var(--c1)}
 
-#minimap{position:fixed;right:10px;top:calc(max(8px,env(safe-area-inset-top)) + 70px);width:104px;height:104px;z-index:5;border-radius:14px;border:2px solid rgba(255,255,255,.25);background:rgba(20,14,40,.6);pointer-events:auto}
+#minimap{position:fixed;right:10px;top:calc(max(8px,env(safe-area-inset-top)) + 44px);width:150px;height:150px;z-index:5;border-radius:50%;border:3px solid rgba(255,255,255,.35);background:rgba(20,14,40,.6);pointer-events:auto;box-shadow:0 4px 14px rgba(0,0,0,.4)}
 #quest{position:fixed;left:10px;top:calc(max(8px,env(safe-area-inset-top)) + 96px);z-index:5;pointer-events:auto;max-width:200px;display:flex;flex-direction:column;gap:4px}
 .q{background:rgba(20,14,40,.66);border-left:4px solid var(--c1);border-radius:10px;padding:5px 9px;font-size:12.5px;line-height:1.25;color:#fff}
 .q.done{border-color:var(--green);color:#9dffb8} .q small{opacity:.75}
@@ -63,13 +63,15 @@ button{font:inherit;-webkit-tap-highlight-color:transparent}
 .br{right:10px;bottom:max(12px,env(safe-area-inset-bottom));flex-direction:column;align-items:flex-end;pointer-events:auto}
 .mbtn{border:0;cursor:pointer;color:#fff;font-size:15px;border-radius:14px;padding:9px 12px;min-width:60px;background:rgba(20,14,40,.75);border:2px solid rgba(255,255,255,.22);backdrop-filter:blur(6px)}
 .mbtn:active{transform:translateY(2px)}
-.acts{position:fixed;right:14px;bottom:calc(max(12px,env(safe-area-inset-bottom)) + 60px);z-index:5;display:grid;grid-template-columns:72px 72px;gap:10px;pointer-events:auto}
-.act{width:72px;height:72px;border-radius:50%;border:3px solid rgba(255,255,255,.5);color:#fff;font-size:14px;line-height:1.05;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;box-shadow:0 5px 0 rgba(0,0,0,.4);cursor:pointer;touch-action:none}
+.acts{position:fixed;right:12px;bottom:calc(max(12px,env(safe-area-inset-bottom)) + 60px);z-index:5;display:grid;grid-template-columns:64px 64px 84px;grid-template-rows:64px 84px;gap:8px;align-items:end;justify-items:end;pointer-events:auto}
+.act{width:64px;height:64px;border-radius:50%;border:3px solid rgba(255,255,255,.5);color:#fff;font-size:14px;line-height:1.05;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;box-shadow:0 5px 0 rgba(0,0,0,.4);cursor:pointer;touch-action:none}
 .act:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.4)}
-.act.atk{background:radial-gradient(circle at 35% 30%,#ff9a7a,#d82f3c 70%);grid-column:2;grid-row:2;width:84px;height:84px;font-size:17px}
-.act.skl{background:radial-gradient(circle at 35% 30%,var(--c2),var(--c1) 70%);color:#1b1430;text-shadow:0 1px 0 rgba(255,255,255,.4);font-size:12px;padding:0 4px;white-space:normal;word-break:keep-all}
-.act.pot{background:radial-gradient(circle at 35% 30%,#9dffb8,#1f9f58 70%);grid-column:2;grid-row:1}
+.act.atk{background:radial-gradient(circle at 35% 30%,#ff9a7a,#d82f3c 70%);grid-column:3;grid-row:2;width:84px;height:84px;font-size:17px}
+.act.lock{filter:grayscale(1) brightness(.6)} .act.lock small{font-size:9px}
+.act.skl{background:radial-gradient(circle at 35% 30%,var(--c2),var(--c1) 70%);color:#1b1430;text-shadow:0 1px 0 rgba(255,255,255,.4);font-size:11px;padding:0 3px;white-space:normal;word-break:keep-all;line-height:1}
+.act.pot{background:radial-gradient(circle at 35% 30%,#9dffb8,#1f9f58 70%);grid-column:2;grid-row:2}
 .act.jmp{background:radial-gradient(circle at 35% 30%,#bcd6ff,#3a5bd6 70%);grid-column:1;grid-row:2}
+.act.skl{grid-row:1}
 .act .cd{position:absolute;inset:-3px;border-radius:50%;background:conic-gradient(rgba(0,0,0,.65) var(--p,0%),transparent 0);pointer-events:none}
 .act small{font-size:11px;opacity:.9}
 #joy{position:fixed;width:124px;height:124px;margin:-62px 0 0 -62px;border-radius:50%;background:rgba(255,255,255,.14);border:3px solid rgba(255,255,255,.45);z-index:4;pointer-events:none}
@@ -121,7 +123,7 @@ button{font:inherit;-webkit-tap-highlight-color:transparent}
 .say{display:grid;grid-template-columns:1fr 1fr;gap:6px} .say button{border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.07);color:#fff;border-radius:12px;padding:8px;font-size:14px;cursor:pointer}
 .death{background:radial-gradient(ellipse at 50% 40%,rgba(120,0,20,.6),rgba(0,0,0,.92) 70%)}
 .linkbox{font-size:12px;word-break:break-all;background:rgba(0,0,0,.35);border-radius:10px;padding:8px;color:#cfc7ea;text-align:center}
-@media (max-height:640px){ .act{width:62px;height:62px;font-size:12px} .act.atk{width:72px;height:72px;font-size:15px} .acts{grid-template-columns:62px 62px} }
+@media (max-height:640px){ .act{width:56px;height:56px} .act.atk{width:72px;height:72px;font-size:15px} .acts{grid-template-columns:56px 56px 72px;grid-template-rows:56px 72px} #minimap{width:120px;height:120px} }
 @media (prefers-reduced-motion: reduce){ *{animation-duration:.01s!important;animation-iteration-count:1!important} }
 </style>
 </head>
@@ -148,7 +150,9 @@ button{font:inherit;-webkit-tap-highlight-color:transparent}
 <div id="chat"></div>
 
 <div class="acts">
-  <button class="act skl" id="bSkill" type="button"><span id="sklNm">기술</span><small id="sklCd"></small><i class="cd" id="sklCdV"></i></button>
+  <button class="act skl" id="bSkill0" type="button"><span id="sklNm0">기술</span><small id="sklCd0"></small><i class="cd" id="sklCdV0"></i></button>
+  <button class="act skl" id="bSkill1" type="button"><span id="sklNm1">기술</span><small id="sklCd1"></small><i class="cd" id="sklCdV1"></i></button>
+  <button class="act skl" id="bSkill2" type="button"><span id="sklNm2">기술</span><small id="sklCd2"></small><i class="cd" id="sklCdV2"></i></button>
   <button class="act pot" id="bPot" type="button">물약<small id="potN">0</small></button>
   <button class="act jmp" id="bJump" type="button">점프</button>
   <button class="act atk" id="bAtk" type="button">공격</button>

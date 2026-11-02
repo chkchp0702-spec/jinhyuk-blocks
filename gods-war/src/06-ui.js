@@ -5,15 +5,15 @@ canvas.addEventListener("pointerdown",e=>{ initAudio(); if(joy) return; joy={id:
 addEventListener("pointermove",e=>{ if(!joy||e.pointerId!==joy.id) return; let dx=e.clientX-joy.x, dy=e.clientY-joy.y; const L=Math.hypot(dx,dy), Rr=52; if(L>Rr){ dx*=Rr/L; dy*=Rr/L; } joy.dx=dx/Rr; joy.dy=dy/Rr; knob.style.transform=`translate(${dx}px,${dy}px)`; });
 const endJoy=e=>{ if(joy&&e.pointerId===joy.id){ joy=null; joyEl.hidden=true; } };
 addEventListener("pointerup",endJoy); addEventListener("pointercancel",endJoy);
-const keys={}; addEventListener("keydown",e=>{ keys[e.key.toLowerCase()]=1; if(e.key===" ") jump(); if(e.key.toLowerCase()==="j") attack(); if(e.key.toLowerCase()==="k") useSkill(); if(e.key.toLowerCase()==="l") usePotion(); }); addEventListener("keyup",e=>{ keys[e.key.toLowerCase()]=0; });
+const keys={}; addEventListener("keydown",e=>{ keys[e.key.toLowerCase()]=1; if(e.key===" ") jump(); if(e.key.toLowerCase()==="j") attack(); if(e.key.toLowerCase()==="k") useSkill(0); if(e.key.toLowerCase()==="u") useSkill(1); if(e.key.toLowerCase()==="i") useSkill(2); if(e.key.toLowerCase()==="l") usePotion(); }); addEventListener("keyup",e=>{ keys[e.key.toLowerCase()]=0; });
 function jump(){ if(P.dead||P.y>0.01) return; P.vy=9; tone(300,.08,"triangle"); }
 const hold=(el,fn,rep)=>{ let t=null; el.addEventListener("pointerdown",e=>{ e.preventDefault(); initAudio(); fn(); if(rep){ clearInterval(t); t=setInterval(fn,rep); } }); const stop=()=>{ clearInterval(t); t=null; }; el.addEventListener("pointerup",stop); el.addEventListener("pointercancel",stop); el.addEventListener("pointerleave",stop); };
-hold($("bAtk"),attack,180); hold($("bSkill"),useSkill); hold($("bPot"),usePotion); hold($("bJump"),jump);
+hold($("bAtk"),attack,120); hold($("bSkill0"),()=>useSkill(0)); hold($("bSkill1"),()=>useSkill(1)); hold($("bSkill2"),()=>useSkill(2)); hold($("bPot"),usePotion); hold($("bJump"),jump);
 $("bBag").onclick=()=>showBag(); $("bQuest").onclick=()=>showQuests(); $("bMap").onclick=()=>showMap(); $("bSay").onclick=()=>showSay(); $("bMenu").onclick=()=>showMenu(); $("minimap").onclick=()=>showMap();
 
 /* ================= HUD ================= */
 function hud(){ const st=stat(); $("pname").textContent=G.name||"-"; $("prank").textContent=RM().ranks[G.rank]; $("hpBar").style.width=clamp(P.hp/st.mhp*100,0,100)+"%"; $("hpTxt").textContent=`${fmt(P.hp)} / ${fmt(st.mhp)}`; $("xpBar").style.width=clamp(G.xp/xpNeed(G.lv)*100,0,100)+"%"; $("plv").textContent=G.lv; $("pgold").textContent=fmt(G.gold); $("pwar").textContent=G.war?`⚔ ${G.war}`:""; $("potN").textContent=G.pots;
-  const S=RM().skill; $("sklCd").textContent=P.sklCd>0?Math.ceil(P.sklCd)+"초":""; $("sklCdV").style.setProperty("--p",P.sklCd>0?Math.round(P.sklCd/S.cd*100)+"%":"0%"); }
+  RM().skills.forEach((S,i)=>{ const lock=G.rank<S.rank; const b=$("bSkill"+i); b.classList.toggle("lock",lock); $("sklCd"+i).textContent=lock?`${RM().ranks[S.rank]}`:(P.sklCd[i]>0?Math.ceil(P.sklCd[i])+"초":""); $("sklCdV"+i).style.setProperty("--p",P.sklCd[i]>0?Math.round(P.sklCd[i]/S.cd*100)+"%":"0%"); }); }
 
 /* ================= 화면(창) ================= */
 const layers=$("layers"); let layerOpen=false;
@@ -32,19 +32,20 @@ function showMap(){ const cnt=[0,0,0,0]; REGIONS.forEach(r=>{ if(W.o[r.id]>=0) c
   card(`<h2>세계 지도</h2><canvas class="mapbig" id="bigmap" width="600" height="600"></canvas><div class="legend">${REALMS.map((R,i)=>`<span><i style="background:${R.c1}"></i>${R.n} ${cnt[i]}곳${h===i?" 👑패권":""}</span>`).join("")}<span><i style="background:#8a8a9a"></i>중립</span></div><p>제단 옆에 12초 동안 서 있으면 그 땅이 내 세계의 영토가 돼요. 영토 한 곳마다 공격 +3%, 가장 많이 가진 세계는 경험치 +15%.<br>상대 세계 플레이어가 제단을 지키고 있으면 점령할 수 없어요.</p><div class="tabs">${REALMS.map((R,i)=>`<button class="tab" data-cx="${i}">${R.n} 신화</button>`).join("")}</div>`);
   const c=$("bigmap"); drawMinimap(c.getContext("2d"),600); const ctx=c.getContext("2d"); ctx.fillStyle="#fff"; ctx.font="18px sans-serif"; ctx.textAlign="center"; ctx.shadowColor="#000"; ctx.shadowBlur=4; REGIONS.forEach(r=>ctx.fillText(r.n,(r.x+WORLD_HALF)/(WORLD_HALF*2)*600,(r.z+WORLD_HALF)/(WORLD_HALF*2)*600+(r.cap?28:6)));
   layers.querySelectorAll("[data-cx]").forEach(b=>b.onclick=()=>showCodex(+b.dataset.cx)); }
-function showCodex(i){ const R=REALMS[i]; card(`<h2>${R.icon} ${R.n} 신화</h2><p>${R.sub} · 절대자: <b style="color:var(--gold)">${R.absolute}</b><br>${R.absoluteDesc}</p><h3>신들의 파워</h3><div class="codex">${R.gods.map(g=>`<div class="god${g.top?" top":""}"><div><div>${g.n}${g.boss?" <span style='color:#ff8d8d;font-size:11px'>보스</span>":""}${g.top?" <span style='color:var(--gold);font-size:11px'>절대자</span>":""}</div><small>${g.d}</small></div><span class="pw">${g.p}</span></div>`).join("")}</div><h3>계급 (승급 순서)</h3>${R.ranks.map((r,k)=>`<div class="rank${i===G.realm&&k===G.rank?" cur":""}"><span class="n">${k+1}</span>${r}<small>Lv.${RANK_LV[k]}${k>0?" · 시험: "+R.trials[k-1]:""}</small></div>`).join("")}<div class="rank lock"><span class="n">∞</span>${R.absolute}<small>닿을 수 없음</small></div><h3>죽음과 부활</h3><p>${R.respawn.desc}.<br>${R.respawn.pen}</p><h3>기술</h3><p>${R.skill.n}: ${R.skill.desc} (${R.skill.cd}초)</p>`); }
+function showCodex(i){ const R=REALMS[i]; card(`<h2>${R.icon} ${R.n} 신화</h2><p>${R.sub} · 절대자: <b style="color:var(--gold)">${R.absolute}</b><br>${R.absoluteDesc}</p><h3>신들의 파워</h3><div class="codex">${R.gods.map(g=>`<div class="god${g.top?" top":""}"><div><div>${g.n}${g.boss?" <span style='color:#ff8d8d;font-size:11px'>보스</span>":""}${g.top?" <span style='color:var(--gold);font-size:11px'>절대자</span>":""}</div><small>${g.d}</small></div><span class="pw">${g.p}</span></div>`).join("")}</div><h3>계급 (승급 순서)</h3>${R.ranks.map((r,k)=>`<div class="rank${i===G.realm&&k===G.rank?" cur":""}"><span class="n">${k+1}</span>${r}<small>Lv.${RANK_LV[k]}${k>0?" · 시험: "+R.trials[k-1]:""}</small></div>`).join("")}<div class="rank lock"><span class="n">∞</span>${R.absolute}<small>닿을 수 없음</small></div><h3>죽음과 부활</h3><p>${R.respawn.desc}.<br>${R.respawn.pen}</p><h3>기술</h3>${R.skills.map(S=>`<div class="rank"><span class="n">${S.rank+1}</span>${S.n} <small>${S.desc} · ${S.cd}초 · ${R.ranks[S.rank]}부터</small></div>`).join("")}`); }
 function showSay(){ const list=SAY_COMMON.concat(RM().say); card(`<h2>말하기</h2><div class="say">${list.map(s=>`<button data-s="${s}">${s}</button>`).join("")}</div>`); layers.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{ net.send({t:"say",m:b.dataset.s}); net.chat(G.name,b.dataset.s,G.realm); closeLayer(); }); }
 function showMenu(){ card(`<h2>신들의 전쟁</h2><p>${G.name} · ${RM().n} ${RM().ranks[G.rank]} · 버전 ${VER}</p>
   <div class="row"><div class="t"><div>친구 초대 링크</div><span>이 링크를 받은 사람만 같은 세계에 들어와요</span></div><button class="buy alt" id="copyL">복사</button></div><div class="linkbox">${inviteLink()}</div>
   <div class="row"><div class="t"><div>함께하기 서버</div><span>4곳 중 ${net.up}곳 연결됨 · 같이 있는 사람 ${Object.keys(PEERS).length}명</span></div></div>
   <div class="row"><div class="t"><div>집(수도)으로 순간이동</div><span>전투 중엔 안 돼요</span></div><button class="buy" id="goHome">가기</button></div>
+  <div class="row"><div class="t"><div>전체 화면</div><span>아이폰은 공유 → "홈 화면에 추가"로 앱처럼 설치하면 전체 화면</span></div><button class="buy alt" id="full">켜기</button></div>
   <div class="row"><div class="t"><div>그래픽</div><span>높음: 그림자·부드러움 / 보통: 폰이 느릴 때</span></div><button class="buy alt" id="gfx">${HIGH()?"높음":"보통"}</button></div>
   <div class="row"><div class="t"><div>소리</div></div><button class="buy alt" id="snd">${soundOn?"켜짐":"꺼짐"}</button></div>
   <div class="row"><div class="t"><div>캐릭터 새로 만들기</div><span>이름·세계·레벨이 모두 사라져요</span></div><button class="buy sell" id="wipe">지우기</button></div>
-  <p style="font-size:12px">조작: 왼쪽 화면을 끌면 이동 · 공격/기술/물약/점프 버튼 · 키보드 WASD J K L 스페이스</p>`);
+  <p style="font-size:12px">조작: 왼쪽 화면을 끌면 이동 · 공격/기술 3개/물약/점프 버튼 · 키보드 WASD, J 공격, K U I 기술, L 물약, 스페이스 점프</p>`);
   $("copyL").onclick=()=>{ const u=inviteLink(); (navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>toast("링크 복사됨!","카톡 등으로 보내 주세요"),()=>{ if(navigator.share) navigator.share({url:u}); else prompt("링크를 복사하세요",u); }); };
   $("goHome").onclick=()=>{ if(mobs.some(m=>m.state==="chase"&&Math.hypot(m.x-P.x,m.z-P.z)<16)){ toast("전투 중에는 안 돼요"); return; } spawnAtHome(); closeLayer(); toast("수도로 왔어요"); };
-  $("gfx").onclick=()=>{ G.gfx=HIGH()?"low":"high"; saveGame(); location.reload(); };
+  $("full").onclick=()=>{ goFull(); closeLayer(); }; $("gfx").onclick=()=>{ G.gfx=HIGH()?"low":"high"; saveGame(); location.reload(); };
   $("snd").onclick=()=>{ soundOn=!soundOn; save("gw-sound",soundOn?"1":"0"); if(soundOn) initAudio(); showMenu(); };
   $("wipe").onclick=()=>{ card(`<h2>정말 지울까요?</h2><p>${G.name}의 모든 기록이 사라져요.</p><button class="go" id="yes" style="background:#ff5a5f;color:#fff">지우기</button>`); $("yes").onclick=()=>{ try{ localStorage.removeItem(SAVEKEY); }catch(e){} location.reload(); }; }; }
 function showTemple(){ const R=RM(); const next=G.rank+1; const can=canTrial();
@@ -60,14 +61,14 @@ function showTitle(){
     ${!ROOM?`<p class="help" style="color:#ff8d8d">초대 링크가 필요해요. 링크를 받은 사람만 같은 세계에 들어올 수 있어요.</p><input class="inp" id="roomIn" placeholder="초대 코드"><button class="go" id="roomGo">들어가기</button>`:
     (G.realm>=0?`<p class="help"><b style="color:var(--gold)">${G.name}</b> · ${RM().n} ${RM().ranks[G.rank]} Lv.${G.lv}</p><button class="go" id="start">계속하기</button><p class="help" style="font-size:12px">초대 코드 ${ROOM}</p>`:
     `<p class="help">네 세계 중 하나를 골라요. 한 번 고르면 바꿀 수 없어요.<br>괴물을 잡고 승급 시험을 통과해 절대자 바로 아래까지 올라가고, 다른 세계와 싸워 영토를 넓혀요.</p>
-     <div class="realms">${REALMS.map((R,i)=>`<button type="button" class="realm${i===pickRealm?" on":""}" data-r="${i}" style="--a:${R.a};--b:${R.b}"><em>${R.icon}</em><b>${R.n}</b><i>${R.sub}<br>절대자: ${R.absolute}<br>기술: ${R.skill.n}</i></button>`).join("")}</div>
+     <div class="realms">${REALMS.map((R,i)=>`<button type="button" class="realm${i===pickRealm?" on":""}" data-r="${i}" style="--a:${R.a};--b:${R.b}"><em>${R.icon}</em><b>${R.n}</b><i>${R.sub}<br>절대자: ${R.absolute}<br>기술: ${R.skills.map(x=>x.n).join(", ")}</i></button>`).join("")}</div>
      <input class="inp" id="nameIn" maxlength="8" placeholder="이름 (8자까지)" value="${G.name||""}"><button class="go" id="start" disabled>이 세계로!</button>`)}
     <p class="help" style="font-size:12px;opacity:.7">버전 ${VER}</p></div></div>`; layerOpen=true;
   let sel=pickRealm;
   layers.querySelectorAll(".realm").forEach(b=>b.onclick=()=>{ sel=+b.dataset.r; layers.querySelectorAll(".realm").forEach(x=>x.classList.toggle("on",x===b)); document.documentElement.style.setProperty("--c1",REALMS[sel].c1); $("start").disabled=!($("nameIn").value.trim()); tone(660,.06); });
   if($("nameIn")) $("nameIn").oninput=()=>{ $("start").disabled=!(sel>=0&&$("nameIn").value.trim()); };
   if($("roomGo")) $("roomGo").onclick=()=>{ const k=$("roomIn").value.trim().replace(/[^a-zA-Z0-9_-]/g,""); if(!k) return; location.search="?k="+k; };
-  if($("start")) $("start").onclick=()=>{ initAudio(); if(G.realm<0){ G.name=$("nameIn").value.trim().slice(0,8); G.realm=sel; saveGame(); } begin(); };
+  if($("start")) $("start").onclick=()=>{ initAudio(); goFull(); if(G.realm<0){ G.name=$("nameIn").value.trim().slice(0,8); G.realm=sel; saveGame(); } begin(); };
 }
 function begin(){ closeLayer(); setRealmTheme(); buildPlayer(); spawnAtHome(); P.hp=stat().mhp; ensureQuests(); hud(); started=true; net.start(); jingle([392,523,659,784]); toast(`${RM().n}에 온 것을 환영해요`,`${RM().absolute}의 세계 · ${RM().ranks[G.rank]} ${G.name}`,3); }
 
@@ -75,16 +76,16 @@ function begin(){ closeLayer(); setRealmTheme(); buildPlayer(); spawnAtHome(); P
 let started=false, last=performance.now(), skyCur=new THREE.Color(0x9fd4ff), fogCur=new THREE.Color(0xdcefff);
 function update(dt){
   const st=stat(); if(P.hp>st.mhp) P.hp=st.mhp;
-  P.atkCd-=dt; P.sklCd=Math.max(0,P.sklCd-dt); P.atkAnim=Math.max(0,P.atkAnim-dt); P.invul=Math.max(0,P.invul-dt); P.slow=Math.max(0,P.slow-dt); P.weak=Math.max(0,P.weak-dt); P.shadow=Math.max(0,P.shadow-dt); P.dizzy=Math.max(0,P.dizzy-dt); P.heat=Math.max(0,P.heat-dt);
+  P.atkCd-=dt; for(let i=0;i<3;i++) P.sklCd[i]=Math.max(0,P.sklCd[i]-dt); P.rage=Math.max(0,P.rage-dt); P.haste=Math.max(0,P.haste-dt); P.combat=Math.max(0,P.combat-dt); if(P.combat<=0&&!P.dead&&P.hp<st.mhp) P.hp=Math.min(st.mhp,P.hp+st.mhp*.025*dt); P.atkAnim=Math.max(0,P.atkAnim-dt); P.invul=Math.max(0,P.invul-dt); P.slow=Math.max(0,P.slow-dt); P.weak=Math.max(0,P.weak-dt); P.shadow=Math.max(0,P.shadow-dt); P.dizzy=Math.max(0,P.dizzy-dt); P.heat=Math.max(0,P.heat-dt);
   // 이동
   let ix=0,iz=0; if(joy&&!layerOpen){ ix+=joy.dx; iz+=joy.dy; } if(keys.a||keys.arrowleft) ix-=1; if(keys.d||keys.arrowright) ix+=1; if(keys.w||keys.arrowup) iz-=1; if(keys.s||keys.arrowdown) iz+=1;
   const L=Math.hypot(ix,iz); P.moving=L>.1&&!P.dead&&!layerOpen;
-  if(P.moving){ if(L>1){ ix/=L; iz/=L; } let spd=7.5*(P.slow>0?.7:1)*(P.heat>0?1.15:1)*(G.eq.r===1?1.1:1); P.x+=ix*spd*dt; P.z+=iz*spd*dt; P.rot=Math.atan2(ix,iz); P.walk+=dt*10; }
-  P.x=clamp(P.x,-WORLD_HALF+2,WORLD_HALF-2); P.z=clamp(P.z,-WORLD_HALF+2,WORLD_HALF-2);
+  if(P.moving){ if(L>1){ ix/=L; iz/=L; } let spd=10.5*(P.slow>0?.7:1)*(P.heat>0?1.15:1)*(P.haste>0?1.5:1)*(G.eq.r===1?1.1:1); P.x+=ix*spd*dt; P.z+=iz*spd*dt; P.rot=Math.atan2(ix,iz); P.walk+=dt*13; }
+  if(P.dashT>0){ P.dashT-=dt; P.x+=P.dashX*dt; P.z+=P.dashZ*dt; } P.x=clamp(P.x,-WORLD_HALF+2,WORLD_HALF-2); P.z=clamp(P.z,-WORLD_HALF+2,WORLD_HALF-2);
   P.vy-=28*dt; P.y=Math.max(0,P.y+P.vy*dt); if(P.y===0&&P.vy<0) P.vy=0;
   player.position.set(P.x,P.y,P.z); let dr=P.rot-player.rotation.y; while(dr>Math.PI) dr-=Math.PI*2; while(dr<-Math.PI) dr+=Math.PI*2; player.rotation.y+=dr*Math.min(1,dt*14);
-  const u=player.userData, sw=P.moving?Math.sin(P.walk)*.75:0; u.legL.rotation.x=sw; u.legR.rotation.x=-sw; u.armL.rotation.x=-sw; u.armR.rotation.x=P.atkAnim>0?-2.4+(0.3-P.atkAnim)*4:sw; u.body.position.y=P.moving?Math.abs(Math.sin(P.walk))*.12:0; player.visible=!P.dead&&!(P.invul>0&&Math.floor(performance.now()/100)%2); if(u.aura) u.aura.rotation.z+=dt;
-  if(P.orbitT>0){ P.orbitT-=dt; P.orbitTick-=dt; const S=RM().skill; orbitMesh.visible=true; orbitMesh.rotation.y+=dt*9; orbitMesh.rotation.x=.4; orbitMesh.position.set(P.x,2,P.z); orbitMesh.scale.setScalar(S.r*.6); if(P.orbitTick<=0){ P.orbitTick=.4; mobs.forEach(m=>{ if(Math.hypot(m.x-P.x,m.z-P.z)<S.r) damageMob(m,st.atk*S.mult,false); }); for(const id in PEERS){ const o=PEERS[id]; if(o.realm!==G.realm&&!o.dead&&!inCapital(o.x,o.z)&&!inCapital(P.x,P.z)&&Math.hypot(o.x-P.x,o.z-P.z)<S.r){ net.send({t:"hit",to:id,d:Math.round(st.atk*S.mult*.55)}); } } } } else if(orbitMesh) orbitMesh.visible=false;
+  const u=player.userData, sw=P.moving?Math.sin(P.walk)*.75:0; u.legL.rotation.x=sw; u.legR.rotation.x=-sw; u.armL.rotation.x=-sw; u.armR.rotation.x=P.atkAnim>0?-2.4+(0.25-P.atkAnim)*5:sw; if(u.crown){ u.crown.rotation.y+=dt*2; u.crown.position.y=4.6+Math.sin(performance.now()/300)*.15; } if(P.rage>0&&Math.random()<dt*20) fxSpark(P.x+rnd(-.5,.5),2.5,P.z,0xff6a3d,3); u.body.position.y=P.moving?Math.abs(Math.sin(P.walk))*.12:0; player.visible=!P.dead&&!(P.invul>0&&Math.floor(performance.now()/100)%2); if(u.aura) u.aura.rotation.z+=dt;
+  if(P.orbitT>0){ P.orbitT-=dt; P.orbitTick-=dt; const S=RM().skills[0]; orbitMesh.visible=true; orbitMesh.rotation.y+=dt*9; orbitMesh.rotation.x=.4; orbitMesh.position.set(P.x,2,P.z); orbitMesh.scale.setScalar(S.r*.6); if(P.orbitTick<=0){ P.orbitTick=.4; mobs.forEach(m=>{ if(Math.hypot(m.x-P.x,m.z-P.z)<S.r) damageMob(m,st.atk*S.mult,false); }); for(const id in PEERS){ const o=PEERS[id]; if(o.realm!==G.realm&&!o.dead&&!inCapital(o.x,o.z)&&!inCapital(P.x,P.z)&&Math.hypot(o.x-P.x,o.z-P.z)<S.r){ net.send({t:"hit",to:id,d:Math.round(st.atk*S.mult*.55)}); } } } } else if(orbitMesh) orbitMesh.visible=false;
   // 수도 안: 서서히 회복 · 성전/제단 안내
   const cap=inCapital(P.x,P.z); if(cap&&cap.realm===G.realm&&!P.dead){ P.hp=Math.min(st.mhp,P.hp+st.mhp*.03*dt); const a=ALTARS[cap.id]; if(a&&Math.hypot(P.x-a.trial.x,P.z-a.trial.z)<5&&!layerOpen&&!P.trial){ if(!P.nearTemple){ P.nearTemple=true; toast("성전에 도착","여기서 승급 시험·상점을 열 수 있어요 (가방 옆 '성전' 버튼)",2); $("bQuest").textContent="성전"; } } else if(P.nearTemple&&(!a||Math.hypot(P.x-a.trial.x,P.z-a.trial.z)>6)){ P.nearTemple=false; $("bQuest").textContent="임무"; } } else if(P.nearTemple){ P.nearTemple=false; $("bQuest").textContent="임무"; }
   if(P.bag){ P.bag.t-=dt; P.bag.mesh.rotation.y+=dt*2; if(Math.hypot(P.bag.x-P.x,P.bag.z-P.z)<2.2&&!P.dead){ G.gold+=P.bag.gold; toast(`금화 ${fmt(P.bag.gold)} 되찾음!`); jingle([659,784,1046]); scene.remove(P.bag.mesh); P.bag=null; saveGame(); } else if(P.bag.t<=0){ scene.remove(P.bag.mesh); P.bag=null; } }
@@ -93,9 +94,9 @@ function update(dt){
   const rg=regionAt(P.x,P.z); if(rg&&rg!==P.lastRg){ P.lastRg=rg; questEvent("visit",rg); if(!rg.cap||rg.realm!==G.realm) toast(rg.n,rg.realm>=0?`${REALMS[rg.realm].n}의 땅 · Lv.${rg.lv[0]}~${rg.lv[1]}`:`중립 · Lv.${rg.lv[0]}~${rg.lv[1]} · 세계 보스 출현`,1.6); }
   tickMobs(dt); tickTerritory(dt); net.tick(dt); tickFX(dt);
   // 하늘색: 지금 있는 세계의 색으로 천천히
-  const theme=P.x>=0?(P.z<0?REALMS[0]:REALMS[2]):(P.z<0?REALMS[1]:REALMS[3]); const center=Math.hypot(P.x,P.z)<70; skyCur.lerp(new THREE.Color(center?0x5a4a7a:theme.sky),dt*.8); fogCur.lerp(new THREE.Color(center?0x8a7aa0:theme.fog),dt*.8); scene.background.copy(skyCur); scene.fog.color.copy(fogCur);
+  const theme=P.x>=0?(P.z<0?REALMS[0]:REALMS[2]):(P.z<0?REALMS[1]:REALMS[3]); const center=Math.hypot(P.x,P.z)<70; SKY.tTop.set(center?0x3a2a5a:theme.skyTop||theme.sky); SKY.tBot.set(center?0x8a7aa0:theme.fog); SKY.top.lerp(SKY.tTop,dt*.8); SKY.bot.lerp(SKY.tBot,dt*.8); scene.fog.color.copy(SKY.bot); sky.position.copy(camera.position); tickParticles(dt,P.x,P.z,center?1:REALMS.indexOf(theme)); CLOUDS.forEach(c=>{ c.position.x+=c.userData.v*dt; if(c.position.x>280) c.position.x=-280; });
   // 카메라
-  const cz=P.z+15, cy=17; camera.position.lerp(new THREE.Vector3(P.x,cy,cz),Math.min(1,dt*6)); camera.lookAt(P.x,1.5,P.z-2); sun.position.set(P.x+40,80,P.z+30); sun.target.position.set(P.x,0,P.z);
+  const cz=P.z+13.5, cy=14; camera.position.lerp(new THREE.Vector3(P.x,cy,cz),Math.min(1,dt*7)); camera.lookAt(P.x,1.6,P.z-3); sun.position.set(P.x+40,80,P.z+30); sun.target.position.set(P.x,0,P.z);
   toastT-=dt; if(toastT<=0) $("toast").style.opacity=0; mmT-=dt; if(mmT<=0){ mmT=.5; drawMinimap(); } hud();
 }
 function resize(){ const w=innerWidth,h=innerHeight; renderer.setSize(w,h,false); camera.aspect=w/h; camera.fov=w<h?66:52; camera.updateProjectionMatrix(); }
@@ -104,7 +105,7 @@ camera.position.set(0,30,60); camera.lookAt(0,10,0);
 function frame(t){ const dt=Math.min(.05,(t-last)/1000); last=t; if(started) update(dt); else { const a=t/9000; camera.position.set(Math.sin(a)*70,34,Math.cos(a)*70); camera.lookAt(0,16,0); tickFX(dt); } renderer.render(scene,camera); requestAnimationFrame(frame); }
 $("bQuest").onclick=()=>{ if(P.nearTemple) showTemple(); else showQuests(); };
 showTitle(); requestAnimationFrame(frame);
-window.__gw={G,P,mobs,W,net,PEERS,stat,begin,update,spawnMob,REGIONS,attack,useSkill,startTrial,die,respawn};
+window.__gw={G,P,mobs,W,net,PEERS,stat,begin,update,spawnMob,spawnAtHome,REGIONS,attack,useSkill,startTrial,die,respawn};
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 </body>
