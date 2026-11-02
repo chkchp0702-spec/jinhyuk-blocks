@@ -57,7 +57,7 @@ const net=(function(){
   function tick(dt){ if(!N.started) return;
     const now=performance.now();
     for(const id in PEERS){ const o=PEERS[id]; if(now-o.last>8000){ scene.remove(o.mesh); o.lbl.remove(); toast(`${o.name} 퇴장`,null,1.4); delete PEERS[id]; dots(); continue; }
-      o.bubbleT=Math.max(0,(o.bubbleT||0)-dt); const p=o.mesh.position; const dx=o.tx-p.x, dz=o.tz-p.z; if(Math.hypot(dx,dz)>40){ p.x=o.tx; p.z=o.tz; } else { p.x+=dx*Math.min(1,dt*8); p.z+=dz*Math.min(1,dt*8); } o.x=p.x; o.z=p.z;
+      o.bubbleT=Math.max(0,(o.bubbleT||0)-dt); const p=o.mesh.position; const dx=o.tx-p.x, dz=o.tz-p.z; if(Math.hypot(dx,dz)>40){ p.x=o.tx; p.z=o.tz; } else { p.x+=dx*Math.min(1,dt*8); p.z+=dz*Math.min(1,dt*8); } o.x=p.x; o.z=p.z; p.y=hAt(p.x,p.z);
       let dr=o.tf-o.mesh.rotation.y; while(dr>Math.PI) dr-=Math.PI*2; while(dr<-Math.PI) dr+=Math.PI*2; o.mesh.rotation.y+=dr*Math.min(1,dt*12);
       if(o.m) o.walk+=dt*9; const u=o.mesh.userData, sw=o.m?Math.sin(o.walk)*.7:0; u.legL.rotation.x=sw; u.legR.rotation.x=-sw; u.armL.rotation.x=-sw; o.anim=Math.max(0,o.anim-dt); u.armR.rotation.x=o.anim>0?-2.2:sw; u.body.position.y=o.m?Math.abs(Math.sin(o.walk))*.12:0;
       if(Math.hypot(o.x-P.x,o.z-P.z)<60&&!o.dead){ const foe=o.realm!==G.realm; o.lbl.className="lbl "+(foe?"foe":"ally"); placeLabel(o.lbl,o.x,4.6,o.z,`${o.bubbleT>0?`<span class="bub">${o.bubble}</span>`:""}${o.name} <b>${REALMS[o.realm].n} · ${REALMS[o.realm].ranks[o.rank]} Lv.${o.lv}</b><span class="hp"><i style="width:${Math.round(o.hp/o.mhp*100)}%;background:${foe?"#ff5a5f":"#3fd27a"}"></i></span>`); } else o.lbl.style.display="none"; }

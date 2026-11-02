@@ -37,7 +37,7 @@ function tickMobs(dt){
     else { if(m.t<=0){ m.t=rnd(1.5,4); m.state=Math.random()<.5?"idle":"wander"; m.wx=m.hx+rnd(-8,8); m.wz=m.hz+rnd(-8,8); } if(m.state==="wander"){ const wx=m.wx-m.x, wz=m.wz-m.z, wd=Math.hypot(wx,wz); if(wd>.5){ m.x+=wx/wd*1.6*dt; m.z+=wz/wd*1.6*dt; m.rot=Math.atan2(wx,wz); } } }
     const rg=REGIONS[m.rg]; const rd=Math.hypot(m.x-rg.x,m.z-rg.z); if(rd>rg.r+6){ m.x+= (rg.x-m.x)/rd*spd*dt; m.z+=(rg.z-m.z)/rd*spd*dt; }
     m.x=clamp(m.x,-WORLD_HALF+3,WORLD_HALF-3); m.z=clamp(m.z,-WORLD_HALF+3,WORLD_HALF-3);
-    const tnow=performance.now(); m.mesh.position.set(m.x,(m.mesh.userData.float?Math.sin(tnow/400+m.x)*.3+.2:0)+(m.mesh.userData.lunge>0?.4:0)+(m.state==="chase"?Math.abs(Math.sin(tnow/90+m.x))*.25:0),m.z); if(m.mesh.userData.lunge>0) m.mesh.userData.lunge-=dt; m.mesh.rotation.x=m.state==="chase"&&!m.mesh.userData.float?Math.sin(tnow/90+m.x)*.08:0; if(m.aura){ m.aura.rotation.z+=dt*2; m.aura.scale.setScalar(1+Math.sin(tnow/250)*.12); }
+    const tnow=performance.now(); m.mesh.position.set(m.x,hAt(m.x,m.z)+(m.mesh.userData.float?Math.sin(tnow/400+m.x)*.3+.2:0)+(m.mesh.userData.lunge>0?.4:0)+(m.state==="chase"?Math.abs(Math.sin(tnow/90+m.x))*.25:0),m.z); if(m.mesh.userData.lunge>0) m.mesh.userData.lunge-=dt; m.mesh.rotation.x=m.state==="chase"&&!m.mesh.userData.float?Math.sin(tnow/90+m.x)*.08:0; if(m.aura){ m.aura.rotation.z+=dt*2; m.aura.scale.setScalar(1+Math.sin(tnow/250)*.12); }
     let dr=m.rot-m.mesh.rotation.y; while(dr>Math.PI) dr-=Math.PI*2; while(dr<-Math.PI) dr+=Math.PI*2; m.mesh.rotation.y+=dr*Math.min(1,dt*8);
     const sc=m.scale*(m.hit>0?1.12:1); m.mesh.scale.set(sc*(1+Math.sin(tnow/600+m.x)*.02),sc*(1+Math.sin(tnow/600+m.x+1)*.03),sc);
     if(d<48){ const h=m.mesh.userData.float?3.6:(m.shape==="giant"?5.6:m.shape==="wolf"?2.8:m.shape==="snake"?2:4.4); placeLabel(m.lbl,m.x,h*m.scale,m.z,`${m.boss?"👑 ":""}${m.n} <b>Lv.${m.lv}${m.power?" · 파워 "+m.power:""}</b><span class="hp"><i style="width:${Math.round(m.hp/m.mhp*100)}%"></i></span>`); } else m.lbl.style.display="none";
@@ -82,7 +82,7 @@ function hurtPlayer(dmg,from){ if(P.dead||P.invul>0) return; dmg=Math.max(1,Math
 function die(by){ const R=RM(); P.dead=true; P.deadT=6; net.send({t:"dead",by:typeof by==="string"?by:(by||"")});
   const lost=Math.round(G.gold*R.respawn.gold); G.gold-=lost; G.deaths++;
   if(R.respawn.xp){ G.xp=Math.max(0,G.xp-Math.round(xpNeed(G.lv)*R.respawn.xp)); }
-  if(lost>0){ if(P.bag){ scene.remove(P.bag.mesh); } const bm=new THREE.Group(); bm.add(box(1,.9,.8,toon({color:0x8a5a2a}),0,.45,0)); bm.add(new THREE.Mesh(GEO.sph,toon({color:0xffd05a}))); bm.children[1].position.y=1.1; bm.children[1].scale.set(.6,.6,.6); bm.position.set(P.x,0,P.z); scene.add(bm); P.bag={mesh:bm,x:P.x,z:P.z,gold:Math.round(lost*.5),t:120}; }
+  if(lost>0){ if(P.bag){ scene.remove(P.bag.mesh); } const bm=new THREE.Group(); bm.add(box(1,.9,.8,toon({color:0x8a5a2a}),0,.45,0)); bm.add(new THREE.Mesh(GEO.sph,toon({color:0xffd05a}))); bm.children[1].position.y=1.1; bm.children[1].scale.set(.6,.6,.6); bm.position.set(P.x,hAt(P.x,P.z),P.z); scene.add(bm); P.bag={mesh:bm,x:P.x,z:P.z,gold:Math.round(lost*.5),t:120}; }
   if(P.trial) finishTrial(false);
   mobs.forEach(m=>{ if(m.state==="chase") m.state="idle"; });
   showDeath(by,lost); saveGame(); }

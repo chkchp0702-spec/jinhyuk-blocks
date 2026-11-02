@@ -11,7 +11,7 @@ function outlined(g,thick){ const list=[]; g.traverse(m=>{ if(m.isMesh&&m.materi
   function sway(material){ material.onBeforeCompile=sh=>{ sh.uniforms.uTime=TIME; sh.vertexShader="uniform float uTime;\n"+sh.vertexShader.replace("#include <begin_vertex>","#include <begin_vertex>\n#ifdef USE_INSTANCING\n float _ph=instanceMatrix[3][0]*.35+instanceMatrix[3][2]*.27; transformed.x+=sin(uTime*1.8+_ph)*.22*max(position.y,0.); transformed.z+=cos(uTime*1.3+_ph)*.12*max(position.y,0.);\n#endif"); }; material.customProgramCacheKey=()=>"sway"; return material; }
   function field(geo,material,count,realmIdx,yBase,sMin,sMax,avoid){ const sx=(realmIdx===0||realmIdx===2)?1:-1, sz=(realmIdx>=2)?1:-1; const im=new THREE.InstancedMesh(geo,material,count); let n=0;
     for(let k=0;k<count*3&&n<count;k++){ const x=sx*rnd(4,WORLD_HALF-6), z=sz*rnd(4,WORLD_HALF-6); if(Math.hypot(x,z)<REGIONS[12].r+4) continue; const cap=REGIONS[realmIdx*3]; if(Math.hypot(x-cap.x,z-cap.z)<33) continue; let bad=false; for(const rg of REGIONS){ if(!rg.cap&&Math.hypot(x-rg.x,z-rg.z)<9) bad=true; } if(bad) continue;
-      const s=rnd(sMin,sMax); dummy.position.set(x,yBase*s,z); dummy.rotation.set(0,rnd(0,6.3),rnd(-.15,.15)); dummy.scale.set(s,s,s); dummy.updateMatrix(); im.setMatrixAt(n++,dummy.matrix); }
+      const s=rnd(sMin,sMax); dummy.position.set(x,yBase*s+hAt(x,z),z); dummy.rotation.set(0,rnd(0,6.3),rnd(-.15,.15)); dummy.scale.set(s,s,s); dummy.updateMatrix(); im.setMatrixAt(n++,dummy.matrix); }
     im.count=n; im.receiveShadow=HIGH(); im.castShadow=false; im.frustumCulled=false; scene.add(im); }
   const blade=new THREE.ConeGeometry(.14,1.1,4); blade.translate(0,.55,0);
   const N=HIGH()?2600:900;
