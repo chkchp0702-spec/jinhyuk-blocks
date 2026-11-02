@@ -198,7 +198,7 @@ button{font:inherit;-webkit-tap-highlight-color:transparent}
 <script src="three.min.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v1";
+const VER="v6";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -1031,7 +1031,7 @@ window.__gw={G,P,mobs,W,net,PEERS,stat,begin,update,spawnMob,spawnAtHome,REGIONS
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="81ece2c8";
+(function(){ var CUR="332caf62";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
