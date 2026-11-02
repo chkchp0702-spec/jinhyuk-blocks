@@ -8,19 +8,20 @@ function outlined(g,thick){ const list=[]; g.traverse(m=>{ if(m.isMesh&&m.materi
 /* ---- 풀·꽃·눈덩이: 인스턴스 한 번에 그리기 ---- */
 (function vegetation(){
   const dummy=new THREE.Object3D();
+  function sway(material){ material.onBeforeCompile=sh=>{ sh.uniforms.uTime=TIME; sh.vertexShader="uniform float uTime;\n"+sh.vertexShader.replace("#include <begin_vertex>","#include <begin_vertex>\n#ifdef USE_INSTANCING\n float _ph=instanceMatrix[3][0]*.35+instanceMatrix[3][2]*.27; transformed.x+=sin(uTime*1.8+_ph)*.22*max(position.y,0.); transformed.z+=cos(uTime*1.3+_ph)*.12*max(position.y,0.);\n#endif"); }; material.customProgramCacheKey=()=>"sway"; return material; }
   function field(geo,material,count,realmIdx,yBase,sMin,sMax,avoid){ const sx=(realmIdx===0||realmIdx===2)?1:-1, sz=(realmIdx>=2)?1:-1; const im=new THREE.InstancedMesh(geo,material,count); let n=0;
     for(let k=0;k<count*3&&n<count;k++){ const x=sx*rnd(4,WORLD_HALF-6), z=sz*rnd(4,WORLD_HALF-6); if(Math.hypot(x,z)<REGIONS[12].r+4) continue; const cap=REGIONS[realmIdx*3]; if(Math.hypot(x-cap.x,z-cap.z)<33) continue; let bad=false; for(const rg of REGIONS){ if(!rg.cap&&Math.hypot(x-rg.x,z-rg.z)<9) bad=true; } if(bad) continue;
       const s=rnd(sMin,sMax); dummy.position.set(x,yBase*s,z); dummy.rotation.set(0,rnd(0,6.3),rnd(-.15,.15)); dummy.scale.set(s,s,s); dummy.updateMatrix(); im.setMatrixAt(n++,dummy.matrix); }
     im.count=n; im.receiveShadow=HIGH(); im.castShadow=false; im.frustumCulled=false; scene.add(im); }
   const blade=new THREE.ConeGeometry(.14,1.1,4); blade.translate(0,.55,0);
   const N=HIGH()?2600:900;
-  field(blade,mat({color:0x6fb04a,roughness:1}),N,0,0,.8,1.6);          // 에덴 풀
+  field(blade,sway(mat({color:0x6fb04a,roughness:1})),N,0,0,.8,1.6);          // 에덴 풀
   field(new THREE.SphereGeometry(.3,6,5),mat({color:0xffd36a,emissive:0xffb020,emissiveIntensity:.5,roughness:.7}),Math.round(N*.18),0,.3,.5,1.1); // 에덴 황금 꽃
   field(new THREE.SphereGeometry(.5,6,5),mat({color:0xffffff,roughness:1}),Math.round(N*.5),1,.2,.6,1.8);   // 아스가르드 눈덩이
   field(new THREE.ConeGeometry(.2,1.3,5),mat({color:0xbfe6ff,roughness:.2,metalness:.1,transparent:true,opacity:.85}),Math.round(N*.25),1,.65,.6,1.6); // 얼음 결정
-  field(blade,mat({color:0xd9b24a,roughness:1}),N,2,0,1,2.2);          // 인도 황금 풀
+  field(blade,sway(mat({color:0xd9b24a,roughness:1})),N,2,0,1,2.2);          // 인도 황금 풀
   field(new THREE.SphereGeometry(.3,6,5),mat({color:0xff6fa0,emissive:0xff3080,emissiveIntensity:.35,roughness:.7}),Math.round(N*.18),2,.3,.5,1.1); // 인도 꽃
-  field(blade,mat({color:0x7fa85a,roughness:1}),N,3,0,.8,1.5);          // 올림푸스 풀
+  field(blade,sway(mat({color:0x7fa85a,roughness:1})),N,3,0,.8,1.5);          // 올림푸스 풀
   field(new THREE.SphereGeometry(.28,6,5),mat({color:0xffffff,emissive:0xcfe8ff,emissiveIntensity:.3,roughness:.7}),Math.round(N*.18),3,.3,.5,1.1); // 흰 꽃
 })();
 
@@ -49,7 +50,7 @@ const POST=(function(){
   if(!HIGH()) return null;
   const Q=new THREE.PlaneGeometry(2,2); const cam=new THREE.OrthographicCamera(-1,1,1,-1,0,1); const sc=new THREE.Scene(); const quad=new THREE.Mesh(Q,null); sc.add(quad);
   const vs=`varying vec2 vUv; void main(){ vUv=uv; gl_Position=vec4(position.xy,0.,1.); }`;
-  const bright=new THREE.ShaderMaterial({uniforms:{t:{value:null},th:{value:.62}},vertexShader:vs,fragmentShader:`uniform sampler2D t; uniform float th; varying vec2 vUv; void main(){ vec4 c=texture2D(t,vUv); float l=dot(c.rgb,vec3(.299,.587,.114)); float k=smoothstep(th,th+.25,l); gl_FragColor=vec4(c.rgb*k,1.); }`,depthTest:false,depthWrite:false});
+  const bright=new THREE.ShaderMaterial({uniforms:{t:{value:null},th:{value:.82}},vertexShader:vs,fragmentShader:`uniform sampler2D t; uniform float th; varying vec2 vUv; void main(){ vec4 c=texture2D(t,vUv); float l=dot(c.rgb,vec3(.299,.587,.114)); float k=smoothstep(th,th+.18,l); gl_FragColor=vec4(c.rgb*k,1.); }`,depthTest:false,depthWrite:false});
   const blur=new THREE.ShaderMaterial({uniforms:{t:{value:null},dir:{value:new THREE.Vector2(1,0)},res:{value:new THREE.Vector2(1,1)}},vertexShader:vs,fragmentShader:`uniform sampler2D t; uniform vec2 dir,res; varying vec2 vUv; void main(){ vec2 o=dir/res; vec4 s=texture2D(t,vUv)*.227; s+=(texture2D(t,vUv+o*1.38)+texture2D(t,vUv-o*1.38))*.316; s+=(texture2D(t,vUv+o*3.23)+texture2D(t,vUv-o*3.23))*.07; s+=(texture2D(t,vUv+o*5.1)+texture2D(t,vUv-o*5.1))*.02; gl_FragColor=s; }`,depthTest:false,depthWrite:false});
   const comp=new THREE.ShaderMaterial({uniforms:{t:{value:null},b:{value:null},str:{value:.75},hurt:{value:0}},vertexShader:vs,fragmentShader:`uniform sampler2D t,b; uniform float str,hurt; varying vec2 vUv; void main(){ vec3 c=texture2D(t,vUv).rgb; vec3 g=texture2D(b,vUv).rgb; c+=g*str; float l=dot(c,vec3(.299,.587,.114)); c=mix(vec3(l),c,1.12); vec2 d=vUv-.5; float v=1.-dot(d,d)*.9; c*=v; c=mix(c,vec3(.8,.05,.1),hurt*(1.-v)*2.); gl_FragColor=vec4(c,1.); }`,depthTest:false,depthWrite:false});
   const mk=(w,h)=>{ const r=new THREE.WebGLRenderTarget(w,h,{minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter,format:THREE.RGBAFormat,depthBuffer:true,stencilBuffer:false}); r.texture.encoding=THREE.sRGBEncoding; return r; };
@@ -58,7 +59,7 @@ const POST=(function(){
   function pass(m,target){ quad.material=m; renderer.setRenderTarget(target); renderer.render(sc,cam); }
   function render(){ const w=renderer.domElement.width, h=renderer.domElement.height; size(w,h); renderer.setRenderTarget(S.rt); renderer.render(scene,camera);
     bright.uniforms.t.value=S.rt.texture; pass(bright,S.a); blur.uniforms.t.value=S.a.texture; blur.uniforms.dir.value.set(1,0); pass(blur,S.b); blur.uniforms.t.value=S.b.texture; blur.uniforms.dir.value.set(0,1); pass(blur,S.a); blur.uniforms.t.value=S.a.texture; blur.uniforms.dir.value.set(1.6,0); pass(blur,S.b); blur.uniforms.t.value=S.b.texture; blur.uniforms.dir.value.set(0,1.6); pass(blur,S.a);
-    comp.uniforms.t.value=S.rt.texture; comp.uniforms.b.value=S.a.texture; comp.uniforms.str.value=.7+(1-DAY.d)*.5; pass(comp,null); }
+    comp.uniforms.t.value=S.rt.texture; comp.uniforms.b.value=S.a.texture; comp.uniforms.str.value=.45+(1-DAY.d)*.5; pass(comp,null); }
   return {render,comp};
 })();
 </script>

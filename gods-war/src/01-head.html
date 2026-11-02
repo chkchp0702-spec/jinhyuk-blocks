@@ -55,6 +55,7 @@ button{font:inherit;-webkit-tap-highlight-color:transparent}
 #region b{font-weight:400;color:var(--c1)}
 
 #minimap{position:fixed;right:10px;top:calc(max(8px,env(safe-area-inset-top)) + 44px);width:150px;height:150px;z-index:5;border-radius:50%;border:3px solid rgba(255,255,255,.35);background:rgba(20,14,40,.6);pointer-events:auto;box-shadow:0 4px 14px rgba(0,0,0,.4)}
+#zoomBtns{position:fixed;right:12px;top:calc(max(8px,env(safe-area-inset-top)) + 200px);z-index:5;display:flex;gap:6px} #zoomBtns button{width:36px;height:36px;border-radius:50%;border:2px solid rgba(255,255,255,.3);background:rgba(20,14,40,.75);color:#fff;font-size:20px;line-height:1;cursor:pointer}
 #quest{position:fixed;left:10px;top:calc(max(8px,env(safe-area-inset-top)) + 96px);z-index:5;pointer-events:auto;max-width:200px;display:flex;flex-direction:column;gap:4px}
 .q{background:rgba(20,14,40,.66);border-left:4px solid var(--c1);border-radius:10px;padding:5px 9px;font-size:12.5px;line-height:1.25;color:#fff}
 .q.done{border-color:var(--green);color:#9dffb8} .q small{opacity:.75}
@@ -146,7 +147,7 @@ button{font:inherit;-webkit-tap-highlight-color:transparent}
 .chatlog{max-height:200px;overflow:auto;background:rgba(0,0,0,.3);border-radius:12px;padding:8px 10px;font-size:14px;display:flex;flex-direction:column;gap:4px;text-align:left} .chatlog b{font-weight:400}
 .chatin{display:flex;gap:6px;align-items:center}
 .lbl .bub{position:relative}
-@media (max-height:640px){ .act{width:56px;height:56px} .act.atk{width:72px;height:72px;font-size:15px} .acts{grid-template-columns:56px 56px 72px;grid-template-rows:56px 72px} #minimap{width:120px;height:120px} }
+@media (max-height:640px){ #zoomBtns{top:calc(max(8px,env(safe-area-inset-top)) + 170px)} .act{width:56px;height:56px} .act.atk{width:72px;height:72px;font-size:15px} .acts{grid-template-columns:56px 56px 72px;grid-template-rows:56px 72px} #minimap{width:120px;height:120px} }
 @media (prefers-reduced-motion: reduce){ *{animation-duration:.01s!important;animation-iteration-count:1!important} }
 </style>
 </head>
@@ -168,6 +169,7 @@ button{font:inherit;-webkit-tap-highlight-color:transparent}
   <span class="pill" id="netPill"><span class="dot" data-i="0"></span><span class="dot" data-i="1"></span><span class="dot" data-i="2"></span><span class="dot" data-i="3"></span><span id="netTxt">연결 중</span></span>
 </div>
 <canvas id="minimap" width="200" height="200"></canvas>
+<div id="zoomBtns"><button id="zIn" type="button">+</button><button id="zOut" type="button">−</button></div>
 <div id="quest"></div>
 <div id="bossbar" hidden><div class="nm" id="bossNm"></div><div class="bar"><i id="bossHp" style="width:100%"></i></div></div>
 <div id="chat"></div>
