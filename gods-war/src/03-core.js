@@ -203,7 +203,7 @@ function makeAvatar(realm,rank,statue){
   if(rank>=6&&!statue){ const crown=new THREE.Mesh(new THREE.TorusGeometry(.9,.05,8,24),glowMat(R.c1,.9)); crown.position.y=4.6; g.userData.crown=crown; g.add(crown); }
   // 발 밑 그림자 원
   const sh=new THREE.Mesh(new THREE.CircleGeometry(.9,24),new THREE.MeshBasicMaterial({color:0x000000,transparent:true,opacity:.22,depthWrite:false})); sh.rotation.x=-Math.PI/2; sh.position.y=.05; g.add(sh);
-  return shadowify(g);
+  shadowify(g); if(!statue&&typeof outlined==="function") outlined(g,1.06); return g;
 }
 function makeWeapon(realm,tier){ const g=new THREE.Group(); const col=[0xffd05a,0x9fd6ff,0xffb347,0xe0e8ff][realm]; const m=mat({color:col,metalness:.8,roughness:.25,emissive:tier>=2?col:0x000000,emissiveIntensity:tier>=3?.8:.35}); const dark=mat({color:0x3a3350,roughness:.8}); const blade=mat({color:0xe8ecf4,metalness:.9,roughness:.2});
   if(realm===0){ g.add(box(.14,1.6+tier*.3,.34,blade,0,1,0)); g.add(box(.6,.14,.14,m,0,.2,0)); g.add(cyl(.07,.07,.5,dark,0,-.15,0)); if(tier>=2) g.add(sph(.3,glowMat(0xfff2a0,.8),0,1.9+tier*.3,0)); }
@@ -223,7 +223,7 @@ function makeMob(shape,color,scale){ const g=new THREE.Group(); const m=mat({col
   const ey=g.userData.float?2.1:(shape==="giant"?4.4:shape==="wolf"?1.6:shape==="snake"?1.0:3.2), ex=shape==="wolf"?1.93:0, ez=shape==="wolf"?0:(shape==="snake"?-1.2:(shape==="giant"?.66:.5));
   [-.2,.2].forEach(x=>{ const e=box(.18,.18,.06,eye,ex+(shape==="wolf"?0:x),ey,ez+(shape==="wolf"?x:0)); if(shape==="wolf") e.rotation.y=Math.PI/2; g.add(e); });
   const sh=new THREE.Mesh(new THREE.CircleGeometry(shape==="giant"?1.6:1,20),new THREE.MeshBasicMaterial({color:0,transparent:true,opacity:.22,depthWrite:false})); sh.rotation.x=-Math.PI/2; sh.position.y=.05; g.add(sh);
-  g.scale.set(scale,scale,scale); return shadowify(g); }
+  g.scale.set(scale,scale,scale); shadowify(g); if(typeof outlined==="function") outlined(g,1.06); return g; }
 
 /* ================= 라벨 ================= */
 const labelsEl=$("labels"); const _v=new THREE.Vector3();
