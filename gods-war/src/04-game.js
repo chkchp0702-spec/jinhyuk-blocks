@@ -149,22 +149,39 @@ function setGuide(t){ if(!t||(P.guide&&P.guide.label===t.label)){ P.guide=null; 
 function nearestCapturable(){ let best=null,bd=1e9; REGIONS.forEach(r=>{ if(r.cap||W.o[r.id]===G.realm) return; const g=TERR_RINGS[r.id]; const d=Math.hypot(g.position.x-P.x,g.position.z-P.z); if(d<bd){ bd=d; best={x:g.position.x,z:g.position.z,label:r.n+" 제단 점령"}; } }); return best; }
 function renderQuests(){ $("quest").innerHTML=G.quests.map((q,i)=>`<div class="q${q.done?" done":""}" data-i="${i}">${q.done?"✔ ":""}${q.txt}${q.k==="kill"?` <small>${q.c}/${q.n}</small>`:""}</div>`).join(""); $("quest").querySelectorAll(".q").forEach(el=>el.onclick=()=>{ const i=+el.dataset.i; if(G.quests[i].done) claimQuest(i); else setGuide(questTarget(G.quests[i])); }); }
 
-/* ================= 미니맵 ================= */
+/* ================= 미니맵 (v10: 선명하게) ================= */
 const mm=$("minimap"), mctx=mm.getContext("2d");
-function drawMinimap(ctxIn,size){ const ctx=ctxIn||mctx, S=size||mm.width; const big=!!ctxIn; ctx.clearRect(0,0,S,S);
-  const half=big?WORLD_HALF:95, cx=big?0:P.x, cz=big?0:P.z; const k=S/(half*2); const tx=x=>(x-cx+half)*k, tz=z=>(z-cz+half)*k;
-  ctx.save(); if(!big){ ctx.beginPath(); ctx.arc(S/2,S/2,S/2-2,0,6.3); ctx.clip(); }
-  REALMS.forEach((R,i)=>{ const sx=(i===0||i===2)?1:-1, sz=(i>=2)?1:-1; ctx.fillStyle=R.ground; ctx.globalAlpha=.5; ctx.fillRect(tx(sx>0?0:-WORLD_HALF),tz(sz>0?0:-WORLD_HALF),WORLD_HALF*k,WORLD_HALF*k); }); ctx.globalAlpha=1;
-  ctx.fillStyle="#2a2340"; ctx.fillRect(tx(-WORLD_HALF)-S,0,S,S); ctx.fillRect(tx(WORLD_HALF),0,S,S); ctx.fillRect(0,tz(-WORLD_HALF)-S,S,S); ctx.fillRect(0,tz(WORLD_HALF),S,S);
-  REGIONS.forEach(rg=>{ const o=W.o[rg.id]; ctx.beginPath(); ctx.arc(tx(rg.x),tz(rg.z),rg.r*k,0,6.3); ctx.fillStyle=o>=0?REALMS[o].c1:"#8a8a9a"; ctx.globalAlpha=rg.cap?.85:.5; ctx.fill(); ctx.globalAlpha=1; ctx.strokeStyle="rgba(255,255,255,.5)"; ctx.lineWidth=1; ctx.stroke();
-    if(rg.cap){ ctx.fillStyle="#1b1430"; ctx.font=`${Math.round(S*(big?.06:.09))}px sans-serif`; ctx.textAlign="center"; ctx.fillText(REALMS[rg.realm].icon,tx(rg.x),tz(rg.z)+S*.025); }
-    if(!big){ ctx.fillStyle="#fff"; ctx.font=`${Math.round(S*.075)}px sans-serif`; ctx.textAlign="center"; ctx.shadowColor="#000"; ctx.shadowBlur=3; ctx.fillText(rg.n,tx(rg.x),tz(rg.z)+(rg.cap?S*.12:S*.03)); ctx.shadowBlur=0; }
-    // 제단 점
-    ctx.fillStyle="#fff"; ctx.beginPath(); ctx.arc(tx(TERR_RINGS[rg.id].position.x),tz(TERR_RINGS[rg.id].position.z),S*.012,0,6.3); ctx.fill(); });
-  if(typeof warActive==="function"&&warActive()){ const g=TERR_RINGS[WAR.cur.rg].position; ctx.font=`${Math.round(S*(big?.06:.12))}px sans-serif`; ctx.textAlign="center"; ctx.fillStyle=(performance.now()/300|0)%2?"#ff5a5f":"#ffcf4a"; ctx.fillText("⚔",tx(g.x),tz(g.z)+S*.035); WAR.units.forEach(u=>{ if(u.dead) return; ctx.fillStyle=WAR.joined?(u.side===WAR.side?"#3fd27a":"#ff5a5f"):(u.side==="att"?"#ffb070":"#8fd0ff"); ctx.beginPath(); ctx.arc(tx(u.x),tz(u.z),S*.012,0,6.3); ctx.fill(); }); }
-  mobs.forEach(m=>{ if(m.war) return; ctx.fillStyle=m.boss?"#ffcf4a":"rgba(255,90,95,.8)"; ctx.beginPath(); ctx.arc(tx(m.x),tz(m.z),S*(m.boss?.02:.01),0,6.3); ctx.fill(); });
-  for(const id in PEERS){ const o=PEERS[id]; ctx.fillStyle=o.realm===G.realm?"#3fd27a":"#ff5a5f"; ctx.beginPath(); ctx.arc(tx(o.x),tz(o.z),S*.022,0,6.3); ctx.fill(); ctx.strokeStyle="#000"; ctx.stroke(); }
-  if(player){ ctx.save(); ctx.translate(tx(P.x),tz(P.z)); ctx.rotate(-P.rot); ctx.fillStyle="#fff"; ctx.strokeStyle="#000"; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(0,-S*.035); ctx.lineTo(S*.025,S*.025); ctx.lineTo(-S*.025,S*.025); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore(); }
-  ctx.restore(); }
+// 폰 화면 밀도(DPR)에 맞춰 캔버스 실제 픽셀을 키워서 흐릿하지 않게
+function fitCanvas(c){ const dpr=Math.min(3,window.devicePixelRatio||1); const w=Math.round((c.clientWidth||150)*dpr); if(w>0&&c.width!==w){ c.width=w; c.height=w; } return c.width; }
+function mmLabel(ctx,t,x,y,px,col){ ctx.font=`900 ${px}px sans-serif`; ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.lineJoin="round"; ctx.lineWidth=Math.max(2,px*.28); ctx.strokeStyle="rgba(10,6,24,.95)"; ctx.strokeText(t,x,y); ctx.fillStyle=col||"#fff"; ctx.fillText(t,x,y); }
+function dot(ctx,x,y,r,fill,line,lw){ ctx.beginPath(); ctx.arc(x,y,r,0,6.2832); ctx.fillStyle=fill; ctx.fill(); if(line){ ctx.lineWidth=lw; ctx.strokeStyle=line; ctx.stroke(); } }
+function drawMinimap(ctxIn,size){ const big=!!ctxIn; const ctx=ctxIn||mctx; const S=big?size:fitCanvas(mm); const u=S/150; ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,S,S);
+  const half=big?WORLD_HALF:110, cx=big?0:P.x, cz=big?0:P.z; const k=S/(half*2); const tx=x=>(x-cx+half)*k, tz=z=>(z-cz+half)*k;
+  ctx.save(); if(!big){ ctx.beginPath(); ctx.arc(S/2,S/2,S/2,0,6.2832); ctx.clip(); }
+  ctx.fillStyle="#0e0a1e"; ctx.fillRect(0,0,S,S);
+  // 네 세계 땅 (진하게)
+  REALMS.forEach((R,i)=>{ const sx=(i===0||i===2)?1:-1, sz=(i>=2)?1:-1; const x0=tx(sx>0?0:-WORLD_HALF), z0=tz(sz>0?0:-WORLD_HALF), w=WORLD_HALF*k;
+    const g=ctx.createLinearGradient(x0,z0,x0+w,z0+w); g.addColorStop(0,R.ground); g.addColorStop(1,R.ground2); ctx.fillStyle=g; ctx.globalAlpha=.92; ctx.fillRect(x0,z0,w,w); });
+  ctx.globalAlpha=1;
+  // 세계 경계선(십자)과 세상 끝
+  ctx.strokeStyle="rgba(20,12,40,.55)"; ctx.lineWidth=2*u; ctx.setLineDash([5*u,4*u]); ctx.beginPath(); ctx.moveTo(tx(0),tz(-WORLD_HALF)); ctx.lineTo(tx(0),tz(WORLD_HALF)); ctx.moveTo(tx(-WORLD_HALF),tz(0)); ctx.lineTo(tx(WORLD_HALF),tz(0)); ctx.stroke(); ctx.setLineDash([]);
+  ctx.strokeStyle="rgba(255,255,255,.8)"; ctx.lineWidth=2*u; ctx.strokeRect(tx(-WORLD_HALF),tz(-WORLD_HALF),WORLD_HALF*2*k,WORLD_HALF*2*k);
+  // 지역(영토) — 주인 색으로 진하게, 테두리 두껍게
+  REGIONS.forEach(rg=>{ const o=W.o[rg.id]; const X=tx(rg.x), Z=tz(rg.z), r=rg.r*k; const col=o>=0?REALMS[o].c1:"#9a9aac";
+    ctx.beginPath(); ctx.arc(X,Z,r,0,6.2832); ctx.globalAlpha=rg.cap?.75:.55; ctx.fillStyle=col; ctx.fill(); ctx.globalAlpha=1;
+    ctx.lineWidth=3*u; ctx.strokeStyle="rgba(10,6,24,.75)"; ctx.stroke(); ctx.lineWidth=1.4*u; ctx.strokeStyle=col; ctx.stroke();
+    const al=TERR_RINGS[rg.id]&&TERR_RINGS[rg.id].position; if(al) dot(ctx,tx(al.x),tz(al.z),(big?2.2:3)*u,"#fff","#1a1030",1.2*u);
+    if(rg.cap) mmLabel(ctx,REALMS[rg.realm].icon,X,Z-(big?0:2*u),(big?13:15)*u,"#fff"); });
+  // 지역 이름 (작은 지도는 가까운 곳만 → 겹치지 않게)
+  REGIONS.forEach(rg=>{ const X=tx(rg.x), Z=tz(rg.z); if(!big&&Math.hypot(X-S/2,Z-S/2)>S*.46) return; mmLabel(ctx,rg.n,X,Z+(rg.cap?(big?12:13):(big?0:0))*u,(big?6.2:10.5)*u,"#fff"); });
+  // 길 안내 목표
+  if(P.guide&&P.guide.x!=null){ const gx=tx(P.guide.x), gz=tz(P.guide.z); const pulse=1+.25*Math.sin(performance.now()/200); dot(ctx,gx,gz,6*u*pulse,"rgba(255,207,74,.35)"); mmLabel(ctx,"★",gx,gz,(big?10:13)*u,"#ffcf4a"); }
+  if(typeof warActive==="function"&&warActive()){ const g=TERR_RINGS[WAR.cur.rg].position; mmLabel(ctx,"⚔",tx(g.x),tz(g.z),(big?12:18)*u,(performance.now()/300|0)%2?"#ff5a5f":"#ffcf4a");
+    WAR.units.forEach(un=>{ if(un.dead) return; dot(ctx,tx(un.x),tz(un.z),1.8*u,WAR.joined?(un.side===WAR.side?"#3fd27a":"#ff5a5f"):(un.side==="att"?"#ffb070":"#8fd0ff"),"#000",.6*u); }); }
+  mobs.forEach(m=>{ if(m.war) return; dot(ctx,tx(m.x),tz(m.z),(m.boss?3.4:1.9)*u,m.boss?"#ffcf4a":"#ff4d55","#1a0008",.8*u); });
+  for(const id in PEERS){ const o=PEERS[id]; dot(ctx,tx(o.x),tz(o.z),3.6*u,o.realm===G.realm?"#3fd27a":"#ff5a5f","#fff",1.4*u); }
+  if(player){ ctx.save(); ctx.translate(tx(P.x),tz(P.z)); dot(ctx,0,0,8*u,"rgba(255,255,255,.22)"); ctx.rotate(-P.rot); ctx.fillStyle="#fff"; ctx.strokeStyle="#111"; ctx.lineWidth=1.6*u; ctx.lineJoin="round"; ctx.beginPath(); ctx.moveTo(0,-7*u); ctx.lineTo(5*u,5*u); ctx.lineTo(0,2.5*u); ctx.lineTo(-5*u,5*u); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore(); }
+  ctx.restore();
+  if(!big){ mmLabel(ctx,"N",S/2,9*u,9*u,"#ffcf4a"); ctx.beginPath(); ctx.arc(S/2,S/2,S/2-1.5*u,0,6.2832); ctx.lineWidth=3*u; ctx.strokeStyle="rgba(255,215,110,.9)"; ctx.stroke(); } }
 let mmT=0;
 </script>
