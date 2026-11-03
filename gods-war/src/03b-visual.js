@@ -40,7 +40,7 @@ const MOON=sph(9,new THREE.MeshBasicMaterial({color:0xfff6d8,fog:false}),0,0,0);
 const DAY={len:480,d:1};
 function dayNight(dt,center,theme){
   const t=((Date.now()/1000)%DAY.len)/DAY.len; const ang=t*Math.PI*2; const elev=Math.sin(ang);        // -1 ~ 1
-  const d=clamp(elev*1.4+.62,.32,1); DAY.d=d; const night=1-d;
+  const d=clamp(elev*1.4+.62,.32,1); DAY.d=d; WATER.uniforms.day.value=d; WATER.uniforms.sunDir.value.copy(skyMat.uniforms.sunDir.value); if(d<.5) WATER.uniforms.sunDir.value.set(-Math.cos(ang),.5,-.6).normalize(); WATER.uniforms.hq.value=(typeof HIGH==='function'&&HIGH())?1:0; const night=1-d;
   sun.position.set(P.x+Math.cos(ang)*90,20+Math.max(0,elev)*80+10,P.z+40); sun.target.position.set(P.x,0,P.z);
   sun.intensity=.15+1.15*d; sun.color.setHSL(.09,.6,.5+.45*d); hemi.intensity=.18+.4*d; fill.intensity=.1+.25*d;
   skyMat.uniforms.sunDir.value.copy(sun.position).sub(camera.position).normalize();

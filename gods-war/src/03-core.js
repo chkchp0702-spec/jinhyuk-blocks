@@ -148,17 +148,32 @@ const TERRAIN=(function(){ const S=WORLD_HALF*2+40, seg=190; const geo=new THREE
 
 /* ---- 물: 물결 + 반짝임 셰이더 ---- */
 const TIME={value:0};
-const WATER=new THREE.ShaderMaterial({transparent:true,depthWrite:false,fog:true,uniforms:THREE.UniformsUtils.merge([THREE.UniformsLib.fog,{time:TIME,deep:{value:new THREE.Color(0x1f5fb8)},shallow:{value:new THREE.Color(0x6fd0ff)},sunDir:{value:new THREE.Vector3(.4,.6,.3)}}]),
-  vertexShader:`varying vec3 vW; varying vec3 vN; varying vec2 vUv;
+const WATER=new THREE.ShaderMaterial({transparent:true,depthWrite:false,fog:true,uniforms:THREE.UniformsUtils.merge([THREE.UniformsLib.fog,{time:{value:0},deep:{value:new THREE.Color(0x1660c8)},shallow:{value:new THREE.Color(0x4fd2ff)},sunDir:{value:new THREE.Vector3(.4,.6,.3)},skyTop:{value:new THREE.Color()},skyBot:{value:new THREE.Color()},day:{value:1},hq:{value:1}}]),
+  vertexShader:`attribute float sq; varying vec3 vW; varying vec2 vUv; varying float vSq;
 #include <fog_pars_vertex>
-    void main(){ vUv=uv; vec4 wp=modelMatrix*vec4(position,1.); vW=wp.xyz; vN=normalize(mat3(modelMatrix)*normal); vec4 mvPosition=viewMatrix*wp; gl_Position=projectionMatrix*mvPosition;
+    void main(){ vUv=uv; vSq=sq; vec4 wp=modelMatrix*vec4(position,1.); vW=wp.xyz; vec4 mvPosition=viewMatrix*wp; gl_Position=projectionMatrix*mvPosition;
 #include <fog_vertex>
 }`,
-  fragmentShader:`uniform float time; uniform vec3 deep,shallow,sunDir; varying vec3 vW; varying vec3 vN; varying vec2 vUv;
+  fragmentShader:`uniform float time,day,hq; uniform vec3 deep,shallow,sunDir,skyTop,skyBot; varying vec3 vW; varying vec2 vUv; varying float vSq;
 #include <fog_pars_fragment>
-    void main(){ float w=sin(vW.x*1.3+time*1.6)*.5+sin(vW.z*1.1-time*1.3)*.5+sin((vW.x+vW.z)*2.2+time*2.4)*.25; vec3 n=normalize(vN+vec3(w*.12,0.,w*.1)); vec3 v=normalize(cameraPosition-vW); float fr=pow(1.-max(dot(n,v),0.),2.); vec3 c=mix(deep,shallow,.35+w*.25); c=mix(c,vec3(.9,.97,1.),fr*.5); vec3 h=normalize(normalize(sunDir)+v); c+=vec3(1.)*pow(max(dot(n,h),0.),90.)*.9; float ring=smoothstep(.98,1.,fract(length(vUv-.5)*6.-time*.4)); c+=ring*.08; gl_FragColor=vec4(c,.86);
+    float hs(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
+    float vn(vec2 p){ vec2 i=floor(p),f=fract(p); f=f*f*(3.-2.*f); return mix(mix(hs(i),hs(i+vec2(1,0)),f.x),mix(hs(i+vec2(0,1)),hs(i+vec2(1,1)),f.x),f.y); }
+    float wh(vec2 p){ return vn(p*.55+vec2(time*.25,time*.18))*.6+vn(p*1.3-vec2(time*.32,-time*.21))*.3+vn(p*3.1+vec2(-time*.5,time*.42))*.1*hq; }
+    void main(){ vec2 p=vW.xz; float e=.04; float h0=wh(p); vec3 n=normalize(vec3((h0-wh(p+vec2(e,0.)))*1.6/e*.12,1.,(h0-wh(p+vec2(0.,e)))*1.6/e*.12));
+      vec3 v=normalize(cameraPosition-vW); float fr=.12+.88*pow(1.-max(dot(n,v),0.),3.);
+      vec3 base=mix(deep,shallow,.25+h0*.55)*(.35+.65*day);
+      float cs=sin(p.x*2.1+sin(p.y*1.7+time*.9)*1.4+time*.6)*sin(p.y*2.3+sin(p.x*1.5-time*.8)*1.4-time*.5); base+=vec3(.55,.85,1.)*pow(1.-abs(cs),7.)*.16*day;
+      vec3 r=reflect(-v,n); vec3 sk=mix(skyBot,skyTop,clamp(r.y*1.4,0.,1.)); vec3 c=mix(base,mix(base,sk,.6)*1.1,fr*.55);
+      vec3 sd=normalize(sunDir); vec3 hh=normalize(sd+v); float sp=pow(max(dot(n,hh),0.),160.);
+      float tw=step(.86-.06*hq,vn(p*7.+vec2(time*1.3,-time*.9))*vn(p*4.3-vec2(time*.7,time*1.1))*2.);
+      c+=mix(vec3(.75,.82,1.)*.5,vec3(1.,.96,.85),day)*(sp*1.4+tw*.55*(.25+.75*pow(max(dot(n,hh),0.),6.)));
+      vec2 q=vUv-.5; float ed=mix(length(q)*2.,max(abs(q.x)*2.,abs(q.y)*2.),vSq); float wob=vn(p*2.5+time*.4)*.06;
+      float foam=smoothstep(.84,.97,ed+wob); float band=smoothstep(.75,1.,sin((ed*11.-time*1.1)*3.14159))*smoothstep(.62,.9,ed)*(1.-foam);
+      c=mix(c,vec3(.92,.97,1.)*(.4+.6*day),clamp(foam*.85+band*.35,0.,1.));
+      gl_FragColor=vec4(c,mix(.8,.95,max(foam,fr*.6)));
 #include <fog_fragment>
 }`});
+WATER.uniforms.time=TIME; WATER.uniforms.skyTop.value=SKY.top; WATER.uniforms.skyBot.value=SKY.bot;
 const TERR_RINGS={}, ALTARS={}; const PLACED=[];  // 건물·나무 배치 기록 {kind, realm, x, z, rot, obj}
 const M={ gold:mat({color:0xffd05a,metalness:.6,roughness:.35}), white:mat({color:0xfaf6ec}), trunk:mat({color:0x7a4e2e,roughness:1}), pine:mat({color:0x2e6b4a}), snow:mat({color:0xf6f9ff,roughness:1}), ice:mat({color:0xa6dcff,transparent:true,opacity:.8,roughness:.2,metalness:.1}), rock:mat({color:0x66707f,roughness:1}), temple:mat({color:0xd8602a}), tgold:mat({color:0xf5c04a,metalness:.6,roughness:.3}), lotus:mat({color:0xff8fb8}), water:WATER, marble:mat({color:0xf4f1ea,roughness:.5}), laurel:mat({color:0x5a9a4a}), dark:mat({color:0x3a3250,roughness:.95}), stone:mat({color:0x8a8a9a,roughness:.95}), red:mat({color:0x9a2030}), wood:mat({color:0x5a3a22,roughness:1}), leaf:mat({color:0x3fa36a}), shield:mat({color:0xc9a24a,metalness:.4,roughness:.5}) };
 const EMBLEM={}; function emblemMat(realm){ if(EMBLEM[realm]) return EMBLEM[realm]; const c=document.createElement("canvas"); c.width=c.height=64; const x=c.getContext("2d"); x.fillStyle=["#c9a227","#2d4e7a","#b8471e","#2f6fb0"][realm]; x.beginPath(); x.arc(32,32,30,0,6.3); x.fill(); x.fillStyle="#fff"; x.font="bold 40px serif"; x.textAlign="center"; x.textBaseline="middle"; x.fillText(REALMS[realm].icon,32,34); const t=new THREE.CanvasTexture(c); t.encoding=THREE.sRGBEncoding; return EMBLEM[realm]=mat({map:t,transparent:true,roughness:.5,metalness:.3}); }
@@ -227,7 +242,7 @@ const TREEPOS=[];   // v15 지도용: 나무·장식 자리
       if(pk==="tree-gold"){ sh.add(cyl(.9,1.5,13,M.white,0,6.5,0,12)); const c=sph(4.5,M.gold,0,15,0); c.scale.y*=.8; sh.add(c); sh.add(sph(2.4,M.gold,3,13.5,1.5)); sh.add(sph(2.2,M.gold,-2.8,14,-1)); for(let j=0;j<12;j++) sh.add(sph(.25,glowMat(0xfff4c0,.9),rnd(-4,4),rnd(8,15),rnd(-4,4))); }
       else if(pk==="pine"){ sh.add(box(12,.6,9,M.wood,0,.3,0)); for(let j=0;j<4;j++){ sh.add(cyl(.4,.4,5,M.wood,-4.5+j*3,2.8,-4)); sh.add(cyl(.4,.4,5,M.wood,-4.5+j*3,2.8,4)); } const rf=new THREE.Mesh(new THREE.ConeGeometry(7,4,4),M.gold); rf.rotation.y=Math.PI/4; rf.scale.set(1.3,1,1); rf.position.y=7; sh.add(rf); sh.add(sph(.9,glowMat(0xaee8ff,.8),0,9.6,0)); }
       else if(pk==="temple"){ const w=new THREE.Mesh(new THREE.CircleGeometry(9,40),M.water); w.rotation.x=-Math.PI/2; w.position.y=.06; sh.add(w); for(let j=0;j<7;j++){ const l=sph(.7,M.lotus,Math.cos(j*.9)*5,.3,Math.sin(j*.9)*5); l.scale.y*=.4; sh.add(l); } sh.add(cyl(1.2,1.4,.6,M.tgold,0,.3,0)); sh.add(sph(1,glowMat(0xffd080,.8),0,2,0)); }
-      else { const w=new THREE.Mesh(new THREE.PlaneGeometry(16,7),WATER); w.rotation.x=-Math.PI/2; w.position.y=.06; sh.add(w); sh.add(cyl(.7,.8,6,M.dark,-6,3,-4.5)); sh.add(cyl(.7,.8,6,M.dark,6,3,-4.5)); sh.add(box(13.5,1.2,1.4,M.dark,0,6.2,-4.5)); sh.add(box(5,1.6,2,M.wood,0,.5,1)); sh.add(sph(.6,glowMat(0x9fe0ff,.8),0,7.2,-4.5)); }
+      else { const wg=new THREE.PlaneGeometry(16,7); wg.setAttribute('sq',new THREE.BufferAttribute(new Float32Array(wg.attributes.position.count).fill(1),1)); const w=new THREE.Mesh(wg,WATER); w.rotation.x=-Math.PI/2; w.position.y=.06; sh.add(w); sh.add(cyl(.7,.8,6,M.dark,-6,3,-4.5)); sh.add(cyl(.7,.8,6,M.dark,6,3,-4.5)); sh.add(box(13.5,1.2,1.4,M.dark,0,6.2,-4.5)); sh.add(box(5,1.6,2,M.wood,0,.5,1)); sh.add(sph(.6,glowMat(0x9fe0ff,.8),0,7.2,-4.5)); }
       sh.position.set(rg.x,0,rg.z+(rg.z>0?24:-24)); scene.add(shadowify(sh)); ALTARS[rg.id].shrine=sh.position.clone();
     } else g.position.set(rg.x,0,rg.z);
     scene.add(shadowify(g)); TERR_RINGS[rg.id]=g; });
