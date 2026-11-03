@@ -15,9 +15,9 @@ const PETS=[
 const EGG_MS=20*60000, PET_MAX=20;
 function petNeed(lv){ return 12*lv; }
 function petData(){ G.pets=G.pets||{}; if(G.pet==null) G.pet=-1; return G.pets; }
-function petBonus(){ const p=G.pet>=0&&G.pets&&G.pets[G.pet]; return p?p.lv*2:0; }   // 금화 +%
-function petArr(){ const p=G.pet>=0&&G.pets&&G.pets[G.pet]; return p?[G.pet,p.lv]:null; }
-function petGain(n){ const p=G.pet>=0&&G.pets&&G.pets[G.pet]; if(!p||p.lv>=PET_MAX) return 0; p.xp=(p.xp||0)+n; let up=0; while(p.lv<PET_MAX&&p.xp>=petNeed(p.lv)){ p.xp-=petNeed(p.lv); p.lv++; up++; } if(p.lv>=PET_MAX) p.xp=0; if(up&&PETMESH.me){ rebuildMyPet(); } return up; }
+function petBonus(){ const p=G.pet>=0&&G.pets&&!expPetAway(G.pet)&&G.pets[G.pet]; return p?p.lv*2:0; }   // 금화 +%
+function petArr(){ const p=G.pet>=0&&G.pets&&!expPetAway(G.pet)&&G.pets[G.pet]; return p?[G.pet,p.lv]:null; }
+function petGain(n){ const p=G.pet>=0&&G.pets&&!expPetAway(G.pet)&&G.pets[G.pet]; if(!p||p.lv>=PET_MAX) return 0; p.xp=(p.xp||0)+n; let up=0; while(p.lv<PET_MAX&&p.xp>=petNeed(p.lv)){ p.xp-=petNeed(p.lv); p.lv++; up++; } if(p.lv>=PET_MAX) p.xp=0; if(up&&PETMESH.me){ rebuildMyPet(); } return up; }
 function petOnKill(m){ petData(); const b=petBonus(); if(b>0){ const extra=Math.max(1,Math.round(m.gold*b/100)); G.gold+=extra; }
   const up=petGain(m.boss?6:1); if(up){ const p=G.pets[G.pet]; toast(`${PETS[G.pet].n} Lv.${p.lv}!`,`금화 보너스 +${p.lv*2}%`,2); jingle([784,988,1175]); }
   if(!G.egg&&!m.war&&!m.titan){ const first=!G.eggEver; const ch=first?1:m.boss?.3:.02; if(Math.random()<ch){ const rg=REGIONS[m.rg]; const r=rg&&rg.realm>=0?rg.realm:rint(0,3); G.egg={r,t0:Date.now()}; G.eggEver=1;
@@ -31,7 +31,7 @@ function hatchEgg(){ petData(); const r=G.egg.r; G.egg=null; const had=G.pets[r]
   if(!had||G.pet<0) G.pet=r; saveGame(); rebuildMyPet(); try{ net.hello(); net.pushProfile(1); }catch(e){}
   card(`<h2>🐣 알이 깨어났어요!</h2><canvas id="petPrev" width="260" height="200" style="width:200px;height:154px;align-self:center"></canvas><p>${msg}</p><p style="font-size:13px">신수는 괴물을 같이 공격하고, 금화를 더 주워 줘요(레벨×2%). 내가 쉬는 동안 수련하면 신수도 같이 자라요.</p><button class="buy" id="petOk" style="align-self:center">좋아요!</button>`);
   $("petOk").onclick=closeLayer; drawPetPreview($("petPrev"),r); jingle([523,659,784,1046,1318,1568]); fxRing(P.x,P.z,PETS[r].c,10,1); fxSpark(P.x,2,P.z,PETS[r].c,50); buzz([40,30,40]); }
-function petIdle(r){ petData(); const n=Math.floor(r.kills||0); if(!n) return null; const p=G.pet>=0&&G.pets[G.pet]; if(!p) return null; const lv0=p.lv; petGain(n); return {n:PETS[G.pet].n,lv0,lv:p.lv}; }
+function petIdle(r){ petData(); const n=Math.floor(r.kills||0); if(!n) return null; const p=G.pet>=0&&!expPetAway(G.pet)&&G.pets[G.pet]; if(!p) return null; const lv0=p.lv; petGain(n); return {n:PETS[G.pet].n,lv0,lv:p.lv}; }
 
 // 신수 모델(코드로 만든 귀여운 아기 동물)
 function makePet(r,lv){ const D=PETS[r]; const g=new THREE.Group(); const body=new THREE.Group(); g.add(body);
@@ -73,7 +73,7 @@ function tickPets(dt){ if(!started) return; tickEgg(dt);
     let o=PETMESH.others[k]; if(!o){ const mesh=makePet(w.pt[0],w.pt[1]); scene.add(mesh); o=PETMESH.others[k]={mesh,x:w.x-1.5,z:w.z-1.5,key:w.pt.join(",")}; } followPet(o,w.x,w.z,w.rot,dt); } }
 function showPets(){ petData(); const eg=G.egg?`<div class="row"><div class="ic">🥚</div><div class="t"><div>${PETS[G.egg.r].egg} 품는 중</div><span>${eggLeft()>0?`깨어나기까지 ${Math.ceil(eggLeft()/60000)}분 · 게임을 꺼 둬도 자라요`:"곧 깨어나요!"}</span></div></div>`:`<div class="row"><div class="ic">🥚</div><div class="t"><div>알 없음</div><span>괴물을 잡으면 가끔 알이 나와요(보스는 자주). 알은 한 번에 하나만 품을 수 있어요.</span></div></div>`;
   const rows=PETS.map((D,r)=>{ const p=G.pets[r]; if(!p) return `<div class="row" style="opacity:.55"><div class="ic">❔</div><div class="t"><div>???</div><span>${REALMS[r].n}의 신수 · ${D.egg}에서 태어나요</span></div></div>`;
-    const on=G.pet===r; return `<div class="row"><div class="ic" style="color:#${D.c.toString(16).padStart(6,"0")}">${REALMS[r].icon}</div><div class="t"><div>${D.n} Lv.${p.lv}${on?' <i class="st on">함께하는 중</i>':""}</div><span>금화 +${p.lv*2}% · 공격 함께 ${p.lv>=PET_MAX?"· 최고 레벨!":`· 다음 레벨까지 ${petNeed(p.lv)-Math.floor(p.xp||0)}마리`}${p.lv>=10?" · 👑 왕관":""}</span></div>${on?"":`<button class="buy" data-pet="${r}">데려가기</button>`}</div>`; }).join("");
+    const on=G.pet===r, away=expPetAway(r); return `<div class="row"><div class="ic" style="color:#${D.c.toString(16).padStart(6,"0")}">${REALMS[r].icon}</div><div class="t"><div>${D.n} Lv.${p.lv}${away?' <i class="st">🧭 원정 중</i>':on?' <i class="st on">함께하는 중</i>':""}</div><span>금화 +${p.lv*2}% · 공격 함께 ${p.lv>=PET_MAX?"· 최고 레벨!":`· 다음 레벨까지 ${petNeed(p.lv)-Math.floor(p.xp||0)}마리`}${p.lv>=10?" · 👑 왕관":""}</span></div>${on||away?"":`<button class="buy" data-pet="${r}">데려가기</button>`}</div>`; }).join("");
   card(`<h2>🐣 신수</h2><p>신수 도감 ${Object.keys(G.pets).length}/4 · 신수는 괴물을 같이 공격하고 금화를 더 주워 줘요. 친구 화면에도 보여요.</p>${eg}${rows}<p style="font-size:12px">괴물 1마리 = 신수 경험치 1 (보스 6). 쉬는 동안 수련한 괴물 수만큼 신수도 자라요. 레벨 10이 되면 왕관!</p>`);
   layers.querySelectorAll("[data-pet]").forEach(b=>b.onclick=()=>{ G.pet=+b.dataset.pet; saveGame(); rebuildMyPet(); try{ net.hello(); net.pushProfile(1); }catch(e){} jingle([659,784,1046]); showPets(); }); }
 
@@ -132,7 +132,7 @@ function titanDefeated(){ if(TB.claimed) return; TB.claimed=true; titanSave(); t
   const m=TITAN.m; if(m){ fxFlash(m.x,6,m.z,0xffe08a,14,.8); fxRing(m.x,m.z,0xffe08a,40,1.6); fxSpark(m.x,6,m.z,0xffe08a,90); titanRemove(); }
   const D=titanDef(TB.w); const rank=titanRank(); const hero=rank[0]; const meHero=hero&&hero.me&&TB.mine>0; const helped=TB.mine>0;
   let gold=helped?300+G.lv*25:Math.round((300+G.lv*25)*.4), xp=helped?250+G.lv*35:Math.round((250+G.lv*35)*.4); if(meHero){ gold*=2; xp*=2; G.hero=TB.w; }
-  const t=Math.min(3,Math.max(G.rank,1)); const s=pick(["w","a","r"]); G.bag.push({s,t}); G.gold+=gold; gainXp(xp); G.pots+=3; saveGame();
+  G.titanWins=(G.titanWins||0)+1; const t=Math.min(3,Math.max(G.rank,1)); const s=pick(["w","a","r"]); G.bag.push({s,t}); G.gold+=gold; gainXp(xp); G.pots+=3; saveGame();
   card(`<h2>🏆 거대 ${D.n} 쓰러뜨림!</h2><p>모두 함께 힘을 합쳐 이겼어요!</p><div class="idlegrid"><div><b>+${fmt(gold)}</b><span>금화</span></div><div><b>+${fmt(xp)}</b><span>경험치</span></div><div><b>${rarTag(t)}</b><span>${itemName(s,t)}</span></div><div><b>+3</b><span>${RM().potion}</span></div></div>
    <p>${hero?`이번 주 <b style="color:var(--gold)">🏅 용사: ${hero.n}</b> (${fmt(hero.d)} 데미지)`:""}${meHero?"<br>내가 용사예요! 보상 2배 · 다음 주까지 이름 옆에 🏅":""}${helped?"":"<br>(이번엔 직접 때리지 않아서 보상이 조금 작아요)"}</p><button class="buy" id="tOk" style="align-self:center">만세!</button>`);
   $("tOk").onclick=closeLayer; jingle([523,659,784,1046,1318,1568,2093]); buzz([80,40,80,40,120]); }
