@@ -42,16 +42,16 @@ function isAway(p){ return !PEERS[p.i]&&(p.on===0||Date.now()-p.t>3*60000); }
 function projected(p){ return idleSim(p.l,p.x||0,p.r,p.k,isAway(p)?Date.now()-p.t:0); }
 function ghostLook(a){ a=a||[0,0,0,0,0,0]; return {face:a[0]||0,body:a[1]||0,hat:a[2]||0,cape:a[3]||0,weapon:a[4]||0,tint:a[5]||0}; }
 function ghostEq(p){ const e=p.e||[-1,-1,-1]; return {w:e[0],a:e[1],r:e[2]}; }
-function makeGhost(p){ const lk=ghostLook(p.lk); const mesh=(typeof avatarGL==="function"&&avatarGL(p.r,p.k,lk,undefined,ghostEq(p)))||makeAvatar(p.r,p.k,false,lk); scene.add(mesh); return mesh; }
-function dropGhost(id){ const g=GHOSTS[id]; if(!g) return; scene.remove(g.mesh); g.lbl.remove(); delete GHOSTS[id]; }
+function makeGhost(p){ const lk=ghostLook(p.lk); const mesh=(typeof avatarGL==="function"&&avatarGL(p.r,p.k,lk,undefined,ghostEq(p)))||makeAvatar(p.r,p.k,false,lk); if(typeof DREAM!=="undefined") DREAM.dreamify(mesh); scene.add(mesh); return mesh; }
+function dropGhost(id){ const g=GHOSTS[id]; if(!g) return; scene.remove(g.mesh); g.lbl.remove(); if(g.dz&&typeof DREAM!=="undefined") DREAM.drop(g.dz); delete GHOSTS[id]; }
 let ghostT=0;
 function tickGhosts(dt){ if(!started) return; ghostT-=dt;
   if(ghostT<=0){ ghostT=2; let n=0;
     for(const id in ROSTER){ const p=ROSTER[id]; const away=isAway(p); const pr=away?projected(p):null; const rg=pr?pr.rg:null; const near=rg&&Math.hypot(rg.x-P.x,rg.z-P.z)<rg.r+110;
       if(!away||!near||n>=10||Date.now()-p.t>14*86400000){ dropGhost(id); continue; } n++;
-      let g=GHOSTS[id]; if(!g){ const a=Math.random()*6.283, r=rnd(6,rg.r*.6); g=GHOSTS[id]={id,mesh:makeGhost(p),lbl:makeLabel("ally"),x:rg.x+Math.cos(a)*r,z:rg.z+Math.sin(a)*r,tx:0,tz:0,t:0,walk:0,act:0,rg:rg.id}; g.tx=g.x; g.tz=g.z; }
+      let g=GHOSTS[id]; if(!g){ const a=Math.random()*6.283, r=rnd(6,rg.r*.6); g=GHOSTS[id]={id,mesh:makeGhost(p),lbl:makeLabel("ally"),x:rg.x+Math.cos(a)*r,z:rg.z+Math.sin(a)*r,tx:0,tz:0,t:0,walk:0,act:0,rg:rg.id}; g.tx=g.x; g.tz=g.z; if(typeof DREAM!=="undefined") g.dz=DREAM.make(); }
       if(g.rg!==rg.id){ g.rg=rg.id; g.x=rg.x; g.z=rg.z; g.tx=g.x; g.tz=g.z; }
-      if(!g.mesh.userData.glAvatar&&typeof avatarGL==="function"){ const m2=avatarGL(p.r,p.k,ghostLook(p.lk),undefined,ghostEq(p)); if(m2){ scene.remove(g.mesh); g.mesh=m2; scene.add(m2); } }
+      if(!g.mesh.userData.glAvatar&&typeof avatarGL==="function"){ const m2=avatarGL(p.r,p.k,ghostLook(p.lk),undefined,ghostEq(p)); if(m2){ scene.remove(g.mesh); if(typeof DREAM!=="undefined") DREAM.dreamify(m2); g.mesh=m2; scene.add(m2); } }
       g.p=p; g.pr=pr; } }
   for(const id in GHOSTS){ const g=GHOSTS[id]; const rg=REGIONS[g.rg]; g.t-=dt; g.act=Math.max(0,g.act-dt);
     if(g.t<=0){ g.t=rnd(2,5); const m=mobs.find(m=>!m.war&&m.rg===g.rg&&Math.hypot(m.x-g.x,m.z-g.z)<16); if(m&&Math.random()<.6){ g.tx=m.x+rnd(-1.5,1.5); g.tz=m.z+rnd(-1.5,1.5); g.fight=m; } else { const a=rnd(0,6.283), r=rnd(4,rg.r*.65); g.tx=rg.x+Math.cos(a)*r; g.tz=rg.z+Math.sin(a)*r; g.fight=null; } }
@@ -60,7 +60,8 @@ function tickGhosts(dt){ if(!started) return; ghostT-=dt;
     else if(g.fight&&mobs.indexOf(g.fight)>=0){ g.mesh.rotation.y=Math.atan2(g.fight.x-g.x,g.fight.z-g.z); if(g.act<=0){ g.act=.9; if(Math.hypot(g.x-P.x,g.z-P.z)<50) fxSpark(g.fight.x,1.6,g.fight.z,0xffffff,5); } }
     g.mesh.position.set(g.x,hAt(g.x,g.z),g.z); const u=g.mesh.userData;
     if(u.gl) animState(g.mesh,g.act>.6?"attack":moving?"run":"idle"); else if(u.legL){ const sw=moving?Math.sin(g.walk)*.7:0; u.legL.rotation.x=sw; u.legR.rotation.x=-sw; u.armL.rotation.x=-sw; u.armR.rotation.x=g.act>.6?-2.2:sw; }
-    if(Math.hypot(g.x-P.x,g.z-P.z)<55){ const p=g.p, pr=g.pr; placeLabel(g.lbl,g.x,4.6,g.z,`${p.tt&&typeof titleHtml==="function"?titleHtml(p.tt):""}💤 ${p.n} <b>${REALMS[p.r].n} · ${REALMS[p.r].ranks[p.k]} Lv.${pr?pr.lv:p.l}</b><span class="away">쉬는 중 · 혼자 수련 ${fmtDur((Date.now()-p.t)/60000)}째</span>`); } else g.lbl.style.display="none"; } }
+    const nearMe=Math.hypot(g.x-P.x,g.z-P.z)<55; if(g.dz) DREAM.tick(g.dz,dt,g.x,hAt(g.x,g.z),g.z,nearMe);
+    if(nearMe){ const p=g.p, pr=g.pr; placeLabel(g.lbl,g.x,4.6,g.z,`${p.tt&&typeof titleHtml==="function"?titleHtml(p.tt):""}💤 ${p.n} <b>${REALMS[p.r].n} · ${REALMS[p.r].ranks[p.k]} Lv.${pr?pr.lv:p.l}</b><span class="away">쉬는 중 · 혼자 수련 ${fmtDur((Date.now()-p.t)/60000)}째</span>`); } else g.lbl.style.display="none"; } }
 function showRoster(){ const me=`<div class="row"><div class="ic" style="color:${REALMS[G.realm].c1}">${REALMS[G.realm].icon}</div><div class="t"><div>${G.name} (나) <i class="st on">접속 중</i></div><span>${REALMS[G.realm].n} · ${REALMS[G.realm].ranks[G.rank]} Lv.${G.lv} · ${(regionAt(P.x,P.z)||{n:"황야"}).n}</span></div></div>`;
   const live=Object.values(PEERS).map(o=>{ const rg=regionAt(o.x,o.z); return {s:1e15+o.lv,h:`<div class="row"><div class="ic" style="color:${REALMS[o.realm].c1}">${REALMS[o.realm].icon}</div><div class="t"><div>${o.name} <i class="st on">접속 중</i></div><span>${REALMS[o.realm].n} · ${REALMS[o.realm].ranks[o.rank]} Lv.${o.lv} · ${rg?rg.n:"황야"}</span></div></div>`}; });
   const away=Object.values(ROSTER).filter(p=>isAway(p)&&Date.now()-p.t<30*86400000).map(p=>{ const pr=projected(p); const hrs=(Date.now()-p.t)/60000; return {s:pr.lv*1e6-hrs,h:`<div class="row"><div class="ic" style="color:${REALMS[p.r].c1}">${REALMS[p.r].icon}</div><div class="t"><div>${p.n} ${p.tt&&typeof titleHtml==="function"?titleHtml(p.tt):""}<i class="st">💤 쉬는 중</i></div><span>${REALMS[p.r].n} · ${REALMS[p.r].ranks[p.k]} Lv.${pr.lv}${pr.lv>p.l?` <b style="color:#3fd27a">(+${pr.lv-p.l})</b>`:""} · ${pr.rg.n} · ${fmtDur(hrs)} 전 접속${pr.capped?" · 승급 기다리는 중":""}</span></div></div>`}; });
