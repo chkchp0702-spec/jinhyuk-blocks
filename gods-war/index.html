@@ -201,6 +201,19 @@ html,body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;t
   .titlebox{max-width:760px;gap:8px} .logo{font-size:min(9vw,52px)!important} .realms{grid-template-columns:repeat(4,1fr)} .realm{padding:8px 10px!important} .realm i{font-size:11px!important} .realm b{font-size:18px!important} .titlebox .help{font-size:13px;margin:0} #title .titlebox .logo{font-size:40px!important;margin-top:0} #title .titlebox{gap:6px} #title .inp{padding:6px 12px;font-size:18px} #title .go{padding:8px 26px;font-size:20px} .logo span{font-size:12px!important}
 }
 @media (prefers-reduced-motion: reduce){ *{animation-duration:.01s!important;animation-iteration-count:1!important} }
+/* v18 레벨업·승급 배너 */
+#lvup{display:none;position:fixed;left:50%;top:30%;transform:translate(-50%,-50%);z-index:8;pointer-events:none;text-align:center;opacity:0;--lc:#ffd76a}
+#lvup .rays{position:absolute;left:50%;top:50%;width:min(62vh,340px);height:min(62vh,340px);margin:calc(min(62vh,340px)/-2) 0 0 calc(min(62vh,340px)/-2);border-radius:50%;z-index:-1;
+ background:repeating-conic-gradient(from 0deg,color-mix(in srgb,var(--lc) 55%,transparent) 0 7deg,transparent 7deg 22deg);-webkit-mask:radial-gradient(circle,#000 18%,transparent 68%);mask:radial-gradient(circle,#000 18%,transparent 68%);opacity:.85}
+#lvup .top{font-family:var(--title);font-size:clamp(14px,4.4vh,22px);letter-spacing:6px;color:#fff;text-shadow:-2px -2px 0 #1b1030,2px -2px 0 #1b1030,-2px 2px 0 #1b1030,2px 2px 0 #1b1030,0 0 14px var(--lc)}
+#lvup .big{font-family:var(--title);font-size:clamp(40px,15vh,74px);line-height:1.05;white-space:nowrap;padding:0 .15em;
+ background:linear-gradient(180deg,#fff 8%,#ffd76a 48%,#e08a1e 92%);-webkit-background-clip:text;background-clip:text;color:transparent;
+ filter:drop-shadow(0 3px 0 #1b1030) drop-shadow(2px 0 0 #1b1030) drop-shadow(-2px 0 0 #1b1030) drop-shadow(0 -2px 0 #1b1030) drop-shadow(0 0 14px var(--lc))}
+#lvup .sub{margin-top:4px;font-size:clamp(12px,3.8vh,17px);color:#fff;white-space:nowrap;text-shadow:-1.5px -1.5px 0 #1b1030,1.5px -1.5px 0 #1b1030,-1.5px 1.5px 0 #1b1030,1.5px 1.5px 0 #1b1030}
+#lvup .sub b{color:#9dff8a}
+#toast.lvdn{top:66%!important;font-size:clamp(16px,3.6vw,22px)}
+#lvglow{display:none;position:fixed;inset:0;z-index:7;pointer-events:none;opacity:0;--lc:#ffd76a;background:radial-gradient(ellipse at 50% 60%,transparent 35%,color-mix(in srgb,var(--lc) 70%,transparent) 100%)}
+@media (orientation:portrait){#lvup{top:28%}#lvup .big{font-size:clamp(40px,14vw,64px)}}
 </style>
 </head>
 <body>
@@ -254,7 +267,7 @@ html,body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;t
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v17";
+const VER="v18";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -394,7 +407,7 @@ function stat(){
   return {mhp:Math.round(mhp),atk,def,crit};
 }
 function dmgReduce(def){ return def/(def+50); }
-function gainXp(n){ if(hegemon()===G.realm) n=Math.round(n*1.15); G.xp+=n; let up=false; while(G.xp>=xpNeed(G.lv)&&G.lv<60){ G.xp-=xpNeed(G.lv); G.lv++; up=true; } if(up){ P.hp=stat().mhp; toast(`레벨 ${G.lv}!`,"체력과 공격력이 올랐어요",2.2); jingle([523,659,784,1046]); fxRing(P.x,P.z,0xffffff,6); fxSpark(P.x,2,P.z,0xffe08a,40); } }
+function gainXp(n){ if(hegemon()===G.realm) n=Math.round(n*1.15); G.xp+=n; let up=false; const s0=G.xp>=xpNeed(G.lv)&&G.lv<60?stat():null; while(G.xp>=xpNeed(G.lv)&&G.lv<60){ G.xp-=xpNeed(G.lv); G.lv++; up=true; } if(up){ P.hp=stat().mhp; jingle([523,659,784,1046]); fxSpark(P.x,2,P.z,0xffe08a,40); try{ celebrateLevel(G.lv,s0); }catch(e){ console.warn(e); toast(`레벨 ${G.lv}!`,"체력과 공격력이 올랐어요",2.2); } } }
 function itemName(s,t){ return RM().items[s][t]; }
 function itemDesc(s,t){ return s==="w"?`공격 +${TIER.w[t]}`:s==="a"?`체력 +${TIER.a[t]} · 방어 +${(t+1)*5}`:`치명타 ${Math.round(TIER.r[t]*100)}%`; }
 
@@ -673,7 +686,8 @@ function fxBolt(x,z,color){ const m=cyl(.18,.6,34,glowMat(color,.95),x,17+hAt(x,
 function fxLine(x,z,rot,len,color){ const m=box(2.4,.5,len,glowMat(color,.8)); m.position.set(x+Math.sin(rot)*len/2,1.2+hAt(x,z),z+Math.cos(rot)*len/2); m.rotation.y=rot; scene.add(m); FX.push({m,t:0,d:.35,size:1,kind:"line"}); }
 function fxArc(x,z,rot,color){ const m=new THREE.Mesh(new THREE.TorusGeometry(2.6,.18,6,24,Math.PI*.9),glowMat(color,.9)); m.rotation.x=-Math.PI/2; m.rotation.z=-rot-Math.PI*.05+Math.PI/2; m.position.set(x,1.6+hAt(x,z),z); m.userData.noOutline=true; scene.add(m); FX.push({m,t:0,d:.18,size:1,kind:"arc"}); }
 function fxSpark(x,y,z,color,n){ y+=hAt(x,z); const N=n||14; const geo=new THREE.BufferGeometry(); const p=new Float32Array(N*3); const v=[]; for(let i=0;i<N;i++){ p[i*3]=x; p[i*3+1]=y; p[i*3+2]=z; v.push(new THREE.Vector3(rnd(-1,1),rnd(.2,1.4),rnd(-1,1)).normalize().multiplyScalar(rnd(4,11))); } geo.setAttribute("position",new THREE.BufferAttribute(p,3)); const m=new THREE.Points(geo,new THREE.PointsMaterial({color,size:.45,transparent:true,opacity:1,depthWrite:false,blending:THREE.AdditiveBlending})); scene.add(m); FX.push({m,t:0,d:.55,kind:"spark",v,p}); }
-function tickFX(dt){ for(let i=FX.length-1;i>=0;i--){ const f=FX[i]; f.t+=dt; const k=f.t/f.d; if(k>=1){ scene.remove(f.m); f.m.material.dispose(); if(f.m.geometry&&f.kind==="spark") f.m.geometry.dispose(); FX.splice(i,1); continue; }
+function tickFX(dt){ for(let i=FX.length-1;i>=0;i--){ const f=FX[i]; f.t+=dt; const k=f.t/f.d; if(k>=1){ scene.remove(f.m); f.m.material.dispose(); if(f.m.geometry&&(f.kind==="spark"||f.own)) f.m.geometry.dispose(); FX.splice(i,1); continue; }
+  if(f.tick){ f.tick(f,k,dt); continue; }
   if(f.kind==="ring"){ const s=.5+k*f.size; f.m.scale.set(s,s,s); f.m.material.opacity=.9*(1-k); } else if(f.kind==="flash"){ const s=f.size*(.6+k); f.m.scale.set(s,s,s); f.m.material.opacity=.95*(1-k); } else if(f.kind==="spark"){ for(let j=0;j<f.v.length;j++){ f.v[j].y-=18*dt; f.p[j*3]+=f.v[j].x*dt; f.p[j*3+1]+=f.v[j].y*dt; f.p[j*3+2]+=f.v[j].z*dt; } f.m.geometry.attributes.position.needsUpdate=true; f.m.material.opacity=1-k; } else if(f.kind==="arc"){ f.m.material.opacity=.9*(1-k); f.m.scale.setScalar(1+k*.5); } else f.m.material.opacity=.9*(1-k); } }
 </script>
 <script>
@@ -904,6 +918,52 @@ function hexFor(p){ const c=REALM_HEXCOLOR[p.realm]||"yellow";
   return null; }
 </script>
 <script>
+/* ================= v18 레벨업·승급 연출: 빛기둥 · 떠오르는 고리 · 솟는 빛가루 · 화면 금빛 · 큰 글씨 ================= */
+const LVFX={tex:null,geo:null};
+function lvTex(){ if(LVFX.tex) return LVFX.tex; const c=document.createElement("canvas"); c.width=8; c.height=128; const g=c.getContext("2d");
+  const gr=g.createLinearGradient(0,0,0,128); gr.addColorStop(0,"rgba(255,255,255,0)"); gr.addColorStop(.45,"rgba(255,255,255,.35)"); gr.addColorStop(.88,"rgba(255,255,255,1)"); gr.addColorStop(1,"rgba(255,255,255,.15)");
+  g.fillStyle=gr; g.fillRect(0,0,8,128); LVFX.tex=new THREE.CanvasTexture(c); LVFX.geo=new THREE.CylinderGeometry(1,1,1,20,1,true); LVFX.geo.translate(0,.5,0); return LVFX.tex; }
+function lvMat(color,op){ return new THREE.MeshBasicMaterial({color,map:lvTex(),transparent:true,opacity:op,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide}); }
+function lvFollow(m,y){ m.position.set(P.x,(P.gy||0)+(y||0),P.z); }
+/* 빛기둥: 발밑에서 하늘로 확 솟았다가 가늘어지며 사라짐 (나를 따라다님) */
+function fxPillar(color,r,h,dur,op){ op=op||.5; const m=new THREE.Mesh((lvTex(),LVFX.geo),lvMat(color,op)); m.userData.noOutline=true; m.renderOrder=5; lvFollow(m); scene.add(m);
+  FX.push({m,t:0,d:dur,kind:"lv",tick:(f,k)=>{ lvFollow(f.m); const up=Math.min(1,k*5); const rr=r*(k<.12?.3+k/.12*.9:1.2-(k-.12)*1.1); f.m.scale.set(Math.max(.05,rr),h*(.15+.85*Math.pow(up,.5)),Math.max(.05,rr)); f.m.material.opacity=op*(k<.7?1:(1-k)/.3); f.m.rotation.y+=.05; }}); }
+/* 몸을 감싸며 위로 떠오르는 고리 */
+function fxRiseRing(color,delay,size,dur){ const m=new THREE.Mesh(GEO.ring,glowMat(color,0)); m.rotation.x=-Math.PI/2; m.userData.noOutline=true; lvFollow(m,.1); scene.add(m);
+  FX.push({m,t:-delay,d:dur,kind:"lv",tick:(f,k)=>{ if(k<0){ f.m.visible=false; return; } f.m.visible=true; lvFollow(f.m,.1+k*5.5); const s=size*(1.25-k*.75); f.m.scale.set(s,s,s); f.m.material.opacity=.95*(k<.15?k/.15:1-(k-.15)/.85); }}); }
+/* 나선으로 솟는 빛가루 */
+function fxRiseDust(color,n,dur){ const geo=new THREE.BufferGeometry(); const p=new Float32Array(n*3); const a=[]; for(let i=0;i<n;i++) a.push({ang:Math.random()*6.28,r:rnd(.6,2.4),vy:rnd(3,9),sp:rnd(1.5,3.5)*(Math.random()<.5?-1:1),y:rnd(-.5,1)});
+  geo.setAttribute("position",new THREE.BufferAttribute(p,3)); const m=new THREE.Points(geo,new THREE.PointsMaterial({color,size:.38,transparent:true,opacity:1,depthWrite:false,blending:THREE.AdditiveBlending})); m.userData.noOutline=true; scene.add(m);
+  FX.push({m,t:0,d:dur,kind:"lv",own:true,tick:(f,k,dt)=>{ const gy=P.gy||0; for(let i=0;i<n;i++){ const q=a[i]; q.y+=q.vy*dt; q.ang+=q.sp*dt; q.r*=1+dt*.25; p[i*3]=P.x+Math.cos(q.ang)*q.r; p[i*3+1]=gy+q.y; p[i*3+2]=P.z+Math.sin(q.ang)*q.r; } geo.attributes.position.needsUpdate=true; f.m.material.opacity=k<.6?1:(1-k)/.4; }}); }
+/* 화면 쪽: 금빛 번쩍 + 큰 글씨 배너 */
+function lvBanner(top,big,sub,css){ let b=$("lvup"); if(!b){ b=document.createElement("div"); b.id="lvup"; b.innerHTML='<div class="rays"></div><div class="top"></div><div class="big"></div><div class="sub"></div>'; document.body.appendChild(b); const g=document.createElement("div"); g.id="lvglow"; document.body.appendChild(g); }
+  b.style.setProperty("--lc",css||"#ffd76a"); $("lvglow").style.setProperty("--lc",css||"#ffd76a");
+  b.querySelector(".top").textContent=top; b.querySelector(".big").textContent=big; b.querySelector(".sub").innerHTML=sub||"";
+  $("toast").classList.add("lvdn");
+  LVFX.bt=0; LVFX.b=b; LVFX.g=$("lvglow"); LVFX.r=b.querySelector(".rays"); LVFX.bg=b.querySelector(".big"); b.style.display=LVFX.g.style.display="block"; tickLvBanner(0); }
+/* 게임 시간으로 움직임(메인 루프에서 부름) — 화면이 버벅여도 순서대로 보임 */
+const easeOutBack=x=>{ const c=1.9; return 1+(c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2); };
+function tickLvBanner(dt){ if(!LVFX.b||LVFX.bt==null) return; const t=(LVFX.bt+=dt), D=3.4; const b=LVFX.b, g=LVFX.g;
+  if(t>=D){ b.style.display=g.style.display="none"; LVFX.bt=null; $("toast").classList.remove("lvdn"); return; }
+  const op=t<.25?t/.25:t>D-.6?(D-t)/.6:1; const sc=t<.3?.6+.5*easeOutBack(t/.3):1; const dy=t>D-.6?-12*(1-(D-t)/.6):0;
+  b.style.opacity=op.toFixed(3); b.style.transform=`translate(-50%,calc(-50% + ${dy.toFixed(1)}%)) scale(${sc.toFixed(3)})`;
+  const pk=Math.min(1,t/.45); LVFX.bg.style.transform=`scale(${(t<.45?2.2-1.2*easeOutBack(pk):1).toFixed(3)})`;
+  LVFX.r.style.transform=`rotate(${(t*40).toFixed(1)}deg) scale(${(t<.4?.3+.8*t/.4:1.1-.1*Math.min(1,(t-.4)/2)).toFixed(3)})`; LVFX.r.style.opacity=(t<.4?t/.4*.9:.9-.35*Math.min(1,(t-.4)/2.4)).toFixed(3);
+  g.style.opacity=(t<.15?t/.15:Math.max(0,1-(t-.15)/1.3)).toFixed(3); }
+const hexCss=c=>"#"+(c>>>0).toString(16).padStart(6,"0");
+function celebrateLevel(lv,s0){ const s1=stat(); const hi=HIGH();
+  fxPillar(0xffc94a,.95,hi?42:26,1.8,.45); if(hi) fxPillar(0xfff2c0,.3,46,1.4,.35);
+  for(let i=0;i<3;i++) fxRiseRing(0xffd76a,i*.18,2.4,1.1); fxRing(P.x,P.z,0xffffff,7,.6); fxRiseDust(0xffe9a8,hi?60:28,1.9);
+  drama(0xffd76a,.35,1.2); P.shake=Math.max(P.shake||0,.35); buzz([30,40,60]);
+  const d=(s0&&s1)?`체력 <b>+${fmt(s1.mhp-s0.mhp)}</b> · 공격 <b>+${fmt(s1.atk-s0.atk)}</b>`:"체력과 공격력이 올랐어요";
+  lvBanner("LEVEL UP","Lv "+lv,d); }
+function celebrateRank(R,rank){ const c=R.c1, css=hexCss(c), hi=HIGH();
+  fxPillar(c,1.3,hi?60:34,2.6,.4); fxPillar(0xffc94a,.6,64,2.2,.3); if(hi) fxPillar(0xfff2c0,.25,66,1.8,.3);
+  for(let i=0;i<5;i++) fxRiseRing(i%2?0xffe08a:c,i*.16,3.2,1.3); fxRing(P.x,P.z,c,18,1.3); fxRing(P.x,P.z,0xffffff,9,.7); fxFlash(P.x,2,P.z,0xfff2c0,4,.4); fxRiseDust(c,hi?90:36,2.6); fxRiseDust(0xffe9a8,hi?50:20,2.2);
+  drama(c,.3,1.6); P.shake=Math.max(P.shake||0,1.1); buzz([60,40,60,40,140]);
+  lvBanner("승급!",R.ranks[rank],rank===6?`${R.absolute} 바로 아래, 최고 계급!`:"더 강해졌어요 · 새 장비를 낄 수 있어요",css); }
+</script>
+<script>
 /* ================= 플레이어 ================= */
 const P={x:0,z:0,y:0,vy:0,rot:0,hp:1,walk:0,moving:false,atkCd:0,sklCd:[0,0,0],rage:0,haste:0,combat:0,dashT:0,atkAnim:0,slow:0,weak:0,shadow:0,dizzy:0,heat:0,dead:false,deadT:0,orbitT:0,orbitTick:0,capProg:0,capRg:-1,bag:null,trial:null,invul:0,hitFlash:0};
 let player=null, weaponMesh=null, orbitMesh=null;
@@ -1018,7 +1078,7 @@ function startTrial(){ const R=RM(); if(!canTrial()||P.trial) return; const next
   m.mesh.scale.set(1.6,1.6,1.6); m.mesh.position.set(m.x,0,m.z); scene.add(m.mesh); mobs.push(m); P.trial={m,t:90,next};
   toast(`승급 시험: ${god}`,"90초 안에 이기면 "+R.ranks[next]+"(으)로 승급!",3); tone(80,.6,"sawtooth",0,.2); buzz([80,40,80]); }
 function finishTrial(win){ const T=P.trial; if(!T) return; P.trial=null; const R=RM();
-  if(win){ G.rank=T.next; buildPlayer(); P.hp=stat().mhp; toast(`승급! ${R.ranks[G.rank]}`,G.rank===6?`${R.absolute} 바로 아래, 최고 계급!`:"더 강해졌어요 · 새 장비를 낄 수 있어요",3.5); jingle([523,659,784,1046,1318,1568]); fxRing(P.x,P.z,R.c1,14,1.2); net.send({t:"say",m:`${R.ranks[G.rank]}(으)로 승급했다!`}); questEvent("rank"); }
+  if(win){ G.rank=T.next; buildPlayer(); P.hp=stat().mhp; jingle([523,659,784,1046,1318,1568]); try{ celebrateRank(R,G.rank); }catch(e){ console.warn(e); toast(`승급! ${R.ranks[G.rank]}`,"",3.5); fxRing(P.x,P.z,R.c1,14,1.2); } net.send({t:"say",m:`${R.ranks[G.rank]}(으)로 승급했다!`}); questEvent("rank"); }
   else { if(T.m&&mobs.indexOf(T.m)>=0) removeMob(T.m); toast("시험 실패…","비용의 절반을 돌려받았어요",2.5); G.gold+=Math.round(RANK_GOLD[T.next]*.5); }
   saveGame(); }
 
@@ -1763,7 +1823,7 @@ function update(dt){
   if(P.trial){ P.trial.t-=dt; if(P.trial.t<=0){ toast("시간 초과…",null,2); finishTrial(false); } else if(Math.hypot(P.x-REGIONS[G.realm*3].x,P.z-REGIONS[G.realm*3].z)>60){ toast("시험장을 벗어났어요",null,2); finishTrial(false); } }
   if(P.dead){ P.deadT-=dt; const b=$("rsp"); if(b){ $("rspT").textContent=Math.max(0,Math.ceil(P.deadT)); if(P.deadT<=0&&b.disabled){ b.disabled=false; b.onclick=respawn; $("rspT").textContent=""; } } }
   const rg=regionAt(P.x,P.z); if(rg&&rg!==P.lastRg){ P.lastRg=rg; questEvent("visit",rg); if(!rg.cap||rg.realm!==G.realm) toast(rg.n,rg.realm>=0?`${REALMS[rg.realm].n}의 땅 · Lv.${rg.lv[0]}~${rg.lv[1]}`:`중립 · Lv.${rg.lv[0]}~${rg.lv[1]} · 세계 보스 출현`,1.6); }
-  tickMobs(dt); tickWar(dt); tickTerritory(dt); net.tick(dt); tickGhosts(dt); tickProj(dt); throwCd=Math.max(0,throwCd-dt); try{ tickPets(dt); tickTitan(dt); }catch(e){ console.warn(e); } CB.cd=Math.max(0,CB.cd-dt); tickFX(dt); tickNPCs(dt); tickMixers(dt);
+  tickMobs(dt); tickWar(dt); tickTerritory(dt); net.tick(dt); tickGhosts(dt); tickProj(dt); throwCd=Math.max(0,throwCd-dt); try{ tickPets(dt); tickTitan(dt); }catch(e){ console.warn(e); } CB.cd=Math.max(0,CB.cd-dt); tickFX(dt); tickLvBanner(dt); tickNPCs(dt); tickMixers(dt);
   if(P.guide){ const dx=P.guide.x-P.x, dz=P.guide.z-P.z, dist=Math.hypot(dx,dz); if(dist<7){ const lb=P.guide.label; setGuide(null); toast("도착!",lb,1.5); } else { $("gArrow").style.transform=`rotate(${Math.atan2(dx,-dz)-Math.PI/2}rad)`; $("gTxt").textContent=`${P.guide.label} · ${Math.round(dist)}m`; } }
   P.bubbleT=Math.max(0,(P.bubbleT||0)-dt); if(P.bubbleT>0) placeLabel(myLbl,P.x,4.9,P.z,`<span class="bub">${P.bubble}</span>`); else myLbl.style.display="none";
   // 하늘색: 지금 있는 세계의 색으로 천천히
@@ -1782,7 +1842,7 @@ window.__gw={TB,titanHit,titanDefeated,showTitan,titanGo,showPets,hatchEgg,petOn
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="908c3dbe";
+(function(){ var CUR="4eae413c";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);

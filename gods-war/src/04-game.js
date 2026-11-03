@@ -113,7 +113,7 @@ function startTrial(){ const R=RM(); if(!canTrial()||P.trial) return; const next
   m.mesh.scale.set(1.6,1.6,1.6); m.mesh.position.set(m.x,0,m.z); scene.add(m.mesh); mobs.push(m); P.trial={m,t:90,next};
   toast(`승급 시험: ${god}`,"90초 안에 이기면 "+R.ranks[next]+"(으)로 승급!",3); tone(80,.6,"sawtooth",0,.2); buzz([80,40,80]); }
 function finishTrial(win){ const T=P.trial; if(!T) return; P.trial=null; const R=RM();
-  if(win){ G.rank=T.next; buildPlayer(); P.hp=stat().mhp; toast(`승급! ${R.ranks[G.rank]}`,G.rank===6?`${R.absolute} 바로 아래, 최고 계급!`:"더 강해졌어요 · 새 장비를 낄 수 있어요",3.5); jingle([523,659,784,1046,1318,1568]); fxRing(P.x,P.z,R.c1,14,1.2); net.send({t:"say",m:`${R.ranks[G.rank]}(으)로 승급했다!`}); questEvent("rank"); }
+  if(win){ G.rank=T.next; buildPlayer(); P.hp=stat().mhp; jingle([523,659,784,1046,1318,1568]); try{ celebrateRank(R,G.rank); }catch(e){ console.warn(e); toast(`승급! ${R.ranks[G.rank]}`,"",3.5); fxRing(P.x,P.z,R.c1,14,1.2); } net.send({t:"say",m:`${R.ranks[G.rank]}(으)로 승급했다!`}); questEvent("rank"); }
   else { if(T.m&&mobs.indexOf(T.m)>=0) removeMob(T.m); toast("시험 실패…","비용의 절반을 돌려받았어요",2.5); G.gold+=Math.round(RANK_GOLD[T.next]*.5); }
   saveGame(); }
 

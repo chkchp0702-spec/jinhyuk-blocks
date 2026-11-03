@@ -6,14 +6,20 @@
 | # | 업그레이드 | 어디(파일·함수) | 상태 |
 |---|---|---|---|
 | 1 | 타격감: 데미지 숫자 튀기(+버그 수정) · 맞으면 하얗게 번쩍 | 01-head.html .lbl.dmg · 03-core.js floatDmg · 03b-visual.js hitTint | ✅ v13 |
-| 2 | 레벨업·승급 연출(빛기둥·고리·화면 금빛) | 04-game.js gainXp/승급 · fx* | ⏳ |
+| 2 | 레벨업·승급 연출(빛기둥·고리·화면 금빛) | 03d-celebrate.js · 03-core.js gainXp · 04-game.js finishTrial | ✅ v18 |
 | 3 | 세계별 분위기: 아스가르드 오로라(밤), 에덴 빛줄기, 인도 꽃잎, 올림푸스 구름 | 03b-visual.js dayNight·날씨 | ⏳ |
 | 4 | 스킬 이펙트 다듬기(충격파 고리·잔상) | 03-core.js fx* · 04-game.js useSkill | ⏳ |
 | 5 | 💤 쉬는 친구 캐릭터 반투명 + zzz 입자 | 04c-mmo.js 쉬는 친구 | ⏳ |
 | 6 | 물 반사·물결 반짝임 | 03-core.js 물 셰이더 | ⏳ |
 | 7 | 로딩·첫 화면 꾸미기 | 01-head.html · 06-ui.js | ⏳ |
+| 8 | 거대 보스 등장 연출(땅 흔들림·그림자·이름 큰 글씨) | 04d-fun.js tickTitan | ⏳ |
+| 9 | 보물·장비 획득 연출(등급 색 빛기둥·상자 열림) | 04-game.js 드롭 · 03d-celebrate.js | ⏳ |
 
 ## 기록
+### 11/3 10시 v18 — 레벨업·승급 연출
+- 무엇을: 레벨업하면 발밑에서 금빛 빛기둥이 하늘로 솟고, 고리 3개가 몸을 감싸며 떠오르고, 빛가루가 나선으로 솟음 + 화면 가장자리 금빛 번쩍 + 가운데 큰 글씨 "LEVEL UP / Lv N / 체력 +22 · 공격 +3"(햇살 무늬 회전). 승급은 세계 색 빛기둥 3겹·고리 5개·큰 계급 이름·진동. 배너가 떠 있는 동안 다른 알림은 아래로 내려 겹치지 않게.
+- 어디를: 새 파일 03d-celebrate.js(fxPillar·fxRiseRing·fxRiseDust·lvBanner·tickLvBanner), 03-core.js gainXp·tickFX(f.tick), 04-game.js finishTrial, 06-ui.js 메인 루프, 01-head.html #lvup·#lvglow CSS. 배너는 CSS 애니메이션 대신 게임 시간으로 움직임. 낮음 그래픽은 빛기둥 1개·빛가루 적게.
+- 확인: 844×390 레벨업·승급 스크린샷(처음엔 빛기둥이 너무 하얘서 굵기·밝기 줄임, 알림 글씨 겹침 고침), 효과 다 끝나면 FX 0개로 정리됨, 오류 0.
 ### 11/3 v16 — (사용자 요청) 가로 화면, 선명한 글씨, 높은 점프·피하기
 - 무엇을: 가로 화면 배치(HUD·미니맵·버튼·전쟁 막대·창·첫 화면을 가로에 맞춤), 앱 설치(manifest)도 가로, 안드로이드는 가로 고정 시도, 세로로 들면 "가로로 돌려 주세요" 안내(그냥 세로 버튼). 이름표를 정수 픽셀 위치로 + 흐린 그림자 대신 또렷한 테두리, 알림 글씨도 테두리. 점프 높이 약 1.5m → 3m, 공중에서 한 번 더(2단 점프·한 바퀴 돌기), 공중 0.8m 위에서는 괴물·병사·화살·발구르기·PvP 공격을 "피함!".
 - 어디를: 01-head.html(가로 미디어 쿼리·#rotate·글씨), 03-core.js(placeLabel·lockLand), 06-ui.js(jump·begin), 04-game.js(hurtPlayer), build.py(orientation).

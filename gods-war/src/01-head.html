@@ -201,6 +201,19 @@ html,body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;t
   .titlebox{max-width:760px;gap:8px} .logo{font-size:min(9vw,52px)!important} .realms{grid-template-columns:repeat(4,1fr)} .realm{padding:8px 10px!important} .realm i{font-size:11px!important} .realm b{font-size:18px!important} .titlebox .help{font-size:13px;margin:0} #title .titlebox .logo{font-size:40px!important;margin-top:0} #title .titlebox{gap:6px} #title .inp{padding:6px 12px;font-size:18px} #title .go{padding:8px 26px;font-size:20px} .logo span{font-size:12px!important}
 }
 @media (prefers-reduced-motion: reduce){ *{animation-duration:.01s!important;animation-iteration-count:1!important} }
+/* v18 레벨업·승급 배너 */
+#lvup{display:none;position:fixed;left:50%;top:30%;transform:translate(-50%,-50%);z-index:8;pointer-events:none;text-align:center;opacity:0;--lc:#ffd76a}
+#lvup .rays{position:absolute;left:50%;top:50%;width:min(62vh,340px);height:min(62vh,340px);margin:calc(min(62vh,340px)/-2) 0 0 calc(min(62vh,340px)/-2);border-radius:50%;z-index:-1;
+ background:repeating-conic-gradient(from 0deg,color-mix(in srgb,var(--lc) 55%,transparent) 0 7deg,transparent 7deg 22deg);-webkit-mask:radial-gradient(circle,#000 18%,transparent 68%);mask:radial-gradient(circle,#000 18%,transparent 68%);opacity:.85}
+#lvup .top{font-family:var(--title);font-size:clamp(14px,4.4vh,22px);letter-spacing:6px;color:#fff;text-shadow:-2px -2px 0 #1b1030,2px -2px 0 #1b1030,-2px 2px 0 #1b1030,2px 2px 0 #1b1030,0 0 14px var(--lc)}
+#lvup .big{font-family:var(--title);font-size:clamp(40px,15vh,74px);line-height:1.05;white-space:nowrap;padding:0 .15em;
+ background:linear-gradient(180deg,#fff 8%,#ffd76a 48%,#e08a1e 92%);-webkit-background-clip:text;background-clip:text;color:transparent;
+ filter:drop-shadow(0 3px 0 #1b1030) drop-shadow(2px 0 0 #1b1030) drop-shadow(-2px 0 0 #1b1030) drop-shadow(0 -2px 0 #1b1030) drop-shadow(0 0 14px var(--lc))}
+#lvup .sub{margin-top:4px;font-size:clamp(12px,3.8vh,17px);color:#fff;white-space:nowrap;text-shadow:-1.5px -1.5px 0 #1b1030,1.5px -1.5px 0 #1b1030,-1.5px 1.5px 0 #1b1030,1.5px 1.5px 0 #1b1030}
+#lvup .sub b{color:#9dff8a}
+#toast.lvdn{top:66%!important;font-size:clamp(16px,3.6vw,22px)}
+#lvglow{display:none;position:fixed;inset:0;z-index:7;pointer-events:none;opacity:0;--lc:#ffd76a;background:radial-gradient(ellipse at 50% 60%,transparent 35%,color-mix(in srgb,var(--lc) 70%,transparent) 100%)}
+@media (orientation:portrait){#lvup{top:28%}#lvup .big{font-size:clamp(40px,14vw,64px)}}
 </style>
 </head>
 <body>
