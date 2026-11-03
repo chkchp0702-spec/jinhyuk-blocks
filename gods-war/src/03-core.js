@@ -337,7 +337,7 @@ function floatDmg(x,y,z,txt,cls){ txt=String(txt); cls=cls||""; if(!cls&&txt[0]=
 /* ================= 효과 ================= */
 const FX=[];
 function fxRing(x,z,color,size,dur){ const m=new THREE.Mesh(GEO.ring,glowMat(color,.9)); m.rotation.x=-Math.PI/2; m.position.set(x,.12+hAt(x,z),z); scene.add(m); FX.push({m,t:0,d:dur||.5,size:size||4,kind:"ring"}); }
-function fxFlash(x,y,z,color,size,dur){ const m=new THREE.Mesh(GEO.sph,glowMat(color,.95)); m.position.set(x,y+hAt(x,z),z); scene.add(m); FX.push({m,t:0,d:dur||.3,size:size||2,kind:"flash"}); }
+function fxFlash(x,y,z,color,size,dur){ if(typeof SFX!=="undefined"){ try{ return SFX.glow(x,y+hAt(x,z),z,color,size||2,(dur||.3)*1.2); }catch(e){} } const m=new THREE.Mesh(GEO.sph,glowMat(color,.95)); m.position.set(x,y+hAt(x,z),z); scene.add(m); FX.push({m,t:0,d:dur||.3,size:size||2,kind:"flash"}); }
 function fxBolt(x,z,color){ const m=cyl(.18,.6,34,glowMat(color,.95),x,17+hAt(x,z),z,8); scene.add(m); FX.push({m,t:0,d:.3,size:1,kind:"bolt"}); fxFlash(x,1,z,color,3,.3); fxSpark(x,1,z,color,24); }
 function fxLine(x,z,rot,len,color){ const m=box(2.4,.5,len,glowMat(color,.8)); m.position.set(x+Math.sin(rot)*len/2,1.2+hAt(x,z),z+Math.cos(rot)*len/2); m.rotation.y=rot; scene.add(m); FX.push({m,t:0,d:.35,size:1,kind:"line"}); }
 function fxArc(x,z,rot,color){ const m=new THREE.Mesh(new THREE.TorusGeometry(2.6,.18,6,24,Math.PI*.9),glowMat(color,.9)); m.rotation.x=-Math.PI/2; m.rotation.z=-rot-Math.PI*.05+Math.PI/2; m.position.set(x,1.6+hAt(x,z),z); m.userData.noOutline=true; scene.add(m); FX.push({m,t:0,d:.18,size:1,kind:"arc"}); }
