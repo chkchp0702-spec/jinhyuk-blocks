@@ -38,7 +38,8 @@ document.addEventListener("visibilitychange",()=>{ if(document.hidden) saveGame(
 const RM=()=>REALMS[G.realm]||REALMS[0];
 
 /* ================= 능력치 ================= */
-function xpNeed(lv){ return Math.round(36*Math.pow(lv,1.45)); }
+function xpNeed(lv){ return Math.round(60*Math.pow(lv,1.75)); }   // v17 패치: 예전 36·lv^1.45 → 레벨이 너무 빨리 올라서 약 3~4배 느리게
+function lvGap(mlv){ const d=G.lv-mlv; return d<=5?1:Math.max(.1,1-(d-5)*.15); }   // 나보다 6레벨 넘게 낮은 괴물은 경험치 줄어듦
 function terrBonus(){ let n=0; for(let i=0;i<REGIONS.length;i++) if(!REGIONS[i].cap && W.o[i]===G.realm) n++; return n; }
 function hegemon(){ const cnt=[0,0,0,0]; for(let i=0;i<REGIONS.length;i++){ if(W.o[i]>=0) cnt[W.o[i]]++; } let best=-1,bn=0; cnt.forEach((c,i)=>{ if(c>bn){bn=c;best=i;} }); return cnt.filter(c=>c===bn).length===1?best:-1; }
 function stat(){
