@@ -90,7 +90,7 @@ TITLES.push({id:"ss10",n:"축제 손님",t:1,h:"축제 별 길 10칸 가기",g:(
 /* ---------- 상황 버튼(🎣 낚시 · 🏺 제단 · ✨ 장식) ---------- */
 const CTX={t:0,a:null,el:null};
 function ctxTick(dt){ if(!CTX.el){ const b=document.createElement("button"); b.id="bCtx"; b.type="button"; b.hidden=true; b.addEventListener("pointerdown",e=>{ e.stopPropagation(); e.preventDefault(); if(CTX.a&&!layerOpen&&!P.dead) CTX.a.f(); }); document.body.appendChild(b); CTX.el=b; }
-  CTX.t-=dt; if(CTX.t>0) return; CTX.t=.25; let a=null; if(started&&!layerOpen&&!P.dead){ a=hmCtx(); if(!a&&!DG.on&&!HM.on&&nearWater()) a={t:"🎣 낚시",f:startFish}; }
+  CTX.t-=dt; if(CTX.t>0) return; CTX.t=.25; let a=null; if(started&&!layerOpen&&!P.dead){ a=hmCtx(); if(!a&&typeof CTX_EXTRA!=="undefined"){ for(const f of CTX_EXTRA){ try{ a=f(); }catch(e){ a=null; } if(a) break; } } if(!a&&!DG.on&&!HM.on&&nearWater()) a={t:"🎣 낚시",f:startFish}; }
   CTX.a=a; CTX.el.hidden=!a; if(a&&CTX.el.textContent!==a.t) CTX.el.textContent=a.t; }
 setTimeout(()=>{ const z=$("zoomBtns"); if(!z) return; [["bHome","🏡",()=>showHome()],["bFest","🎆",()=>showSeason()]].forEach(([id,t,f])=>{ const b=document.createElement("button"); b.id=id; b.type="button"; b.textContent=t; b.style.fontSize="17px"; b.addEventListener("pointerdown",e=>e.stopPropagation()); b.onclick=e=>{ e.stopPropagation(); if(started&&!layerOpen) f(); }; z.appendChild(b); }); },0);
 </script>
