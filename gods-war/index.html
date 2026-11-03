@@ -274,7 +274,7 @@ html,body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;t
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v19.1";
+const VER="v19.2";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -428,9 +428,10 @@ function inCapital(x,z){ const r=regionAt(x,z); return r&&r.cap?r:null; }
 /* ================= 3D 장면 ================= */
 const canvas=$("view");
 const HIGH=()=>G.gfx!=="low";
-const renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:"high-performance"});
-renderer.setPixelRatio(Math.min(devicePixelRatio||1,HIGH()?2:1.5));
-renderer.shadowMap.enabled=HIGH(); renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+const ECO=()=>G.eco!==false;   // v19.2 배터리 절약(기본 켬): 초당 30장, 화면 해상도·그림자 낮춤, 가만히 있으면 20장
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:ECO()?"default":"high-performance"});
+renderer.setPixelRatio(Math.min(devicePixelRatio||1,HIGH()?(ECO()?1.5:2):(ECO()?1:1.5)));
+renderer.shadowMap.enabled=HIGH(); renderer.shadowMap.type=ECO()?THREE.PCFShadowMap:THREE.PCFSoftShadowMap;
 renderer.outputEncoding=THREE.sRGBEncoding; renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=.95;
 renderer.physicallyCorrectLights=false;
 const scene=new THREE.Scene(); scene.background=new THREE.Color(0x9fd4ff); scene.fog=new THREE.Fog(0xdcefff,55,165);
@@ -442,7 +443,7 @@ function glowMat(color,op){ return new THREE.MeshBasicMaterial({color,transparen
 const hemi=new THREE.HemisphereLight(0xdff3ff,0x6b5a4a,.5); scene.add(hemi);
 scene.add(new THREE.AmbientLight(0xffffff,.12));
 const sun=new THREE.DirectionalLight(0xfff1d6,1.25); sun.position.set(40,80,30); sun.castShadow=HIGH();
-if(HIGH()){ sun.shadow.mapSize.set(2048,2048); const s=sun.shadow.camera; s.left=-55;s.right=55;s.top=55;s.bottom=-55;s.near=10;s.far=220; sun.shadow.bias=-.0006; sun.shadow.normalBias=.03; sun.shadow.radius=3; }
+if(HIGH()){ sun.shadow.mapSize.set(ECO()?1024:2048,ECO()?1024:2048); const s=sun.shadow.camera; s.left=-55;s.right=55;s.top=55;s.bottom=-55;s.near=10;s.far=220; sun.shadow.bias=-.0006; sun.shadow.normalBias=.03; sun.shadow.radius=3; }
 scene.add(sun); scene.add(sun.target);
 const fill=new THREE.DirectionalLight(0xb8d4ff,.3); fill.position.set(-30,40,-50); scene.add(fill);
 function shadowify(o){ o.traverse(m=>{ if(m.isMesh){ m.castShadow=HIGH(); m.receiveShadow=HIGH(); } }); return o; }
@@ -1619,6 +1620,7 @@ function drawMinimap(ctxIn,size){ const big=!!ctxIn; const ctx=ctxIn||mctx; cons
   mobs.forEach(m=>{ if(m.war||m.titan) return; if(!big&&Math.hypot(m.x-P.x,m.z-P.z)>70) return; if(m.boss){ mapPin(ctx,tx(m.x),tz(m.z),(big?4.2:5.2)*u,"#f29900","👑"); } else { dot(ctx,tx(m.x),tz(m.z),(big?1.3:1.8)*u,"rgba(217,48,37,.85)","#fff",.6*u); } });
   if(typeof warActive==="function"&&warActive()){ WAR.units.forEach(un=>{ if(un.dead) return; dot(ctx,tx(un.x),tz(un.z),1.5*u,WAR.joined?(un.side===WAR.side?"#1e8e3e":"#d93025"):(un.side==="att"?"#f29900":"#4285f4"),"#fff",.5*u); });
     const g=TERR_RINGS[WAR.cur.rg].position; const pul=1+.3*Math.sin(performance.now()/180); ctx.beginPath(); ctx.arc(tx(g.x),tz(g.z),9*u*pul,0,6.2832); ctx.fillStyle="rgba(217,48,37,.18)"; ctx.fill(); mapPin(ctx,tx(g.x),tz(g.z),(big?5:6.5)*u,"#d93025","⚔"); }
+  if(typeof DG!=="undefined"&&DG.doors) DG.doors.forEach(d=>mapPin(ctx,tx(d.x),tz(d.z),(big?4.5:5)*u,"#7a4ae8","🌀"));
   if(typeof TITAN_POS!=="undefined"&&typeof TB!=="undefined"&&!TB.claimed&&titanLeft()>0) mapPin(ctx,tx(TITAN_POS.x),tz(TITAN_POS.z),(big?5:6)*u,"#e8710a","🌋");
   // 지명
   REGIONS.forEach(rg=>{ const X=tx(rg.x), Z=tz(rg.z); if(!big&&Math.hypot(X-S/2,Z-S/2)>S*.47) return; if(rg.cap){ const R=REALMS[rg.realm]; mapPin(ctx,X,Z,(big?5.2:6.4)*u,"#ea4335",R.icon); mapText(ctx,rg.n,X,Z+(big?6:7.5)*u,(big?6.6:10)*u,"#202124",700); }
@@ -1902,11 +1904,11 @@ function dgBoardHtml(){ const day=dgDay(); const list=Object.values(DGR).filter(
 function showDungeon(){ const plan=dgPlan(dgDay()); const day=dgDay(); const done=G.dgDay===day;
   const fl=plan.floors.map((F,f)=>{ const Rm=DG_ROOM[F.k]; return `<div class="row"><div class="ic" style="color:${REALMS[F.realm].c1}">${Rm.ic}</div><div class="t"><div>${f+1}층 · ${Rm.n}${F.k==="boss"?` — ${plan.boss.n}`:""}</div><span>${F.k==="boss"?"미궁 왕 · 친구가 준 데미지도 함께 깎여요":REALMS[F.realm].n+"의 괴물 · "+Rm.h}</span></div></div>`; }).join("");
   card(`<h2>🌀 신들의 미궁</h2><p>날마다 모양이 바뀌는 5층 미궁이에요. 오늘의 미궁은 모두에게 똑같아요. 혼자도 되지만 <b>친구와 함께</b> 들어가면 훨씬 쉬워요!<br>오늘 ${done?'<b style="color:#9dffb8">정복 완료</b>':"아직 못 깸 · 첫 정복 보물 상자"} · 지금까지 ${G.dgClear||0}번 정복${G.dgBest?` · 최고 ${fmtSec(G.dgBest)}`:""}</p>
-   ${fl}${dgBoardHtml()}${DG.on?'<button class="buy sell" id="dgOut" style="align-self:center">미궁에서 나가기</button>':'<button class="go" id="dgGo" style="align-self:center;font-size:18px;padding:10px 22px">미궁으로 들어가기</button>'}`);
-  if($("dgGo")) $("dgGo").onclick=dgEnter; if($("dgOut")) $("dgOut").onclick=()=>{ closeLayer(); spawnAtHome(); }; }
+   ${DG.on?"":`<div class="row"><div class="ic">📍</div><div class="t"><div>미궁 문은 어디?</div><span>네 세계의 <b>수도마다</b> 보라색 문이 있어요(성소 근처, 지도에 🌀). 아래 버튼을 누르면 바로 들어가요!</span></div><button class="buy alt" id="dgWay">길 안내</button></div>`}${fl}${dgBoardHtml()}${DG.on?'<button class="buy sell" id="dgOut" style="align-self:center">미궁에서 나가기</button>':'<button class="go" id="dgGo" style="align-self:center;font-size:18px;padding:10px 22px">미궁으로 들어가기</button>'}`);
+  if($("dgGo")) $("dgGo").onclick=dgEnter; if($("dgWay")) $("dgWay").onclick=()=>{ dgDoors(); let best=null,bd=1e9; DG.doors.forEach(d=>{ const k=Math.hypot(d.x-P.x,d.z-P.z); if(k<bd){ bd=k; best=d; } }); if(best){ closeLayer(); P.guide=null; setGuide({x:best.x,z:best.z+(best.z>0?-3:3),label:"신들의 미궁 문"}); DG.doorCd=0; } }; if($("dgOut")) $("dgOut").onclick=()=>{ closeLayer(); spawnAtHome(); }; }
 // 수도마다 미궁 입구(보라색 문) — 가까이 가면 창이 열림
 function dgDoors(){ if(DG.doors) return; DG.doors=[]; REGIONS.filter(r=>r.cap).forEach(rg=>{ const a=ALTARS[rg.id]; if(!a) return; const s=a.shrine; const dir=rg.z>0?-1:1, sx=rg.x>0?-1:1; const x=s.x+sx*11, z=s.z+dir*20; const g=new THREE.Group(); g.position.set(x,hAt(x,z),z); g.rotation.y=dir>0?0:Math.PI;
-    const st=mat({color:0x4a3a6a,roughness:.6}); g.add(cyl(.45,.55,5,st,-2.4,2.5,0,8)); g.add(cyl(.45,.55,5,st,2.4,2.5,0,8)); g.add(box(6,.8,1,st,0,5.2,0)); const ring=new THREE.Mesh(new THREE.TorusGeometry(2,.22,8,32),glowMat(0xa07aff,.8)); ring.position.y=2.4; g.add(ring); const disc=new THREE.Mesh(new THREE.CircleGeometry(1.9,32),glowMat(0x6a4aff,.35)); disc.position.y=2.4; g.add(disc);
+    const st=mat({color:0x4a3a6a,roughness:.6}); g.add(cyl(.45,.55,5,st,-2.4,2.5,0,8)); g.add(cyl(.45,.55,5,st,2.4,2.5,0,8)); g.add(box(6,.8,1,st,0,5.2,0)); const ring=new THREE.Mesh(new THREE.TorusGeometry(2,.22,8,32),glowMat(0xa07aff,.8)); ring.position.y=2.4; g.add(ring); const disc=new THREE.Mesh(new THREE.CircleGeometry(1.9,32),glowMat(0x6a4aff,.35)); disc.position.y=2.4; g.add(disc); const beam=cyl(.9,1.4,40,glowMat(0x9a6aff,.22),0,20,0,12); beam.userData.noOutline=true; g.add(beam);
     scene.add(g); const lbl=makeLabel("boss"); DG.doors.push({x,z:z+(dir>0?1.5:-1.5),g,ring,lbl}); }); }
 function tickDungeonDoors(dt){ if(!started) return; dgDoors(); DG.doorCd=Math.max(0,DG.doorCd-dt); if(DG.on){ DG.doors.forEach(d=>d.lbl.style.display="none"); return; } const tn=performance.now();
   DG.doors.forEach(d=>{ d.ring.rotation.z+=dt*1.5; d.ring.material.opacity=.6+Math.sin(tn/200)*.2; const dist=Math.hypot(P.x-d.x,P.z-d.z); if(dist<45) placeLabel(d.lbl,d.x,6.2,d.z,`🌀 신들의 미궁 <b>${G.dgDay===dgDay()?"오늘 정복 완료!":"오늘의 미궁이 열렸어요"}</b>`); else d.lbl.style.display="none";
@@ -1984,7 +1986,7 @@ const net=(function(){
       let dr=o.tf-o.mesh.rotation.y; while(dr>Math.PI) dr-=Math.PI*2; while(dr<-Math.PI) dr+=Math.PI*2; o.mesh.rotation.y+=dr*Math.min(1,dt*12);
       if(o.m) o.walk+=dt*9; const u=o.mesh.userData, sw=o.m?Math.sin(o.walk)*.7:0; o.anim=Math.max(0,o.anim-dt); if(u.gl){ animState(o.mesh,o.dead?"dead":o.anim>.25?(o.skl?"skill":"attack"):o.m?"run":"idle"); if(u.crown) u.crown.rotation.y+=dt*2; } else { u.legL.rotation.x=sw; u.legR.rotation.x=-sw; u.armL.rotation.x=-sw; o.anim=Math.max(0,o.anim-dt); u.armR.rotation.x=o.anim>0?-2.2:sw; u.body.position.y=o.m?Math.abs(Math.sin(o.walk))*.12:0; }
       if(Math.hypot(o.x-P.x,o.z-P.z)<60&&!o.dead){ const foe=o.realm!==G.realm; o.lbl.className="lbl "+(foe?"foe":"ally"); placeLabel(o.lbl,o.x,4.6,o.z,`${o.bubbleT>0?`<span class="bub">${o.bubble}</span>`:""}${o.tt&&typeof titleHtml==="function"?titleHtml(o.tt):""}${o.name} <b>${REALMS[o.realm].n} · ${REALMS[o.realm].ranks[o.rank]} Lv.${o.lv}</b><span class="hp"><i style="width:${Math.round(o.hp/o.mhp*100)}%;background:${foe?"#ff5a5f":"#3fd27a"}"></i></span>`); } else o.lbl.style.display="none"; }
-    if(N.up>0){ N.sendT-=dt; if(N.sendT<=0){ N.sendT=.16; send({t:"st",n:G.name,x:+P.x.toFixed(1),z:+P.z.toFixed(1),f:+P.rot.toFixed(2),m:P.moving?1:0,h:Math.round(P.hp),H:stat().mhp,l:G.lv,k:G.rank,r:G.realm,w:G.eq.w,D:P.dead?1:0}); }
+    if(N.up>0){ N.sendT-=dt; if(N.sendT<=0){ N.sendT=(P.moving||P.combat>0||P.y>0||P.dashT>0)?.2:(typeof ECO==="function"&&ECO()?1:.5); send({t:"st",n:G.name,x:+P.x.toFixed(1),z:+P.z.toFixed(1),f:+P.rot.toFixed(2),m:P.moving?1:0,h:Math.round(P.hp),H:stat().mhp,l:G.lv,k:G.rank,r:G.realm,w:G.eq.w,D:P.dead?1:0}); }
       N.hiT-=dt; if(N.hiT<=0){ N.hiT=6; hello(); } N.worldT-=dt; if(N.worldT<=0){ N.worldT=45; pushWorld(); } N.profT=(N.profT||20)-dt; if(N.profT<=0){ N.profT=60; pushProfile(1); } } }
   return {start,send,tick,pushWorld,pushProfile,pushTitan,pushRet,chat,rebuild,hello,get up(){ return N.up; }};
 })();
@@ -2003,7 +2005,7 @@ const endJoy=e=>{ delete PTS[e.pointerId]; if(Object.keys(PTS).length<2) pinch=n
 canvas.addEventListener("wheel",e=>{ e.preventDefault(); setZoom(ZOOM*(e.deltaY>0?1.08:.92)); },{passive:false});
 /* 소리 끄기·켜기 (v19.1): 창을 다시 그리지 않고 그 자리에서 바뀜 + 오른쪽 위 🔊 버튼 */
 function setSound(on){ soundOn=!!on; save("gw-sound",soundOn?"1":"0"); try{ if(soundOn){ initAudio(); if(actx&&actx.state==="suspended") actx.resume(); } else if(actx&&actx.suspend) actx.suspend(); }catch(e){} const q=$("bSnd"); if(q) q.textContent=soundOn?"🔊":"🔇"; if(soundOn) tone(880,.06); toast(soundOn?"🔊 소리 켬":"🔇 소리 끔",null,1.2); }
-(function(){ const z=$("zoomBtns"); if(!z) return; const b=document.createElement("button"); b.id="bSnd"; b.type="button"; b.textContent=soundOn?"🔊":"🔇"; b.style.fontSize="17px"; b.setAttribute("aria-label","소리 끄기·켜기"); b.addEventListener("pointerdown",e=>e.stopPropagation()); b.onclick=e=>{ e.stopPropagation(); setSound(!soundOn); }; z.appendChild(b); })();
+(function(){ const z=$("zoomBtns"); if(!z) return; const b=document.createElement("button"); b.id="bSnd"; b.type="button"; b.textContent=soundOn?"🔊":"🔇"; b.style.fontSize="17px"; b.setAttribute("aria-label","소리 끄기·켜기"); b.addEventListener("pointerdown",e=>e.stopPropagation()); b.onclick=e=>{ e.stopPropagation(); setSound(!soundOn); }; z.appendChild(b); const d=document.createElement("button"); d.id="bDg"; d.type="button"; d.textContent="🌀 미궁"; d.style.cssText="width:auto;padding:0 11px;border-radius:18px;font-size:14px;white-space:nowrap;border-color:rgba(180,150,255,.7)"; d.addEventListener("pointerdown",e=>e.stopPropagation()); d.onclick=e=>{ e.stopPropagation(); if(started&&!layerOpen) showDungeon(); }; z.appendChild(d); })();
 $("zIn").onclick=()=>setZoom(ZOOM*.8); $("zOut").onclick=()=>setZoom(ZOOM*1.25); fitShadow();
 addEventListener("pointerup",endJoy); addEventListener("pointercancel",endJoy);
 const keys={}; addEventListener("keydown",e=>{ keys[e.key.toLowerCase()]=1; if(e.key===" ") jump(); if(e.key.toLowerCase()==="j") attack(); if(e.key.toLowerCase()==="k") useSkill(0); if(e.key.toLowerCase()==="u") useSkill(1); if(e.key.toLowerCase()==="i") useSkill(2); if(e.key.toLowerCase()==="l") usePotion(); if(e.key.toLowerCase()==="o") throwWeapon(); }); addEventListener("keyup",e=>{ keys[e.key.toLowerCase()]=0; });
@@ -2062,12 +2064,13 @@ function showMenu(){ card(`<h2>신들의 전쟁</h2><p>${G.name} · ${RM().n} ${
   <div class="row"><div class="t"><div>꾸미기</div><span>얼굴·옷·머리·망토·무기·빛깔</span></div><button class="buy alt" id="lookBtn">열기</button></div>
   <div class="row"><div class="t"><div>집(수도)으로 순간이동</div><span>전투 중엔 안 돼요${DG.on?" · 미궁에서 나가요":""}</span></div><button class="buy" id="goHome">가기</button></div>
   <div class="row"><div class="t"><div>전체 화면</div><span>아이폰은 공유 → "홈 화면에 추가"로 앱처럼 설치하면 전체 화면</span></div><button class="buy alt" id="full">켜기</button></div>
+  <div class="row"><div class="ic">🔋</div><div class="t"><div>배터리 절약</div><span>켬: 초당 30장·해상도 조금 낮춤(배터리 오래감) / 끔: 최고 화질·부드러움(배터리 빨리 닳음)</span></div><button class="buy alt" id="eco">${ECO()?"켜짐":"꺼짐"}</button></div>
   <div class="row"><div class="t"><div>그래픽</div><span>높음: 그림자·부드러움 / 보통: 폰이 느릴 때</span></div><button class="buy alt" id="gfx">${HIGH()?"높음":"보통"}</button></div>
   <div class="row"><div class="t"><div>캐릭터 새로 만들기</div><span>이름·세계·레벨이 모두 사라져요</span></div><button class="buy sell" id="wipe">지우기</button></div>
   <p style="font-size:12px">밤낮은 8분마다 바뀌고 모든 폰이 같은 시각이에요.<br>3D 모델: KayKit 1.0·2.0·Mystery 시리즈 (CC0, 무료, GitHub) · 엔진: three.js<br>조작: 왼쪽 화면을 끌면 이동 · 공격/기술 3개/물약/점프 버튼 · 키보드 WASD, J 공격, K U I 기술, L 물약, 스페이스 점프</p>`);
   $("copyL").onclick=()=>{ const u=inviteLink(); (navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>toast("링크 복사됨!","카톡 등으로 보내 주세요"),()=>{ if(navigator.share) navigator.share({url:u}); else prompt("링크를 복사하세요",u); }); };
   $("goHome").onclick=()=>{ if(mobs.some(m=>m.state==="chase"&&Math.hypot(m.x-P.x,m.z-P.z)<16)){ toast("전투 중에는 안 돼요"); return; } spawnAtHome(); closeLayer(); toast("수도로 왔어요"); };
-  $("full").onclick=()=>{ goFull(); closeLayer(); }; $("lookBtn").onclick=showLook; $("petBtn").onclick=showPets; $("comboBtn").onclick=showCombos; $("titanBtn").onclick=showTitan; $("ttlBtn").onclick=showTitles; $("expBtn").onclick=showExp; $("dgBtn").onclick=showDungeon; $("gfx").onclick=()=>{ G.gfx=HIGH()?"low":"high"; saveGame(); location.reload(); };
+  $("full").onclick=()=>{ goFull(); closeLayer(); }; $("lookBtn").onclick=showLook; $("petBtn").onclick=showPets; $("comboBtn").onclick=showCombos; $("titanBtn").onclick=showTitan; $("ttlBtn").onclick=showTitles; $("expBtn").onclick=showExp; $("dgBtn").onclick=showDungeon; $("eco").onclick=()=>{ G.eco=!ECO(); saveGame(); location.reload(); }; $("gfx").onclick=()=>{ G.gfx=HIGH()?"low":"high"; saveGame(); location.reload(); };
   $("snd").onclick=()=>{ setSound(!soundOn); const b=$("snd"); b.textContent=soundOn?"켜짐":"꺼짐"; const ic=b.parentNode.querySelector(".ic"); if(ic) ic.textContent=soundOn?"🔊":"🔇"; };
   $("wipe").onclick=()=>{ card(`<h2>정말 지울까요?</h2><p>${G.name}의 모든 기록이 사라져요.</p><button class="go" id="yes" style="background:#ff5a5f;color:#fff">지우기</button>`); $("yes").onclick=()=>{ try{ localStorage.removeItem(SAVEKEY); }catch(e){} location.reload(); }; }; }
 function showTemple(){ const R=RM(); const next=G.rank+1; const can=canTrial();
@@ -2126,14 +2129,17 @@ function update(dt){
 function resize(){ const w=innerWidth,h=innerHeight; renderer.setSize(w,h,false); camera.aspect=w/h; camera.fov=w<h?66:52; camera.updateProjectionMatrix(); }
 addEventListener("resize",resize); resize();
 camera.position.set(0,30,60); camera.lookAt(0,10,0);
-function frame(t){ const dt=Math.min(.05,(t-last)/1000); last=t; if(started) update(dt); else { const a=t/9000; camera.position.set(Math.sin(a)*70,30,Math.cos(a)*70); camera.lookAt(0,18,0); tickFX(dt); dayNight(dt,true,REALMS[0]); } if(POST&&started) POST.render(); else { renderer.setRenderTarget(null); renderer.render(scene,camera); } requestAnimationFrame(frame); }
+/* v19.2 배터리 절약: 화면을 초당 30장만 그림(120Hz 탭은 원래 120장!), 20초 넘게 안 만지고 싸우지 않으면 20장, 첫 화면 15장 */
+let lastInput=performance.now(); ["pointerdown","keydown"].forEach(ev=>addEventListener(ev,()=>{ lastInput=performance.now(); },true));
+function frameGap(t){ if(!ECO()) return 0; if(!started) return 1/15; if(t-lastInput>20000&&P.combat<=0&&!P.moving&&!P.dead) return 1/20; return 1/30; }
+function frame(t){ requestAnimationFrame(frame); if((t-last)/1000<frameGap(t)-.004) return; const dt=Math.min(.05,(t-last)/1000); last=t; if(started) update(dt); else { const a=t/9000; camera.position.set(Math.sin(a)*70,30,Math.cos(a)*70); camera.lookAt(0,18,0); tickFX(dt); dayNight(dt,true,REALMS[0]); } if(POST&&started) POST.render(); else { renderer.setRenderTarget(null); renderer.render(scene,camera); } }
 $("bQuest").onclick=()=>{ if(P.nearTemple) showTemple(); else showQuests(); };
 showTitle(); requestAnimationFrame(frame);
 window.__gw={DG,dgEnter,dgFloor,dgFinish,dgPlan,showDungeon,showTitles,TITLES,showExp,expStart,expClaim,EXPO,DGR,TB,titanHit,titanDefeated,showTitan,titanGo,showPets,hatchEgg,petOnKill,comboFire,comboRecv,showCombos,PETMESH,idleSim,grantIdle,showIdleReport,ROSTER,autoFace,buildPlayer,GHOSTS,mmoProfile,showRoster,G,P,mobs,W,net,PEERS,WAR,forceWar,resolveWar,joinWar,begin,update,spawnMob,spawnAtHome,REGIONS,attack,useSkill,startTrial,die,respawn};
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="80c43baf";
+(function(){ var CUR="b0e16abe";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);

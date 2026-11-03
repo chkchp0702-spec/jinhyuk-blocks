@@ -66,9 +66,10 @@ function inCapital(x,z){ const r=regionAt(x,z); return r&&r.cap?r:null; }
 /* ================= 3D 장면 ================= */
 const canvas=$("view");
 const HIGH=()=>G.gfx!=="low";
-const renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:"high-performance"});
-renderer.setPixelRatio(Math.min(devicePixelRatio||1,HIGH()?2:1.5));
-renderer.shadowMap.enabled=HIGH(); renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+const ECO=()=>G.eco!==false;   // v19.2 배터리 절약(기본 켬): 초당 30장, 화면 해상도·그림자 낮춤, 가만히 있으면 20장
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:ECO()?"default":"high-performance"});
+renderer.setPixelRatio(Math.min(devicePixelRatio||1,HIGH()?(ECO()?1.5:2):(ECO()?1:1.5)));
+renderer.shadowMap.enabled=HIGH(); renderer.shadowMap.type=ECO()?THREE.PCFShadowMap:THREE.PCFSoftShadowMap;
 renderer.outputEncoding=THREE.sRGBEncoding; renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=.95;
 renderer.physicallyCorrectLights=false;
 const scene=new THREE.Scene(); scene.background=new THREE.Color(0x9fd4ff); scene.fog=new THREE.Fog(0xdcefff,55,165);
@@ -80,7 +81,7 @@ function glowMat(color,op){ return new THREE.MeshBasicMaterial({color,transparen
 const hemi=new THREE.HemisphereLight(0xdff3ff,0x6b5a4a,.5); scene.add(hemi);
 scene.add(new THREE.AmbientLight(0xffffff,.12));
 const sun=new THREE.DirectionalLight(0xfff1d6,1.25); sun.position.set(40,80,30); sun.castShadow=HIGH();
-if(HIGH()){ sun.shadow.mapSize.set(2048,2048); const s=sun.shadow.camera; s.left=-55;s.right=55;s.top=55;s.bottom=-55;s.near=10;s.far=220; sun.shadow.bias=-.0006; sun.shadow.normalBias=.03; sun.shadow.radius=3; }
+if(HIGH()){ sun.shadow.mapSize.set(ECO()?1024:2048,ECO()?1024:2048); const s=sun.shadow.camera; s.left=-55;s.right=55;s.top=55;s.bottom=-55;s.near=10;s.far=220; sun.shadow.bias=-.0006; sun.shadow.normalBias=.03; sun.shadow.radius=3; }
 scene.add(sun); scene.add(sun.target);
 const fill=new THREE.DirectionalLight(0xb8d4ff,.3); fill.position.set(-30,40,-50); scene.add(fill);
 function shadowify(o){ o.traverse(m=>{ if(m.isMesh){ m.castShadow=HIGH(); m.receiveShadow=HIGH(); } }); return o; }
