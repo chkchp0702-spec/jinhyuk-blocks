@@ -16,6 +16,14 @@ function thud(){ tone(110,.12,"square",0,.12); tone(70,.18,"sawtooth",.02,.08); 
 function buzz(ms){ try{ if(navigator.vibrate) navigator.vibrate(ms||30); }catch(e){} }
 let toastT=0; function toast(msg,sub,dur){ const t=$("toast"); t.innerHTML=msg+(sub?`<small>${sub}</small>`:""); t.style.opacity=1; toastT=dur||1.8; }
 function lockLand(){ try{ if(screen.orientation&&screen.orientation.lock) screen.orientation.lock("landscape").catch(()=>{}); }catch(e){} }
+/* v19.3: 게임을 끄거나 홈으로 나가면 가로 고정을 풀고 전체 화면도 나감 → 폰이 가로로 남아 엉키지 않게.
+   다시 돌아오면 첫 터치 때 다시 가로 고정(전체 화면이었으면 전체 화면도). */
+const ORI={was:false,relock:false};
+function unlockLand(){ try{ if(screen.orientation&&screen.orientation.unlock) screen.orientation.unlock(); }catch(e){} }
+function releaseScreen(){ unlockLand(); try{ if(document.fullscreenElement){ ORI.was=true; (document.exitFullscreen||document.webkitExitFullscreen).call(document).catch(()=>{}); } }catch(e){} }
+document.addEventListener("visibilitychange",()=>{ if(document.hidden){ releaseScreen(); ORI.relock=true; } });
+addEventListener("pagehide",releaseScreen); addEventListener("beforeunload",releaseScreen);
+addEventListener("pointerdown",()=>{ if(!ORI.relock||document.hidden) return; ORI.relock=false; if(typeof started!=="undefined"&&started){ if(ORI.was){ ORI.was=false; goFull(); } else lockLand(); } },true);
 function goFull(){ try{ const el=document.documentElement; const f=el.requestFullscreen||el.webkitRequestFullscreen; if(f&&!document.fullscreenElement){ const p=f.call(el,{navigationUI:"hide"}); if(p&&p.then) p.then(lockLand,()=>{}); else lockLand(); } else lockLand(); }catch(e){} }
 
 /* ================= 방(초대 링크) ================= */
