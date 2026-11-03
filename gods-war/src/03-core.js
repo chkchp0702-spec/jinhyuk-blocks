@@ -192,9 +192,10 @@ function capitalBuilding(i,x,z){ const g=new THREE.Group();
   else { // 올림푸스: 기둥 신전 + 박공
     g.add(box(24,1.4,16,M.marble,0,.7,0)); g.add(box(22,.8,14,M.marble,0,1.8,0)); for(let j=0;j<6;j++){ g.add(cyl(.7,.8,9,M.marble,-10+j*4,6.5,-6,16)); g.add(cyl(.7,.8,9,M.marble,-10+j*4,6.5,6,16)); } g.add(box(24,1.2,16,M.marble,0,11.6,0)); const ped=new THREE.Mesh(new THREE.ConeGeometry(9,4,4),M.marble); ped.rotation.y=Math.PI/4; ped.scale.set(1.4,1,1); ped.position.y=14; g.add(ped); g.add(box(.6,.6,.6,M.gold,0,16.3,0)); g.add(sph(.9,glowMat(0xaee8ff,.8),0,17,0)); }
   g.position.set(x,0,z); return shadowify(g); }
+const TREEPOS=[];   // v15 지도용: 나무·장식 자리
 (function props(){
   REALMS.forEach((R,i)=>{ const sx=(i===0||i===2)?1:-1, sz=(i>=2)?1:-1;
-    for(let k=0;k<70;k++){ const x=sx*rnd(10,WORLD_HALF-8), z=sz*rnd(10,WORLD_HALF-8); if(Math.hypot(x,z)<REGIONS[12].r+6) continue; const cap=REGIONS[i*3]; if(Math.hypot(x-cap.x,z-cap.z)<34) continue; let near=false; for(const rg of REGIONS){ if(Math.hypot(x-rg.x,z-rg.z)<10) near=true; } if(near) continue; { const isDeco=k%3===0; const o=isDeco?deco(x,z,R):tree(x,z,R); o.position.y=hAt(x,z)-.15; scene.add(o); if(!isDeco||R.prop==="pine") PLACED.push({kind:isDeco?"rock":"tree",realm:i,x,z,rot:rnd(0,6.3),obj:o}); } }
+    for(let k=0;k<70;k++){ const x=sx*rnd(10,WORLD_HALF-8), z=sz*rnd(10,WORLD_HALF-8); if(Math.hypot(x,z)<REGIONS[12].r+6) continue; const cap=REGIONS[i*3]; if(Math.hypot(x-cap.x,z-cap.z)<34) continue; let near=false; for(const rg of REGIONS){ if(Math.hypot(x-rg.x,z-rg.z)<10) near=true; } if(near) continue; { const isDeco=k%3===0; const o=isDeco?deco(x,z,R):tree(x,z,R); TREEPOS.push([x,z,isDeco?0:1,i]); o.position.y=hAt(x,z)-.15; scene.add(o); if(!isDeco||R.prop==="pine") PLACED.push({kind:isDeco?"rock":"tree",realm:i,x,z,rot:rnd(0,6.3),obj:o}); } }
     const cap=REGIONS[i*3]; { const bx=cap.x+(cap.x>0?14:-14), bz=cap.z+(cap.z>0?-14:14); const b=capitalBuilding(i,bx,bz); scene.add(b); PLACED.push({kind:"castle",realm:i,x:bx,z:bz,rot:Math.atan2(-cap.x,-cap.z),obj:b}); } cityProps(i,cap);
     // 수도 둘레 가로등/횃불
     for(let j=0;j<10;j++){ const a=j/10*6.283; const px=cap.x+Math.cos(a)*31, pz=cap.z+Math.sin(a)*31; const g=new THREE.Group(); g.add(cyl(.15,.2,4,M.dark,0,2,0,8)); g.add(sph(.4,glowMat(R.c1,.9),0,4.3,0)); g.position.set(px,0,pz); scene.add(g); } });

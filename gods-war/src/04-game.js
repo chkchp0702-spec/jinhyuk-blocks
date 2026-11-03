@@ -71,9 +71,9 @@ function facingHit(x,z,r,ang){ const dx=x-P.x, dz=z-P.z, d=Math.hypot(dx,dz); if
 function autoFace(range){ range=range||6; let best=null,bd=1e9; mobs.forEach(m=>{ if(m.hp<=0) return; const d=Math.hypot(m.x-P.x,m.z-P.z)-(m.scale>1.5?1.5:0); if(d<range&&d<bd){ bd=d; best=m; } });
   for(const id in PEERS){ const o=PEERS[id]; if(o.realm===G.realm||o.dead||inCapital(o.x,o.z)||inCapital(P.x,P.z)) continue; const d=Math.hypot(o.x-P.x,o.z-P.z); if(d<range&&d<bd){ bd=d; best=o; } }
   if(!best) return false; P.rot=Math.atan2(best.x-P.x,best.z-P.z); if(player) player.rotation.y=P.rot; return true; }
-function attack(){ if(P.dead||P.atkCd>0||layerOpen) return; autoFace(6); P.atkCd=.28; P.atkAnim=.25; P.combat=4; if(player.userData.gl) animState(player,"attack"); const st=stat(); let any=false; fxArc(P.x,P.z,P.rot,RM().c1);
-  mobs.forEach(m=>{ if(facingHit(m.x,m.z,3.4+(m.scale>1.5?1.5:0),1.0)){ const crit=Math.random()<st.crit; damageMob(m,st.atk*rnd(.9,1.1)*(crit?1.8:1),crit); any=true; } });
-  for(const id in PEERS){ const o=PEERS[id]; if(o.realm===G.realm||o.dead) continue; if(inCapital(o.x,o.z)||inCapital(P.x,P.z)) continue; if(facingHit(o.x,o.z,3.4,1.0)){ const crit=Math.random()<st.crit; const dmg=Math.round(st.atk*rnd(.9,1.1)*(crit?1.8:1)*.55); net.send({t:"hit",to:id,d:dmg}); floatDmg(o.x,4,o.z,"-"+fmt(dmg),crit?"crit":""); any=true; } }
+function attack(){ if(P.dead||P.atkCd>0||layerOpen) return; const wk=(typeof myWeaponKind==="function")?myWeaponKind():"sword"; if(wk==="bow"||wk==="magic"){ rangedAttack(wk); return; } const reach=wk==="spear"?4.8:wk==="hammer"?3.8:3.4; autoFace(wk==="spear"?7:6); P.atkCd=.28; P.atkAnim=.25; P.combat=4; if(player.userData.gl) animState(player,"attack"); const st=stat(); let any=false; fxArc(P.x,P.z,P.rot,RM().c1);
+  mobs.forEach(m=>{ if(facingHit(m.x,m.z,reach+(m.titan?6.5:m.scale>1.5?1.5:0),wk==="spear"?.7:1.0)){ const crit=Math.random()<st.crit; damageMob(m,st.atk*rnd(.9,1.1)*(crit?1.8:1),crit); any=true; } });
+  for(const id in PEERS){ const o=PEERS[id]; if(o.realm===G.realm||o.dead) continue; if(inCapital(o.x,o.z)||inCapital(P.x,P.z)) continue; if(facingHit(o.x,o.z,reach,1.0)){ const crit=Math.random()<st.crit; const dmg=Math.round(st.atk*rnd(.9,1.1)*(crit?1.8:1)*.55); net.send({t:"hit",to:id,d:dmg}); floatDmg(o.x,4,o.z,"-"+fmt(dmg),crit?"crit":""); any=true; } }
   if(any){ tone(220,.05,"square",0,.1); buzz(15); P.shake=Math.max(P.shake||0,.25); } else tone(180,.04,"triangle",0,.05);
   net.send({t:"a",k:"atk"}); }
 function drama(color,amt,dur){ P.tintC=new THREE.Color(color); P.tintA=amt; P.tintD=dur||1.2; }
@@ -159,33 +159,6 @@ const mm=$("minimap"), mctx=mm.getContext("2d");
 function fitCanvas(c){ const dpr=Math.min(3,window.devicePixelRatio||1); const w=Math.round((c.clientWidth||150)*dpr); if(w>0&&c.width!==w){ c.width=w; c.height=w; } return c.width; }
 function mmLabel(ctx,t,x,y,px,col){ ctx.font=`900 ${px}px sans-serif`; ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.lineJoin="round"; ctx.lineWidth=Math.max(2,px*.28); ctx.strokeStyle="rgba(10,6,24,.95)"; ctx.strokeText(t,x,y); ctx.fillStyle=col||"#fff"; ctx.fillText(t,x,y); }
 function dot(ctx,x,y,r,fill,line,lw){ ctx.beginPath(); ctx.arc(x,y,r,0,6.2832); ctx.fillStyle=fill; ctx.fill(); if(line){ ctx.lineWidth=lw; ctx.strokeStyle=line; ctx.stroke(); } }
-function drawMinimap(ctxIn,size){ const big=!!ctxIn; const ctx=ctxIn||mctx; const S=big?size:fitCanvas(mm); const u=S/150; ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,S,S);
-  const half=big?WORLD_HALF:110, cx=big?0:P.x, cz=big?0:P.z; const k=S/(half*2); const tx=x=>(x-cx+half)*k, tz=z=>(z-cz+half)*k;
-  ctx.save(); if(!big){ ctx.beginPath(); ctx.arc(S/2,S/2,S/2,0,6.2832); ctx.clip(); }
-  ctx.fillStyle="#0e0a1e"; ctx.fillRect(0,0,S,S);
-  // 네 세계 땅 (진하게)
-  REALMS.forEach((R,i)=>{ const sx=(i===0||i===2)?1:-1, sz=(i>=2)?1:-1; const x0=tx(sx>0?0:-WORLD_HALF), z0=tz(sz>0?0:-WORLD_HALF), w=WORLD_HALF*k;
-    const g=ctx.createLinearGradient(x0,z0,x0+w,z0+w); g.addColorStop(0,R.ground); g.addColorStop(1,R.ground2); ctx.fillStyle=g; ctx.globalAlpha=.92; ctx.fillRect(x0,z0,w,w); });
-  ctx.globalAlpha=1;
-  // 세계 경계선(십자)과 세상 끝
-  ctx.strokeStyle="rgba(20,12,40,.55)"; ctx.lineWidth=2*u; ctx.setLineDash([5*u,4*u]); ctx.beginPath(); ctx.moveTo(tx(0),tz(-WORLD_HALF)); ctx.lineTo(tx(0),tz(WORLD_HALF)); ctx.moveTo(tx(-WORLD_HALF),tz(0)); ctx.lineTo(tx(WORLD_HALF),tz(0)); ctx.stroke(); ctx.setLineDash([]);
-  ctx.strokeStyle="rgba(255,255,255,.8)"; ctx.lineWidth=2*u; ctx.strokeRect(tx(-WORLD_HALF),tz(-WORLD_HALF),WORLD_HALF*2*k,WORLD_HALF*2*k);
-  // 지역(영토) — 주인 색으로 진하게, 테두리 두껍게
-  REGIONS.forEach(rg=>{ const o=W.o[rg.id]; const X=tx(rg.x), Z=tz(rg.z), r=rg.r*k; const col=o>=0?REALMS[o].c1:"#9a9aac";
-    ctx.beginPath(); ctx.arc(X,Z,r,0,6.2832); ctx.globalAlpha=rg.cap?.75:.55; ctx.fillStyle=col; ctx.fill(); ctx.globalAlpha=1;
-    ctx.lineWidth=3*u; ctx.strokeStyle="rgba(10,6,24,.75)"; ctx.stroke(); ctx.lineWidth=1.4*u; ctx.strokeStyle=col; ctx.stroke();
-    const al=TERR_RINGS[rg.id]&&TERR_RINGS[rg.id].position; if(al) dot(ctx,tx(al.x),tz(al.z),(big?2.2:3)*u,"#fff","#1a1030",1.2*u);
-    if(rg.cap) mmLabel(ctx,REALMS[rg.realm].icon,X,Z-(big?0:2*u),(big?13:15)*u,"#fff"); });
-  // 지역 이름 (작은 지도는 가까운 곳만 → 겹치지 않게)
-  REGIONS.forEach(rg=>{ const X=tx(rg.x), Z=tz(rg.z); if(!big&&Math.hypot(X-S/2,Z-S/2)>S*.46) return; mmLabel(ctx,rg.n,X,Z+(rg.cap?(big?12:13):(big?0:0))*u,(big?6.2:10.5)*u,"#fff"); });
-  // 길 안내 목표
-  if(P.guide&&P.guide.x!=null){ const gx=tx(P.guide.x), gz=tz(P.guide.z); const pulse=1+.25*Math.sin(performance.now()/200); dot(ctx,gx,gz,6*u*pulse,"rgba(255,207,74,.35)"); mmLabel(ctx,"★",gx,gz,(big?10:13)*u,"#ffcf4a"); }
-  if(typeof warActive==="function"&&warActive()){ const g=TERR_RINGS[WAR.cur.rg].position; mmLabel(ctx,"⚔",tx(g.x),tz(g.z),(big?12:18)*u,(performance.now()/300|0)%2?"#ff5a5f":"#ffcf4a");
-    WAR.units.forEach(un=>{ if(un.dead) return; dot(ctx,tx(un.x),tz(un.z),1.8*u,WAR.joined?(un.side===WAR.side?"#3fd27a":"#ff5a5f"):(un.side==="att"?"#ffb070":"#8fd0ff"),"#000",.6*u); }); }
-  mobs.forEach(m=>{ if(m.war) return; dot(ctx,tx(m.x),tz(m.z),(m.boss?3.4:1.9)*u,m.boss?"#ffcf4a":"#ff4d55","#1a0008",.8*u); });
-  for(const id in PEERS){ const o=PEERS[id]; dot(ctx,tx(o.x),tz(o.z),3.6*u,o.realm===G.realm?"#3fd27a":"#ff5a5f","#fff",1.4*u); }
-  if(player){ ctx.save(); ctx.translate(tx(P.x),tz(P.z)); dot(ctx,0,0,8*u,"rgba(255,255,255,.22)"); ctx.rotate(-P.rot); ctx.fillStyle="#fff"; ctx.strokeStyle="#111"; ctx.lineWidth=1.6*u; ctx.lineJoin="round"; ctx.beginPath(); ctx.moveTo(0,-7*u); ctx.lineTo(5*u,5*u); ctx.lineTo(0,2.5*u); ctx.lineTo(-5*u,5*u); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore(); }
-  ctx.restore();
-  if(!big){ mmLabel(ctx,"N",S/2,9*u,9*u,"#ffcf4a"); ctx.beginPath(); ctx.arc(S/2,S/2,S/2-1.5*u,0,6.2832); ctx.lineWidth=3*u; ctx.strokeStyle="rgba(255,215,110,.9)"; ctx.stroke(); } }
+/* drawMinimap 은 v15부터 04f-map.js (구글 지도 느낌) */
 let mmT=0;
 </script>
