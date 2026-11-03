@@ -47,7 +47,7 @@ function tickMobs(dt){
 }
 function damageMob(m,dmg,crit){ if(m.titan){ titanHit(m,dmg,crit); return; } if(m.hp<=0) return; dmg=Math.round(dmg); m.hp-=dmg; m.hit=.15; P.combat=4; floatDmg(m.x,3.5*m.scale,m.z,"-"+fmt(dmg),crit?"crit":""); fxSpark(m.x,1.8*m.scale,m.z,crit?0xffe08a:0xffffff,crit?16:8); tone(crit?660:440,.06,"square",0,.08);
   if(m.hp<=0){ killMob(m); } }
-function killMob(m){ if(m.war&&typeof warOnKill==="function") warOnKill(m); const st=stat(); G.kills++; G.mk=G.mk||{}; G.mk[m.n]=(G.mk[m.n]||0)+1; const gap=lvGap(m.lv||G.lv); gainXp(Math.round(m.xp*gap)); G.gold+=Math.round(m.gold*(gap<1?.5+gap*.5:1)); try{ petOnKill(m); }catch(e){ console.warn(e); } fxFlash(m.x,2,m.z,0xffe08a,m.boss?6:2.2,.45); fxRing(m.x,m.z,0xffffff,m.boss?10:3);
+function killMob(m){ if(m.war&&typeof warOnKill==="function") warOnKill(m); const st=stat(); G.kills++; G.mk=G.mk||{}; G.mk[m.n]=(G.mk[m.n]||0)+1; const gap=lvGap(m.lv||G.lv); gainXp(Math.round(m.xp*gap)); G.gold+=Math.round(m.gold*(gap<1?.5+gap*.5:1)*((typeof ssWinner==="function"&&ssWinner()===G.realm)?1.1:1)); try{ petOnKill(m); }catch(e){ console.warn(e); } try{ hmOnKill(m); }catch(e){} fxFlash(m.x,2,m.z,0xffe08a,m.boss?6:2.2,.45); fxRing(m.x,m.z,0xffffff,m.boss?10:3);
   floatDmg(m.x,4,m.z,`+${m.gold} 금화`,"");
   // 드랍
   const rg=REGIONS[m.rg]; const roll=Math.random(); let tier=-1; if(m.boss){ tier=m.world?3:Math.min(3,Math.floor(rg.lv[1]/10)+1); if(Math.random()<.35) tier=Math.min(3,tier+1); } else if(roll<.06){ tier=Math.min(3,Math.floor(rg.lv[0]/8)); if(Math.random()<.15) tier=Math.min(3,tier+1); }
@@ -118,7 +118,7 @@ function finishTrial(win){ const T=P.trial; if(!T) return; P.trial=null; const R
   saveGame(); }
 
 /* ================= 영토 점령 ================= */
-function tickTerritory(dt){ const rg=regionAt(P.x,P.z); $("region").innerHTML=rg?`${rg.n} <b>${W.o[rg.id]>=0?REALMS[W.o[rg.id]].n+" 영토":"중립"}</b>`:"황야";
+function tickTerritory(dt){ const rg=regionAt(P.x,P.z); $("region").innerHTML=rg?`${rg.n} <b>${W.o[rg.id]>=0?REALMS[W.o[rg.id]].n+" 영토":"중립"}</b>`:(typeof HM!=="undefined"&&HM.on?`🏡 ${HM.data.n}의 신전 섬 <b>하늘</b>`:"황야");
   if(!rg||rg.cap||P.dead){ P.capProg=0; P.capRg=-1; return; }
   if(typeof warActive==="function"&&warActive()&&WAR.cur.rg===rg.id){ P.capProg=0; P.capRg=-1; return; }
   const g=TERR_RINGS[rg.id]; const d=Math.hypot(P.x-g.position.x,P.z-g.position.z);

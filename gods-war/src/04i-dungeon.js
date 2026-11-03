@@ -130,7 +130,7 @@ function dgTick(dt){ if(!DG.on) return; if(Math.abs(P.x-DGX)>150){ dgExit(true);
   $("region").innerHTML=`🌀 미궁 ${DG.f+1}층 <b>${DG_ROOM[F.k].n} · ${fmtSec((Date.now()-DG.t0)/1000)}</b>`; }
 function dgFinish(){ const t=Math.round((Date.now()-DG.t0)/1000), day=DG.plan.day, first=G.dgDay!==day, lv=G.lv; const party=Object.keys(DG.party);
   let gold=250+lv*30, xp=250+lv*45; if(!first){ gold=Math.round(gold*.3); xp=Math.round(xp*.3); } let tier=Math.min(3,Math.max(0,G.rank)); if(first&&Math.random()<.35) tier=Math.min(3,tier+1); const s=pick(["w","a","r"]);
-  if(first) G.bag.push({s,t:tier}); G.gold+=gold; gainXp(xp); G.pots+=2; G.dgClear=(G.dgClear||0)+1; G.dgDay=day; const pb=!G.dgBest||t<G.dgBest; if(pb) G.dgBest=t; const better=!G.dgToday||G.dgToday.day!==day||t<G.dgToday.t; if(better) G.dgToday={day,t,p:party};
+  if(first) G.bag.push({s,t:tier}); G.gold+=gold; gainXp(xp); G.pots+=2; G.dgClear=(G.dgClear||0)+1; if(first) try{ hmGift(2,"미궁 보물 상자에서"); }catch(e){} G.dgDay=day; const pb=!G.dgBest||t<G.dgBest; if(pb) G.dgBest=t; const better=!G.dgToday||G.dgToday.day!==day||t<G.dgToday.t; if(better) G.dgToday={day,t,p:party};
   saveGame(); if(better) try{ net.pushRet("dg/"+G.id,{i:G.id,n:G.name,r:G.realm,day,t,p:party}); }catch(e){}
   dgExit(true); _spawnHome0(); P.hp=stat().mhp;
   card(`<h2>🏆 신들의 미궁 정복!</h2><p>5층까지 <b style="color:var(--gold)">${fmtSec(t)}</b>${pb?" · <b style=\"color:#9dffb8\">내 최고 기록!</b>":""}${party.length?`<br>함께한 친구: ${party.join(", ")}`:""}</p>

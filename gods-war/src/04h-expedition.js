@@ -33,7 +33,7 @@ function expClaim(){ const e=G.exp; if(!e) return; const mates=expMates(e); cons
   const pn=PETS[e.pet].n; const evs=D.ev.slice(); const lines=[]; const nEv=e.h>=8?4:e.h>=4?3:2; for(let i=0;i<nEv&&evs.length;i++){ const j=i===nEv-1?evs.length-1:Math.floor(rr()*(evs.length-1)); lines.push(evs.splice(j,1)[0]); }
   const names=[pn].concat(mates.map(m=>`${m.n}의 ${m.pt&&PETS[m.pt[0]]?PETS[m.pt[0]].n:"신수"}`)); const who=names.join("와(과) ");
   const story=lines.map((s,i)=>s.replace("{p}",i===0?who:pn)); if(party) story.splice(1,0,EXP_PARTY[Math.floor(rr()*EXP_PARTY.length)].replace("{p}",names.join("와(과) ")));
-  G.expN=(G.expN||0)+1; if(party) G.expParty=(G.expParty||0)+1; G.exp=null; saveGame(); expPush(e,1); try{ net.hello(); net.pushProfile(1); }catch(err){} rebuildMyPet();
+  G.expN=(G.expN||0)+1; if(Math.random()<(party?.6:.35)) try{ hmGift(party?2:1,"원정에서"); }catch(e){} if(party) G.expParty=(G.expParty||0)+1; G.exp=null; saveGame(); expPush(e,1); try{ net.hello(); net.pushProfile(1); }catch(err){} rebuildMyPet();
   const pl=p?p.lv:0;
   card(`<h2>🧭 원정대가 돌아왔어요!</h2><p>${D.ic} <b style="color:var(--gold)">${D.n}</b> · ${EXP_DUR.find(x=>x.h===e.h)?.n||fmtLeft(e.h*3600000)}${party?` · <b style="color:#9dffb8">원정대 보물 2배!</b>`:""}</p>
    <div class="diary">${story.map(s=>`<p>✏️ ${s}</p>`).join("")}</div>
