@@ -75,9 +75,11 @@ function inCapital(x,z){ const r=regionAt(x,z); return r&&r.cap?r:null; }
 const canvas=$("view");
 const HIGH=()=>G.gfx!=="low";
 const ECO=()=>G.eco!==false;   // v19.2 배터리 절약(기본 켬): 초당 30장, 화면 해상도·그림자 낮춤, 가만히 있으면 20장
-const renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:ECO()?"default":"high-performance"});
-renderer.setPixelRatio(Math.min(devicePixelRatio||1,HIGH()?(ECO()?1.5:2):(ECO()?1:1.5)));
-renderer.shadowMap.enabled=HIGH(); renderer.shadowMap.type=ECO()?THREE.PCFShadowMap:THREE.PCFSoftShadowMap;
+const renderer=new THREE.WebGLRenderer({canvas,antialias:!ECO(),powerPreference:ECO()?"low-power":"high-performance"});
+/* v20.2 배터리 절약 강화: 화면 크기와 상관없이 그리는 점 개수를 약 90만 개로 제한(큰 탭은 원래 400만 개 넘게 그렸음) */
+function ecoRatio(){ const dpr=devicePixelRatio||1; if(!ECO()) return Math.min(dpr,HIGH()?2:1.5); const px=Math.max(1,innerWidth*innerHeight); return clamp(Math.min(dpr,Math.sqrt(900000/px),HIGH()?1.5:1.2),.6,2); }
+renderer.setPixelRatio(ecoRatio());
+renderer.shadowMap.enabled=HIGH(); renderer.shadowMap.type=ECO()?THREE.PCFShadowMap:THREE.PCFSoftShadowMap; if(ECO()) renderer.shadowMap.autoUpdate=false;   // 절약 모드: 그림자는 3장에 한 번만 다시 계산
 renderer.outputEncoding=THREE.sRGBEncoding; renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=.95;
 renderer.physicallyCorrectLights=false;
 const scene=new THREE.Scene(); scene.background=new THREE.Color(0x9fd4ff); scene.fog=new THREE.Fog(0xdcefff,55,165);

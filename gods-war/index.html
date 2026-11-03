@@ -274,7 +274,7 @@ html,body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;t
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v20.1";
+const VER="v20.2";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -437,9 +437,11 @@ function inCapital(x,z){ const r=regionAt(x,z); return r&&r.cap?r:null; }
 const canvas=$("view");
 const HIGH=()=>G.gfx!=="low";
 const ECO=()=>G.eco!==false;   // v19.2 배터리 절약(기본 켬): 초당 30장, 화면 해상도·그림자 낮춤, 가만히 있으면 20장
-const renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:ECO()?"default":"high-performance"});
-renderer.setPixelRatio(Math.min(devicePixelRatio||1,HIGH()?(ECO()?1.5:2):(ECO()?1:1.5)));
-renderer.shadowMap.enabled=HIGH(); renderer.shadowMap.type=ECO()?THREE.PCFShadowMap:THREE.PCFSoftShadowMap;
+const renderer=new THREE.WebGLRenderer({canvas,antialias:!ECO(),powerPreference:ECO()?"low-power":"high-performance"});
+/* v20.2 배터리 절약 강화: 화면 크기와 상관없이 그리는 점 개수를 약 90만 개로 제한(큰 탭은 원래 400만 개 넘게 그렸음) */
+function ecoRatio(){ const dpr=devicePixelRatio||1; if(!ECO()) return Math.min(dpr,HIGH()?2:1.5); const px=Math.max(1,innerWidth*innerHeight); return clamp(Math.min(dpr,Math.sqrt(900000/px),HIGH()?1.5:1.2),.6,2); }
+renderer.setPixelRatio(ecoRatio());
+renderer.shadowMap.enabled=HIGH(); renderer.shadowMap.type=ECO()?THREE.PCFShadowMap:THREE.PCFSoftShadowMap; if(ECO()) renderer.shadowMap.autoUpdate=false;   // 절약 모드: 그림자는 3장에 한 번만 다시 계산
 renderer.outputEncoding=THREE.sRGBEncoding; renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=.95;
 renderer.physicallyCorrectLights=false;
 const scene=new THREE.Scene(); scene.background=new THREE.Color(0x9fd4ff); scene.fog=new THREE.Fog(0xdcefff,55,165);
@@ -770,7 +772,7 @@ function tickWeather(dt,realmIdx,center){ const w=center?"clear":weatherNow(real
 
 /* ---- 블룸 후처리(직접 구현): 밝은 부분만 뽑아 흐리게 더함 + 비네트 ---- */
 const POST=(function(){
-  if(!HIGH()) return null;
+  if(!HIGH()||ECO()) return null;   // 절약 모드는 빛 번짐(블룸) 끔 — 화면 전체를 여러 번 다시 그리는 무거운 효과
   const Q=new THREE.PlaneGeometry(2,2); const cam=new THREE.OrthographicCamera(-1,1,1,-1,0,1); const sc=new THREE.Scene(); const quad=new THREE.Mesh(Q,null); sc.add(quad);
   const vs=`varying vec2 vUv; void main(){ vUv=uv; gl_Position=vec4(position.xy,0.,1.); }`;
   const bright=new THREE.ShaderMaterial({uniforms:{t:{value:null},th:{value:.82}},vertexShader:vs,fragmentShader:`uniform sampler2D t; uniform float th; varying vec2 vUv; void main(){ vec4 c=texture2D(t,vUv); float l=dot(c.rgb,vec3(.299,.587,.114)); float k=smoothstep(th,th+.18,l); gl_FragColor=vec4(c.rgb*k,1.); }`,depthTest:false,depthWrite:false});
@@ -2051,7 +2053,7 @@ const net=(function(){
       onclose:()=>{ N.up=Math.max(0,N.up-1); dots(); },
       onmessage:(topic,msg,retain)=>{ let d; try{ d=JSON.parse(msg); }catch(e){ return; } if(topic===WTOPIC){ mergeWorld(d); return; } if(topic.indexOf(BTOPIC)===0){ if(typeof titanMsg==="function") titanMsg(d); return; } if(topic.indexOf(XTOPIC)===0){ if(typeof expMsg==="function") expMsg(d); return; } if(topic.indexOf(DTOPIC)===0){ if(typeof dgMsg==="function") dgMsg(d); return; } if(topic.indexOf(PTOPIC)===0){ if(typeof mmoProfile==="function") mmoProfile(d); return; } recv(d); } });
       N.clients.push(c); }); dots(); }
-  function send(o){ if(!N.started) return; o.i=G.id; o.q=++N.seq; const s=JSON.stringify(o); N.clients.forEach(c=>{ try{ c.publish(TOPIC,s); }catch(e){} }); }
+  function send(o){ if(!N.started) return; o.i=G.id; o.q=++N.seq; const s=JSON.stringify(o); let n=0; const lim=(typeof ECO==="function"&&ECO()&&o.t==="st")?2:9; N.clients.forEach(c=>{ if(!c.ok||n>=lim) return; n++; try{ c.publish(TOPIC,s); }catch(e){} }); }
   function pushWorld(){ const s=JSON.stringify(W); N.clients.forEach(c=>{ try{ c.publish(WTOPIC,s,true); }catch(e){} }); }
   function pushProfile(on){ if(!N.started||G.realm<0) return; const s=JSON.stringify(myProfile(on)); N.clients.forEach(c=>{ try{ c.publish(PTOPIC+G.id,s,true); }catch(e){} }); }
   function pushTitan(o){ if(!N.started) return; const s=JSON.stringify(o); N.clients.forEach(c=>{ try{ c.publish(BTOPIC+o.w+"/"+G.id,s,true); }catch(e){} }); }
@@ -2162,7 +2164,7 @@ function showMenu(){ card(`<h2>신들의 전쟁</h2><p>${G.name} · ${RM().n} ${
   <div class="row"><div class="t"><div>꾸미기</div><span>얼굴·옷·머리·망토·무기·빛깔</span></div><button class="buy alt" id="lookBtn">열기</button></div>
   <div class="row"><div class="t"><div>집(수도)으로 순간이동</div><span>전투 중엔 안 돼요${DG.on?" · 미궁에서 나가요":""}</span></div><button class="buy" id="goHome">가기</button></div>
   <div class="row"><div class="t"><div>전체 화면</div><span>아이폰은 공유 → "홈 화면에 추가"로 앱처럼 설치하면 전체 화면</span></div><button class="buy alt" id="full">켜기</button></div>
-  <div class="row"><div class="ic">🔋</div><div class="t"><div>배터리 절약</div><span>켬: 초당 30장·해상도 조금 낮춤(배터리 오래감) / 끔: 최고 화질·부드러움(배터리 빨리 닳음)</span></div><button class="buy alt" id="eco">${ECO()?"켜짐":"꺼짐"}</button></div>
+  <div class="row"><div class="ic">🔋</div><div class="t"><div>배터리 절약</div><span>켬: 초당 30장(가만히 있으면 15장)·빛 번짐 끔·해상도 맞춤(배터리 오래감) / 끔: 최고 화질(배터리 빨리 닳음)</span></div><button class="buy alt" id="eco">${ECO()?"켜짐":"꺼짐"}</button></div>
   <div class="row"><div class="t"><div>그래픽</div><span>높음: 그림자·부드러움 / 보통: 폰이 느릴 때</span></div><button class="buy alt" id="gfx">${HIGH()?"높음":"보통"}</button></div>
   <div class="row"><div class="t"><div>캐릭터 새로 만들기</div><span>이름·세계·레벨이 모두 사라져요</span></div><button class="buy sell" id="wipe">지우기</button></div>
   <p style="font-size:12px">밤낮은 8분마다 바뀌고 모든 폰이 같은 시각이에요.<br>3D 모델: KayKit 1.0·2.0·Mystery 시리즈 (CC0, 무료, GitHub) · 엔진: three.js<br>조작: 왼쪽 화면을 끌면 이동 · 공격/기술 3개/물약/점프 버튼 · 키보드 WASD, J 공격, K U I 기술, L 물약, 스페이스 점프</p>`);
@@ -2224,20 +2226,21 @@ function update(dt){
   const low=ZOOM<1?.6+.4*ZOOM:1; const cz=P.z+12.5*ZOOM, cy=11.5*ZOOM*low; P.shake=Math.max(0,(P.shake||0)-dt*3); P.hitFlash=Math.max(0,(P.hitFlash||0)-dt); hitTint(player,P.hitFlash/.25*.8,0xff4040); const sh=P.shake*.35; const gy=P.gy||0; if(P.preview){ const a=performance.now()/2600; camera.position.lerp(new THREE.Vector3(P.x+Math.sin(a)*9,gy+4.2,P.z+Math.cos(a)*9),Math.min(1,dt*5)); camera.lookAt(P.x,gy-.6,P.z); } else { camera.position.lerp(new THREE.Vector3(P.x,gy+cy,cz),Math.min(1,dt*7)); camera.lookAt(P.x+rnd(-sh,sh),gy+2.2+(1-low)*1.2+rnd(-sh,sh),P.z-5*ZOOM); } { const zf=Math.max(1,ZOOM*.85); scene.fog.near*=zf; scene.fog.far*=zf; } const tfov=(innerWidth<innerHeight?66:52)+(P.atkAnim>.2?3:0); camera.fov+=(tfov-camera.fov)*Math.min(1,dt*8); camera.updateProjectionMatrix(); TIME.value=performance.now()/1000; skyMat.uniforms.time.value=TIME.value; WATER.uniforms.sunDir.value.copy(sun.position).sub(new THREE.Vector3(P.x,0,P.z)).normalize(); if(POST){ P.tintA=Math.max(0,(P.tintA||0)-dt/(P.tintD||1)); POST.comp.uniforms.tintA.value=P.tintA; if(P.tintC) POST.comp.uniforms.tint.value.copy(P.tintC); } if(POST) POST.comp.uniforms.hurt.value=P.hp/st.mhp<.3?.6+Math.sin(performance.now()/150)*.3:P.hitFlash>0?.8:0; P.hitFlash=Math.max(0,P.hitFlash-dt);
   toastT-=dt; if(toastT<=0) $("toast").style.opacity=0; mmT-=dt; if(mmT<=0){ mmT=.25; if(DG.on) dgMinimap(); else drawMinimap(); } hud();
 }
-function resize(){ const w=innerWidth,h=innerHeight; renderer.setSize(w,h,false); camera.aspect=w/h; camera.fov=w<h?66:52; camera.updateProjectionMatrix(); }
+function resize(){ const w=innerWidth,h=innerHeight; try{ renderer.setPixelRatio(ecoRatio()); }catch(e){} renderer.setSize(w,h,false); camera.aspect=w/h; camera.fov=w<h?66:52; camera.updateProjectionMatrix(); }
 addEventListener("resize",resize); resize();
 camera.position.set(0,30,60); camera.lookAt(0,10,0);
 /* v19.2 배터리 절약: 화면을 초당 30장만 그림(120Hz 탭은 원래 120장!), 20초 넘게 안 만지고 싸우지 않으면 20장, 첫 화면 15장 */
 let lastInput=performance.now(); ["pointerdown","keydown"].forEach(ev=>addEventListener(ev,()=>{ lastInput=performance.now(); },true));
-function frameGap(t){ if(!ECO()) return 0; if(!started) return 1/15; if(t-lastInput>20000&&P.combat<=0&&!P.moving&&!P.dead) return 1/20; return 1/30; }
-function frame(t){ requestAnimationFrame(frame); if((t-last)/1000<frameGap(t)-.004) return; const dt=Math.min(.05,(t-last)/1000); last=t; if(started) update(dt); else { const a=t/9000; camera.position.set(Math.sin(a)*70,30,Math.cos(a)*70); camera.lookAt(0,18,0); tickFX(dt); dayNight(dt,true,REALMS[0]); } if(POST&&started) POST.render(); else { renderer.setRenderTarget(null); renderer.render(scene,camera); } }
+function frameGap(t){ if(!ECO()) return 0; if(!started) return 1/12; const calm=P.combat<=0&&!P.moving&&!P.dead; if(layerOpen&&calm) return 1/12; if(t-lastInput>10000&&calm) return 1/15; return 1/30; }
+let shadowN=0;
+function frame(t){ requestAnimationFrame(frame); if((t-last)/1000<frameGap(t)-.004) return; const dt=Math.min(.05,(t-last)/1000); last=t; if(started) update(dt); else { const a=t/9000; camera.position.set(Math.sin(a)*70,30,Math.cos(a)*70); camera.lookAt(0,18,0); tickFX(dt); dayNight(dt,true,REALMS[0]); } if(ECO()&&renderer.shadowMap.enabled){ if(++shadowN%3===1) renderer.shadowMap.needsUpdate=true; } if(POST&&started) POST.render(); else { renderer.setRenderTarget(null); renderer.render(scene,camera); } }
 $("bQuest").onclick=()=>{ if(P.nearTemple) showTemple(); else showQuests(); };
 showTitle(); requestAnimationFrame(frame);
 window.__gw={DG,dgEnter,dgFloor,dgFinish,dgPlan,showDungeon,showTitles,TITLES,showExp,expStart,expClaim,EXPO,DGR,TB,titanHit,titanDefeated,showTitan,titanGo,showPets,hatchEgg,petOnKill,comboFire,comboRecv,showCombos,PETMESH,idleSim,grantIdle,showIdleReport,ROSTER,autoFace,buildPlayer,GHOSTS,mmoProfile,showRoster,G,P,mobs,W,net,PEERS,WAR,forceWar,resolveWar,joinWar,begin,update,spawnMob,spawnAtHome,REGIONS,attack,useSkill,startTrial,die,respawn};
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="9c601f91";
+(function(){ var CUR="37f8241a";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);

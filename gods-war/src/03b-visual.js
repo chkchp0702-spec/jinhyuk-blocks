@@ -62,7 +62,7 @@ function tickWeather(dt,realmIdx,center){ const w=center?"clear":weatherNow(real
 
 /* ---- 블룸 후처리(직접 구현): 밝은 부분만 뽑아 흐리게 더함 + 비네트 ---- */
 const POST=(function(){
-  if(!HIGH()) return null;
+  if(!HIGH()||ECO()) return null;   // 절약 모드는 빛 번짐(블룸) 끔 — 화면 전체를 여러 번 다시 그리는 무거운 효과
   const Q=new THREE.PlaneGeometry(2,2); const cam=new THREE.OrthographicCamera(-1,1,1,-1,0,1); const sc=new THREE.Scene(); const quad=new THREE.Mesh(Q,null); sc.add(quad);
   const vs=`varying vec2 vUv; void main(){ vUv=uv; gl_Position=vec4(position.xy,0.,1.); }`;
   const bright=new THREE.ShaderMaterial({uniforms:{t:{value:null},th:{value:.82}},vertexShader:vs,fragmentShader:`uniform sampler2D t; uniform float th; varying vec2 vUv; void main(){ vec4 c=texture2D(t,vUv); float l=dot(c.rgb,vec3(.299,.587,.114)); float k=smoothstep(th,th+.18,l); gl_FragColor=vec4(c.rgb*k,1.); }`,depthTest:false,depthWrite:false});

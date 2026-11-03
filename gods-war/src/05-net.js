@@ -37,7 +37,7 @@ const net=(function(){
       onclose:()=>{ N.up=Math.max(0,N.up-1); dots(); },
       onmessage:(topic,msg,retain)=>{ let d; try{ d=JSON.parse(msg); }catch(e){ return; } if(topic===WTOPIC){ mergeWorld(d); return; } if(topic.indexOf(BTOPIC)===0){ if(typeof titanMsg==="function") titanMsg(d); return; } if(topic.indexOf(XTOPIC)===0){ if(typeof expMsg==="function") expMsg(d); return; } if(topic.indexOf(DTOPIC)===0){ if(typeof dgMsg==="function") dgMsg(d); return; } if(topic.indexOf(PTOPIC)===0){ if(typeof mmoProfile==="function") mmoProfile(d); return; } recv(d); } });
       N.clients.push(c); }); dots(); }
-  function send(o){ if(!N.started) return; o.i=G.id; o.q=++N.seq; const s=JSON.stringify(o); N.clients.forEach(c=>{ try{ c.publish(TOPIC,s); }catch(e){} }); }
+  function send(o){ if(!N.started) return; o.i=G.id; o.q=++N.seq; const s=JSON.stringify(o); let n=0; const lim=(typeof ECO==="function"&&ECO()&&o.t==="st")?2:9; N.clients.forEach(c=>{ if(!c.ok||n>=lim) return; n++; try{ c.publish(TOPIC,s); }catch(e){} }); }
   function pushWorld(){ const s=JSON.stringify(W); N.clients.forEach(c=>{ try{ c.publish(WTOPIC,s,true); }catch(e){} }); }
   function pushProfile(on){ if(!N.started||G.realm<0) return; const s=JSON.stringify(myProfile(on)); N.clients.forEach(c=>{ try{ c.publish(PTOPIC+G.id,s,true); }catch(e){} }); }
   function pushTitan(o){ if(!N.started) return; const s=JSON.stringify(o); N.clients.forEach(c=>{ try{ c.publish(BTOPIC+o.w+"/"+G.id,s,true); }catch(e){} }); }
