@@ -328,7 +328,7 @@ body:has(#title) .hud,body:has(#title) .acts,body:has(#title) #minimap,body:has(
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v30";
+const VER="v31";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -425,8 +425,11 @@ const fmt=n=>Math.round(n).toLocaleString("ko-KR");
 function save(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
 function load(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
 let soundOn=load("gw-sound")!=="0", actx=null;
-function initAudio(){ if(!actx){ try{ actx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } if(actx&&actx.state==="suspended") actx.resume(); }
-function tone(f,d,type,delay,vol){ if(!soundOn||!actx) return; const t=actx.currentTime+(delay||0),o=actx.createOscillator(),g=actx.createGain(); o.type=type||"sine"; o.frequency.setValueAtTime(f,t); g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(vol||.15,t+.01); g.gain.exponentialRampToValueAtTime(.0001,t+d); o.connect(g).connect(actx.destination); o.start(t); o.stop(t+d+.03); }
+let audioNap=null;   // v30 배터리: 4초 동안 소리가 없으면 소리 장치를 재움(안드로이드는 조용해도 소리 스레드가 계속 돎)
+function audioWake(){ if(actx&&actx.state==="suspended") try{ actx.resume(); }catch(e){} clearTimeout(audioNap); audioNap=setTimeout(()=>{ try{ if(actx&&actx.state==="running") actx.suspend(); }catch(e){} },4000); }
+function initAudio(){ if(!actx){ try{ actx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } audioWake(); }
+document.addEventListener("visibilitychange",()=>{ if(document.hidden&&actx) try{ actx.suspend(); }catch(e){} });
+function tone(f,d,type,delay,vol){ if(!soundOn||!actx) return; audioWake(); const t=actx.currentTime+(delay||0),o=actx.createOscillator(),g=actx.createGain(); o.type=type||"sine"; o.frequency.setValueAtTime(f,t); g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(vol||.15,t+.01); g.gain.exponentialRampToValueAtTime(.0001,t+d); o.connect(g).connect(actx.destination); o.start(t); o.stop(t+d+.03); }
 function jingle(arr){ arr.forEach((f,k)=>tone(f,.14,"triangle",k*.08)); }
 function thud(){ tone(110,.12,"square",0,.12); tone(70,.18,"sawtooth",.02,.08); }
 function buzz(ms){ try{ if(navigator.vibrate) navigator.vibrate(ms||30); }catch(e){} }
@@ -490,10 +493,13 @@ function inCapital(x,z){ const r=regionAt(x,z); return r&&r.cap?r:null; }
 /* ================= 3D 장면 ================= */
 const canvas=$("view");
 const HIGH=()=>G.gfx!=="low";
-const ECO=()=>G.eco!==false;   // v19.2 배터리 절약(기본 켬): 초당 30장, 화면 해상도·그림자 낮춤, 가만히 있으면 20장
+const ECO=()=>G.eco!==false;
+/* v30 배터리: 배터리가 20% 이하이고 충전 중이 아니면 자동 초절약(초당 24장·해상도 더 낮게) */
+const LOWBAT={on:false,told:false};
+try{ navigator.getBattery&&navigator.getBattery().then(b=>{ const f=()=>{ const on=ECO()&&!b.charging&&b.level<=.2; if(on!==LOWBAT.on){ LOWBAT.on=on; try{ resize(); }catch(e){} if(on&&!LOWBAT.told&&typeof toast==="function"){ LOWBAT.told=true; toast("🔋 배터리가 얼마 없어요","초절약 모드로 바꿨어요 (충전하면 원래대로)",3); } } }; f(); b.addEventListener("levelchange",f); b.addEventListener("chargingchange",f); }).catch(()=>{}); }catch(e){}   // v19.2 배터리 절약(기본 켬): 초당 30장, 화면 해상도·그림자 낮춤, 가만히 있으면 20장
 const renderer=new THREE.WebGLRenderer({canvas,antialias:!ECO(),powerPreference:ECO()?"low-power":"high-performance"});
 /* v20.2 배터리 절약 강화: 화면 크기와 상관없이 그리는 점 개수를 약 90만 개로 제한(큰 탭은 원래 400만 개 넘게 그렸음) */
-function ecoRatio(){ const dpr=devicePixelRatio||1; if(!ECO()) return Math.min(dpr,HIGH()?2:1.5); const px=Math.max(1,innerWidth*innerHeight); return clamp(Math.min(dpr,Math.sqrt(900000/px),HIGH()?1.5:1.2),.6,2); }
+function ecoRatio(){ const dpr=devicePixelRatio||1; if(!ECO()) return Math.min(dpr,HIGH()?2:1.5); const px=Math.max(1,innerWidth*innerHeight); return clamp(Math.min(dpr,Math.sqrt((LOWBAT.on?500000:700000)/px),HIGH()?1.4:1.15),.55,2); }
 renderer.setPixelRatio(ecoRatio());
 renderer.shadowMap.enabled=HIGH(); renderer.shadowMap.type=ECO()?THREE.PCFShadowMap:THREE.PCFSoftShadowMap; if(ECO()) renderer.shadowMap.autoUpdate=false;   // 절약 모드: 그림자는 3장에 한 번만 다시 계산
 renderer.outputEncoding=THREE.sRGBEncoding; renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=.95;
@@ -2910,18 +2916,27 @@ const net=(function(){
   const BROKERS=window.GW_BROKERS||["wss://broker.emqx.io:8084/mqtt","wss://broker.hivemq.com:8884/mqtt","wss://mqtt.eclipseprojects.io:443/mqtt","wss://test.mosquitto.org:8081"];
   const ROOT="chk0702/godswar/"+ROOM+"/"; const XTOPIC=ROOT+"x/", DTOPIC=ROOT+"dg/"; const TOPIC=ROOT+"all", WTOPIC=ROOT+"world", PTOPIC=ROOT+"p/", BTOPIC=ROOT+"titan/";
   const N={clients:[],up:0,seq:0,seen:{},seenN:0,sendT:0,started:false,hiT:0,worldT:0,lastWorld:""};
-  function dots(){ N.clients.forEach((c,i)=>{ const d=$("netPill").querySelector(`.dot[data-i="${i}"]`); if(d) d.classList.toggle("on",c.ok); }); const n=Object.keys(PEERS).length; $("netTxt").textContent=N.up>0?(n>0?`${n}명과 함께`:"접속 중 · 친구 기다리는 중"):"연결 중…"; }
+  function dots(){ N.clients.forEach((c,i)=>{ const d=$("netPill").querySelector(`.dot[data-i="${i}"]`); if(d) d.classList.toggle("on",!!(c&&c.ok)); }); const n=Object.keys(PEERS).length; $("netTxt").textContent=N.up>0?(n>0?`${n}명과 함께`:"접속 중 · 친구 기다리는 중"):"연결 중…"; }
   function start(){ if(N.started||G.realm<0||!ACCESS) return; N.started=true; if(!/^https?:/.test(location.protocol)){ $("netTxt").textContent="앱에서만 함께하기 가능"; return; }
-    BROKERS.forEach((url,i)=>{ const c=MiniMQTT(url,{clientId:"gw_"+G.id+"_"+i+"_"+Math.random().toString(36).slice(2,6),keepalive:25,
+    BROKERS.forEach((url,i)=>open1(i)); dots(); setInterval(trim,10000); }
+  function open1(i){ const url=BROKERS[i]; const c=MiniMQTT(url,{clientId:"gw_"+G.id+"_"+i+"_"+Math.random().toString(36).slice(2,6),keepalive:25,
       onconnect:()=>{ N.up++; c.subscribe(TOPIC); c.subscribe(WTOPIC); c.subscribe(PTOPIC+"+"); try{ c.subscribe(BTOPIC+TB.w+"/+"); }catch(e){} c.subscribe(XTOPIC+"+"); c.subscribe(DTOPIC+"+"); c.subscribe(ROOT+"h/+"); c.subscribe(ROOT+"b/"+G.id+"/+"); try{ const S=ssNo(); c.subscribe(ROOT+"ss/"+S+"/+"); if(S>0) c.subscribe(ROOT+"ss/"+(S-1)+"/+"); }catch(e){} try{ NETX.forEach(h=>{ if(h.sub) c.subscribe(ROOT+(typeof h.sub==="function"?h.sub():h.sub)); }); }catch(e){} dots(); hello(); try{ c.publish(PTOPIC+G.id,JSON.stringify(myProfile(1)),true); }catch(e){} },
-      onclose:()=>{ N.up=Math.max(0,N.up-1); dots(); },
+      onclose:()=>{ N.up=Math.max(0,N.up-1); dots(); setTimeout(trim,1500); },
       onmessage:(topic,msg,retain)=>{ let d; try{ d=JSON.parse(msg); }catch(e){ return; } if(topic===WTOPIC){ mergeWorld(d); return; } if(typeof NETX!=="undefined"){ for(const h of NETX){ if(topic.indexOf(ROOT+h.pre)===0){ try{ h.f(d,topic.slice(ROOT.length)); }catch(e){ console.warn(e); } return; } } } if(topic.indexOf(BTOPIC)===0){ if(typeof titanMsg==="function") titanMsg(d); return; } if(topic.indexOf(XTOPIC)===0){ if(typeof expMsg==="function") expMsg(d); return; } if(topic.indexOf(DTOPIC)===0){ if(typeof dgMsg==="function") dgMsg(d); return; } if(topic.indexOf(ROOT+"h/")===0){ if(typeof hmMsg==="function") hmMsg(d); return; } if(topic.indexOf(ROOT+"b/")===0){ if(typeof hmBlessMsg==="function") hmBlessMsg(d); return; } if(topic.indexOf(ROOT+"ss/")===0){ if(typeof ssMsg==="function") ssMsg(d); return; } if(topic.indexOf(PTOPIC)===0){ if(typeof mmoProfile==="function") mmoProfile(d); return; } recv(d); } });
-      N.clients.push(c); }); dots(); }
-  function send(o){ if(!N.started) return; o.i=G.id; o.q=++N.seq; const s=JSON.stringify(o); let n=0; const lim=(typeof ECO==="function"&&ECO()&&o.t==="st")?2:9; N.clients.forEach(c=>{ if(!c.ok||n>=lim) return; n++; try{ c.publish(TOPIC,s); }catch(e){} }); }
-  function pushWorld(){ const s=JSON.stringify(W); N.clients.forEach(c=>{ try{ c.publish(WTOPIC,s,true); }catch(e){} }); }
-  function pushProfile(on){ if(!N.started||G.realm<0) return; const s=JSON.stringify(myProfile(on)); N.clients.forEach(c=>{ try{ c.publish(PTOPIC+G.id,s,true); }catch(e){} }); }
-  function pushTitan(o){ if(!N.started) return; const s=JSON.stringify(o); N.clients.forEach(c=>{ try{ c.publish(BTOPIC+o.w+"/"+G.id,s,true); }catch(e){} }); }
-  function pushRet(sub,o){ if(!N.started) return; const s=JSON.stringify(o); N.clients.forEach(c=>{ try{ c.publish(ROOT+sub,s,true); }catch(e){} }); }
+      c.idx=i; N.clients[i]=c; return c; }
+
+  /* v30 배터리: 4곳 모두 붙어 있으면 무선 통신을 4배로 씀 → 절약 모드는 잘 붙은 앞쪽 2곳만 남김(모두 같은 순서로 고르니 서로 겹침) */
+  function trim(){ if(!N.started||N.paused) return; const want=ECO()?2:9; const okI=[]; N.clients.forEach((c,i)=>{ if(c&&c.ok) okI.push(i); });
+    if(okI.length>=want){ const keep=okI.slice(0,want); N.clients.forEach((c,i)=>{ if(c&&keep.indexOf(i)<0){ c.close(); N.clients[i]=null; } }); }
+    else BROKERS.forEach((u,i)=>{ if(!N.clients[i]) open1(i); }); dots(); }
+  function pause(){ if(!N.started||N.paused) return; N.paused=true; N.clients.forEach((c,i)=>{ if(c){ c.close(); N.clients[i]=null; } }); N.up=0; }
+  function resume(){ if(!N.started||!N.paused) return; N.paused=false; BROKERS.forEach((u,i)=>open1(i)); dots(); }
+  let hideTimer=null; document.addEventListener("visibilitychange",()=>{ clearTimeout(hideTimer); if(document.hidden) hideTimer=setTimeout(pause,30000); else resume(); });
+  function send(o){ if(!N.started) return; o.i=G.id; o.q=++N.seq; const s=JSON.stringify(o); let n=0; const lim=(typeof ECO==="function"&&ECO()&&o.t==="st")?2:9; N.clients.forEach(c=>{ if(!c||!c.ok||n>=lim) return; n++; try{ c.publish(TOPIC,s); }catch(e){} }); }
+  function pushWorld(){ const s=JSON.stringify(W); N.clients.forEach(c=>{ if(c) try{ c.publish(WTOPIC,s,true); }catch(e){} }); }
+  function pushProfile(on){ if(!N.started||G.realm<0) return; const s=JSON.stringify(myProfile(on)); N.clients.forEach(c=>{ if(c) try{ c.publish(PTOPIC+G.id,s,true); }catch(e){} }); }
+  function pushTitan(o){ if(!N.started) return; const s=JSON.stringify(o); N.clients.forEach(c=>{ if(c) try{ c.publish(BTOPIC+o.w+"/"+G.id,s,true); }catch(e){} }); }
+  function pushRet(sub,o){ if(!N.started) return; const s=JSON.stringify(o); N.clients.forEach(c=>{ if(c) try{ c.publish(ROOT+sub,s,true); }catch(e){} }); }
   function hello(){ send({t:"hi",tt:G.title||"",n:G.name,r:G.realm,k:G.rank,l:G.lv,lk:lookArr(),e:[G.eq.w,G.eq.a,G.eq.r],pt:(typeof petArr==="function"?petArr():null),fg:G.fg||0}); }
   function lookArr(){ const l=G.look||{}; return [l.face||0,l.body||0,l.hat||0,l.cape||0,l.weapon||0,l.tint||0]; }
   function eqObj(e){ const a=(e||"-1,-1,-1").split(",").map(Number); return {w:a[0],a:a[1],r:a[2]}; }
@@ -2950,8 +2965,8 @@ const net=(function(){
       let dr=o.tf-o.mesh.rotation.y; while(dr>Math.PI) dr-=Math.PI*2; while(dr<-Math.PI) dr+=Math.PI*2; o.mesh.rotation.y+=dr*Math.min(1,dt*12);
       if(o.m) o.walk+=dt*9; const u=o.mesh.userData, sw=o.m?Math.sin(o.walk)*.7:0; o.anim=Math.max(0,o.anim-dt); if(u.gl){ animState(o.mesh,o.dead?"dead":o.anim>.25?(o.skl?"skill":"attack"):o.m?"run":"idle"); if(u.crown) u.crown.rotation.y+=dt*2; } else { u.legL.rotation.x=sw; u.legR.rotation.x=-sw; u.armL.rotation.x=-sw; o.anim=Math.max(0,o.anim-dt); u.armR.rotation.x=o.anim>0?-2.2:sw; u.body.position.y=o.m?Math.abs(Math.sin(o.walk))*.12:0; }
       if(Math.hypot(o.x-P.x,o.z-P.z)<60&&!o.dead){ const foe=o.realm!==G.realm; o.lbl.className="lbl "+(foe?"foe":"ally"); placeLabel(o.lbl,o.x,4.6,o.z,`${o.bubbleT>0?`<span class="bub">${o.bubble}</span>`:""}${o.tt&&typeof titleHtml==="function"?titleHtml(o.tt):""}${o.name} <b>${REALMS[o.realm].n} · ${REALMS[o.realm].ranks[o.rank]} Lv.${o.lv}</b><span class="hp"><i style="width:${Math.round(o.hp/o.mhp*100)}%;background:${foe?"#ff5a5f":"#3fd27a"}"></i></span>`); } else o.lbl.style.display="none"; }
-    if(N.up>0){ N.sendT-=dt; if(N.sendT<=0){ N.sendT=(P.moving||P.combat>0||P.y>0||P.dashT>0)?.2:(typeof ECO==="function"&&ECO()?1:.5); send({t:"st",n:G.name,x:+P.x.toFixed(1),z:+P.z.toFixed(1),f:+P.rot.toFixed(2),m:P.moving?1:0,h:Math.round(P.hp),H:stat().mhp,l:G.lv,k:G.rank,r:G.realm,w:G.eq.w,D:P.dead?1:0,rd:P.ride?1:0}); }
-      N.hiT-=dt; if(N.hiT<=0){ N.hiT=6; hello(); } N.worldT-=dt; if(N.worldT<=0){ N.worldT=45; pushWorld(); } N.profT=(N.profT||20)-dt; if(N.profT<=0){ N.profT=60; pushProfile(1); } } }
+    if(N.up>0){ N.sendT-=dt; if(N.sendT<=0){ N.sendT=(P.moving||P.combat>0||P.y>0||P.dashT>0)?(ECO()?.25:.2):(ECO()?2:.5); send({t:"st",n:G.name,x:+P.x.toFixed(1),z:+P.z.toFixed(1),f:+P.rot.toFixed(2),m:P.moving?1:0,h:Math.round(P.hp),H:stat().mhp,l:G.lv,k:G.rank,r:G.realm,w:G.eq.w,D:P.dead?1:0,rd:P.ride?1:0}); }
+      N.hiT-=dt; if(N.hiT<=0){ N.hiT=ECO()?12:6; hello(); } N.worldT-=dt; if(N.worldT<=0){ N.worldT=45; pushWorld(); } N.profT=(N.profT||20)-dt; if(N.profT<=0){ N.profT=60; pushProfile(1); } } }
   return {start,send,tick,pushWorld,pushProfile,pushTitan,pushRet,chat,rebuild,hello,get up(){ return N.up; }};
 })();
 </script>
@@ -3062,7 +3077,7 @@ function showMenu(){ card(`<h2>신들의 전쟁</h2><p>${G.name} · ${RM().n} ${
   <div class="row"><div class="t"><div>꾸미기</div><span>얼굴·옷·머리·망토·무기·빛깔</span></div><button class="buy alt" id="lookBtn">열기</button></div>
   <div class="row"><div class="t"><div>집(수도)으로 순간이동</div><span>전투 중엔 안 돼요${DG.on?" · 미궁에서 나가요":""}${HM.on?" · 신전 섬에서 내려가요":""}</span></div><button class="buy" id="goHome">가기</button></div>
   <div class="row"><div class="t"><div>전체 화면</div><span>아이폰은 공유 → "홈 화면에 추가"로 앱처럼 설치하면 전체 화면</span></div><button class="buy alt" id="full">켜기</button></div>
-  <div class="row"><div class="ic">🔋</div><div class="t"><div>배터리 절약</div><span>켬: 초당 30장(가만히 있으면 15장)·빛 번짐 끔·해상도 맞춤(배터리 오래감) / 끔: 최고 화질(배터리 빨리 닳음)</span></div><button class="buy alt" id="eco">${ECO()?"켜짐":"꺼짐"}</button></div>
+  <div class="row"><div class="ic">🔋</div><div class="t"><div>배터리 절약</div><span>켬: 초당 30장(가만히 있으면 20→12→6장)·중계 서버 2곳만·소리 장치 쉬기·배터리 20% 아래면 초절약·빛 번짐 끔·해상도 맞춤(배터리 오래감) / 끔: 최고 화질(배터리 빨리 닳음)</span></div><button class="buy alt" id="eco">${ECO()?"켜짐":"꺼짐"}</button></div>
   <div class="row"><div class="t"><div>그래픽</div><span>높음: 그림자·부드러움 / 보통: 폰이 느릴 때</span></div><button class="buy alt" id="gfx">${HIGH()?"높음":"보통"}</button></div>
   <div class="row"><div class="t"><div>캐릭터 새로 만들기</div><span>이름·세계·레벨이 모두 사라져요</span></div><button class="buy sell" id="wipe">지우기</button></div>
   <p style="font-size:12px">밤낮은 8분마다 바뀌고 모든 폰이 같은 시각이에요.<br>3D 모델: KayKit 1.0·2.0·Mystery 시리즈 (CC0, 무료, GitHub) · 엔진: three.js<br>조작: 왼쪽 화면을 끌면 이동 · 공격/기술 3개/물약/점프 버튼 · 키보드 WASD, J 공격, K U I 기술, L 물약, 스페이스 점프</p>`);
@@ -3124,23 +3139,24 @@ function update(dt){
   const theme=P.x>=0?(P.z<0?REALMS[0]:REALMS[2]):(P.z<0?REALMS[1]:REALMS[3]); const center=Math.hypot(P.x,P.z)<70; if(DG.on) dgSky(dt); else if(HM.on) dayNight(dt,false,REALMS[HM.r]); else { dayNight(dt,center,theme); tickWeather(dt,REALMS.indexOf(theme),center); tickParticles(dt,P.x,P.z,center?1:REALMS.indexOf(theme)); } ATMO.tick(dt,REALMS.indexOf(theme),center,DG.on||HM.on); CLOUDS.forEach(c=>{ c.position.x+=c.userData.v*dt; if(c.position.x>280) c.position.x=-280; });
   // 카메라
   const low=ZOOM<1?.6+.4*ZOOM:1; const cz=P.z+12.5*ZOOM, cy=11.5*ZOOM*low; P.shake=Math.max(0,(P.shake||0)-dt*3); P.hitFlash=Math.max(0,(P.hitFlash||0)-dt); hitTint(player,P.hitFlash/.25*.8,0xff4040); const sh=P.shake*.35; const gy=P.gy||0; if(P.preview){ const a=performance.now()/2600; camera.position.lerp(new THREE.Vector3(P.x+Math.sin(a)*9,gy+4.2,P.z+Math.cos(a)*9),Math.min(1,dt*5)); camera.lookAt(P.x,gy-.6,P.z); } else { camera.position.lerp(new THREE.Vector3(P.x,gy+cy,cz),Math.min(1,dt*7)); camera.lookAt(P.x+rnd(-sh,sh),gy+2.2+(1-low)*1.2+rnd(-sh,sh),P.z-5*ZOOM); } { const zf=Math.max(1,ZOOM*.85); scene.fog.near*=zf; scene.fog.far*=zf; } const tfov=(innerWidth<innerHeight?66:52)+(P.atkAnim>.2?3:0); camera.fov+=(tfov-camera.fov)*Math.min(1,dt*8); camera.updateProjectionMatrix(); TIME.value=performance.now()/1000; skyMat.uniforms.time.value=TIME.value; WATER.uniforms.sunDir.value.copy(sun.position).sub(new THREE.Vector3(P.x,0,P.z)).normalize(); if(POST){ P.tintA=Math.max(0,(P.tintA||0)-dt/(P.tintD||1)); POST.comp.uniforms.tintA.value=P.tintA; if(P.tintC) POST.comp.uniforms.tint.value.copy(P.tintC); } if(POST) POST.comp.uniforms.hurt.value=P.hp/st.mhp<.3?.6+Math.sin(performance.now()/150)*.3:P.hitFlash>0?.8:0; P.hitFlash=Math.max(0,P.hitFlash-dt);
-  toastT-=dt; if(toastT<=0) $("toast").style.opacity=0; mmT-=dt; if(mmT<=0){ mmT=.25; if(DG.on) dgMinimap(); else if(HM.on) hmMinimap(); else drawMinimap(); } hud();
+  toastT-=dt; if(toastT<=0) $("toast").style.opacity=0; mmT-=dt; if(mmT<=0){ mmT=ECO()?.5:.25; if(DG.on) dgMinimap(); else if(HM.on) hmMinimap(); else drawMinimap(); } hud();
 }
 function resize(){ const w=innerWidth,h=innerHeight; try{ renderer.setPixelRatio(ecoRatio()); }catch(e){} renderer.setSize(w,h,false); camera.aspect=w/h; camera.fov=w<h?66:52; camera.updateProjectionMatrix(); }
 addEventListener("resize",resize); resize();
 camera.position.set(0,30,60); camera.lookAt(0,10,0);
 /* v19.2 배터리 절약: 화면을 초당 30장만 그림(120Hz 탭은 원래 120장!), 20초 넘게 안 만지고 싸우지 않으면 20장, 첫 화면 15장 */
 let lastInput=performance.now(); ["pointerdown","keydown"].forEach(ev=>addEventListener(ev,()=>{ lastInput=performance.now(); },true));
-function frameGap(t){ if(!ECO()) return 0; if(!started) return 1/12; const calm=P.combat<=0&&!P.moving&&!P.dead; if(layerOpen&&calm) return 1/12; if(t-lastInput>10000&&calm) return 1/15; return 1/30; }
+function isCalm(){ return P.combat<=0&&!P.moving&&!P.dead&&!(typeof DG!=="undefined"&&DG.on)&&!(typeof WAR!=="undefined"&&WAR&&WAR.joined); }
+function frameGap(t){ if(!ECO()) return 0; if(!started) return 1/10; const calm=isCalm(), idle=t-lastInput; if(layerOpen&&calm) return 1/8; if(calm&&idle>45000) return 1/6; if(calm&&idle>8000) return 1/12; if(calm&&idle>2500) return 1/20; return LOWBAT.on?1/24:1/30; }
 let shadowN=0;
-function frame(t){ requestAnimationFrame(frame); if((t-last)/1000<frameGap(t)-.004) return; const dt=Math.min(.05,(t-last)/1000); last=t; if(started) update(dt); else { const a=t/9000; camera.position.set(Math.sin(a)*70,30,Math.cos(a)*70); camera.lookAt(0,18,0); tickFX(dt); dayNight(dt,true,REALMS[0]); } if(ECO()&&renderer.shadowMap.enabled){ if(++shadowN%3===1) renderer.shadowMap.needsUpdate=true; } if(POST&&started) POST.render(); else { renderer.setRenderTarget(null); renderer.render(scene,camera); } }
+function frame(t){ requestAnimationFrame(frame); if((t-last)/1000<frameGap(t)-.004) return; const dt=Math.min(.05,(t-last)/1000); last=t; if(started) update(dt); else { const a=t/9000; camera.position.set(Math.sin(a)*70,30,Math.cos(a)*70); camera.lookAt(0,18,0); tickFX(dt); dayNight(dt,true,REALMS[0]); } if(ECO()&&renderer.shadowMap.enabled){ if(++shadowN%(isCalm()?8:4)===1) renderer.shadowMap.needsUpdate=true; } if(POST&&started) POST.render(); else { renderer.setRenderTarget(null); renderer.render(scene,camera); } }
 $("bQuest").onclick=()=>{ if(P.nearTemple) showTemple(); else showQuests(); };
 showTitle(); requestAnimationFrame(frame);
 window.__gw={FG,showForge,fgStart,fgHit,fgDone,fgGive,fgLv,fgMul,RC,RCO,rcStart,rcEnd,rcBoard,showRace,rdSet,rdCan,WD,WDO,wdDonate,wdTotal,wdStage,wdGive,showWonder,wdData,HM,HOMES,DECO,hmEnter,hmExit,hmGift,hmAdd,hmBlessMsg,hmMsg,showHome,hmSlotCard,hmCollect,FS,startFish,fishPull,fishCaught,trapSet,trapClaim,showFish,nearWater,fishSpots,ssData,ssTasks,ssClaim,showSeason,ssMsg,ssNo,ssAdd,ssWinner,SSO,CTX,DG,dgEnter,dgFloor,dgFinish,dgPlan,showDungeon,showTitles,TITLES,showExp,expStart,expClaim,EXPO,DGR,TB,titanHit,titanDefeated,showTitan,titanGo,showPets,hatchEgg,petOnKill,comboFire,comboRecv,showCombos,PETMESH,idleSim,grantIdle,showIdleReport,ROSTER,autoFace,buildPlayer,GHOSTS,mmoProfile,showRoster,G,P,mobs,W,net,PEERS,WAR,forceWar,resolveWar,joinWar,begin,update,spawnMob,spawnAtHome,REGIONS,attack,useSkill,startTrial,die,respawn};
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="feef775a";
+(function(){ var CUR="7b1a6e75";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);

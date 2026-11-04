@@ -9,8 +9,11 @@ const fmt=n=>Math.round(n).toLocaleString("ko-KR");
 function save(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
 function load(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
 let soundOn=load("gw-sound")!=="0", actx=null;
-function initAudio(){ if(!actx){ try{ actx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } if(actx&&actx.state==="suspended") actx.resume(); }
-function tone(f,d,type,delay,vol){ if(!soundOn||!actx) return; const t=actx.currentTime+(delay||0),o=actx.createOscillator(),g=actx.createGain(); o.type=type||"sine"; o.frequency.setValueAtTime(f,t); g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(vol||.15,t+.01); g.gain.exponentialRampToValueAtTime(.0001,t+d); o.connect(g).connect(actx.destination); o.start(t); o.stop(t+d+.03); }
+let audioNap=null;   // v30 배터리: 4초 동안 소리가 없으면 소리 장치를 재움(안드로이드는 조용해도 소리 스레드가 계속 돎)
+function audioWake(){ if(actx&&actx.state==="suspended") try{ actx.resume(); }catch(e){} clearTimeout(audioNap); audioNap=setTimeout(()=>{ try{ if(actx&&actx.state==="running") actx.suspend(); }catch(e){} },4000); }
+function initAudio(){ if(!actx){ try{ actx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } audioWake(); }
+document.addEventListener("visibilitychange",()=>{ if(document.hidden&&actx) try{ actx.suspend(); }catch(e){} });
+function tone(f,d,type,delay,vol){ if(!soundOn||!actx) return; audioWake(); const t=actx.currentTime+(delay||0),o=actx.createOscillator(),g=actx.createGain(); o.type=type||"sine"; o.frequency.setValueAtTime(f,t); g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(vol||.15,t+.01); g.gain.exponentialRampToValueAtTime(.0001,t+d); o.connect(g).connect(actx.destination); o.start(t); o.stop(t+d+.03); }
 function jingle(arr){ arr.forEach((f,k)=>tone(f,.14,"triangle",k*.08)); }
 function thud(){ tone(110,.12,"square",0,.12); tone(70,.18,"sawtooth",.02,.08); }
 function buzz(ms){ try{ if(navigator.vibrate) navigator.vibrate(ms||30); }catch(e){} }
@@ -74,10 +77,13 @@ function inCapital(x,z){ const r=regionAt(x,z); return r&&r.cap?r:null; }
 /* ================= 3D 장면 ================= */
 const canvas=$("view");
 const HIGH=()=>G.gfx!=="low";
-const ECO=()=>G.eco!==false;   // v19.2 배터리 절약(기본 켬): 초당 30장, 화면 해상도·그림자 낮춤, 가만히 있으면 20장
+const ECO=()=>G.eco!==false;
+/* v30 배터리: 배터리가 20% 이하이고 충전 중이 아니면 자동 초절약(초당 24장·해상도 더 낮게) */
+const LOWBAT={on:false,told:false};
+try{ navigator.getBattery&&navigator.getBattery().then(b=>{ const f=()=>{ const on=ECO()&&!b.charging&&b.level<=.2; if(on!==LOWBAT.on){ LOWBAT.on=on; try{ resize(); }catch(e){} if(on&&!LOWBAT.told&&typeof toast==="function"){ LOWBAT.told=true; toast("🔋 배터리가 얼마 없어요","초절약 모드로 바꿨어요 (충전하면 원래대로)",3); } } }; f(); b.addEventListener("levelchange",f); b.addEventListener("chargingchange",f); }).catch(()=>{}); }catch(e){}   // v19.2 배터리 절약(기본 켬): 초당 30장, 화면 해상도·그림자 낮춤, 가만히 있으면 20장
 const renderer=new THREE.WebGLRenderer({canvas,antialias:!ECO(),powerPreference:ECO()?"low-power":"high-performance"});
 /* v20.2 배터리 절약 강화: 화면 크기와 상관없이 그리는 점 개수를 약 90만 개로 제한(큰 탭은 원래 400만 개 넘게 그렸음) */
-function ecoRatio(){ const dpr=devicePixelRatio||1; if(!ECO()) return Math.min(dpr,HIGH()?2:1.5); const px=Math.max(1,innerWidth*innerHeight); return clamp(Math.min(dpr,Math.sqrt(900000/px),HIGH()?1.5:1.2),.6,2); }
+function ecoRatio(){ const dpr=devicePixelRatio||1; if(!ECO()) return Math.min(dpr,HIGH()?2:1.5); const px=Math.max(1,innerWidth*innerHeight); return clamp(Math.min(dpr,Math.sqrt((LOWBAT.on?500000:700000)/px),HIGH()?1.4:1.15),.55,2); }
 renderer.setPixelRatio(ecoRatio());
 renderer.shadowMap.enabled=HIGH(); renderer.shadowMap.type=ECO()?THREE.PCFShadowMap:THREE.PCFSoftShadowMap; if(ECO()) renderer.shadowMap.autoUpdate=false;   // 절약 모드: 그림자는 3장에 한 번만 다시 계산
 renderer.outputEncoding=THREE.sRGBEncoding; renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=.95;
