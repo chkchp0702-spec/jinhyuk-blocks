@@ -250,6 +250,31 @@ html,body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;t
 .ssroad{display:grid;grid-template-columns:repeat(10,1fr);gap:4px} .ssroad div{position:relative;aspect-ratio:1;border-radius:9px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;opacity:.55} .ssroad div em{font-style:normal;font-size:15px} .ssroad div i{position:absolute;right:2px;bottom:0;font-style:normal;font-size:8px;color:#ddd}
 .ssroad div.big{border-color:#ffcf4a} .ssroad div.ready{opacity:1;background:linear-gradient(180deg,#ffe58a,#ffb52e);box-shadow:0 0 10px #ffcf4a;animation:ctxPulse2 1s ease-in-out infinite} .ssroad div.got{opacity:1;background:rgba(63,210,122,.35);border-color:#3fd27a} @keyframes ctxPulse2{50%{transform:scale(1.08)}}
 .ssbar{display:flex;align-items:center;gap:8px;font-size:13px} .ssbar span{width:96px} .ssbar b{flex:1;height:12px;border-radius:6px;background:rgba(0,0,0,.4);overflow:hidden} .ssbar b i{display:block;height:100%;border-radius:6px} .ssbar small{width:82px;text-align:right;color:#ddd}
+
+/* v26 첫 화면: 뒤 세계가 비치는 어둠 테두리, 빛살·빛가루, 금빛 로고(반짝 훑기), 이어하기 영웅 카드, 오늘의 팁 */
+body:has(#title) .hud,body:has(#title) .acts,body:has(#title) #minimap,body:has(#title) #zoomBtns,body:has(#title) #quest,body:has(#title) #chat,body:has(#title) #labels,body:has(#title) #guide,body:has(#title) #warbar,body:has(#title) #bossbar{visibility:hidden}
+#title{backdrop-filter:none;background:radial-gradient(ellipse 70% 60% at 50% 32%,rgba(70,40,160,.12),rgba(10,5,26,.5) 60%,rgba(4,2,12,.93) 100%)}
+.tFx{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+.tRays{position:absolute;left:50%;top:15%;width:1000px;height:1000px;margin:-500px 0 0 -500px;background:repeating-conic-gradient(from 0deg,rgba(255,214,120,.17) 0deg 5deg,rgba(255,214,120,0) 5deg 15deg);-webkit-mask:radial-gradient(circle,#000 0,rgba(0,0,0,.6) 22%,rgba(0,0,0,0) 46%);mask:radial-gradient(circle,#000 0,rgba(0,0,0,.6) 22%,rgba(0,0,0,0) 46%);animation:tSpin 80s linear infinite}
+.tGlow{position:absolute;left:50%;top:15%;width:520px;height:220px;margin:-110px 0 0 -260px;border-radius:50%;background:radial-gradient(ellipse,rgba(255,190,80,.32),rgba(255,140,40,0) 70%)}
+.tFx s{position:absolute;bottom:-12px;left:var(--x);width:var(--z);height:var(--z);border-radius:50%;background:#fff1c2;box-shadow:0 0 6px 1px rgba(255,200,90,.9);opacity:0;animation:tUp var(--d) linear var(--dl) infinite}
+@keyframes tSpin{to{transform:rotate(360deg)}}
+@keyframes tUp{0%{transform:translate(0,0);opacity:0}12%{opacity:.95}80%{opacity:.6}100%{transform:translate(var(--dx),-105vh);opacity:0}}
+#title .titlebox{position:relative;z-index:1}
+#title .logo{background:linear-gradient(105deg,rgba(255,255,255,0) 42%,rgba(255,255,255,.95) 50%,rgba(255,255,255,0) 58%) no-repeat,linear-gradient(180deg,#fffbea 0%,#ffe27a 36%,#f29a1c 58%,#ffd257 80%,#fff0a8 100%);background-size:300% 100%,100% 100%;background-position:150% 0,0 0;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;text-shadow:none;filter:drop-shadow(0 2px 0 #7a3c00) drop-shadow(0 4px 0 #3a1a00) drop-shadow(0 0 16px rgba(255,180,60,.55));animation:tShine 4.5s ease-in-out 1s infinite}
+@keyframes tShine{0%{background-position:150% 0,0 0}35%,100%{background-position:-50% 0,0 0}}
+#title .logo span{-webkit-text-fill-color:#ffe9b0;color:#ffe9b0;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:4px}
+#title .logo span::before,#title .logo span::after{content:"";width:46px;height:2px;border-radius:2px;background:linear-gradient(90deg,rgba(255,207,74,0),#ffcf4a)} #title .logo span::after{transform:scaleX(-1)}
+#title .help{text-shadow:0 1px 3px #000,0 0 8px rgba(0,0,0,.8)}
+.tHero{display:flex;align-items:center;gap:12px;padding:9px 20px 9px 9px;border-radius:22px;background:linear-gradient(135deg,var(--a),var(--b));border:2px solid rgba(255,255,255,.6);box-shadow:0 0 0 3px rgba(255,207,74,.6),0 7px 0 rgba(0,0,0,.45),0 0 34px rgba(255,200,90,.35);min-width:300px;text-align:left;margin-top:6px;animation:tIn .6s cubic-bezier(.2,.9,.3,1.2) both}
+.tHero em{font-style:normal;font-size:30px;width:56px;height:56px;flex:none;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 40% 35%,rgba(255,255,255,.35),rgba(0,0,0,.3));border:2px solid rgba(255,255,255,.7);text-shadow:0 2px 0 rgba(0,0,0,.4)}
+.tHero b{display:block;font-family:var(--title);font-weight:400;font-size:25px;line-height:1.05;text-shadow:0 2px 0 rgba(0,0,0,.45)} .tHero span{font-size:13px;opacity:.95}
+.tHero i{margin-left:auto;font-style:normal;font-family:var(--title);font-size:24px;color:#ffe27a;text-shadow:0 2px 0 #000;padding-left:14px}
+.tGo{animation:tPulse 1.8s ease-in-out infinite;margin-top:4px}
+@keyframes tPulse{0%,100%{transform:scale(1);filter:brightness(1)}50%{transform:scale(1.05);filter:brightness(1.12) drop-shadow(0 0 12px rgba(255,207,74,.8))}}
+@keyframes tIn{0%{opacity:0;transform:translateY(14px) scale(.92)}100%{opacity:1;transform:none}}
+#title .realm{animation:tIn .5s cubic-bezier(.2,.9,.3,1.2) both} #title .realm:nth-child(2){animation-delay:.07s} #title .realm:nth-child(3){animation-delay:.14s} #title .realm:nth-child(4){animation-delay:.21s}
+.tTip{font-size:12.5px;color:#fff3cf;background:rgba(10,6,28,.62);border:1px solid rgba(255,207,74,.35);border-radius:999px;padding:4px 14px;margin:2px 0 0;text-shadow:0 1px 2px #000}
 </style>
 </head>
 <body>
@@ -303,7 +328,7 @@ html,body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;t
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v25";
+const VER="v26";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -2929,11 +2954,13 @@ function showTemple(){ const R=RM(); const next=G.rank+1; const can=canTrial();
   layers.querySelectorAll("[data-buy]").forEach(b=>b.onclick=()=>{ const s=b.dataset.buy, t=+b.dataset.t; if(G.gold<SHOP_PRICE[t]) return; G.gold-=SHOP_PRICE[t]; G.bag.push({s,t}); jingle([659,784,1046]); saveGame(); showTemple(); });
   $("buyPot").onclick=()=>{ if(G.gold<40) return; G.gold-=40; G.pots++; tone(880,.08); saveGame(); showTemple(); }; $("rest").onclick=()=>{ P.hp=stat().mhp; closeLayer(); toast("기도로 몸을 회복했어요"); jingle([523,659,784]); }; }
 function showDeath(by,lost){ const R=RM(); layers.innerHTML=`<div class="layer death"><div class="titlebox"><div class="logo" style="font-size:min(12vw,54px)">쓰러졌다</div><p class="help">${by?`${by}에게 당했어요.`:""}<br>${R.respawn.desc}.<br><span style="color:#ff8d8d">${R.respawn.pen}</span>${lost>0?`<br>잃은 금화의 절반(${fmt(Math.round(lost*.5))})이 쓰러진 자리에 떨어졌어요. 2분 안에 가서 주우면 돼요.`:""}</p><button class="go" id="rsp" disabled>부활 <span id="rspT">6</span></button></div></div>`; layerOpen=true; }
+const TTIPS=["점프를 두 번 누르면 2단 점프! 공중에서는 공격을 피해요","물가에서 🎣 낚시 — 찌가 쏙 들어가면 당기기!","🌀 신들의 미궁은 매일 모양이 바뀌어요","쉬는 동안에도 내 캐릭터가 혼자 수련해요","던지기 버튼으로 무기를 휙 던질 수 있어요","형제가 같이 원정을 보내면 보상이 2배!","🔨 대장간에서 박자를 맞추면 무기가 더 세져요","🏡 나만의 신전을 꾸미고 친구에게 축복 도장을 받아요","전쟁에 함께 나가 우리 세계의 영토를 넓혀요"];
 function showTitle(){
   const pickRealm=G.realm>=0?G.realm:-1;
-  layers.innerHTML=`<div class="layer" id="title"><div class="titlebox"><div class="logo">신들의 전쟁<span>WAR OF GODS</span></div>
+  const sp=Array.from({length:HIGH()?18:9},(_,i)=>`<s style="--x:${(i*53+7)%100}%;--z:${2+(i*7)%4}px;--d:${7+(i*3)%6}s;--dl:-${(i*1.7)%9}s;--dx:${((i*37)%60)-30}px"></s>`).join("");
+  layers.innerHTML=`<div class="layer" id="title"><div class="tFx"><i class="tGlow"></i><i class="tRays"></i>${sp}</div><div class="titlebox"><div class="logo">신들의 전쟁<span>WAR OF GODS</span></div>
     ${!ACCESS?`<p class="help">비밀번호를 아는 사람만 들어올 수 있어요.</p><input class="inp" id="roomIn" type="password" inputmode="numeric" maxlength="12" placeholder="비밀번호" autocomplete="off"><button class="go" id="roomGo">들어가기</button><p class="help" id="passErr" style="color:#ff8d8d;min-height:1.2em"></p>`:
-    (G.realm>=0?`<p class="help"><b style="color:var(--gold)">${G.name}</b> · ${RM().n} ${RM().ranks[G.rank]} Lv.${G.lv}</p><button class="go" id="start">계속하기</button>`:
+    (G.realm>=0?`<div class="tHero" style="--a:${RM().a};--b:${RM().b}"><em>${RM().icon}</em><div><b>${G.name}</b><span>${RM().n} · ${RM().ranks[G.rank]}</span></div><i>Lv.${G.lv}</i></div><button class="go tGo" id="start">⚔️ 계속하기</button><p class="tTip">💡 ${TTIPS[Math.floor(Math.random()*TTIPS.length)]}</p>`:
     `<p class="help">네 세계 중 하나를 골라요. 한 번 고르면 바꿀 수 없어요.<br>괴물을 잡고 승급 시험을 통과해 절대자 바로 아래까지 올라가고, 다른 세계와 싸워 영토를 넓혀요.</p>
      <div class="realms">${REALMS.map((R,i)=>`<button type="button" class="realm${i===pickRealm?" on":""}" data-r="${i}" style="--a:${R.a};--b:${R.b}"><em>${R.icon}</em><b>${R.n}</b><i>${R.sub}<br>절대자: ${R.absolute}<br>기술: ${R.skills.map(x=>x.n).join(", ")}</i></button>`).join("")}</div>
      <input class="inp" id="nameIn" maxlength="8" placeholder="이름 (8자까지)" value="${G.name||""}"><button class="go" id="start" disabled>이 세계로!</button>`)}
@@ -2989,7 +3016,7 @@ window.__gw={FG,showForge,fgStart,fgHit,fgDone,fgGive,fgLv,fgMul,RC,RCO,rcStart,
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="013791ed";
+(function(){ var CUR="bee03fda";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);

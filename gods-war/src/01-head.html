@@ -250,6 +250,31 @@ html,body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;t
 .ssroad{display:grid;grid-template-columns:repeat(10,1fr);gap:4px} .ssroad div{position:relative;aspect-ratio:1;border-radius:9px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;opacity:.55} .ssroad div em{font-style:normal;font-size:15px} .ssroad div i{position:absolute;right:2px;bottom:0;font-style:normal;font-size:8px;color:#ddd}
 .ssroad div.big{border-color:#ffcf4a} .ssroad div.ready{opacity:1;background:linear-gradient(180deg,#ffe58a,#ffb52e);box-shadow:0 0 10px #ffcf4a;animation:ctxPulse2 1s ease-in-out infinite} .ssroad div.got{opacity:1;background:rgba(63,210,122,.35);border-color:#3fd27a} @keyframes ctxPulse2{50%{transform:scale(1.08)}}
 .ssbar{display:flex;align-items:center;gap:8px;font-size:13px} .ssbar span{width:96px} .ssbar b{flex:1;height:12px;border-radius:6px;background:rgba(0,0,0,.4);overflow:hidden} .ssbar b i{display:block;height:100%;border-radius:6px} .ssbar small{width:82px;text-align:right;color:#ddd}
+
+/* v26 첫 화면: 뒤 세계가 비치는 어둠 테두리, 빛살·빛가루, 금빛 로고(반짝 훑기), 이어하기 영웅 카드, 오늘의 팁 */
+body:has(#title) .hud,body:has(#title) .acts,body:has(#title) #minimap,body:has(#title) #zoomBtns,body:has(#title) #quest,body:has(#title) #chat,body:has(#title) #labels,body:has(#title) #guide,body:has(#title) #warbar,body:has(#title) #bossbar{visibility:hidden}
+#title{backdrop-filter:none;background:radial-gradient(ellipse 70% 60% at 50% 32%,rgba(70,40,160,.12),rgba(10,5,26,.5) 60%,rgba(4,2,12,.93) 100%)}
+.tFx{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+.tRays{position:absolute;left:50%;top:15%;width:1000px;height:1000px;margin:-500px 0 0 -500px;background:repeating-conic-gradient(from 0deg,rgba(255,214,120,.17) 0deg 5deg,rgba(255,214,120,0) 5deg 15deg);-webkit-mask:radial-gradient(circle,#000 0,rgba(0,0,0,.6) 22%,rgba(0,0,0,0) 46%);mask:radial-gradient(circle,#000 0,rgba(0,0,0,.6) 22%,rgba(0,0,0,0) 46%);animation:tSpin 80s linear infinite}
+.tGlow{position:absolute;left:50%;top:15%;width:520px;height:220px;margin:-110px 0 0 -260px;border-radius:50%;background:radial-gradient(ellipse,rgba(255,190,80,.32),rgba(255,140,40,0) 70%)}
+.tFx s{position:absolute;bottom:-12px;left:var(--x);width:var(--z);height:var(--z);border-radius:50%;background:#fff1c2;box-shadow:0 0 6px 1px rgba(255,200,90,.9);opacity:0;animation:tUp var(--d) linear var(--dl) infinite}
+@keyframes tSpin{to{transform:rotate(360deg)}}
+@keyframes tUp{0%{transform:translate(0,0);opacity:0}12%{opacity:.95}80%{opacity:.6}100%{transform:translate(var(--dx),-105vh);opacity:0}}
+#title .titlebox{position:relative;z-index:1}
+#title .logo{background:linear-gradient(105deg,rgba(255,255,255,0) 42%,rgba(255,255,255,.95) 50%,rgba(255,255,255,0) 58%) no-repeat,linear-gradient(180deg,#fffbea 0%,#ffe27a 36%,#f29a1c 58%,#ffd257 80%,#fff0a8 100%);background-size:300% 100%,100% 100%;background-position:150% 0,0 0;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;text-shadow:none;filter:drop-shadow(0 2px 0 #7a3c00) drop-shadow(0 4px 0 #3a1a00) drop-shadow(0 0 16px rgba(255,180,60,.55));animation:tShine 4.5s ease-in-out 1s infinite}
+@keyframes tShine{0%{background-position:150% 0,0 0}35%,100%{background-position:-50% 0,0 0}}
+#title .logo span{-webkit-text-fill-color:#ffe9b0;color:#ffe9b0;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:4px}
+#title .logo span::before,#title .logo span::after{content:"";width:46px;height:2px;border-radius:2px;background:linear-gradient(90deg,rgba(255,207,74,0),#ffcf4a)} #title .logo span::after{transform:scaleX(-1)}
+#title .help{text-shadow:0 1px 3px #000,0 0 8px rgba(0,0,0,.8)}
+.tHero{display:flex;align-items:center;gap:12px;padding:9px 20px 9px 9px;border-radius:22px;background:linear-gradient(135deg,var(--a),var(--b));border:2px solid rgba(255,255,255,.6);box-shadow:0 0 0 3px rgba(255,207,74,.6),0 7px 0 rgba(0,0,0,.45),0 0 34px rgba(255,200,90,.35);min-width:300px;text-align:left;margin-top:6px;animation:tIn .6s cubic-bezier(.2,.9,.3,1.2) both}
+.tHero em{font-style:normal;font-size:30px;width:56px;height:56px;flex:none;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 40% 35%,rgba(255,255,255,.35),rgba(0,0,0,.3));border:2px solid rgba(255,255,255,.7);text-shadow:0 2px 0 rgba(0,0,0,.4)}
+.tHero b{display:block;font-family:var(--title);font-weight:400;font-size:25px;line-height:1.05;text-shadow:0 2px 0 rgba(0,0,0,.45)} .tHero span{font-size:13px;opacity:.95}
+.tHero i{margin-left:auto;font-style:normal;font-family:var(--title);font-size:24px;color:#ffe27a;text-shadow:0 2px 0 #000;padding-left:14px}
+.tGo{animation:tPulse 1.8s ease-in-out infinite;margin-top:4px}
+@keyframes tPulse{0%,100%{transform:scale(1);filter:brightness(1)}50%{transform:scale(1.05);filter:brightness(1.12) drop-shadow(0 0 12px rgba(255,207,74,.8))}}
+@keyframes tIn{0%{opacity:0;transform:translateY(14px) scale(.92)}100%{opacity:1;transform:none}}
+#title .realm{animation:tIn .5s cubic-bezier(.2,.9,.3,1.2) both} #title .realm:nth-child(2){animation-delay:.07s} #title .realm:nth-child(3){animation-delay:.14s} #title .realm:nth-child(4){animation-delay:.21s}
+.tTip{font-size:12.5px;color:#fff3cf;background:rgba(10,6,28,.62);border:1px solid rgba(255,207,74,.35);border-radius:999px;padding:4px 14px;margin:2px 0 0;text-shadow:0 1px 2px #000}
 </style>
 </head>
 <body>
