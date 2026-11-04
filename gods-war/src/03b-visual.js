@@ -83,7 +83,7 @@ const POST=(function(){
   const vs=`varying vec2 vUv; void main(){ vUv=uv; gl_Position=vec4(position.xy,0.,1.); }`;
   const bright=new THREE.ShaderMaterial({uniforms:{t:{value:null},th:{value:.82}},vertexShader:vs,fragmentShader:`uniform sampler2D t; uniform float th; varying vec2 vUv; void main(){ vec4 c=texture2D(t,vUv); float l=dot(c.rgb,vec3(.299,.587,.114)); float k=smoothstep(th,th+.18,l); gl_FragColor=vec4(c.rgb*k,1.); }`,depthTest:false,depthWrite:false});
   const blur=new THREE.ShaderMaterial({uniforms:{t:{value:null},dir:{value:new THREE.Vector2(1,0)},res:{value:new THREE.Vector2(1,1)}},vertexShader:vs,fragmentShader:`uniform sampler2D t; uniform vec2 dir,res; varying vec2 vUv; void main(){ vec2 o=dir/res; vec4 s=texture2D(t,vUv)*.227; s+=(texture2D(t,vUv+o*1.38)+texture2D(t,vUv-o*1.38))*.316; s+=(texture2D(t,vUv+o*3.23)+texture2D(t,vUv-o*3.23))*.07; s+=(texture2D(t,vUv+o*5.1)+texture2D(t,vUv-o*5.1))*.02; gl_FragColor=s; }`,depthTest:false,depthWrite:false});
-  const comp=new THREE.ShaderMaterial({uniforms:{t:{value:null},b:{value:null},str:{value:.75},hurt:{value:0},tint:{value:new THREE.Color(0xffffff)},tintA:{value:0}},vertexShader:vs,fragmentShader:`uniform sampler2D t,b; uniform float str,hurt,tintA; uniform vec3 tint; varying vec2 vUv; void main(){ vec3 c=texture2D(t,vUv).rgb; vec3 g=texture2D(b,vUv).rgb; c+=g*str; float l=dot(c,vec3(.299,.587,.114)); c=mix(vec3(l),c,1.12); vec2 d=vUv-.5; float v=1.-dot(d,d)*.9; c*=v; c=mix(c,vec3(.8,.05,.1),hurt*(1.-v)*2.); c=mix(c,tint*(.6+l),tintA*(.35+(1.-v)*.8)); gl_FragColor=vec4(c,1.); }`,depthTest:false,depthWrite:false});
+  const comp=new THREE.ShaderMaterial({uniforms:{t:{value:null},b:{value:null},str:{value:.75},hurt:{value:0},tint:{value:new THREE.Color(0xffffff)},tintA:{value:0},lift:{value:new THREE.Vector3()},gain:{value:new THREE.Vector3(1,1,1)},con:{value:0},sat:{value:1.12},vig:{value:.9}},vertexShader:vs,fragmentShader:`uniform sampler2D t,b; uniform float str,hurt,tintA,con,sat,vig; uniform vec3 tint,lift,gain; varying vec2 vUv; void main(){ vec3 c=texture2D(t,vUv).rgb; vec3 g=texture2D(b,vUv).rgb; c+=g*str; c=clamp(c*gain+lift*(1.-c),0.,1.); c=mix(c,c*c*(3.-2.*c),con); float l=dot(c,vec3(.299,.587,.114)); c=mix(vec3(l),c,sat); vec2 d=vUv-.5; float v=1.-dot(d,d)*vig; c*=v; c=mix(c,vec3(.8,.05,.1),hurt*(1.-v)*2.); c=mix(c,tint*(.6+l),tintA*(.35+(1.-v)*.8)); gl_FragColor=vec4(c,1.); }`,depthTest:false,depthWrite:false});
   const mk=(w,h)=>{ const r=new THREE.WebGLRenderTarget(w,h,{minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter,format:THREE.RGBAFormat,depthBuffer:true,stencilBuffer:false}); r.texture.encoding=THREE.sRGBEncoding; return r; };
   const S={rt:null,a:null,b:null,w:0,h:0};
   function size(w,h){ if(S.w===w&&S.h===h) return; S.w=w;S.h=h; [S.rt,S.a,S.b].forEach(r=>r&&r.dispose()); S.rt=mk(w,h); const bw=Math.max(64,Math.round(w/4)), bh=Math.max(64,Math.round(h/4)); S.a=mk(bw,bh); S.b=mk(bw,bh); S.a.depthBuffer=S.b.depthBuffer=false; blur.uniforms.res.value.set(bw,bh); }
@@ -92,5 +92,28 @@ const POST=(function(){
     bright.uniforms.t.value=S.rt.texture; pass(bright,S.a); blur.uniforms.t.value=S.a.texture; blur.uniforms.dir.value.set(1,0); pass(blur,S.b); blur.uniforms.t.value=S.b.texture; blur.uniforms.dir.value.set(0,1); pass(blur,S.a); blur.uniforms.t.value=S.a.texture; blur.uniforms.dir.value.set(1.6,0); pass(blur,S.b); blur.uniforms.t.value=S.b.texture; blur.uniforms.dir.value.set(0,1.6); pass(blur,S.a);
     comp.uniforms.t.value=S.rt.texture; comp.uniforms.b.value=S.a.texture; comp.uniforms.str.value=.45+(1-DAY.d)*.5; pass(comp,null); }
   return {render,comp};
+})();
+/* v45: 색감 톤 보정(영화처럼) — 세계마다 그림자·밝은 곳 색을 살짝 다르게(에덴 금빛·아스가르드 차가운 푸름·인도 노을 자줏빛·올림푸스 맑은 청록+금빛), 밤엔 푸른 그림자, 미궁은 보랏빛+짙은 가장자리, 사막은 뜨거운 주황. 높음 그래픽(POST 있을 때)만 — 이미 그리는 마지막 한 장에 계산 몇 줄만 더함 */
+const GRADE=(function(){
+  const LK={ //  lift(그림자 색)          gain(밝은 곳 색)       con   sat   vig
+    0:[[.022,.012,-.004],[1.0,.98,.91],.1,1.14,.95],
+    1:[[-.008,.006,.03],[.96,.98,1.03],.09,1.08,.92],
+    2:[[.026,-.004,.03],[1.02,.96,.91],.12,1.2,.98],
+    3:[[-.01,.016,.024],[1.0,.99,.95],.1,1.14,.92],
+    dg:[[.03,-.006,.05],[.96,.93,1.04],.18,1.1,1.35],
+    ds:[[.03,.01,-.012],[1.03,.97,.86],.12,1.12,1.0],
+    night:[[-.015,0,.05],[.94,.97,1.06],.08,.98,1.12]};
+  const cur={l:new THREE.Vector3(0,0,0),g:new THREE.Vector3(1,1,1),c:0,s:1.12,v:.9}, tl=new THREE.Vector3(), tg=new THREE.Vector3(), NL=new THREE.Vector3(...LK.night[0]), NG=new THREE.Vector3(...LK.night[1]); let chk=0, key=1;
+  /* 절약 모드(빛 번짐 없음)에선 화면 가장자리만 세계 색으로 은은히 물드는 고정 그림 한 장(움직이지 않음, 바뀔 때만 다시 씀) */
+  const VC={0:"40,22,0",1:"6,22,52",2:"52,8,40",3:"0,30,40",dg:"30,0,50",ds:"60,24,0"}; let vEl=null, vKey=null, vN=-1;
+  function lite(n){ if(!vEl){ vEl=document.createElement("div"); vEl.id="gradeV"; vEl.style.cssText="position:fixed;inset:0;pointer-events:none;z-index:0"; const lb=document.getElementById("labels"); (lb&&lb.parentNode||document.body).insertBefore(vEl,lb||null); } const nn=Math.round(n*4); if(vKey===key&&vN===nn) return; vKey=key; vN=nn; const c=n>.5?"4,10,40":(VC[key]||VC[1]), a=(key==="dg"?.55:.3)+nn*.04; vEl.style.background=`radial-gradient(ellipse 75% 70% at 50% 46%,rgba(${c},0) 55%,rgba(${c},${a.toFixed(2)}) 100%)`; }
+  function tick(dt){
+    if((chk-=dt)<=0){ chk=.5; if(typeof DG!=="undefined"&&DG.on) key="dg"; else if(typeof DS!=="undefined"&&DS.on) key="ds"; else { const r=regionAt(P.x,P.z); key=r&&r.realm>=0?r.realm:G.realm; } }
+    if(!POST){ if(chk===.5) lite(key==="dg"?0:clamp((.62-((typeof DAY!=="undefined"&&DAY.d!=null)?DAY.d:1))/.3,0,1)); return; } const U=POST.comp.uniforms;
+    const L=LK[key]||LK[1], N=LK.night, n=key==="dg"?0:clamp((.62-((typeof DAY!=="undefined"&&DAY.d!=null)?DAY.d:1))/.3,0,1);
+    tl.set(L[0][0],L[0][1],L[0][2]).lerp(NL,n); tg.set(L[1][0],L[1][1],L[1][2]).lerp(NG,n);
+    const k=Math.min(1,dt*1.5); cur.l.lerp(tl,k); cur.g.lerp(tg,k); cur.c+=(L[2]+(N[2]-L[2])*n-cur.c)*k; cur.s+=(L[3]+(N[3]-L[3])*n-cur.s)*k; cur.v+=(L[4]+(N[4]-L[4])*n-cur.v)*k;
+    U.lift.value.copy(cur.l); U.gain.value.copy(cur.g); U.con.value=cur.c; U.sat.value=cur.s; U.vig.value=cur.v; }
+  return {tick,LK,cur};
 })();
 </script>
