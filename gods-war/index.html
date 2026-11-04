@@ -328,7 +328,7 @@ body:has(#title) .hud,body:has(#title) .acts,body:has(#title) #minimap,body:has(
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v28";
+const VER="v29";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -1700,6 +1700,7 @@ const TITAN={m:null,sendT:5,stompT:4,warnT:0};
 function titanSpawn(){ const D=titanDef(TB.w); const scale=3.3; const mesh=(typeof mobGL==="function"&&mobGL(D.n,scale))||makeMob(D.shape,D.c,scale);
   const m={n:"거대 "+D.n,shape:D.shape,mesh,x:TITAN_POS.x,z:TITAN_POS.z,hx:TITAN_POS.x,hz:TITAN_POS.z,lv:Math.max(20,G.lv+5),boss:true,world:true,titan:true,hp:titanLeft(),mhp:TITAN_HP,atk:0,xp:0,gold:0,rg:12,cd:0,state:"idle",t:0,lbl:makeLabel("boss"),rot:0,hit:0,scale,power:99};
   const aura=new THREE.Mesh(new THREE.RingGeometry(1.6,2.4,48),glowMat(0xff7a3d,.75)); aura.rotation.x=-Math.PI/2; aura.position.y=.1; mesh.add(aura); m.aura=aura;
+  m.rise=-1; TITAN.intro=0; // v29 등장 연출: 처음엔 땅속에 묻혀 있다가 내가 가까이 오면 솟아오름
   mesh.position.set(m.x,hAt(m.x,m.z),m.z); scene.add(mesh); mobs.push(m); TITAN.m=m; return m; }
 function titanRemove(){ const m=TITAN.m; if(!m) return; scene.remove(m.mesh); m.lbl.remove(); const i=mobs.indexOf(m); if(i>=0) mobs.splice(i,1); TITAN.m=null; }
 function titanHit(m,dmg,crit){ if(titanLeft()<=0) return; dmg=Math.round(Math.min(dmg,50000)); TB.mine+=dmg; TB.dirty=true; m.hp=titanLeft(); m.hit=.15; P.combat=4;
@@ -1716,6 +1717,15 @@ function titanDefeated(){ if(TB.claimed) return; TB.claimed=true; titanSave(); t
    <p>${hero?`이번 주 <b style="color:var(--gold)">🏅 용사: ${hero.n}</b> (${fmt(hero.d)} 데미지)`:""}${meHero?"<br>내가 용사예요! 보상 2배 · 다음 주까지 이름 옆에 🏅":""}${helped?"":"<br>(이번엔 직접 때리지 않아서 보상이 조금 작아요)"}</p><button class="buy" id="tOk" style="align-self:center">만세!</button>`);
   $("tOk").onclick=closeLayer; jingle([523,659,784,1046,1318,1568,2093]); buzz([80,40,80,40,120]); }
 function titanIdle(r){ titanRoll(); if(TB.claimed||titanLeft()<=0||!r||!r.kills) return null; const now=Date.now(), ws=titanWeekStart(TB.w); const away=r.away||1; const frac=clamp((now-Math.max(now-away,ws))/away,0,1); const d=Math.round(r.kills*frac*(40+r.lv*20)); if(d<=0) return null; TB.mine+=d; TB.dirty=true; titanSave(); if(titanLeft()<=0) setTimeout(()=>{ if(!layerOpen) titanDefeated(); else TB.pending=1; },4000); return {d,n:"거대 "+titanDef(TB.w).n}; }
+/* v29 거대 보스 등장: 땅이 갈라지며 붉은 빛 → 쿵쿵 흔들리며 솟아오름 → 흙먼지·충격파 → 큰 이름 */
+function titanSink(m,dt){ const H=(m.mesh.userData.h||4)*m.scale; if(m.rise<0) return H*1.05; if(m.rise>=1) return 0;
+  const was=m.rise; m.rise=Math.min(1,m.rise+dt/2.4); const e=1-Math.pow(1-m.rise,3); const X=TITAN_POS.x,Z=TITAN_POS.z;
+  P.shake=Math.max(P.shake||0,.55*(1-m.rise)+.15); if(Math.floor(was*6)!==Math.floor(m.rise*6)){ thud(); try{ SFX.dust(X+rnd(-4,4),Z+rnd(-4,4),HIGH()?8:4,9); }catch(e){} fxSpark(X+rnd(-5,5),.5,Z+rnd(-5,5),0xcfb48a,HIGH()?22:10); }
+  if(m.rise>=1){ P.shake=Math.max(P.shake||0,1.2); buzz([80,40,160]); try{ SFX.shock(X,Z,0xff7a3d,22,1); }catch(e){ fxRing(X,Z,0xff7a3d,34,1); } fxRing(X,Z,0xffd0a0,16,.7); fxSpark(X,3,Z,0xffb070,HIGH()?70:30); tone(55,.9,"sawtooth",0,.16); tone(82,.7,"square",.05,.08); }
+  return H*1.05*(1-e)+Math.sin(m.rise*60)*.08*(1-m.rise); }
+function titanIntro(m){ m.rise=0; const X=TITAN_POS.x,Z=TITAN_POS.z; const D=titanDef(TB.w); const c=(REALMS[D.realm]&&REALMS[D.realm].c1)||0xff6a3d;
+  fxRing(X,Z,0xff3a1a,30,2.4); fxRing(X,Z,0xffa040,14,1.6); fxFlash(X,1,Z,0xff5a20,10,1.4); drama(0xff4a20,.45,2.6); tone(48,1.6,"sawtooth",0,.14); tone(36,2,"triangle",.2,.12);
+  if(!layerOpen&&!TITAN.intro){ TITAN.intro=1; setTimeout(()=>{ if(TITAN.m===m&&!layerOpen) lvBanner("⚠ 이번 주 거대 보스",m.n,"모두의 힘으로 쓰러뜨려요 · <b>빨간 고리</b>가 보이면 멀리 피해요","#ff6a3d"); },900); } }
 function tickTitan(dt){ if(!started) return; titanRoll(); const dead=titanLeft()<=0; if(dead&&!TB.claimed&&!layerOpen) titanDefeated();
   const near=Math.hypot(P.x-TITAN_POS.x,P.z-TITAN_POS.z);
   if(!dead&&!TB.claimed&&near<120&&!TITAN.m) titanSpawn(); if((dead||near>140)&&TITAN.m) titanRemove();
@@ -1724,7 +1734,8 @@ function tickTitan(dt){ if(!started) return; titanRoll(); const dead=titanLeft()
     // 몸이 아주 커서: 맞는 점(m.x,m.z)을 내 쪽 몸 가장자리(6.5걸음)에 둠 → 공격·기술 거리 계산이 그대로 맞음
     const k=Math.min(d,6.5)/(d||1); m.x=TITAN_POS.x+(P.x-TITAN_POS.x)*k; m.z=TITAN_POS.z+(P.z-TITAN_POS.z)*k;
     if(d<40&&!P.dead){ m.rot=Math.atan2(P.x-TITAN_POS.x,P.z-TITAN_POS.z); } let dr=m.rot-m.mesh.rotation.y; while(dr>Math.PI) dr-=Math.PI*2; while(dr<-Math.PI) dr+=Math.PI*2; m.mesh.rotation.y+=dr*Math.min(1,dt*2);
-    m.mesh.position.set(TITAN_POS.x,hAt(TITAN_POS.x,TITAN_POS.z)+(m.mesh.userData.float?Math.sin(tn/600)*.5+.5:0),m.z); if(m.aura){ m.aura.rotation.z+=dt; m.aura.scale.setScalar(1+Math.sin(tn/300)*.1); }
+    if(m.rise<0&&d<58&&!P.dead) titanIntro(m); const sink=titanSink(m,dt);
+    m.mesh.position.set(TITAN_POS.x,hAt(TITAN_POS.x,TITAN_POS.z)+(m.mesh.userData.float?Math.sin(tn/600)*.5+.5:0)-sink,m.z); if(m.aura) m.aura.position.y=.1+sink/m.scale; if(m.aura){ m.aura.rotation.z+=dt; m.aura.scale.setScalar(1+Math.sin(tn/300)*.1); }
     if(m.mesh.userData.gl) animState(m.mesh,TITAN.warnT>0?"attack":m.hit>0?"hit":"idle");
     hitTint(m.mesh,m.hit/.15); m.mesh.scale.setScalar(m.scale*(m.hit>0?1.04:1));
     // 쿵! 발 구르기: 1초 전에 빨간 고리로 미리 알려 줌 → 멀리 피하면 안 맞음
@@ -3079,7 +3090,7 @@ window.__gw={FG,showForge,fgStart,fgHit,fgDone,fgGive,fgLv,fgMul,RC,RCO,rcStart,
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="0eef34a6";
+(function(){ var CUR="2c2eb251";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
