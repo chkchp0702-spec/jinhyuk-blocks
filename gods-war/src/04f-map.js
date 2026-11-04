@@ -67,7 +67,7 @@ function drawMinimap(ctxIn,size){ const big=!!ctxIn; const ctx=ctxIn||mctx; cons
     else mapText(ctx,rg.n,X,Z+(rg.center?(big?-4:-6)*u:0),(big?5.8:9)*u,rg.center?"#5f3dc4":"#3c4043",600); });
   if(big){ REALMS.forEach((R,i)=>{ const sx=(i===0||i===2)?1:-1, sz=(i>=2)?1:-1; mapText(ctx,R.n,tx(sx*100),tz(sz*100),8*u,"rgba(95,99,104,.42)",800,"rgba(255,255,255,.35)"); }); }
   // 친구
-  for(const id in PEERS){ const o=PEERS[id]; const X=tx(o.x), Z=tz(o.z); dot(ctx,X,Z,3.4*u,o.realm===G.realm?"#1e8e3e":"#d93025","#fff",1.6*u); if(big||Math.hypot(o.x-P.x,o.z-P.z)<70) mapText(ctx,o.name,X,Z-6*u,(big?5.5:8)*u,"#202124",700); }
+  for(const id in PEERS){ const o=PEERS[id]; const X=tx(o.x), Z=tz(o.z); const mate=typeof gdMate==="function"&&gdMate(o); if(mate) dot(ctx,X,Z,5.6*u,"rgba(255,207,74,.35)","#f4b400",1.6*u); dot(ctx,X,Z,3.4*u,o.realm===G.realm?"#1e8e3e":"#d93025","#fff",1.6*u); if(big||Math.hypot(o.x-P.x,o.z-P.z)<70) mapText(ctx,(mate?"🛡️":"")+o.name,X,Z-6*u,(big?5.5:8)*u,"#202124",700); }
   // 내 위치: 파란 점 + 바라보는 방향 빛
   if(player){ const X=tx(P.x), Z=tz(P.z); ctx.save(); ctx.translate(X,Z); ctx.rotate(-P.rot+Math.PI); const gr=ctx.createRadialGradient(0,0,0,0,0,20*u); gr.addColorStop(0,"rgba(66,133,244,.55)"); gr.addColorStop(1,"rgba(66,133,244,0)"); ctx.fillStyle=gr; ctx.beginPath(); ctx.moveTo(0,0); ctx.arc(0,0,20*u,-Math.PI/2-.55,-Math.PI/2+.55); ctx.closePath(); ctx.fill(); ctx.restore();
     dot(ctx,X,Z,9*u,"rgba(66,133,244,.16)"); ctx.shadowColor="rgba(0,0,0,.35)"; ctx.shadowBlur=3*u; dot(ctx,X,Z,4.6*u,"#4285f4","#fff",2*u); ctx.shadowBlur=0; }
