@@ -32,12 +32,40 @@ const layers=$("layers"); let layerOpen=false;
 function closeLayer(){ layers.innerHTML=""; layerOpen=false; }
 function card(html,id){ layers.innerHTML=`<div class="layer" id="${id||"bg"}"><div class="card">${html}<button class="close" id="cls" type="button">닫기</button></div></div>`; layerOpen=true; $("cls").onclick=closeLayer; const bg=$(id||"bg"); bg.onclick=e=>{ if(e.target===bg) closeLayer(); }; }
 function rarTag(t){ return `<span class="rar" style="background:${RAR[t].c}">${RAR[t].n}</span>`; }
-function showBag(){ const st=stat(); const eq=["w","a","r"].map(s=>{ const t=G.eq[s]; const nm={w:"무기",a:"방어구",r:"유물"}[s]; return `<div class="row"><div class="ic">${{w:"⚔",a:"🛡",r:"✨"}[s]}</div><div class="t"><div>${t>=0?rarTag(t)+itemName(s,t):`${nm} 없음`}</div><span>${t>=0?itemDesc(s,t):"괴물을 잡거나 신전 상점에서 구해요"}</span></div>${t>=0?`<button class="buy alt" data-un="${s}">벗기</button>`:""}</div>`; }).join("");
+let BAG_TAB="eq";
+/* v27: 최적화 구성 — 지금 낄 수 있는 것 중 칸마다 가장 센 것을 고름 (등급 = 강함, 같은 등급이면 그대로) */
+function bagBest(){ const best={}; ["w","a","r"].forEach(s=>{ let t=G.eq[s], from=-1; G.bag.forEach((it,i)=>{ if(it.s===s&&it.t<=G.rank&&it.t>t){ t=it.t; from=i; } }); best[s]={t,from}; }); return best; }
+function statWith(eq){ const o=G.eq; G.eq={...o,...eq}; const st=stat(); G.eq=o; return st; }
+function bagOptimize(){ const b=bagBest(); const idx=["w","a","r"].map(s=>b[s].from).filter(i=>i>=0).sort((x,y)=>y-x); const changed=[];
+  idx.forEach(i=>{ const it=G.bag[i]; if(G.eq[it.s]>=0) G.bag.push({s:it.s,t:G.eq[it.s]}); G.eq[it.s]=it.t; G.bag.splice(i,1); changed.push(it.s); });
+  changed.forEach(s=>refreshGear(s)); P.hp=Math.min(P.hp,stat().mhp); saveGame(); return changed.length; }
+function bagSpare(){ return G.bag.map((it,i)=>({it,i})).filter(({it})=>G.eq[it.s]>=0&&it.t<=G.eq[it.s]); }
+function showBag(tab){ if(tab) BAG_TAB=tab; const st=stat(); const tabs=`<div class="tabs"><button class="tab ${BAG_TAB==="eq"?"on":""}" data-bt="eq">🎒 장비</button><button class="tab ${BAG_TAB==="opt"?"on":""}" data-bt="opt">⚡ 최적화 구성</button></div>`;
+  const head=`<h2>가방</h2>${tabs}<p>공격 ${fmt(st.atk)} · 체력 ${fmt(st.mhp)} · 방어 ${Math.round(dmgReduce(st.def)*100)}% · 치명타 ${Math.round(st.crit*100)}%<br>영토 보너스 공격 +${terrBonus()*3}%${hegemon()===G.realm?" · 패권 경험치 +15%":""}${(G.fg||0)>0?` · 대장간 +${G.fg}`:""}</p>`;
+  if(BAG_TAB==="opt"){ showBagOpt(head,st); return; }
+  const eq=["w","a","r"].map(s=>{ const t=G.eq[s]; const nm={w:"무기",a:"방어구",r:"유물"}[s]; return `<div class="row"><div class="ic">${{w:"⚔",a:"🛡",r:"✨"}[s]}</div><div class="t"><div>${t>=0?rarTag(t)+itemName(s,t):`${nm} 없음`}${s==="w"&&(G.fg||0)>0?` <b style="color:var(--gold)">+${G.fg}</b>`:""}</div><span>${t>=0?itemDesc(s,t):"괴물을 잡거나 신전 상점에서 구해요"}</span></div>${t>=0?`<button class="buy alt" data-un="${s}">벗기</button>`:""}</div>`; }).join("");
   const bag=G.bag.map((it,i)=>`<div class="row"><div class="ic">${{w:"⚔",a:"🛡",r:"✨"}[it.s]}</div><div class="t"><div>${rarTag(it.t)}${itemName(it.s,it.t)}</div><span>${itemDesc(it.s,it.t)}${it.t>G.rank?` · <span style="color:#ff8d8d">${RM().ranks[it.t]} 이상 필요</span>`:""}</span></div><button class="buy" data-eq="${i}" ${it.t>G.rank?"disabled":""}>끼기</button><button class="buy sell" data-sell="${i}">${SHOP_PRICE[it.t]/4}</button></div>`).join("");
-  card(`<h2>가방</h2><p>공격 ${fmt(st.atk)} · 체력 ${fmt(st.mhp)} · 방어 ${Math.round(dmgReduce(st.def)*100)}% · 치명타 ${Math.round(st.crit*100)}%<br>영토 보너스 공격 +${terrBonus()*3}%${hegemon()===G.realm?" · 패권 경험치 +15%":""}</p><h3>장착 중</h3>${eq}<h3>가지고 있는 것 (${G.bag.length})</h3>${bag||"<p>비어 있어요</p>"}<div class="row"><div class="ic">🧪</div><div class="t"><div>${RM().potion} ${G.pots}개</div><span>체력 50% 회복 · 보스가 떨어뜨려요</span></div></div>`);
+  card(`${head}<h3>장착 중</h3>${eq}<h3>가지고 있는 것 (${G.bag.length})</h3>${bag||"<p>비어 있어요</p>"}<div class="row"><div class="ic">🧪</div><div class="t"><div>${RM().potion} ${G.pots}개</div><span>체력 50% 회복 · 보스가 떨어뜨려요</span></div></div>`);
+  bagTabs();
   layers.querySelectorAll("[data-eq]").forEach(b=>b.onclick=()=>{ const i=+b.dataset.eq, it=G.bag[i]; if(!it||it.t>G.rank) return; if(G.eq[it.s]>=0) G.bag.push({s:it.s,t:G.eq[it.s]}); G.eq[it.s]=it.t; G.bag.splice(i,1); refreshGear(it.s); P.hp=Math.min(P.hp,stat().mhp); jingle([659,784]); saveGame(); showBag(); });
   layers.querySelectorAll("[data-un]").forEach(b=>b.onclick=()=>{ const s=b.dataset.un; G.bag.push({s,t:G.eq[s]}); G.eq[s]=-1; refreshGear(s); P.hp=Math.min(P.hp,stat().mhp); saveGame(); showBag(); });
   layers.querySelectorAll("[data-sell]").forEach(b=>b.onclick=()=>{ const i=+b.dataset.sell, it=G.bag[i]; G.gold+=SHOP_PRICE[it.t]/4; G.bag.splice(i,1); tone(880,.08); saveGame(); showBag(); }); }
+function bagTabs(){ layers.querySelectorAll("[data-bt]").forEach(b=>b.onclick=()=>showBag(b.dataset.bt)); }
+function showBagOpt(head,st){ const best=bagBest(); const beq={w:best.w.t,a:best.a.t,r:best.r.t}; const nst=statWith(beq); const diff=["w","a","r"].some(s=>beq[s]!==G.eq[s]);
+  const d=(n,o,f)=>{ const v=n-o; return v>0.0001?` <b style="color:#9dffb8">▲${f(v)}</b>`:""; };
+  const rows=["w","a","r"].map(s=>{ const cur=G.eq[s], nb=beq[s], nm={w:"무기",a:"방어구",r:"유물"}[s]; const up=nb!==cur;
+    return `<div class="row"><div class="ic">${{w:"⚔",a:"🛡",r:"✨"}[s]}</div><div class="t"><div>${cur>=0?rarTag(cur)+itemName(s,cur):`<span style="opacity:.6">${nm} 없음</span>`}${up?` <b style="color:#9dffb8">→</b> ${rarTag(nb)}${itemName(s,nb)}`:""}</div><span>${up?itemDesc(s,nb)+" · <b style='color:#9dffb8'>더 세요!</b>":nb>=0?"✔ 지금이 가장 좋아요":"가방에 낄 수 있는 "+nm+"이 없어요"}</span></div></div>`; }).join("");
+  const locked=G.bag.filter(it=>it.t>G.rank&&it.t>G.eq[it.s]);
+  const spare=bagSpare(); const spareGold=spare.reduce((a,{it})=>a+SHOP_PRICE[it.t]/4,0);
+  card(`${head}${diff?`<button class="go" id="bOpt">⚡ 한 번에 끼기</button>`:`<p style="text-align:center;color:#9dffb8"><b>✔ 지금 가장 센 구성이에요!</b></p>`}
+   <div class="idlegrid"><div><b>${fmt(nst.atk)}${d(nst.atk,st.atk,fmt)}</b><span>⚔ 공격</span></div><div><b>${fmt(nst.mhp)}${d(nst.mhp,st.mhp,fmt)}</b><span>❤ 체력</span></div><div><b>${Math.round(dmgReduce(nst.def)*100)}%${d(dmgReduce(nst.def)*100,dmgReduce(st.def)*100,v=>Math.round(v)+"%")}</b><span>🛡 방어</span></div><div><b>${Math.round(nst.crit*100)}%${d(nst.crit*100,st.crit*100,v=>Math.round(v)+"%")}</b><span>✨ 치명타</span></div></div>
+   <h3>⚡ 가장 센 구성</h3>${rows}
+   ${locked.length?`<p style="font-size:12px;color:#ffcf9a">🔒 더 센 장비 ${locked.length}개는 승급하면 낄 수 있어요 (${[...new Set(locked.map(it=>RM().ranks[it.t]))].join(", ")} 이상)</p>`:""}
+   <h3>🧹 남는 장비 정리</h3><p style="font-size:13px">끼고 있는 것보다 약하거나 같은 장비 ${spare.length}개${spare.length?` · 모두 팔면 금화 ${fmt(spareGold)}`:""}</p>
+   ${spare.length?`<button class="buy sell" id="bSell" style="align-self:center">남는 장비 ${spare.length}개 팔기 (+${fmt(spareGold)})</button>`:""}`);
+  bagTabs();
+  if($("bOpt")) $("bOpt").onclick=()=>{ const n=bagOptimize(); jingle([659,784,1046]); fxSpark(P.x,2,P.z,0x9dffb8,24); toast("⚡ 최적화 완료",`${n}칸을 더 센 장비로 바꿨어요`,2); showBag("opt"); };
+  if($("bSell")) $("bSell").onclick=()=>{ const sp=bagSpare(); let g=0; sp.map(o=>o.i).sort((x,y)=>y-x).forEach(i=>{ g+=SHOP_PRICE[G.bag[i].t]/4; G.bag.splice(i,1); }); G.gold+=g; tone(880,.08); tone(1175,.1,"triangle",.06); saveGame(); toast("🧹 정리 완료",`금화 +${fmt(g)}`,2); showBag("opt"); }; }
 function showQuests(){ card(`<h2>임무</h2><p>임무를 완료하면 금화와 경험치를 받아요. 완료된 임무를 눌러 보상을 받아요.</p>${G.quests.map((q,i)=>`<div class="row"><div class="ic">${q.done?"✔":{kill:"⚔",visit:"🧭",cap:"🚩",boss:"👑",rank:"⬆"}[q.k]}</div><div class="t"><div>${q.txt}${q.k==="kill"?` (${q.c}/${q.n})`:""}</div><span>금화 ${q.gold} · 경험치 ${q.xp}</span></div>${q.done?`<button class="buy" data-cl="${i}">받기</button>`:`<button class="buy sell" data-sk="${i}">버리기</button>`}</div>`).join("")}<p style="font-size:12px">완료한 임무 ${G.qdone}개 · 처치 ${G.kills} · 보스 ${G.bossKills} · 점령 ${G.capt} · 전쟁 승리 ${G.war}</p>`);
   layers.querySelectorAll("[data-cl]").forEach(b=>b.onclick=()=>{ claimQuest(+b.dataset.cl); showQuests(); }); layers.querySelectorAll("[data-sk]").forEach(b=>b.onclick=()=>{ G.quests.splice(+b.dataset.sk,1); ensureQuests(); saveGame(); showQuests(); }); }
 function showMap(){ const cnt=[0,0,0,0]; REGIONS.forEach(r=>{ if(W.o[r.id]>=0) cnt[W.o[r.id]]++; }); const h=hegemon();

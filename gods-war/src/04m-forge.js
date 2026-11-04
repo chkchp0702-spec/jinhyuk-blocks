@@ -35,14 +35,17 @@ function fgGive(ore,rune,why,quiet){ G.ore=(G.ore||0)+(ore||0); G.rune=(G.rune||
   g.position.set(s.x,hAt(s.x,s.z),s.z); g.rotation.y=s.rot; scene.add(shadowify(g)); fire.castShadow=fire2.castShadow=false; FG.spots[r]={x:s.x,z:s.z,g}; } })();
 function fgNear(){ if(typeof DG!=="undefined"&&DG.on) return null; if(typeof HM!=="undefined"&&HM.on) return null; for(let r=0;r<4;r++){ const s=FG.spots[r]; if(s&&Math.hypot(P.x-s.x,P.z-s.z)<5.5) return s; } return null; }
 /* ---------- 박자 놀이 ---------- */
-function showForge(){ const L=fgLv(), c=fgCost(L), s=fgNear(); const canPay=(G.ore||0)>=c.ore&&(G.rune||0)>=c.rune&&G.gold>=c.gold;
+function showForge(){ if(!G.fgGift){ G.fgGift=1; G.ore=(G.ore||0)+20; G.rune=(G.rune||0)+3; saveGame(); toast("🎁 대장장이의 선물","⛓ 쇳조각 20 · ✨ 룬 가루 3 — 바로 두드려 봐요!",2.6); jingle([659,784,1046]); }
+  const L=fgLv(), c=fgCost(L), s=fgNear(); const canPay=(G.ore||0)>=c.ore&&(G.rune||0)>=c.rune&&G.gold>=c.gold;
+  const need=(have,n,lbl)=>`<span style="color:${have>=n?"#9dffb8":"#ff8d8d"}">${lbl} ${fmt(have)}/${fmt(n)}</span>`;
   const w=G.eq.w>=0?itemName("w",G.eq.w):"맨손"; const glow=L>=10?"신의 불꽃":L>=5?"세계 빛 불꽃":"";
-  card(`<h2>🔨 신들의 대장간</h2><p>${FORGE_NAME[G.realm]}에서 내 무기를 두드려 강하게 만들어요. <b>부서지는 일은 없어요!</b><br>쇠 위 빛나는 점이 한가운데 올 때 「쾅!」 — 박자를 잘 맞출수록 힘이 더 붙어요.</p>
-   <div class="fgbig"><em>⚔</em><b>${w} <span style="color:var(--gold)">+${L}</span></b><span>공격 +${Math.round((fgMul()-1)*100)}%${glow?` · ${glow}`:""}</span></div>
-   <div class="idlegrid"><div><b>${fmt(G.ore||0)}</b><span>⛓ 쇳조각</span></div><div><b>${fmt(G.rune||0)}</b><span>✨ 룬 가루</span></div></div>
-   ${L<FG_MAX?`<p>+${L+1} 만들기: ⛓ ${c.ore} ${c.rune?`· ✨ ${c.rune} `:""}· 금화 ${fmt(c.gold)}${L+1===5?" · <b style='color:#9dffb8'>+5부터 무기가 빛나요!</b>":L+1===10?" · <b style='color:#ffcf4a'>마지막 단계!</b>":""}</p>
-   ${s?`<button class="go" id="fgGo" style="align-self:center" ${canPay?"":"disabled"}>🔨 두드리기 시작</button>`:`<button class="buy" id="fgWay" style="align-self:center">대장간으로 길 안내</button>`}
-   ${!canPay?`<p style="font-size:12px;color:#ffb0a0">재료가 모자라요. 쇳조각은 괴물을 잡으면 가끔, 룬 가루는 보스·미궁·별 4개 물고기에서 나와요.</p>`:""}`:`<p style="color:#ffcf4a"><b>+10 완성!</b> 신의 불꽃이 깃든 무기예요.</p>`}`);
+  card(`<h2>🔨 신들의 대장간</h2>
+   <div class="fgbig" style="padding:8px"><b>⚔ ${w} <span style="color:var(--gold)">+${L}</span></b><span>공격 +${Math.round((fgMul()-1)*100)}%${glow?` · ${glow}`:""} · 부서지는 일은 없어요!</span></div>
+   ${L<FG_MAX?`<p style="margin:0">+${L+1} 만들기: ${need(G.ore||0,c.ore,"⛓ 쇳조각")} ${c.rune?`· ${need(G.rune||0,c.rune,"✨ 룬 가루")} `:""}· ${need(G.gold,c.gold,"금화")}${L+1===5?" · <b style='color:#9dffb8'>+5부터 무기가 빛나요!</b>":L+1===10?" · <b style='color:#ffcf4a'>마지막 단계!</b>":""}</p>
+   ${s?`<button class="go" id="fgGo" style="align-self:center" ${canPay?"":"disabled"}>${canPay?"🔨 두드리기 시작":"🔒 재료가 모자라요"}</button>`:`<button class="buy" id="fgWay" style="align-self:center">대장간으로 길 안내</button>`}
+   ${!canPay?`<p style="font-size:12px;color:#ffb0a0">쇳조각은 괴물을 잡으면 가끔, 룬 가루는 보스·미궁·별 4개 물고기에서 나와요.</p>`:""}`:`<p style="color:#ffcf4a"><b>+10 완성!</b> 신의 불꽃이 깃든 무기예요.</p>`}
+   ${G.eq.w<0?`<p style="font-size:13px;color:#ffcf9a">무기가 없어도 강화돼요! 강화는 무기 칸에 붙어서, 무기를 끼거나 바꿔도 그대로 남아요.</p>`:""}
+   <p style="font-size:13px">${FORGE_NAME[G.realm]}에서 쇠 위 빛나는 점이 <b style="color:#ffe27a">금빛 한가운데</b> 올 때 「쾅!」 3번 — 박자를 잘 맞출수록 힘이 더 붙어요.</p>`);
   if($("fgGo")) $("fgGo").onclick=fgStart; if($("fgWay")) $("fgWay").onclick=()=>{ const sp=FG.spots[G.realm]; setGuide({x:sp.x,z:sp.z,label:"🔨 대장간"}); closeLayer(); }; }
 function fgStart(){ const L=fgLv(); if(L>=FG_MAX) return; const c=fgCost(L); if((G.ore||0)<c.ore||(G.rune||0)<c.rune||G.gold<c.gold) return; G.ore-=c.ore; G.rune-=c.rune; G.gold-=c.gold; saveGame();
   const g={n:0,pts:0,pos:0,dir:1,spd:.85+L*.08,zc:.5,zw:Math.max(.16,.3-L*.012),pw:Math.max(.05,.1-L*.004),last:performance.now(),lock:0,res:[]}; FG.game=g;
