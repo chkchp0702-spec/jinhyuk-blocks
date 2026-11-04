@@ -373,6 +373,15 @@ body.eco .row.rr3::before{animation:none;display:none}
 #bossbar .bar.hp i{border-radius:4px;background:linear-gradient(180deg,#ffb07a 0%,#ff4a2e 40%,#c01020 75%,#7a0614 100%);transition:none}
 #bossbar .bar.hp.low i{animation:hpLow .7s ease-in-out infinite alternate}
 body.eco .lbl .hp.low i,body.eco #bossbar .bar.hp.low i{animation:none}
+/* v47: 👥 친구 칩 · 🤝 함께 임무 · 📖 기술 칸 */
+#frChips{position:fixed;inset:0;pointer-events:none;z-index:4} #frChips[hidden]{display:none}
+#frChips .frc{position:absolute;left:0;top:0;pointer-events:auto;display:flex;align-items:center;gap:5px;border:2px solid var(--rc,#9dffb8);border-radius:999px;padding:3px 10px 3px 6px;background:rgba(18,12,36,.78);color:#fff;font-family:inherit;font-size:12px;white-space:nowrap;box-shadow:0 3px 8px rgba(0,0,0,.45);cursor:pointer}
+#frChips .frc[hidden]{display:none} #frChips .frc b{font-weight:900;color:var(--rc,#fff)} #frChips .frc span{opacity:.85;font-size:11px} #frChips .frc .ar{font-style:normal;color:var(--rc,#fff);font-size:13px;display:inline-block}
+#frChips .frc.fol{background:rgba(30,90,200,.85);border-color:#9fd4ff;animation:ctxPulse 1.4s ease-in-out infinite}
+#coop{pointer-events:auto;cursor:pointer;position:relative;overflow:hidden;max-width:210px;background:rgba(20,40,30,.72);border:1.5px solid rgba(157,255,184,.6);border-radius:10px;padding:4px 9px 7px;font-size:12px;color:#eaffef;line-height:1.3;margin-top:2px}
+#coop[hidden]{display:none} #coop b{display:block;font-size:11px;color:#9dffb8} #coop small{opacity:.85} #coop i{position:absolute;left:0;bottom:0;height:3px;background:linear-gradient(90deg,#5fdc8a,#c8ffd8)} #coop.done{border-color:#ffd24a} #coop.done i{background:#ffd24a}
+.skslots{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:4px 0 8px} .skslot{border:2px solid rgba(255,255,255,.25);border-radius:12px;background:rgba(255,255,255,.07);color:#fff;font-family:inherit;padding:7px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer} .skslot b{font-size:11px;color:var(--gold)} .skslot span{font-size:13px} .skslot.on{border-color:var(--gold);background:rgba(255,207,74,.18);box-shadow:0 0 10px rgba(255,207,74,.5)}
+.frbtn{display:flex;flex-direction:column;gap:4px}
 </style>
 </head>
 <body>

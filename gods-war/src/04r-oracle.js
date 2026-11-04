@@ -26,7 +26,7 @@ function orQuiz(day){ if(OR.cache&&OR.cache.day===day) return OR.cache.qs; const
   const realmQ=(k,what,ex)=>({q:what,a:RN[k],c:RN.slice(),ex,ic:"🗿"});
   const T=[
    ()=>{ const k=ri(4), R=REALMS[k]; const L=R.gods.filter(g=>g.d); const g=L[ri(L.length)]; return {q:`「${g.d}」<br>이 이야기의 주인공은 누구일까요?`,a:g.n,c:opts(L.map(x=>x.n),g.n),ex:`${R.n}의 ${g.n} — ${g.d}`,ic:R.icon}; },
-   ()=>{ const L=[]; REALMS.forEach(R=>R.skills.forEach(S=>L.push({S,R}))); const x=L[ri(L.length)]; return {q:`「${x.S.desc}」<br>이런 기술의 이름은?`,a:x.S.n,c:opts(L.map(y=>y.S.n),x.S.n),ex:`${x.R.n}의 기술 「${x.S.n}」 — ${x.S.desc}`,ic:"✨"}; },
+   ()=>{ const L=[]; REALMS.forEach(R=>(day>=20763?R.skills:R.skills.slice(0,3)).forEach(S=>L.push({S,R})));   /* v47: 오늘(11/5) 문제는 그대로, 내일부터 새 기술도 문제에 나옴 */ const x=L[ri(L.length)]; return {q:`「${x.S.desc}」<br>이런 기술의 이름은?`,a:x.S.n,c:opts(L.map(y=>y.S.n),x.S.n),ex:`${x.R.n}의 기술 「${x.S.n}」 — ${x.S.desc}`,ic:"✨"}; },
    ()=>{ const k=ri(4), M=REALMS[k].mobs[ri(REALMS[k].mobs.length)]; return realmQ(k,`${eun(M.n)} 어느 세계의 괴물일까요?`,`${M.n}${josa(M.n,"은","는")} ${REALMS[k].n}의 땅에 살아요.`); },
    ()=>{ const k=ri(4), R=REALMS[k], b=ri(2)?R.worldBoss:R.boss; return realmQ(k,`무시무시한 ${eun(b.n)} 어느 세계의 보스일까요?`,`${b.n}(파워 ${b.p})${josa(b.n,"은","는")} ${R.n}의 ${b===R.worldBoss?"세계 보스":"보스"}예요.`); },
    ()=>{ const k=ri(4), R=REALMS[k]; const L=[[R.capital,"수도"],[R.respawn.n,"쓰러지면 다시 깨어나는 곳"],[R.regions[0],"땅"],[R.regions[1],"땅"]]; const x=L[ri(L.length)]; return realmQ(k,`${eun(x[0])} 어느 세계의 ${x[1]}일까요?`,`${x[0]}${josa(x[0],"은","는")} ${R.n}의 ${x[1]}이에요.${x[0]===R.respawn.n?" "+R.respawn.desc+".":""}`); },
