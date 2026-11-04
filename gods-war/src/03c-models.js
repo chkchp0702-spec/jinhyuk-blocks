@@ -134,7 +134,30 @@ function refreshGL(){ if(!MODELS.animsReady) return;
   if(typeof mobs!=="undefined") mobs.forEach(m=>{ if(m.mesh.userData.gl||m.trialOf||m.war) return; const g=mobGL(m.n,m.scale); if(g){ g.position.copy(m.mesh.position); g.rotation.y=m.mesh.rotation.y; scene.remove(m.mesh); m.mesh=g; scene.add(g); if(m.aura){ g.add(m.aura); } } }); }
 
 /* ---- 건물·나무: 준비되면 절차 소품을 진짜 모델로 교체 ---- */
-function onHexReady(){ try{ PLACED.forEach(p=>{ if(p.obj) scene.remove(p.obj); const o=hexFor(p); if(o){ o.position.set(p.x,hAt(p.x,p.z)-.05,p.z); o.rotation.y=p.rot||0; scene.add(o); p.obj=o; } }); }catch(e){ console.warn(e); } }
+/* v34 배터리: 나무·바위·집·성 (KayKit hex 모델 약 350개)을 하나하나 그리던 것(한 화면 300~600번 그리기 호출) →
+   같은 모델끼리 100×100 칸마다 InstancedMesh 하나로 묶어 그림(호출 10~40번). 칸은 내 위치·시야에서 먼 것은 숨김(hexTick). */
+const HEXI={list:[],t:0,x:1e9,z:1e9};
+function onHexReady(){ try{ PLACED.forEach(p=>{ if(p.obj){ scene.remove(p.obj); p.obj=null; } }); HEXI.list.forEach(im=>scene.remove(im)); HEXI.list=[];
+  const groups={}; const CH=100; const _m=new THREE.Matrix4(), _q=new THREE.Quaternion(), _s=new THREE.Vector3(), _p=new THREE.Vector3(), _e=new THREE.Euler();
+  PLACED.forEach(p=>{ const h=hexPick(p); if(!h) return; const src=MODELS.hex[h.name]; if(!src) return; src.updateMatrixWorld(true); const cx=Math.floor(p.x/CH), cz=Math.floor(p.z/CH); let mi=0;
+    _p.set(p.x,hAt(p.x,p.z)-.05,p.z); _q.setFromEuler(_e.set(0,p.rot||0,0)); _s.setScalar(h.scale); const root=new THREE.Matrix4().compose(_p,_q,_s);
+    src.traverse(o=>{ if(!o.isMesh) return; const key=h.name+"|"+(mi++)+"|"+cx+"|"+cz; let g=groups[key]; if(!g){ g=groups[key]={geo:o.geometry,mat:o.material,mats:[],cx,cz,minx:1e9,maxx:-1e9,minz:1e9,maxz:-1e9,r:0}; } g.mats.push(_m.multiplyMatrices(root,o.matrixWorld).clone());
+      const rr=(o.geometry.boundingSphere?o.geometry.boundingSphere.radius:3)*h.scale; g.r=Math.max(g.r,rr); g.minx=Math.min(g.minx,p.x); g.maxx=Math.max(g.maxx,p.x); g.minz=Math.min(g.minz,p.z); g.maxz=Math.max(g.maxz,p.z); }); });
+  for(const k in groups){ const g=groups[k]; const im=new THREE.InstancedMesh(g.geo,g.mat,g.mats.length); g.mats.forEach((m,i)=>im.setMatrixAt(i,m)); im.instanceMatrix.needsUpdate=true; im.castShadow=HIGH(); im.receiveShadow=HIGH()&&!ECO(); im.frustumCulled=false; im.userData.noOutline=true; im.userData.cullR=-1;
+    im.userData.hx={minx:g.minx-g.r,maxx:g.maxx+g.r,minz:g.minz-g.r,maxz:g.maxz+g.r}; scene.add(im); HEXI.list.push(im); } HEXI.x=1e9; hexTick(1); }catch(e){ console.warn(e); } }
+function hexTick(dt){ HEXI.t-=dt; if(HEXI.t>0||!HEXI.list.length) return; HEXI.t=.3; if(Math.hypot(P.x-HEXI.x,P.z-HEXI.z)<4&&HEXI.zoom===ZOOM) return; HEXI.x=P.x; HEXI.z=P.z; HEXI.zoom=ZOOM;
+  const far=170*Math.max(1,ZOOM*.85)+20, back=P.z+16+14*ZOOM;
+  for(const im of HEXI.list){ const b=im.userData.hx; const dx=Math.max(b.minx-P.x,0,P.x-b.maxx), dz=Math.max(b.minz-P.z,0,P.z-b.maxz); im.visible=b.minz<=back&&dx*dx+dz*dz<=far*far; } }
+function hexPick(p){ const c=REALM_HEXCOLOR[p.realm]||"yellow"; if(p.hx) return p.hx; let h=null;
+  if(p.kind==="tree"){ const pool=p.realm===1?["trees_B_small","trees_B_medium","trees_B_large","tree_single_B"]:p.realm===2?["tree_single_A","tree_single_B","trees_A_small"]:["trees_A_small","trees_A_medium","trees_A_large","tree_single_A"]; h={name:pick(pool),scale:rnd(4.5,6.5)}; }
+  else if(p.kind==="rock") h={name:pick(["rock_single_A","rock_single_B","rock_single_C","rock_single_D","rock_single_E"]),scale:rnd(9,16)};
+  else if(p.kind==="house") h={name:pick(["building_home_A_"+c,"building_home_B_"+c,"building_tavern_"+c,"building_blacksmith_"+c]),scale:5.5};
+  else if(p.kind==="castle") h={name:"building_castle_"+c,scale:5.5};
+  else if(p.kind==="church") h={name:pick(["building_church_"+c,"building_tower_A_"+c,"building_windmill_"+c]),scale:5.5};
+  else if(p.kind==="market") h={name:"building_market_"+c,scale:5};
+  else if(p.kind==="prop") h={name:pick(["barrel","crate_A_big","tent","weaponrack","wheelbarrow","sack","bucket_water","target"]),scale:5};
+  else if(p.kind==="flag") h={name:"flag_"+c,scale:5};
+  p.hx=h; return h; }
 function hexFor(p){ const c=REALM_HEXCOLOR[p.realm]||"yellow";
   if(p.kind==="tree"){ const pool=p.realm===1?["trees_B_small","trees_B_medium","trees_B_large","tree_single_B"]:p.realm===2?["tree_single_A","tree_single_B","trees_A_small"]:["trees_A_small","trees_A_medium","trees_A_large","tree_single_A"]; return hexModel(pick(pool),rnd(4.5,6.5)); }
   if(p.kind==="rock"){ return hexModel(pick(["rock_single_A","rock_single_B","rock_single_C","rock_single_D","rock_single_E"]),rnd(9,16)); }

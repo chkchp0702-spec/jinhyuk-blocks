@@ -359,7 +359,10 @@ function makeMob(shape,color,scale){ const g=new THREE.Group(); const m=mat({col
 /* ================= 라벨 ================= */
 const labelsEl=$("labels"); const _v=new THREE.Vector3();
 function makeLabel(cls){ const d=document.createElement("div"); d.className="lbl "+(cls||""); labelsEl.appendChild(d); return d; }
-function placeLabel(el,x,y,z,html){ _v.set(x,y+hAt(x,z),z).project(camera); if(_v.z>1||Math.abs(_v.x)>1.2||Math.abs(_v.y)>1.2){ el.style.display="none"; return; } el.style.display=""; const sx=(_v.x+1)/2*innerWidth, sy=(1-_v.y)/2*innerHeight; if(html!==undefined&&el._h!==html){ el._h=html; el.innerHTML=html; el._w=0; } if(!el._w){ el._w=el.offsetWidth||1; el._hh=el.offsetHeight||1; } el.style.transform=`translate(${Math.round(sx-el._w/2)}px,${Math.round(sy-el._hh)}px)`; }
+function placeLabel(el,x,y,z,html){ _v.set(x,y+hAt(x,z),z).project(camera); if(_v.z>1||Math.abs(_v.x)>1.2||Math.abs(_v.y)>1.2){ el.style.display="none"; return; } el.style.display=""; const sx=(_v.x+1)/2*innerWidth, sy=(1-_v.y)/2*innerHeight; if(html!==undefined&&el._h!==html){ el._h=html; el.innerHTML=html; el._w=0; } if(!el._w){ el._w=el.offsetWidth||1; el._hh=el.offsetHeight||1; } el._sx=sx; el._sy=sy; el._f=LBLF; el.style.transform=`translate(${Math.round(sx-el._w/2)}px,${Math.round(sy-el._hh)}px)`; }
+/* v34 글자 겹침: 같은 장에 놓인 이름표끼리 겹치면 뒤의 것을 위로 밀어 올림(데미지 숫자는 빼고) */
+let LBLF=0; function deoverlapLabels(){ const L=[]; for(const el of labelsEl.children){ if(el._f===LBLF&&el.style.display!=="none"&&!el.classList.contains("dmg")) L.push(el); } LBLF++; if(L.length<2) return; L.sort((a,b)=>b._sy-a._sy);
+  for(let i=1;i<L.length;i++){ const b=L[i]; for(let j=0;j<i;j++){ const a=L[j]; const w=(a._w+b._w)/2; if(Math.abs(a._sx-b._sx)<w*.9){ const top=a._sy-a._hh; if(b._sy>top&&b._sy-b._hh<a._sy){ b._sy=top-2; } } } b.style.transform=`translate(${Math.round(b._sx-b._w/2)}px,${Math.round(b._sy-b._hh)}px)`; } }
 function floatDmg(x,y,z,txt,cls){ txt=String(txt); cls=cls||""; if(!cls&&txt[0]==="+") cls="gain"; const el=makeLabel("dmg "+cls); const dx=Math.round((Math.random()-.5)*44); placeLabel(el,x,y,z,`<em class="${cls==="crit"&&txt[0]==="-"?"c":""}" style="--dx:${dx}px">${txt}</em>`); setTimeout(()=>el.remove(),1150); }
 
 /* ================= 효과 ================= */

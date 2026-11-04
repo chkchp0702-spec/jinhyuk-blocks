@@ -76,7 +76,7 @@ function gdDrawBoard(c){ const x=c.getContext("2d"); x.fillStyle="#6b4a2a"; x.fi
   const R=gdRanking().slice(0,3); x.textAlign="left"; x.font="800 14px sans-serif";
   if(!R.length){ x.textAlign="center"; x.fillStyle="#7a6040"; x.fillText("첫 기사단을 만들어 보세요!",128,90); return; }
   R.forEach((q,i)=>{ const y=58+i*32; x.fillStyle=GD_COL[q.gf[0]]; x.fillRect(16,y-12,24,24); x.font="16px sans-serif"; x.textAlign="center"; x.fillText(GD_SYM[q.gf[1]]||"",28,y+1); x.textAlign="left"; x.fillStyle="#3a2a10"; x.font="800 13px sans-serif"; x.fillText(`${["🥇","🥈","🥉"][i]} ${gdName(q.gn)}`,46,y-4); x.font="700 11px sans-serif"; x.fillStyle="#7a6040"; x.fillText(`이번 주 ${fmt(q.w)}점 · ${q.m}명 · Lv.${q.lv}`,46,y+10); }); }
-(function(){ const bnC=gdBannerCanvas(); const bnT=new THREE.CanvasTexture(bnC); const bdC=document.createElement("canvas"); bdC.width=256; bdC.height=160; const bdT=new THREE.CanvasTexture(bdC); GD.bnC=bnC; GD.bnT=bnT; GD.bdC=bdC; GD.bdT=bdT;
+(function(){ const bnC=gdBannerCanvas(); const bnT=new THREE.CanvasTexture(bnC); const bdC=document.createElement("canvas"); bdC.width=256; bdC.height=160; const bdT=new THREE.CanvasTexture(bdC); GD.bnC=bnC; GD.bnT=bnT; GD.bdC=bdC; GD.bdT=bdT; gdDrawBanner(bnC); bnT.needsUpdate=true; gdDrawBoard(bdC); bdT.needsUpdate=true;
   const bnM=new THREE.MeshBasicMaterial({map:bnT,transparent:true,side:THREE.DoubleSide,alphaTest:.1}); const bdM=new THREE.MeshBasicMaterial({map:bdT});
   for(let r=0;r<4;r++){ const s=gdSpot(r); const g=new THREE.Group(); const wood=M.wood;
     g.add(cyl(.18,.2,3.6,wood,-2.1,1.8,0,8)); g.add(cyl(.18,.2,3.6,wood,2.1,1.8,0,8)); g.add(box(4.8,3,.25,wood,0,2.7,0)); const roof=box(5.4,.25,1.1,M.stone||wood,0,4.35,.1); roof.rotation.x=-.18; g.add(roof);
@@ -92,7 +92,7 @@ function gdRanking(){ const w=gdWeek(); const out=[]; const codes=new Set(Object
 function gdTick(dt){ if(!started) return; GD.t-=dt; GD.pubT-=dt; const g=gdMine();
   if(GD.pubT<=0){ GD.pubT=60; if(g&&(GD.dirty||!GD.seen)){ GD.seen=true; gdPub(); saveGame(); } }
   if(GD.t<=0){ GD.t=2; const bk=g?[g.c,g.gf.join(),g.gn.join(),gdLv()].join("|"):"none"; if(bk!==GD.bnKey){ GD.bnKey=bk; gdDrawBanner(GD.bnC); GD.bnT.needsUpdate=true; }
-    let near=false; for(const b of GD.board) if(Math.hypot(P.x-b.x,P.z-b.z)<90) near=true; if(near){ const R=gdRanking().slice(0,3).map(q=>q.c+q.w+q.lv+q.m).join(); if(R!==GD.brdKey){ GD.brdKey=R; gdDrawBoard(GD.bdC); GD.bdT.needsUpdate=true; } } }
+    let near=false; for(const b of GD.board) if(Math.hypot(P.x-b.x,P.z-b.z)<90) near=true; if(near){ const R="b"+gdRanking().slice(0,3).map(q=>q.c+q.w+q.lv+q.m).join(); if(R!==GD.brdKey){ GD.brdKey=R; gdDrawBoard(GD.bdC); GD.bdT.needsUpdate=true; } } }
   const t=performance.now()/1000; for(const b of GD.board){ if(Math.hypot(P.x-b.x,P.z-b.z)>70) continue; const pa=b.fl.geometry.attributes.position; const a=pa.array; for(let i=0;i<a.length;i+=3){ const u=(b.base[i]+1)/2; a[i+2]=b.base[i+2]+Math.sin(t*3+u*4)*.22*u; } pa.needsUpdate=true; } }
 /* ---------- 창 ---------- */
 let GDPICK=null;

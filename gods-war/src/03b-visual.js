@@ -15,20 +15,30 @@ function hitTint(obj,k,col){ if(!obj) return; k=Math.max(0,Math.min(1,k||0)); co
 (function vegetation(){
   const dummy=new THREE.Object3D();
   function sway(material){ material.onBeforeCompile=sh=>{ sh.uniforms.uTime=TIME; sh.vertexShader="uniform float uTime;\n"+sh.vertexShader.replace("#include <begin_vertex>","#include <begin_vertex>\n#ifdef USE_INSTANCING\n float _ph=instanceMatrix[3][0]*.35+instanceMatrix[3][2]*.27; transformed.x+=sin(uTime*1.8+_ph)*.22*max(position.y,0.); transformed.z+=cos(uTime*1.3+_ph)*.12*max(position.y,0.);\n#endif"); }; material.customProgramCacheKey=()=>"sway"; return material; }
-  function field(geo,material,count,realmIdx,yBase,sMin,sMax,avoid){ const sx=(realmIdx===0||realmIdx===2)?1:-1, sz=(realmIdx>=2)?1:-1; const im=new THREE.InstancedMesh(geo,material,count); let n=0;
+  function field(geo,material,count,realmIdx,yBase,sMin,sMax,visR){ const sx=(realmIdx===0||realmIdx===2)?1:-1, sz=(realmIdx>=2)?1:-1; const im=new THREE.InstancedMesh(geo,material,count); let n=0;
     for(let k=0;k<count*3&&n<count;k++){ const x=sx*rnd(4,WORLD_HALF-6), z=sz*rnd(4,WORLD_HALF-6); if(Math.hypot(x,z)<REGIONS[12].r+4) continue; const cap=REGIONS[realmIdx*3]; if(Math.hypot(x-cap.x,z-cap.z)<33) continue; let bad=false; for(const rg of REGIONS){ if(!rg.cap&&Math.hypot(x-rg.x,z-rg.z)<9) bad=true; } if(bad) continue;
       const s=rnd(sMin,sMax); dummy.position.set(x,yBase*s+hAt(x,z),z); dummy.rotation.set(0,rnd(0,6.3),rnd(-.15,.15)); dummy.scale.set(s,s,s); dummy.updateMatrix(); im.setMatrixAt(n++,dummy.matrix); }
-    im.count=n; im.receiveShadow=HIGH(); im.castShadow=false; im.frustumCulled=false; scene.add(im); }
+    im.count=n; im.receiveShadow=HIGH()&&!ECO(); im.castShadow=false; im.frustumCulled=false; scene.add(im);
+    /* v34 배터리: 모든 풀·꽃을 늘 다 그리던 것(세계 전체 약 23만 삼각형)을 → 내 앞 가까운 것만 골라 그림 */
+    const all=im.instanceMatrix.array.slice(0,n*16); const xz=new Float32Array(n*2); for(let i=0;i<n;i++){ xz[i*2]=all[i*16+12]; xz[i*2+1]=all[i*16+14]; }
+    im.userData.veg={all,xz,n,vis:visR||80}; VEG.push(im); im.count=0; }
+  const VEG=[]; const VEGS={x:1e9,z:1e9,zoom:0,t:0};
+  function vegCull(force){ const zf=Math.max(1,ZOOM*.85); const far=(ECO()?1:1.35)*zf; const back=10+14*ZOOM;
+    for(const im of VEG){ const V=im.userData.veg; const R=V.vis*far, R2=R*R; let k=0; const A=im.instanceMatrix.array;
+      for(let i=0;i<V.n;i++){ const dx=V.xz[i*2]-P.x, dz=V.xz[i*2+1]-P.z; if(dz>back) continue; if(dx*dx+dz*dz>R2) continue; if(Math.abs(dx)>14+(back-dz)*1.2) continue; A.set(V.all.subarray(i*16,i*16+16),k*16); k++; }
+      im.count=k; im.instanceMatrix.needsUpdate=true; } VEGS.x=P.x; VEGS.z=P.z; VEGS.zoom=ZOOM; }
+  window.vegTick=function(dt){ VEGS.t-=dt; if(VEGS.t>0) return; VEGS.t=.25; if(Math.hypot(P.x-VEGS.x,P.z-VEGS.z)>5||Math.abs(ZOOM-VEGS.zoom)>.15) vegCull(); };
+  window.vegCount=function(){ let a=0,b=0; for(const im of VEG){ a+=im.count; b+=im.userData.veg.n; } return [a,b]; };
   const blade=new THREE.ConeGeometry(.14,1.1,4); blade.translate(0,.55,0);
   const N=HIGH()?2600:900;
-  field(blade,sway(mat({color:0x6fb04a,roughness:1})),N,0,0,.8,1.6);          // 에덴 풀
-  field(new THREE.SphereGeometry(.3,6,5),mat({color:0xffd36a,emissive:0xffb020,emissiveIntensity:.5,roughness:.7}),Math.round(N*.18),0,.3,.5,1.1); // 에덴 황금 꽃
-  field(new THREE.SphereGeometry(.5,6,5),mat({color:0xffffff,roughness:1}),Math.round(N*.5),1,.2,.6,1.8);   // 아스가르드 눈덩이
-  field(new THREE.ConeGeometry(.2,1.3,5),mat({color:0xbfe6ff,roughness:.2,metalness:.1,transparent:true,opacity:.85}),Math.round(N*.25),1,.65,.6,1.6); // 얼음 결정
-  field(blade,sway(mat({color:0xd9b24a,roughness:1})),N,2,0,1,2.2);          // 인도 황금 풀
-  field(new THREE.SphereGeometry(.3,6,5),mat({color:0xff6fa0,emissive:0xff3080,emissiveIntensity:.35,roughness:.7}),Math.round(N*.18),2,.3,.5,1.1); // 인도 꽃
-  field(blade,sway(mat({color:0x7fa85a,roughness:1})),N,3,0,.8,1.5);          // 올림푸스 풀
-  field(new THREE.SphereGeometry(.28,6,5),mat({color:0xffffff,emissive:0xcfe8ff,emissiveIntensity:.3,roughness:.7}),Math.round(N*.18),3,.3,.5,1.1); // 흰 꽃
+  field(blade,sway(mat({color:0x6fb04a,roughness:1})),N,0,0,.8,1.6,85);          // 에덴 풀
+  field(new THREE.SphereGeometry(.3,6,5),mat({color:0xffd36a,emissive:0xffb020,emissiveIntensity:.5,roughness:.7}),Math.round(N*.18),0,.3,.5,1.1,70); // 에덴 황금 꽃
+  field(new THREE.SphereGeometry(.5,6,5),mat({color:0xffffff,roughness:1}),Math.round(N*.5),1,.2,.6,1.8,75);   // 아스가르드 눈덩이
+  field(new THREE.ConeGeometry(.2,1.3,5),mat({color:0xbfe6ff,roughness:.2,metalness:.1,transparent:true,opacity:.85}),Math.round(N*.25),1,.65,.6,1.6,90); // 얼음 결정
+  field(blade,sway(mat({color:0xd9b24a,roughness:1})),N,2,0,1,2.2,90);          // 인도 황금 풀
+  field(new THREE.SphereGeometry(.3,6,5),mat({color:0xff6fa0,emissive:0xff3080,emissiveIntensity:.35,roughness:.7}),Math.round(N*.18),2,.3,.5,1.1,70); // 인도 꽃
+  field(blade,sway(mat({color:0x7fa85a,roughness:1})),N,3,0,.8,1.5,85);          // 올림푸스 풀
+  field(new THREE.SphereGeometry(.28,6,5),mat({color:0xffffff,emissive:0xcfe8ff,emissiveIntensity:.3,roughness:.7}),Math.round(N*.18),3,.3,.5,1.1,70); // 흰 꽃
 })();
 
 /* ---- 별 ---- */

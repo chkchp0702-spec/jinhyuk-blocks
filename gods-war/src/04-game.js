@@ -58,12 +58,12 @@ function killMob(m){ if(m.war&&typeof warOnKill==="function") warOnKill(m); cons
 
 /* ================= NPC 신들 ================= */
 const NPC_SAY={"예수":["평화가 함께하길.","두려워 말라.","사랑으로 싸워라."],"가브리엘":["소식을 전하러 왔다.","하늘이 지켜보고 있다."],"라파엘":["상처는 내가 치유하마.","쉬어 가게."],"토르":["묠니르 맛을 보여주마!","스콜!","거인들이 또 왔군."],"프레이야":["용감한 자는 발할라로.","전쟁도 사랑도 내 것."],"헤임달":["다리를 지키는 중이다.","라그나로크는 아직 멀었다."],"하누만":["산도 들어 옮기지!","라마 만세!"],"가네샤":["장애물은 내가 치워주지.","달콤한 걸 좋아하나?"],"아그니":["불꽃이 길을 밝힌다.","제물을 바쳐라."],"아테나":["전략 없이 이길 수 없다.","지혜가 힘을 이긴다."],"아폴론":["태양이 떠오른다.","예언을 들어보겠나?"],"헤르메스":["빠른 게 최고지!","편지 배달 왔습니다~"]};
-function tickNPCs(dt){ NPCS.forEach(o=>{ if(!o.lbl) o.lbl=makeLabel("boss"); const d=Math.hypot(o.x-P.x,o.z-P.z); if(d>80){ o.lbl.style.display="none"; return; } o.t-=dt; o.sayT-=dt;
+function tickNPCs(dt){ NPCS.forEach(o=>{ if(!o.lbl) o.lbl=makeLabel("boss"); const d=Math.hypot(o.x-P.x,o.z-P.z); if(d>55){ o.lbl.style.display="none"; return; } o.t-=dt; o.sayT-=dt;
     if(o.t<=0){ o.t=rnd(3,7); const a=rnd(0,6.283), r=rnd(6,24); o.tx=o.cap.x+Math.cos(a)*r; o.tz=o.cap.z+Math.sin(a)*r; }
     if(o.sayT<=0&&d<30){ o.sayT=rnd(14,34); o.say=5; o.msg=pick(NPC_SAY[o.n]||["..."]); } o.say=Math.max(0,o.say-dt);
     const dx=o.tx-o.x, dz=o.tz-o.z, L=Math.hypot(dx,dz); const moving=L>.6; if(moving){ o.x+=dx/L*2.2*dt; o.z+=dz/L*2.2*dt; o.walk+=dt*8; o.mesh.rotation.y=Math.atan2(dx,dz); } else if(d<6){ o.mesh.rotation.y=Math.atan2(P.x-o.x,P.z-o.z); }
     o.mesh.position.set(o.x,hAt(o.x,o.z),o.z); const u=o.mesh.userData, sw=moving?Math.sin(o.walk)*.6:0; if(u.gl){ animState(o.mesh,o.say>4.5?"cheer":moving?"walk":"idle"); if(u.crown) u.crown.rotation.y+=dt*2; } else { u.legL.rotation.x=sw; u.legR.rotation.x=-sw; u.armL.rotation.x=-sw; u.armR.rotation.x=sw; u.body.position.y=moving?Math.abs(Math.sin(o.walk))*.1:Math.sin(performance.now()/600)*.03; if(u.wings) u.wings.forEach(w=>{ w.rotation.y=w.userData.s*Math.sin(performance.now()/500)*.15; }); if(u.cape) u.cape.rotation.x=.15+(moving?.4:0); if(u.crown){ u.crown.rotation.y+=dt*2; } }
-    placeLabel(o.lbl,o.x,5.6,o.z,`${o.say>0?`<span class="bub">${o.msg}</span>`:""}${o.n} <b>${REALMS[REGIONS.find(r=>r===o.cap).realm].n}의 신 · 파워 ${o.p}</b>`); }); }
+    placeLabel(o.lbl,o.x,5.6,o.z,`${o.say>0?`<span class="bub">${o.msg}</span>`:""}${o.n}${d<22?` <b>${REALMS[REGIONS.find(r=>r===o.cap).realm].n}의 신 · 파워 ${o.p}</b>`:""}`); }); }
 
 /* ================= 전투 ================= */
 function facingHit(x,z,r,ang){ const dx=x-P.x, dz=z-P.z, d=Math.hypot(dx,dz); if(d>r) return false; if(d<1.2) return true; let a=Math.atan2(dx,dz)-P.rot; while(a>Math.PI)a-=Math.PI*2; while(a<-Math.PI)a+=Math.PI*2; return Math.abs(a)<ang; }
