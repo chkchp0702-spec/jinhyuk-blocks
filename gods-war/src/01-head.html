@@ -333,6 +333,30 @@ body.eco .act.skl.ready::before{box-shadow:0 0 10px var(--c2,#ffe27a)}
 #mtBar{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 96px);transform:translateX(-50%);z-index:6;display:flex;flex-wrap:nowrap;justify-content:center;gap:4px;max-width:min(470px,60vw);overflow-x:auto;scrollbar-width:none;padding:5px 8px;border-radius:14px;background:rgba(20,40,30,.55);border:1px solid rgba(157,255,184,.45)}
 #mtBar[hidden]{display:none} #mtBar .mth{font-size:14px;align-self:center} #mtBar button{flex:none;border:0;border-radius:999px;padding:4px 8px;font-size:12px;font-family:inherit;background:#e8ffe8;color:#1b3a24;box-shadow:0 2px 0 #3a7a4a;cursor:pointer} #mtBar button.hit{animation:mtHit .35s ease-out}
 @keyframes mtHit{0%{transform:scale(1.18);background:#9dffb8}100%{transform:scale(1)}}
+/* v43: 🎒 메뉴 창 게임다운 디자인 — 등급 테두리·아이콘 칸·금속 탭·광택 버튼 */
+.card h3{display:flex;align-items:center;gap:8px;color:#ffe08a;text-shadow:0 1px 0 #000;letter-spacing:.5px}
+.card h3::after{content:"";flex:1;height:2px;border-radius:2px;background:linear-gradient(90deg,rgba(255,207,74,.75),rgba(255,207,74,0))}
+.row{position:relative;overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 2px 0 rgba(0,0,0,.35)}
+.row .ic{position:relative;background:radial-gradient(circle at 50% 35%,rgba(120,100,180,.55),rgba(14,9,30,.9) 75%);border:2px solid rgba(255,207,74,.35);box-shadow:inset 0 2px 4px rgba(0,0,0,.6),inset 0 -1px 0 rgba(255,255,255,.12),0 1px 0 rgba(255,255,255,.08);text-shadow:0 2px 2px rgba(0,0,0,.6)}
+.row.rr{border-color:color-mix(in srgb,var(--rc) 55%,transparent);background:linear-gradient(90deg,color-mix(in srgb,var(--rc) 26%,transparent),rgba(255,255,255,.04) 55%,rgba(255,255,255,.03));box-shadow:inset 4px 0 0 var(--rc),inset 0 1px 0 rgba(255,255,255,.12),0 2px 0 rgba(0,0,0,.35)}
+.row.rr .ic{border-color:var(--rc);background:radial-gradient(circle at 50% 30%,color-mix(in srgb,var(--rc) 85%,#fff),color-mix(in srgb,var(--rc) 55%,#100820) 55%,#120a26 100%);box-shadow:inset 0 2px 0 rgba(255,255,255,.45),inset 0 -4px 6px rgba(0,0,0,.45),0 0 0 1px rgba(0,0,0,.5)}
+.row.rr .ic::after{content:"";position:absolute;left:4px;right:4px;top:3px;height:40%;border-radius:7px 7px 50% 50%;background:linear-gradient(180deg,rgba(255,255,255,.4),rgba(255,255,255,0));pointer-events:none}
+.row.rr2{box-shadow:inset 4px 0 0 var(--rc),inset 0 1px 0 rgba(255,255,255,.12),0 2px 0 rgba(0,0,0,.35),0 0 10px color-mix(in srgb,var(--rc) 45%,transparent)}
+.row.rr2 .ic{box-shadow:inset 0 2px 0 rgba(255,255,255,.45),inset 0 -4px 6px rgba(0,0,0,.45),0 0 8px var(--rc)}
+.row.rr3{box-shadow:inset 4px 0 0 var(--rc),inset 0 1px 0 rgba(255,255,255,.2),0 2px 0 rgba(0,0,0,.35),0 0 14px rgba(255,200,60,.55)}
+.row.rr3 .ic{box-shadow:inset 0 2px 0 rgba(255,255,255,.55),inset 0 -4px 6px rgba(0,0,0,.4),0 0 10px #ffcf4a,0 0 18px rgba(255,180,40,.6)}
+.row.rr3::before{content:"";position:absolute;top:0;bottom:0;left:-40%;width:30%;background:linear-gradient(100deg,rgba(255,240,180,0),rgba(255,240,180,.28),rgba(255,240,180,0));transform:skewX(-18deg);animation:rrShine 3.2s ease-in-out infinite;pointer-events:none}
+@keyframes rrShine{0%,55%{left:-40%}100%{left:130%}}
+.rar{background-image:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,0) 60%,rgba(0,0,0,.2));box-shadow:inset 0 0 0 1px rgba(255,255,255,.25),0 1px 0 rgba(0,0,0,.5);text-shadow:0 1px 0 rgba(0,0,0,.45);font-weight:700}
+.tabs{gap:5px} .tab{position:relative;border:2px solid rgba(255,207,74,.35);background:linear-gradient(180deg,rgba(70,54,120,.95),rgba(26,18,52,.95));box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 3px 0 rgba(0,0,0,.45);border-radius:12px;text-shadow:0 1px 0 #000;transition:transform .08s}
+.tab:active{transform:translateY(2px);box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 1px 0 rgba(0,0,0,.45)}
+.tab.on{background:linear-gradient(180deg,#fff2bf,#ffcf4a 50%,#e0a520);border-color:#fff1b0;color:#3a2000;text-shadow:0 1px 0 rgba(255,255,255,.5);box-shadow:inset 0 1px 0 #fff,0 3px 0 #7a4a00,0 0 12px rgba(255,207,74,.55)}
+.tab.on::after{content:"";position:absolute;left:50%;bottom:-8px;margin-left:-6px;border:6px solid transparent;border-top-color:#e0a520;border-bottom:0}
+.buy{background-image:linear-gradient(180deg,rgba(255,255,255,.38),rgba(255,255,255,0) 52%,rgba(0,0,0,.1));box-shadow:inset 0 1px 0 rgba(255,255,255,.6),inset 0 -3px 0 rgba(0,0,0,.25),0 2px 0 rgba(0,0,0,.45);text-shadow:0 1px 0 rgba(255,255,255,.3);font-weight:700;transition:transform .08s}
+.buy.sell,.buy.alt{text-shadow:0 1px 0 rgba(0,0,0,.35)}
+.buy:not([disabled]):active{transform:translateY(2px);box-shadow:inset 0 1px 0 rgba(255,255,255,.6),inset 0 -1px 0 rgba(0,0,0,.25),0 0 0 rgba(0,0,0,.45)}
+.buy[disabled]{background-image:none;box-shadow:inset 0 -2px 0 rgba(0,0,0,.25);text-shadow:none}
+body.eco .row.rr3::before{animation:none;display:none}
 </style>
 </head>
 <body>

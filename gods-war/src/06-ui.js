@@ -36,8 +36,10 @@ function hud(){ hudT-=1; if(hudT>0) return; hudT=ECO()?3:1; const st=stat(); hT(
 /* ================= 화면(창) ================= */
 const layers=$("layers"); let layerOpen=false;
 function closeLayer(){ layers.innerHTML=""; layerOpen=false; }
-function card(html,id){ layers.innerHTML=`<div class="layer" id="${id||"bg"}"><div class="card">${html}<button class="close" id="cls" type="button">닫기</button></div></div>`; layerOpen=true; $("cls").onclick=closeLayer; const bg=$(id||"bg"); bg.onclick=e=>{ if(e.target===bg) closeLayer(); }; }
-function rarTag(t){ return `<span class="rar" style="background:${RAR[t].c}">${RAR[t].n}</span>`; }
+function card(html,id){ layers.innerHTML=`<div class="layer" id="${id||"bg"}"><div class="card">${html}<button class="close" id="cls" type="button">닫기</button></div></div>`; layerOpen=true; rowRar(); $("cls").onclick=closeLayer; const bg=$(id||"bg"); bg.onclick=e=>{ if(e.target===bg) closeLayer(); }; }
+function rarTag(t){ return `<span class="rar" data-r="${t}" style="background-color:${RAR[t].c}">${RAR[t].n}</span>`; }
+// v43 등급 있는 줄에 등급 색 테두리·아이콘 칸(첫 번째 등급표 기준)
+function rowRar(){ layers.querySelectorAll(".row").forEach(r=>{ const t=r.querySelector(".t .rar[data-r]"); if(!t) return; const k=+t.dataset.r; if(!RAR[k]) return; r.classList.add("rr","rr"+k); r.style.setProperty("--rc",RAR[k].c); }); }
 let BAG_TAB="eq";
 /* v27: 최적화 구성 — 지금 낄 수 있는 것 중 칸마다 가장 센 것을 고름 (등급 = 강함, 같은 등급이면 그대로) */
 function bagBest(){ const best={}; ["w","a","r"].forEach(s=>{ let t=G.eq[s], from=-1; G.bag.forEach((it,i)=>{ if(it.s===s&&it.t<=G.rank&&it.t>t){ t=it.t; from=i; } }); best[s]={t,from}; }); return best; }
