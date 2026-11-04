@@ -7,12 +7,13 @@ const MODELS={chars:{},hex:{},weap:{},anims:[],loading:{},hexReady:false,animsRe
 const MIXERS=[];
 const LOADER=THREE.GLTFLoader?new THREE.GLTFLoader():null;
 if(!LOADER||!THREE.SkeletonUtils) MODELS.fail=true;
-function prepMesh(o){ if(o.isMesh){ o.castShadow=HIGH(); o.receiveShadow=false; o.frustumCulled=false; if(o.material){ o.material.roughness=.9; o.material.metalness=0; } } }
+/* v32 배터리: 캐릭터도 화면 밖이면 안 그리게(frustumCulled) — 뼈 애니메이션 때문에 경계 구를 크게 잡아 둠 */
+function prepMesh(o){ if(o.isMesh){ o.castShadow=HIGH(); o.receiveShadow=false; if(o.material){ o.material.roughness=.9; o.material.metalness=0; } try{ const g=o.geometry; if(!g.boundingSphere) g.computeBoundingSphere(); if(!g._bigBS){ g._bigBS=1; g.boundingSphere.radius=Math.max(g.boundingSphere.radius*2.5,2); g.boundingSphere.center.set(0,g.boundingSphere.center.y,0); } o.frustumCulled=true; }catch(e){ o.frustumCulled=false; } } }
 function loadChar(name,cb){ if(MODELS.chars[name]){ cb&&cb(); return; } if(!LOADER){ return; } (MODELS.loading[name]=MODELS.loading[name]||[]).push(cb);
   if(MODELS.loading[name].length>1) return;
-  LOADER.load("models/c/"+name+".glb",g=>{ g.scene.traverse(prepMesh); MODELS.chars[name]=g.scene; const cbs=MODELS.loading[name]; delete MODELS.loading[name]; cbs.forEach(f=>f&&f()); scheduleRefresh(); },undefined,()=>{ delete MODELS.loading[name]; }); }
+  LOADER.load("models/c/"+name+".glb",g=>{ g.scene.traverse(prepMesh); lambertize(g.scene); MODELS.chars[name]=g.scene; const cbs=MODELS.loading[name]; delete MODELS.loading[name]; cbs.forEach(f=>f&&f()); scheduleRefresh(); },undefined,()=>{ delete MODELS.loading[name]; }); }
 function loadWeapon(name,cb){ if(MODELS.weap[name]){ cb&&cb(); return; } if(!LOADER) return; (MODELS.loading["w:"+name]=MODELS.loading["w:"+name]||[]).push(cb); if(MODELS.loading["w:"+name].length>1) return;
-  LOADER.load("models/w/"+name+".gltf",g=>{ g.scene.traverse(prepMesh); MODELS.weap[name]=g.scene; const cbs=MODELS.loading["w:"+name]; delete MODELS.loading["w:"+name]; cbs.forEach(f=>f&&f()); scheduleRefresh(); },undefined,()=>{ delete MODELS.loading["w:"+name]; }); }
+  LOADER.load("models/w/"+name+".gltf",g=>{ g.scene.traverse(prepMesh); lambertize(g.scene); MODELS.weap[name]=g.scene; const cbs=MODELS.loading["w:"+name]; delete MODELS.loading["w:"+name]; cbs.forEach(f=>f&&f()); scheduleRefresh(); },undefined,()=>{ delete MODELS.loading["w:"+name]; }); }
 function ensure(names,weapons,cb){ let need=0; const done=()=>{ if(--need===0&&cb) cb(); }; names.forEach(n=>{ if(n&&!MODELS.chars[n]){ need++; loadChar(n,done); } }); (weapons||[]).forEach(w=>{ if(w&&!MODELS.weap[w]){ need++; loadWeapon(w,done); } }); if(need===0&&cb) cb(); return need===0; }
 let refreshT=null; function scheduleRefresh(){ clearTimeout(refreshT); refreshT=setTimeout(()=>{ try{ refreshGL(); }catch(e){ console.warn(e); } },120); }
 (function loadAnims(){ if(!LOADER) return; const files=["anim_general","anim_move","anim_melee","anim_ranged"]; let n=0; files.forEach(f=>LOADER.load("models/"+f+".glb",g=>{ MODELS.anims.push(...g.animations); if(++n===files.length){ MODELS.animsReady=true; scheduleRefresh(); } },undefined,()=>{ if(++n===files.length){ MODELS.animsReady=true; } })); })();
@@ -20,7 +21,7 @@ let refreshT=null; function scheduleRefresh(){ clearTimeout(refreshT); refreshT=
 const HEX_LIST=["building_castle_%c","building_church_%c","building_home_A_%c","building_home_B_%c","building_market_%c","building_tavern_%c","building_tower_A_%c","building_well_%c","building_windmill_%c","building_blacksmith_%c","tree_single_A","tree_single_B","trees_A_small","trees_A_medium","trees_A_large","trees_B_small","trees_B_medium","trees_B_large","rock_single_A","rock_single_B","rock_single_C","rock_single_D","rock_single_E","barrel","crate_A_big","tent","flag_blue","flag_yellow","flag_red","flag_green","weaponrack","wheelbarrow","sack","bucket_water","target","waterlily_A"];
 const REALM_HEXCOLOR=["yellow","blue","red","green"];
 (function loadHex(){ if(!LOADER) return; const list=[]; HEX_LIST.forEach(h=>{ if(h.indexOf("%c")>=0) REALM_HEXCOLOR.forEach(c=>list.push(h.replace("%c",c))); else list.push(h); }); let m=0; const fin=()=>{ if(++m===list.length){ MODELS.hexReady=true; if(typeof onHexReady==="function") onHexReady(); } };
-  list.forEach(name=>LOADER.load("models/hex/"+name+".gltf",g=>{ g.scene.traverse(o=>{ if(o.isMesh){ o.castShadow=HIGH(); o.receiveShadow=HIGH(); if(o.material){ o.material.roughness=.95; o.material.metalness=0; } } }); MODELS.hex[name]=g.scene; fin(); },undefined,fin)); })();
+  list.forEach(name=>LOADER.load("models/hex/"+name+".gltf",g=>{ g.scene.traverse(o=>{ if(o.isMesh){ o.castShadow=HIGH(); o.receiveShadow=HIGH(); if(o.material){ o.material.roughness=.95; o.material.metalness=0; } } }); lambertize(g.scene); MODELS.hex[name]=g.scene; fin(); },undefined,fin)); })();
 function hexModel(name,scale){ const src=MODELS.hex[name]; if(!src) return null; const o=src.clone(); o.scale.setScalar(scale||5); return o; }
 
 /* ---- 꾸미기 선택지 ---- */
@@ -106,7 +107,7 @@ function makeCharGL(modelName,opts){ const src=MODELS.chars[modelName]; const cl
   const mixer=new THREE.AnimationMixer(obj); const actions={}; clips.forEach(c=>{ actions[c.name]=mixer.clipAction(c); }); g.userData.gl={mixer,actions,cur:null,onceUntil:0,attack:opts.attack||"1H_Melee_Attack_Slice_Diagonal",skill:"Spellcast_Shoot",alias:{}}; MIXERS.push(g); playAnim(g,"Idle"); return g; }
 const SKEL_ANIMS={};
 const SKEL_OF={"드라우그":"Skeleton_Warrior","길 잃은 영혼":"Skeleton_Minion","베탈라":"Skeleton_Rogue"};
-(function loadSkel(){ if(!LOADER) return; Object.values(SKEL_OF).forEach(n=>LOADER.load("models/"+n+".glb",g=>{ g.scene.traverse(prepMesh); SKEL_ANIMS[n]=g.animations; MODELS.chars[n]=g.scene; },undefined,()=>{})); })();
+(function loadSkel(){ if(!LOADER) return; Object.values(SKEL_OF).forEach(n=>LOADER.load("models/"+n+".glb",g=>{ g.scene.traverse(prepMesh); lambertize(g.scene); SKEL_ANIMS[n]=g.animations; MODELS.chars[n]=g.scene; },undefined,()=>{})); })();
 /* ---- 괴물·보스 → 신화에 맞는 모델 ---- */
 const MOB_GL={"서리 거인":{body:"FrostGolem",scale:1.5},"트롤":{body:"OrcBrute",scale:1.25,weapon:"axe_1handed"},"서리 늑대":{body:"Werewolf_Wolf"},"타락천사":{body:"Vampire",weapon:"sword_1handed"},"네피림":{body:"OrcRaider",scale:1.3,weapon:"axe_2handed",tint:0xe8d8c0},"락샤사":{body:"Monster",weapon:"axe_1handed"},"아수라":{body:"Tiefling",weapon:"sword_2handed"},"나가":{body:"PlantWarrior",weapon:"staff"},"키클롭스":{body:"Monstrosity",scale:1.3},"사티로스":{body:"Caveman",weapon:"druid_staff"},"하르피이":{body:"AvianSwordsman",weapon:"sword_1handed"},
   "네피림의 왕":{body:"Monstrosity",scale:1.9,tint:0xe8d8b0},"서리거인 흐림":{body:"FrostGolem",scale:2.3},"미노타우로스":{body:"OrcBrute",scale:1.9,tint:0x8a6a4a,weapon:"axe_2handed"},"루시퍼":{body:"Vampire",scale:2.4,tint:0x8060c0,weapon:"sword_2handed"},"펜리르":{body:"Werewolf_Wolf",scale:2.6,tint:0x8a8a9a},"마히샤수라":{body:"Monstrosity",scale:2.4,tint:0x806040,weapon:"axe_2handed"}};

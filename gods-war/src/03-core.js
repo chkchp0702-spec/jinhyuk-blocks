@@ -91,13 +91,15 @@ renderer.physicallyCorrectLights=false;
 const scene=new THREE.Scene(); scene.background=new THREE.Color(0x9fd4ff); scene.fog=new THREE.Fog(0xdcefff,55,165);
 const camera=new THREE.PerspectiveCamera(55,1,.1,600);
 /* 재질: 표준 PBR + 약간의 광택. 세계마다 색은 다르게 */
-function mat(o){ return new THREE.MeshStandardMaterial(Object.assign({roughness:.78,metalness:.05},o||{})); }
+/* v32 배터리: 절약 모드는 픽셀마다 계산이 무거운 Standard(PBR) 재질 대신 Lambert 재질(약 2~3배 가벼움) */
+function mat(o){ if(!ECO()) return new THREE.MeshStandardMaterial(Object.assign({roughness:.78,metalness:.05},o||{})); const p=Object.assign({},o||{}); delete p.roughness; delete p.metalness; return new THREE.MeshLambertMaterial(p); }
+function lambertize(root){ if(!ECO()||!root) return root; root.traverse(o=>{ if(!o.isMesh||!o.material) return; const conv=m=>{ if(!m||!m.isMeshStandardMaterial) return m; if(m._lam) return m._lam; const L=new THREE.MeshLambertMaterial({color:m.color,map:m.map,emissive:m.emissive,emissiveIntensity:m.emissiveIntensity,emissiveMap:m.emissiveMap,transparent:m.transparent,opacity:m.opacity,side:m.side,alphaTest:m.alphaTest,vertexColors:m.vertexColors,skinning:!!m.skinning,morphTargets:!!m.morphTargets,morphNormals:!!m.morphNormals,depthWrite:m.depthWrite,depthTest:m.depthTest,blending:m.blending,fog:m.fog}); L.name=m.name; m._lam=L; return L; }; o.material=Array.isArray(o.material)?o.material.map(conv):conv(o.material); }); return root; }
 function toon(o){ return mat(o); }
 function glowMat(color,op){ return new THREE.MeshBasicMaterial({color,transparent:true,opacity:op==null?.9:op,depthWrite:false,blending:THREE.AdditiveBlending}); }
 const hemi=new THREE.HemisphereLight(0xdff3ff,0x6b5a4a,.5); scene.add(hemi);
 scene.add(new THREE.AmbientLight(0xffffff,.12));
 const sun=new THREE.DirectionalLight(0xfff1d6,1.25); sun.position.set(40,80,30); sun.castShadow=HIGH();
-if(HIGH()){ sun.shadow.mapSize.set(ECO()?1024:2048,ECO()?1024:2048); const s=sun.shadow.camera; s.left=-55;s.right=55;s.top=55;s.bottom=-55;s.near=10;s.far=220; sun.shadow.bias=-.0006; sun.shadow.normalBias=.03; sun.shadow.radius=3; }
+if(HIGH()){ sun.shadow.mapSize.set(ECO()?768:2048,ECO()?768:2048); const s=sun.shadow.camera; const R=ECO()?42:55; s.left=-R;s.right=R;s.top=R;s.bottom=-R;s.near=10;s.far=220; sun.shadow.bias=-.0006; sun.shadow.normalBias=.03; sun.shadow.radius=3; }
 scene.add(sun); scene.add(sun.target);
 const fill=new THREE.DirectionalLight(0xb8d4ff,.3); fill.position.set(-30,40,-50); scene.add(fill);
 function shadowify(o){ o.traverse(m=>{ if(m.isMesh){ m.castShadow=HIGH(); m.receiveShadow=HIGH(); } }); return o; }
@@ -132,17 +134,22 @@ const NOISE=(function(){ const P=new Uint8Array(512); const p=[]; for(let i=0;i<
 const smooth=(a,b,t)=>{ t=clamp((t-a)/(b-a),0,1); return t*t*(3-2*t); };
 function flatMask(x,z){ let m=1; for(const rg of REGIONS){ const d=Math.hypot(x-rg.x,z-rg.z); m*=smooth(rg.r*.92,rg.r*1.35,d); } for(const rg of REGIONS){ if(!rg.cap) continue; const L=Math.hypot(rg.x,rg.z); const ux=rg.x/L, uz=rg.z/L; const t=clamp(x*ux+z*uz,0,L); const dd=Math.hypot(x-ux*t,z-uz*t); m*=smooth(4.5,10,dd); } return m; }
 function hAt(x,z){ const e=Math.max(Math.abs(x),Math.abs(z)); const mtn=smooth(186,215,e); const n=NOISE(x,z); return (n-.45)*9*flatMask(x,z)*(1-mtn)+mtn*(26+n*22); }
-const TERRAIN=(function(){ const S=WORLD_HALF*2+40, seg=190; const geo=new THREE.PlaneGeometry(S,S,seg,seg); geo.rotateX(-Math.PI/2); const pos=geo.attributes.position; const col=new Float32Array(pos.count*3); const c=new THREE.Color(), c2=new THREE.Color();
+const TERRAIN=(function(){ const S=WORLD_HALF*2+40, NT=6, segT=32, TS=S/NT; const grp=new THREE.Group(); grp.name="terrain";
   const realmCol=[new THREE.Color(0xa9d27f),new THREE.Color(0xe6eef6),new THREE.Color(0xd9b06c),new THREE.Color(0xb9d3a4)], rock=new THREE.Color(0x6b6c78), snow=new THREE.Color(0xf7f9ff), stone=new THREE.Color(0x66627a), road=new THREE.Color(0xcbbd9c), dark=new THREE.Color(0x2a2340);
-  for(let i=0;i<pos.count;i++){ const x=pos.getX(i), z=pos.getZ(i); const y=hAt(x,z); pos.setY(i,y);
-    const bx=smooth(-18,18,x), bz=smooth(-18,18,z); c.copy(realmCol[1]).lerp(realmCol[0],bx); c2.copy(realmCol[3]).lerp(realmCol[2],bx); c.lerp(c2,bz);
+  const c=new THREE.Color(), c2=new THREE.Color();
+  function colAt(x,z,y){ const bx=smooth(-18,18,x), bz=smooth(-18,18,z); c.copy(realmCol[1]).lerp(realmCol[0],bx); c2.copy(realmCol[3]).lerp(realmCol[2],bx); c.lerp(c2,bz);
     const dc=Math.hypot(x,z); c.lerp(stone,1-smooth(REGIONS[12].r-6,REGIONS[12].r+8,dc));
     let rd=0; for(const rg of REGIONS){ if(!rg.cap) continue; const L=Math.hypot(rg.x,rg.z); const ux=rg.x/L, uz=rg.z/L; const t=clamp(x*ux+z*uz,0,L); rd=Math.max(rd,1-smooth(2.5,4.5,Math.hypot(x-ux*t,z-uz*t))); } c.lerp(road,rd*.85);
-    const n=NOISE(x*3+50,z*3+50); c.multiplyScalar(.9+n*.22); c.lerp(rock,smooth(9,18,y)); c.lerp(snow,smooth(28,40,y)); if(Math.max(Math.abs(x),Math.abs(z))>WORLD_HALF+6) c.lerp(dark,.6);
-    col[i*3]=c.r; col[i*3+1]=c.g; col[i*3+2]=c.b; }
-  geo.setAttribute("color",new THREE.BufferAttribute(col,3)); geo.computeVertexNormals();
-  const detail=noiseTex("#bdbdbd",["#a8a8a8","#d2d2d2","#9c9c9c","#cccccc"],60);
-  const m=new THREE.Mesh(geo,mat({vertexColors:true,map:detail,roughness:1})); m.receiveShadow=HIGH(); scene.add(m); return m; })();
+    const n=NOISE(x*3+50,z*3+50); c.multiplyScalar(.9+n*.22); c.lerp(rock,smooth(9,18,y)); c.lerp(snow,smooth(28,40,y)); if(Math.max(Math.abs(x),Math.abs(z))>WORLD_HALF+6) c.lerp(dark,.6); return c; }
+  const detail=noiseTex("#bdbdbd",["#a8a8a8","#d2d2d2","#9c9c9c","#cccccc"],60); const tm=mat({vertexColors:true,map:detail,roughness:1}); const E=.6;
+  for(let ti=0;ti<NT;ti++) for(let tj=0;tj<NT;tj++){ const cx=-S/2+TS*(ti+.5), cz=-S/2+TS*(tj+.5); const geo=new THREE.PlaneGeometry(TS,TS,segT,segT); geo.rotateX(-Math.PI/2); geo.translate(cx,0,cz);
+    const pos=geo.attributes.position, col=new Float32Array(pos.count*3), nrm=new Float32Array(pos.count*3);
+    for(let i=0;i<pos.count;i++){ const x=pos.getX(i), z=pos.getZ(i); const y=hAt(x,z); pos.setY(i,y); const cc=colAt(x,z,y); col[i*3]=cc.r; col[i*3+1]=cc.g; col[i*3+2]=cc.b;
+      // 조각 경계에서도 이어지도록 법선은 높이 함수에서 직접 계산
+      const nx=hAt(x-E,z)-hAt(x+E,z), nz=hAt(x,z-E)-hAt(x,z+E); const L=Math.hypot(nx,2*E,nz); nrm[i*3]=nx/L; nrm[i*3+1]=2*E/L; nrm[i*3+2]=nz/L; }
+    geo.setAttribute("color",new THREE.BufferAttribute(col,3)); geo.setAttribute("normal",new THREE.BufferAttribute(nrm,3)); geo.computeBoundingSphere();
+    const m=new THREE.Mesh(geo,tm); m.receiveShadow=HIGH(); m.userData.noOutline=true; grp.add(m); }
+  scene.add(grp); return grp; })();
 (function ground(){
   REALMS.forEach((R,i)=>{ for(let k=0;k<2;k++){ const rg=REGIONS[i*3+1+k]; const p=new THREE.Mesh(new THREE.CircleGeometry(rg.r*.6,40),mat({color:R.ground2,roughness:1,transparent:true,opacity:.45})); p.rotation.x=-Math.PI/2; p.position.set(rg.x,.04,rg.z); scene.add(p); }
     const cap=REGIONS[i*3]; const pl=new THREE.Mesh(new THREE.CircleGeometry(30,48),mat({color:[0xf3ead2,0x9aa7b5,0xd8a060,0xece8dc][i],roughness:.9})); pl.rotation.x=-Math.PI/2; pl.position.set(cap.x,.05,cap.z); pl.receiveShadow=HIGH(); scene.add(pl);
