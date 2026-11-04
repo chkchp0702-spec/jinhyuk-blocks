@@ -364,7 +364,7 @@ body.eco .prfx{box-shadow:none}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v39";
+const VER="v40";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -1282,7 +1282,15 @@ const SFX=(()=>{ const T={}; const PL=new THREE.PlaneGeometry(1,1);
   // 질주 잔상(빛 줄무늬)
   function speed(x,z,rot,color){ for(let i=0;i<(HIGH()?5:3);i++){ const o=rnd(-1.2,1.2); const px=x+Math.cos(rot)*o, pz=z-Math.sin(rot)*o; const m=new THREE.Mesh(PL,mat(beam(),deep(color),0,false)); m.rotation.order="YXZ"; m.rotation.y=rot; m.rotation.x=-Math.PI/2; m.userData.noOutline=true; scene.add(m); const yy=rnd(.6,2.4)+hAt(x,z);
     FX.push({m,t:-i*.03,d:.35,tick:(f,k)=>{ if(k<0){ m.visible=false; return; } m.visible=true; m.position.set(px-Math.sin(rot)*2,yy,pz-Math.cos(rot)*2); m.scale.set(.35,4*(1-k)+.5,1); m.material.opacity=.8*(1-k); }}); } }
-  return {glow,shock,dust,runeAt,beamLine,speed};
+  // 친구(PEERS)가 기술 쓸 때도 보이게 (v40) — 받는 쪽에서만 그림, 메시지 형식 그대로(k:"skl"만 옴 → 그 세계 첫 기술 모양)
+  function peer(o){ if(!o||o.dead||!o.mesh||!o.mesh.visible) return; if(Math.hypot(o.x-P.x,o.z-P.z)>50) return; const now=performance.now(); if(o._sfxT&&now-o._sfxT<350) return; o._sfxT=now;
+    const R=REALMS[o.realm]; if(!R) return; const S=R.skills[0]; const c=S.color, rot=(o.tf!=null?o.tf:0); const eco=(typeof ECO==="function"&&ECO());
+    runeAt(o.x,o.z,c,6,.8); glow(o.x,2+hAt(o.x,o.z),o.z,c,1.6,.4);
+    if(S.type==="line") beamLine(o.x,o.z,rot,S.r||12,S.w||2.6,c);
+    else if(S.type==="dash") speed(o.x,o.z,rot,c);
+    else if(S.type==="bolt"){ for(let k=0;k<(eco?1:3);k++){ const a=rnd(0,6.28), d=rnd(3,8); const x=o.x+Math.cos(a)*d, z=o.z+Math.sin(a)*d; setTimeout(()=>{ try{ fxBolt(x,z,c); shock(x,z,c,2.4,.4); }catch(e){} },k*110); } }
+    else shock(o.x,o.z,c,Math.min(9,S.r||6),.55); }
+  return {glow,shock,dust,runeAt,beamLine,speed,peer};
 })();
 </script>
 <script>
@@ -3339,7 +3347,7 @@ const net=(function(){
     if(!PEERS[d.i]&&d.t!=="hi"&&d.t!=="st") return; const o=ensure(d.i,d); o.last=performance.now();
     if(d.t==="hi"){ const lk=(d.lk||[0,0,0,0,0,0]).join(","), e=(d.e||[-1,-1,-1]).join(","); if(o.realm!==d.r||o.rank!==d.k||o.lk!==lk||o.e!==e){ o.realm=d.r; o.rank=d.k; o.lk=lk; o.e=e; rebuild(o); } o.name=d.n; o.lv=d.l; o.pt=d.pt||null; o.tt=d.tt||""; o.fg=d.fg||0; o.gd=d.gd||0; }
     else if(d.t==="st"){ if(d.n) o.name=d.n; o.tx=d.x; o.tz=d.z; o.tf=d.f; o.m=d.m; o.hp=d.h; o.mhp=d.H; o.lv=d.l; o.dead=!!d.D; if(o.rank!==d.k||o.realm!==d.r||o.w!==d.w){ o.rank=d.k; o.realm=d.r; o.w=d.w; rebuild(o); } o.mesh.visible=!o.dead; o.ride=!!d.rd; }
-    else if(d.t==="a"){ if(d.pj||d.k==="thr"){ if(typeof peerProj==="function") peerProj(o,d); } o.anim=.3; o.skl=d.k==="skl"||d.k==="thr"; if(d.k==="skl") fxRing(o.x,o.z,REALMS[o.realm].skills[0].color,6,.5); }
+    else if(d.t==="a"){ if(d.pj||d.k==="thr"){ if(typeof peerProj==="function") peerProj(o,d); } o.anim=.3; o.skl=d.k==="skl"||d.k==="thr"; if(d.k==="skl"){ try{ SFX.peer(o); }catch(e){ fxRing(o.x,o.z,REALMS[o.realm].skills[0].color,6,.5); } } }
     else if(d.t==="hit"){ if(d.to!==G.id||P.dead) return; if(inCapital(P.x,P.z)||(typeof hmIn==="function"&&hmIn(P.x))) return; const st=stat(); hurtPlayer(d.d*(1-dmgReduce(st.def))*.7,o.name); toast(`${o.name}의 공격!`,null,.8); }
     else if(d.t==="dead"){ if(d.by===G.name){ G.war++; G.gold+=40+o.lv*5; gainXp(60+o.lv*12); toast(`${o.name} 격파!`,`전쟁 점수 +1 · 금화 +${40+o.lv*5}`,2.6); jingle([659,784,1046,1318]); saveGame(); } else toast(`${o.name}이(가) 쓰러졌어요`,null,1.4); }
     else if(d.t==="cap"){ if(mergeWorld({o:d.o,ts:d.ts})) toast(`${o.name}이(가) 영토를 점령했어요!`,`${REALMS[o.realm].n} 세력 확장`,2.4); }
@@ -3560,7 +3568,7 @@ window.__gw={showShop,bfOn,bfAdd,BUFFS,shopDeal,GD,GDO,gdCreate,gdJoin,gdLeave,g
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="c3ef27f6";
+(function(){ var CUR="ce817ada";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);

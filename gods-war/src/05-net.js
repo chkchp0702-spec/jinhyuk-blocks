@@ -63,7 +63,7 @@ const net=(function(){
     if(!PEERS[d.i]&&d.t!=="hi"&&d.t!=="st") return; const o=ensure(d.i,d); o.last=performance.now();
     if(d.t==="hi"){ const lk=(d.lk||[0,0,0,0,0,0]).join(","), e=(d.e||[-1,-1,-1]).join(","); if(o.realm!==d.r||o.rank!==d.k||o.lk!==lk||o.e!==e){ o.realm=d.r; o.rank=d.k; o.lk=lk; o.e=e; rebuild(o); } o.name=d.n; o.lv=d.l; o.pt=d.pt||null; o.tt=d.tt||""; o.fg=d.fg||0; o.gd=d.gd||0; }
     else if(d.t==="st"){ if(d.n) o.name=d.n; o.tx=d.x; o.tz=d.z; o.tf=d.f; o.m=d.m; o.hp=d.h; o.mhp=d.H; o.lv=d.l; o.dead=!!d.D; if(o.rank!==d.k||o.realm!==d.r||o.w!==d.w){ o.rank=d.k; o.realm=d.r; o.w=d.w; rebuild(o); } o.mesh.visible=!o.dead; o.ride=!!d.rd; }
-    else if(d.t==="a"){ if(d.pj||d.k==="thr"){ if(typeof peerProj==="function") peerProj(o,d); } o.anim=.3; o.skl=d.k==="skl"||d.k==="thr"; if(d.k==="skl") fxRing(o.x,o.z,REALMS[o.realm].skills[0].color,6,.5); }
+    else if(d.t==="a"){ if(d.pj||d.k==="thr"){ if(typeof peerProj==="function") peerProj(o,d); } o.anim=.3; o.skl=d.k==="skl"||d.k==="thr"; if(d.k==="skl"){ try{ SFX.peer(o); }catch(e){ fxRing(o.x,o.z,REALMS[o.realm].skills[0].color,6,.5); } } }
     else if(d.t==="hit"){ if(d.to!==G.id||P.dead) return; if(inCapital(P.x,P.z)||(typeof hmIn==="function"&&hmIn(P.x))) return; const st=stat(); hurtPlayer(d.d*(1-dmgReduce(st.def))*.7,o.name); toast(`${o.name}의 공격!`,null,.8); }
     else if(d.t==="dead"){ if(d.by===G.name){ G.war++; G.gold+=40+o.lv*5; gainXp(60+o.lv*12); toast(`${o.name} 격파!`,`전쟁 점수 +1 · 금화 +${40+o.lv*5}`,2.6); jingle([659,784,1046,1318]); saveGame(); } else toast(`${o.name}이(가) 쓰러졌어요`,null,1.4); }
     else if(d.t==="cap"){ if(mergeWorld({o:d.o,ts:d.ts})) toast(`${o.name}이(가) 영토를 점령했어요!`,`${REALMS[o.realm].n} 세력 확장`,2.4); }

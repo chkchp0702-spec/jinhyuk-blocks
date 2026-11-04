@@ -47,6 +47,14 @@ const SFX=(()=>{ const T={}; const PL=new THREE.PlaneGeometry(1,1);
   // 질주 잔상(빛 줄무늬)
   function speed(x,z,rot,color){ for(let i=0;i<(HIGH()?5:3);i++){ const o=rnd(-1.2,1.2); const px=x+Math.cos(rot)*o, pz=z-Math.sin(rot)*o; const m=new THREE.Mesh(PL,mat(beam(),deep(color),0,false)); m.rotation.order="YXZ"; m.rotation.y=rot; m.rotation.x=-Math.PI/2; m.userData.noOutline=true; scene.add(m); const yy=rnd(.6,2.4)+hAt(x,z);
     FX.push({m,t:-i*.03,d:.35,tick:(f,k)=>{ if(k<0){ m.visible=false; return; } m.visible=true; m.position.set(px-Math.sin(rot)*2,yy,pz-Math.cos(rot)*2); m.scale.set(.35,4*(1-k)+.5,1); m.material.opacity=.8*(1-k); }}); } }
-  return {glow,shock,dust,runeAt,beamLine,speed};
+  // 친구(PEERS)가 기술 쓸 때도 보이게 (v40) — 받는 쪽에서만 그림, 메시지 형식 그대로(k:"skl"만 옴 → 그 세계 첫 기술 모양)
+  function peer(o){ if(!o||o.dead||!o.mesh||!o.mesh.visible) return; if(Math.hypot(o.x-P.x,o.z-P.z)>50) return; const now=performance.now(); if(o._sfxT&&now-o._sfxT<350) return; o._sfxT=now;
+    const R=REALMS[o.realm]; if(!R) return; const S=R.skills[0]; const c=S.color, rot=(o.tf!=null?o.tf:0); const eco=(typeof ECO==="function"&&ECO());
+    runeAt(o.x,o.z,c,6,.8); glow(o.x,2+hAt(o.x,o.z),o.z,c,1.6,.4);
+    if(S.type==="line") beamLine(o.x,o.z,rot,S.r||12,S.w||2.6,c);
+    else if(S.type==="dash") speed(o.x,o.z,rot,c);
+    else if(S.type==="bolt"){ for(let k=0;k<(eco?1:3);k++){ const a=rnd(0,6.28), d=rnd(3,8); const x=o.x+Math.cos(a)*d, z=o.z+Math.sin(a)*d; setTimeout(()=>{ try{ fxBolt(x,z,c); shock(x,z,c,2.4,.4); }catch(e){} },k*110); } }
+    else shock(o.x,o.z,c,Math.min(9,S.r||6),.55); }
+  return {glow,shock,dust,runeAt,beamLine,speed,peer};
 })();
 </script>
