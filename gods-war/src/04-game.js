@@ -26,7 +26,7 @@ function tickMobs(dt){
   REGIONS.forEach(rg=>{ const d=Math.hypot(P.x-rg.x,P.z-rg.z); const s=REG_STATE[rg.id]; if(d>rg.r+50) return; if(typeof warActive==="function"&&warActive()&&WAR.cur.rg===rg.id) return; const cnt=mobs.filter(m=>m.rg===rg.id&&!m.boss).length; const want=rg.cap?3:rg.center?7:5; if(cnt<want&&Math.random()<dt*.8) spawnMob(rg,false,false);
     if(!rg.cap&&!P.trial){ s.bossT-=dt; if(s.bossT<=0&&!s.boss&&d<rg.r+10){ spawnMob(rg,true,!!rg.center); s.bossT=rg.center?300:240; } } });
   const st=stat(); WARN.begin();
-  for(let i=mobs.length-1;i>=0;i--){ const m=mobs[i]; if(m.war||m.titan||m.dg) continue; const dx=P.x-m.x, dz=P.z-m.z, d=Math.hypot(dx,dz);
+  for(let i=mobs.length-1;i>=0;i--){ const m=mobs[i]; if(m.war||m.titan||m.dg||m.ds) continue; const dx=P.x-m.x, dz=P.z-m.z, d=Math.hypot(dx,dz);
     if(d>150){ removeMob(m); continue; }
     m.hit=Math.max(0,m.hit-dt); m.cd-=dt; m.t-=dt;
     const spd=(m.boss?3.4:m.shape==="wolf"?5.2:3.6)*(m.scale>1.5?1.1:1);

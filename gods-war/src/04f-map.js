@@ -61,6 +61,8 @@ function drawMinimap(ctxIn,size){ const big=!!ctxIn; const ctx=ctxIn||mctx; cons
   if(typeof warActive==="function"&&warActive()){ WAR.units.forEach(un=>{ if(un.dead) return; dot(ctx,tx(un.x),tz(un.z),1.5*u,WAR.joined?(un.side===WAR.side?"#1e8e3e":"#d93025"):(un.side==="att"?"#f29900":"#4285f4"),"#fff",.5*u); });
     const g=TERR_RINGS[WAR.cur.rg].position; const pul=1+.3*Math.sin(performance.now()/180); ctx.beginPath(); ctx.arc(tx(g.x),tz(g.z),9*u*pul,0,6.2832); ctx.fillStyle="rgba(217,48,37,.18)"; ctx.fill(); mapPin(ctx,tx(g.x),tz(g.z),(big?5:6.5)*u,"#d93025","⚔"); }
   if(typeof DG!=="undefined"&&DG.doors) DG.doors.forEach(d=>mapPin(ctx,tx(d.x),tz(d.z),(big?4.5:5)*u,"#7a4ae8","🌀"));
+  if(typeof OR!=="undefined") OR.spots.forEach(s=>mapPin(ctx,tx(s.x),tz(s.z),(big?4.2:4.8)*u,"#3a8fc8","🗿"));
+  if(typeof GT_POS!=="undefined") mapPin(ctx,tx(GT_POS.x),tz(GT_POS.z),(big?5:6)*u,"#d49a20","☀");
   if(typeof TITAN_POS!=="undefined"&&typeof TB!=="undefined"&&!TB.claimed&&titanLeft()>0) mapPin(ctx,tx(TITAN_POS.x),tz(TITAN_POS.z),(big?5:6)*u,"#e8710a","🌋");
   // 지명
   REGIONS.forEach(rg=>{ const X=tx(rg.x), Z=tz(rg.z); if(!big&&Math.hypot(X-S/2,Z-S/2)>S*.47) return; if(rg.cap){ const R=REALMS[rg.realm]; mapPin(ctx,X,Z,(big?5.2:6.4)*u,"#ea4335",R.icon); mapText(ctx,rg.n,X,Z+(big?6:7.5)*u,(big?6.6:10)*u,"#202124",700); }

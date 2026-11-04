@@ -324,6 +324,15 @@ body.eco .prfx{box-shadow:none}
 @keyframes sklRing{0%{transform:scale(.85);opacity:1}100%{transform:scale(1.75);opacity:0}}
 @keyframes sklFlash{0%{opacity:1}100%{opacity:0}}
 body.eco .act.skl.ready::before{box-shadow:0 0 10px var(--c2,#ffe27a)}
+/* v42: 🗿 수수께끼 · 🌱 길잡이 */
+.orq{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:10px;margin:6px 0} .orq.ok{border-color:rgba(80,220,130,.6)} .orq.no{border-color:rgba(255,110,110,.5)}
+.orq .qh{font-size:15px;line-height:1.4;margin-bottom:8px} .orq .qh b{display:inline-block;min-width:22px;height:22px;border-radius:50%;background:var(--gold);color:#1b1430;text-align:center;line-height:22px;margin-right:6px;font-size:13px} .orq .qi{margin-right:4px}
+.oropt{display:grid;grid-template-columns:1fr 1fr;gap:6px} .oropt .buy{white-space:normal;font-size:14px;padding:9px 8px;line-height:1.2} .oropt .buy.ok{background:#2fae62!important;color:#fff!important;filter:none!important} .oropt .buy.no{background:#d9534f!important;color:#fff!important;filter:none!important}
+.orex{font-size:12.5px;margin:7px 0 0;opacity:.92;line-height:1.35}
+.lbl .mtb{display:inline-block;font-size:11px;font-weight:900;border-radius:7px;padding:0 5px;margin-right:4px;line-height:15px;vertical-align:1px;background:rgba(20,40,70,.75);color:#cfe8ff;text-shadow:none} .lbl .mtb.sp{background:rgba(40,120,60,.85);color:#e8ffe8} .lbl .mtb.gold{background:linear-gradient(180deg,#fff0b0,#ffc83a);color:#4a2a00}
+#mtBar{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 96px);transform:translateX(-50%);z-index:6;display:flex;flex-wrap:nowrap;justify-content:center;gap:4px;max-width:min(470px,60vw);overflow-x:auto;scrollbar-width:none;padding:5px 8px;border-radius:14px;background:rgba(20,40,30,.55);border:1px solid rgba(157,255,184,.45)}
+#mtBar[hidden]{display:none} #mtBar .mth{font-size:14px;align-self:center} #mtBar button{flex:none;border:0;border-radius:999px;padding:4px 8px;font-size:12px;font-family:inherit;background:#e8ffe8;color:#1b3a24;box-shadow:0 2px 0 #3a7a4a;cursor:pointer} #mtBar button.hit{animation:mtHit .35s ease-out}
+@keyframes mtHit{0%{transform:scale(1.18);background:#9dffb8}100%{transform:scale(1)}}
 </style>
 </head>
 <body>
