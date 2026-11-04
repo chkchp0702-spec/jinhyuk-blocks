@@ -10,7 +10,7 @@ function setRealmTheme(){ const R=RM(); document.documentElement.style.setProper
 
 /* ================= 괴물 ================= */
 const mobs=[]; const REG_STATE=REGIONS.map(()=>({bossT:rnd(20,60),boss:null}));
-function mobStats(lv,boss){ const m=boss?7:1; return {mhp:Math.round((30+lv*17)*m),atk:(4+lv*2.2)*(boss?1.45:1),xp:Math.round((10+lv*7)*(boss?12:1)),gold:Math.round((4+lv*2)*(boss?15:1))}; }
+function mobStats(lv,boss){ const m=boss?9:1; return {mhp:Math.round((45+lv*26)*m),atk:(6+lv*3.2)*(boss?1.5:1),xp:Math.round((10+lv*7)*(boss?12:1)),gold:Math.round((4+lv*2)*(boss?15:1))}; }
 function spawnMob(rg,boss,world){
   const R=rg.realm>=0?REALMS[rg.realm]:REALMS[Math.floor(Date.now()/60000)%4];
   const def=boss?(world?R.worldBoss:R.boss):pick(R.mobs);
@@ -94,7 +94,7 @@ function hurtPlayer(dmg,from){ if(P.dead||P.invul>0) return; if(P.y>0.8&&!(typeo
   if(P.hp<=0){ P.hp=0; die(from); } }
 
 /* ================= 죽음과 부활 ================= */
-function die(by){ const R=RM(); P.dead=true; P.deadT=6; if(player.userData.gl) animState(player,"dead"); net.send({t:"dead",by:typeof by==="string"?by:(by||"")});
+function die(by){ if(by&&typeof by==="object") by=by.n||String(by); const R=RM(); P.dead=true; P.deadT=6; if(player.userData.gl) animState(player,"dead"); net.send({t:"dead",by:typeof by==="string"?by:(by||"")});
   const lost=Math.round(G.gold*R.respawn.gold); G.gold-=lost; G.deaths++;
   if(R.respawn.xp){ G.xp=Math.max(0,G.xp-Math.round(xpNeed(G.lv)*R.respawn.xp)); }
   if(lost>0){ if(P.bag){ scene.remove(P.bag.mesh); } const bm=new THREE.Group(); bm.add(box(1,.9,.8,toon({color:0x8a5a2a}),0,.45,0)); bm.add(new THREE.Mesh(GEO.sph,toon({color:0xffd05a}))); bm.children[1].position.y=1.1; bm.children[1].scale.set(.6,.6,.6); bm.position.set(P.x,hAt(P.x,P.z),P.z); scene.add(bm); P.bag={mesh:bm,x:P.x,z:P.z,gold:Math.round(lost*.5),t:120}; }

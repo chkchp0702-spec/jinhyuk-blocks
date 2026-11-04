@@ -26,7 +26,7 @@ function fishDex(){ return Object.keys(G.fish||{}).length; }
 function startFish(){ const w=nearWater(); if(!w){ toast("물가로 가 보세요","수도 분수·연꽃 연못·호숫가에서 낚시할 수 있어요",2.2); return; } if(P.dead) return;
   if(mobs.some(m=>m.state==="chase"&&Math.hypot(m.x-P.x,m.z-P.z)<14)){ toast("괴물이 가까이 있어요!","싸움이 끝나면 낚시해요",1.8); return; }
   P.rot=Math.atan2(w.x-P.x,w.z-P.z); const r=fishRealmAt(w.x,w.z); const i=fishRoll(r); const f=FISH[r][i];
-  const G0={r,i,f,phase:"wait",t:1.4+Math.random()*3,hits:0,need:1+(f[1]>=3?1:0)+(f[1]>=5?1:0),miss:0,pos:0,dir:1,spd:.55+f[1]*.13,zw:Math.max(.16,.36-f[1]*.035),zc:.5,last:performance.now()};
+  const G0={r,i,f,phase:"wait",t:1.4+Math.random()*3,hits:0,need:[0,2,2,3,4,5][f[1]],maxMiss:f[1]>=3?1:2,miss:0,pos:0,dir:1,spd:.85+f[1]*.2,zw:Math.max(.09,.26-f[1]*.035),zc:.5,zv:f[1]>=3?(.12+f[1]*.05):0,biteT:Math.max(1.2,2.6-f[1]*.25),last:performance.now()};
   FS.game=G0; fxRing(w.x+(P.x-w.x)*.3,w.z+(P.z-w.z)*.3,0xbfe8ff,2,.6); tone(520,.08,"sine");
   card(`<h2>🎣 낚시</h2><p id="fsMsg">찌를 던졌어요… 찌를 잘 보다가 <b>쏙!</b> 들어가면 당겨요</p>
     <div class="fsbob" id="fsBob">🎈</div>
@@ -37,16 +37,19 @@ function startFish(){ const w=nearWater(); if(!w){ toast("물가로 가 보세�
   $("fsPull").addEventListener("pointerdown",e=>{ e.preventDefault(); fishPull(); });
   fishDraw(); requestAnimationFrame(fishLoop); }
 function fishDraw(){ const g=FS.game; if(!g||!$("fsTrack")) return; const z=$("fsZone"), m=$("fsMark"); z.style.left=((g.zc-g.zw/2)*100)+"%"; z.style.width=(g.zw*100)+"%"; m.style.left=(g.pos*100)+"%";
-  $("fsTrack").style.opacity=g.phase==="bite"?1:.35; $("fsHits").innerHTML=g.phase==="bite"?Array.from({length:g.need},(_,k)=>k<g.hits?"🟢":"⚪").join(" ")+(g.miss?` · 놓침 ${g.miss}/2`:""):""; }
+  $("fsTrack").style.opacity=g.phase==="bite"?1:.35; $("fsHits").innerHTML=g.phase==="bite"?Array.from({length:g.need},(_,k)=>k<g.hits?"🟢":"⚪").join(" ")+(g.miss?` · 놓침 ${g.miss}/${g.maxMiss}`:"")+` · ⏱ ${Math.max(0,g.biteT).toFixed(1)}초`:""; }
 function fishLoop(){ const g=FS.game; if(!g||!$("fsTrack")){ FS.game=null; return; } const now=performance.now(), dt=Math.min(.05,(now-g.last)/1000); g.last=now;
   if(g.phase==="wait"){ g.t-=dt; const b=$("fsBob"); if(b) b.style.transform=`translateY(${Math.sin(now/260)*4}px)`; if(g.t<=0){ g.phase="bite"; $("fsMsg").innerHTML=`<b style="color:#9dffb8;font-size:20px">쏙! 걸렸다!</b><br>움직이는 막대가 <b style="color:#3fd27a">초록 칸</b>에 올 때 당기기!`; if($("fsBob")) $("fsBob").textContent="💦"; tone(880,.08,"square"); buzz(40); } }
-  else if(g.phase==="bite"){ g.pos+=g.dir*g.spd*dt; if(g.pos>1){ g.pos=1; g.dir=-1; } if(g.pos<0){ g.pos=0; g.dir=1; } }
+  else if(g.phase==="bite"){ g.pos+=g.dir*g.spd*dt; if(g.pos>1){ g.pos=1; g.dir=-1; } if(g.pos<0){ g.pos=0; g.dir=1; }
+    if(g.zv){ g.zc+=g.zv*dt; if(g.zc>1-g.zw/2){ g.zc=1-g.zw/2; g.zv=-Math.abs(g.zv); } if(g.zc<g.zw/2){ g.zc=g.zw/2; g.zv=Math.abs(g.zv); } }   // 큰 물고기는 초록 칸도 도망다님
+    g.biteT-=dt; if(g.biteT<=0){ fishEscape(g,"너무 늦었어요! "); return; } }
   fishDraw(); if(g.phase!=="done") requestAnimationFrame(fishLoop); }
 function fishPull(){ const g=FS.game; if(!g) return;
-  if(g.phase==="wait"){ g.t+=.8; $("fsMsg").innerHTML="아직이에요! 찌가 <b>쏙</b> 들어갈 때까지 기다려요"; tone(300,.06); return; }
+  if(g.phase==="wait"){ g.early=(g.early||0)+1; if(g.early>=2){ fishEscape(g,"너무 서둘렀어요! "); return; } g.t+=1.2; $("fsMsg").innerHTML="아직이에요! 한 번 더 일찍 당기면 물고기가 놀라 도망가요"; tone(300,.06); return; }
   if(g.phase!=="bite") return; const ok=Math.abs(g.pos-g.zc)<=g.zw/2;
-  if(ok){ g.hits++; tone(660+g.hits*120,.08,"triangle"); buzz(25); if(g.hits>=g.need){ g.phase="done"; fishCaught(g); return; } g.zc=.2+Math.random()*.6; g.spd*=1.12; $("fsMsg").innerHTML=`좋아요! <b>${g.need-g.hits}번</b> 더!`; }
-  else { g.miss++; tone(220,.12,"sawtooth"); buzz(60); if(g.miss>=2){ g.phase="done"; $("fsMsg").innerHTML=`앗, <b>${g.f[1]>=3?"큰 ":""}물고기</b>가 도망갔어요…`; $("fsPull").textContent="다시 던지기"; $("fsPull").onclick=null; $("fsPull").addEventListener("pointerdown",e=>{ e.preventDefault(); startFish(); },{once:true}); fishDraw(); return; } $("fsMsg").innerHTML="빗나갔어요! 한 번만 더 놓치면 도망가요"; } fishDraw(); }
+  if(ok){ g.hits++; tone(660+g.hits*120,.08,"triangle"); buzz(25); if(g.hits>=g.need){ g.phase="done"; fishCaught(g); return; } g.zc=.2+Math.random()*.6; g.spd*=1.2; g.zw=Math.max(.08,g.zw*.9); g.biteT=Math.max(1.1,2.4-g.f[1]*.22); if(g.zv) g.zv*=1.15; $("fsMsg").innerHTML=`좋아요! <b>${g.need-g.hits}번</b> 더!`; }
+  else { g.miss++; tone(220,.12,"sawtooth"); buzz(60); if(g.miss>=g.maxMiss){ fishEscape(g,""); return; } $("fsMsg").innerHTML="빗나갔어요! 한 번만 더 놓치면 도망가요"; } fishDraw(); }
+function fishEscape(g,why){ g.phase="done"; tone(220,.15,"sawtooth"); $("fsMsg").innerHTML=`${why}앗, <b>${g.f[1]>=3?"큰 ":""}물고기</b>가 도망갔어요…`; const b=$("fsPull"); if(b){ const nb=b.cloneNode(true); nb.textContent="다시 던지기"; b.replaceWith(nb); nb.addEventListener("pointerdown",e=>{ e.preventDefault(); startFish(); },{once:true}); } fishDraw(); }
 function fishCaught(g){ const f=g.f, cm=fishSize(f); const rec=fishRecord(g.r,g.i,cm); const gold=Math.round(5+f[1]*f[1]*5+G.lv*1.5), xp=Math.round(8*f[1]+G.lv*2.5); G.gold+=gold; gainXp(xp);
   let deco=null; if(f[1]>=4&&typeof hmGift==="function") deco=hmGift(f[1]>=5?2:1,"물고기 배 속에서");
   saveGame(); try{ net.pushProfile(1); }catch(e){} jingle(f[1]>=4?[523,659,784,1046,1318,1568]:[659,784,1046]); fxSpark(P.x,1.5,P.z,parseInt(STARC[f[1]].slice(1),16),20+f[1]*8); if(f[1]>=4){ fxRing(P.x,P.z,0xffd76a,8,.8); }

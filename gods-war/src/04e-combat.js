@@ -48,7 +48,7 @@ function tickProj(dt){ for(let i=PROJ.length-1;i>=0;i--){ const p=PROJ[i]; const
 
 /* ---- 내 원거리 기본 공격(활·마법) ---- */
 function nearestFoe(range){ let best=null,bd=1e9; mobs.forEach(m=>{ if(m.hp<=0) return; const d=Math.hypot(m.x-P.x,m.z-P.z); if(d<range&&d<bd){ bd=d; best=m; } }); for(const id in PEERS){ const o=PEERS[id]; if(o.realm===G.realm||o.dead||inCapital(o.x,o.z)||inCapital(P.x,P.z)) continue; const d=Math.hypot(o.x-P.x,o.z-P.z); if(d<range&&d<bd){ bd=d; best=o; } } return best; }
-function rangedAttack(kind){ const range=kind==="bow"?16:14; P.atkCd=kind==="bow"?.42:.5; P.atkAnim=.25; P.combat=4; if(player.userData.gl) animState(player,"attack"); const st=stat();
+function rangedAttack(kind){ const range=(kind==="bow"?16:14)+((typeof DG!=="undefined"&&DG.on&&DG.plan&&DG.plan.floors[DG.f].k==="shoot")?10:0); P.atkCd=kind==="bow"?.42:.5; P.atkAnim=.25; P.combat=4; if(player.userData.gl) animState(player,"attack"); const st=stat();
   const tg=nearestFoe(range); if(tg) P.rot=Math.atan2(tg.x-P.x,tg.z-P.z); if(player) player.rotation.y=P.rot;
   const tx=tg?tg.x:P.x+Math.sin(P.rot)*range, tz=tg?tg.z:P.z+Math.cos(P.rot)*range; const crit=Math.random()<st.crit;
   const sx=P.x+Math.sin(P.rot)*.8, sz=P.z+Math.cos(P.rot)*.8;
