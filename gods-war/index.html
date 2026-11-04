@@ -284,6 +284,33 @@ body:has(#title) .hud,body:has(#title) .acts,body:has(#title) #minimap,body:has(
 @keyframes tIn{0%{opacity:0;transform:translateY(14px) scale(.92)}100%{opacity:1;transform:none}}
 #title .realm{animation:tIn .5s cubic-bezier(.2,.9,.3,1.2) both} #title .realm:nth-child(2){animation-delay:.07s} #title .realm:nth-child(3){animation-delay:.14s} #title .realm:nth-child(4){animation-delay:.21s}
 .tTip{font-size:12.5px;color:#fff3cf;background:rgba(10,6,28,.62);border:1px solid rgba(255,207,74,.35);border-radius:999px;padding:4px 14px;margin:2px 0 0;text-shadow:0 1px 2px #000}
+
+/* v39 HUD 게임다운 테두리: 금속 금테(그라데이션 테두리)·위쪽 광택·눌림 반짝(빛 고리 퍼짐) — CSS만, 계속 도는 애니 없음 */
+:root{--gm1:#fff0b8;--gm2:#d9a33a;--gm3:#7a4e12;--gm4:#ffe2a0}
+.mbtn{border:2px solid transparent!important;background:linear-gradient(180deg,rgba(78,58,140,.95),rgba(30,20,62,.95) 55%,rgba(18,12,40,.97)) padding-box,linear-gradient(180deg,var(--gm1),var(--gm2) 40%,var(--gm3) 70%,var(--gm4)) border-box!important;box-shadow:0 3px 0 #1a0f06,0 6px 12px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.35),inset 0 -3px 6px rgba(0,0,0,.35)!important;position:relative;overflow:hidden;white-space:nowrap;transition:transform .08s,filter .08s}
+@media (orientation:landscape){.mbtn{font-weight:700}}
+@media (orientation:portrait) and (max-width:440px){.mbtn{min-width:0!important;padding:8px 11px!important}}
+.mbtn::after{content:"";position:absolute;left:6%;right:6%;top:2px;height:42%;border-radius:10px 10px 40% 40%;background:linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,0));pointer-events:none}
+.mbtn:active{transform:translateY(2px) scale(.96);filter:brightness(1.25);box-shadow:0 1px 0 #1a0f06,0 2px 6px rgba(0,0,0,.45),inset 0 0 12px rgba(255,214,120,.45)!important}
+#status{border:2px solid transparent!important;background:linear-gradient(135deg,rgba(46,32,92,.92),rgba(16,10,34,.92)) padding-box,linear-gradient(135deg,var(--gm1),var(--c1) 30%,var(--gm3) 62%,var(--gm4)) border-box!important;box-shadow:0 4px 0 rgba(10,5,2,.55),0 8px 18px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.22)!important;position:relative}
+#status::before{content:"";position:absolute;inset:3px;border:1px solid rgba(255,214,120,.22);border-radius:12px;pointer-events:none}
+#status::after{content:"";position:absolute;left:-5px;top:-5px;width:14px;height:14px;transform:rotate(45deg);background:linear-gradient(135deg,var(--gm1),var(--gm2) 50%,var(--gm3));border:1px solid #2a1806;border-radius:3px;box-shadow:0 1px 3px rgba(0,0,0,.5);pointer-events:none}
+.pill{border:1.5px solid transparent!important;background:linear-gradient(135deg,rgba(46,32,92,.88),rgba(14,9,30,.88)) padding-box,linear-gradient(180deg,rgba(255,236,170,.9),rgba(160,110,30,.75) 55%,rgba(255,220,150,.85)) border-box!important}
+.bar{box-shadow:inset 0 1px 2px rgba(0,0,0,.7),0 0 0 1px rgba(255,214,120,.28)}
+.bar i{position:relative;overflow:hidden} .bar i::after{content:"";position:absolute;left:0;right:0;top:0;height:45%;background:linear-gradient(180deg,rgba(255,255,255,.45),rgba(255,255,255,0));border-radius:6px 6px 0 0}
+.act{box-shadow:0 0 0 2px rgba(22,12,4,.85),0 0 0 4px var(--gm2),0 0 0 5px rgba(60,36,8,.9),0 6px 0 rgba(0,0,0,.45),0 10px 18px rgba(0,0,0,.4),inset 0 2px 0 rgba(255,255,255,.55),inset 0 -7px 10px rgba(0,0,0,.28)!important;border-color:rgba(255,246,220,.75)!important;transition:transform .07s,filter .07s}
+.act:active{transform:translateY(3px) scale(.94);filter:brightness(1.3) saturate(1.1);box-shadow:0 0 0 2px rgba(22,12,4,.85),0 0 0 4px var(--gm1),0 0 0 5px rgba(60,36,8,.9),0 2px 0 rgba(0,0,0,.45),0 0 18px rgba(255,214,120,.7),inset 0 2px 0 rgba(255,255,255,.55)!important}
+.act.lock{box-shadow:0 0 0 2px rgba(22,12,4,.85),0 0 0 4px #6b6b74,0 6px 0 rgba(0,0,0,.45)!important}
+.act b,.act{font-weight:800}
+.act.atk{text-shadow:0 2px 0 rgba(90,0,10,.7),0 0 6px rgba(0,0,0,.4)}
+#zoomBtns button{border:2px solid transparent!important;background:linear-gradient(180deg,rgba(78,58,140,.95),rgba(20,14,44,.95)) padding-box,linear-gradient(180deg,var(--gm1),var(--gm2) 45%,var(--gm3)) border-box!important;box-shadow:0 3px 0 #1a0f06,0 5px 10px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.3);transition:transform .08s,filter .08s}
+#zoomBtns button:active{transform:translateY(2px) scale(.94);filter:brightness(1.3)}
+#minimap{box-shadow:0 0 0 2px #1c1006,0 0 0 4px var(--gm2),0 0 0 5px #3a2208,0 6px 16px rgba(0,0,0,.5)!important}
+.q{background:linear-gradient(90deg,rgba(36,24,74,.86),rgba(20,14,40,.55))!important;box-shadow:0 2px 6px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.1)}
+/* 눌림 반짝: 누른 자리에서 금빛 고리가 퍼짐 (06-ui.js 가 .pr 붙임) */
+.prfx{position:fixed;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;pointer-events:none;z-index:60;border:3px solid rgba(255,232,160,.95);box-shadow:0 0 10px rgba(255,207,74,.9),inset 0 0 8px rgba(255,255,255,.6);animation:prfx .32s ease-out forwards}
+@keyframes prfx{0%{transform:scale(.4);opacity:1}100%{transform:scale(4.2);opacity:0}}
+body.eco .prfx{box-shadow:none}
 </style>
 </head>
 <body>
@@ -337,7 +364,7 @@ body:has(#title) .hud,body:has(#title) .acts,body:has(#title) #minimap,body:has(
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v38";
+const VER="v39";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -3355,6 +3382,8 @@ const keys={}; addEventListener("keydown",e=>{ keys[e.key.toLowerCase()]=1; if(e
 /* v15.1 점프: 더 높이(약 3m) + 공중에서 한 번 더(2단 점프). 공중 높이 0.8 넘으면 괴물·병사·화살·발구르기 공격을 피함(hurtPlayer) */
 function jump(){ if(P.dead||layerOpen) return; if(P.y<=0.01){ P.vy=13; P.air=1; tone(300,.08,"triangle"); if(player&&player.userData.gl) animState(player,"jump"); fxSpark(P.x,.3,P.z,0xffffff,8); }
   else if(P.air===1){ P.air=2; P.vy=Math.max(P.vy,11); P.twirl=.45; tone(520,.08,"triangle"); tone(780,.06,"triangle",.04); fxRing(P.x,P.z,RM().c1,3,.35); if(player&&player.userData.gl) animState(player,"jump"); } }
+/* v39 눌림 반짝: 버튼 누르면 그 자리에서 금빛 고리가 퍼짐(DOM 하나, 0.32초 뒤 지움, 동시 최대 4개) */
+document.addEventListener("pointerdown",e=>{ const b=e.target&&e.target.closest&&e.target.closest(".act,.mbtn,#zoomBtns button,.go,.buy"); if(!b||b.classList.contains("lock")) return; if(document.querySelectorAll(".prfx").length>=4) return; const r=b.getBoundingClientRect(); const f=document.createElement("i"); f.className="prfx"; f.style.left=(r.left+r.width/2)+"px"; f.style.top=(r.top+r.height/2)+"px"; const sz=Math.min(1.6,Math.max(.7,r.width/60)); f.style.width=f.style.height=Math.round(16*sz)+"px"; f.style.margin=(-8*sz)+"px 0 0 "+(-8*sz)+"px"; document.body.appendChild(f); setTimeout(()=>f.remove(),340); },{capture:true,passive:true});
 const hold=(el,fn,rep)=>{ let t=null; el.addEventListener("pointerdown",e=>{ e.preventDefault(); initAudio(); fn(); if(rep){ clearInterval(t); t=setInterval(fn,rep); } }); const stop=()=>{ clearInterval(t); t=null; }; el.addEventListener("pointerup",stop); el.addEventListener("pointercancel",stop); el.addEventListener("pointerleave",stop); };
 hold($("bAtk"),attack,120); hold($("bSkill0"),()=>useSkill(0)); hold($("bSkill1"),()=>useSkill(1)); hold($("bSkill2"),()=>useSkill(2)); hold($("bPot"),usePotion); hold($("bJump"),jump); hold($("bThrow"),throwWeapon);
 $("bBag").onclick=()=>showBag(); $("bQuest").onclick=()=>showQuests(); $("bMap").onclick=()=>showMap(); $("bSay").onclick=()=>showSay(); $("bMenu").onclick=()=>showMenu(); $("minimap").onclick=()=>showMap();
@@ -3531,7 +3560,7 @@ window.__gw={showShop,bfOn,bfAdd,BUFFS,shopDeal,GD,GDO,gdCreate,gdJoin,gdLeave,g
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="eb904fdc";
+(function(){ var CUR="c3ef27f6";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
