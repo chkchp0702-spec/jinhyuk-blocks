@@ -357,6 +357,22 @@ body.eco .act.skl.ready::before{box-shadow:0 0 10px var(--c2,#ffe27a)}
 .buy:not([disabled]):active{transform:translateY(2px);box-shadow:inset 0 1px 0 rgba(255,255,255,.6),inset 0 -1px 0 rgba(0,0,0,.25),0 0 0 rgba(0,0,0,.45)}
 .buy[disabled]{background-image:none;box-shadow:inset 0 -2px 0 rgba(0,0,0,.25);text-shadow:none}
 body.eco .row.rr3::before{animation:none;display:none}
+/* v45: 머리 위 체력바 — 금테·눈금·광택·흰 잔상·낮으면 깜빡 */
+.lbl .hp{position:relative;width:74px;height:7px;margin:4px auto 0;border-radius:3px;overflow:hidden;background:linear-gradient(180deg,#2a1530,#0b0410);box-shadow:0 0 0 1px #2a1606,0 0 0 2px rgba(255,214,120,.8),0 2px 3px 2px rgba(0,0,0,.55)}
+.lbl .hp i,.lbl .hp s{position:absolute;left:0;top:0;bottom:0;display:block;border-radius:2px;text-decoration:none}
+.lbl .hp i{background:linear-gradient(180deg,#ff9a86 0%,#ff4040 42%,#c4142a 75%,#8a0a1c 100%);z-index:1}
+.lbl .hp s{background:linear-gradient(180deg,#fffef2,#ffe6a8);z-index:0}
+.lbl .hp::before{content:"";position:absolute;left:0;right:0;top:0;height:42%;z-index:2;background:linear-gradient(180deg,rgba(255,255,255,.42),rgba(255,255,255,0))}
+.lbl .hp.mob::after,#bossbar .bar.hp::after{content:"";position:absolute;inset:0;z-index:2;background:repeating-linear-gradient(90deg,transparent 0 calc(10% - 1px),rgba(0,0,0,.5) calc(10% - 1px) 10%)}
+.lbl.boss .hp{width:118px;height:9px;box-shadow:0 0 0 1px #3a2008,0 0 0 2px #ffcf4a,0 0 0 3px rgba(80,40,0,.7),0 0 10px 3px rgba(255,180,60,.35)}
+.lbl.boss .hp i{background:linear-gradient(180deg,#ffb07a 0%,#ff4a2e 40%,#c01020 75%,#7a0614 100%)}
+.lbl .hp.low i{animation:hpLow .7s ease-in-out infinite alternate}
+@keyframes hpLow{to{filter:brightness(1.6) saturate(1.3)}}
+#bossbar .bar.hp{height:14px;border:0;border-radius:4px;background:linear-gradient(180deg,#2a1530,#0b0410);box-shadow:0 0 0 1px #3a2008,0 0 0 3px #ffcf4a,0 0 0 4px rgba(80,40,0,.8),0 0 14px 4px rgba(255,170,50,.4)}
+#bossbar .bar.hp s{position:absolute;left:0;top:0;bottom:0;display:block;background:linear-gradient(180deg,#fffef2,#ffe6a8);border-radius:4px;text-decoration:none}
+#bossbar .bar.hp i{border-radius:4px;background:linear-gradient(180deg,#ffb07a 0%,#ff4a2e 40%,#c01020 75%,#7a0614 100%);transition:none}
+#bossbar .bar.hp.low i{animation:hpLow .7s ease-in-out infinite alternate}
+body.eco .lbl .hp.low i,body.eco #bossbar .bar.hp.low i{animation:none}
 </style>
 </head>
 <body>
@@ -382,7 +398,7 @@ body.eco .row.rr3::before{animation:none;display:none}
 <div id="zoomBtns"><button id="zIn" type="button">+</button><button id="zOut" type="button">−</button></div>
 <div id="quest"></div>
 <div id="warbar" hidden></div>
-<div id="bossbar" hidden><div class="nm" id="bossNm"></div><div class="bar"><i id="bossHp" style="width:100%"></i></div></div>
+<div id="bossbar" hidden><div class="nm" id="bossNm"></div><div class="bar hp"><s></s><i id="bossHp" style="width:100%"></i></div></div>
 <div id="chat"></div>
 
 <div class="acts">
@@ -410,7 +426,7 @@ body.eco .row.rr3::before{animation:none;display:none}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v44";
+const VER="v45";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -862,6 +878,8 @@ function placeLabel(el,x,y,z,html){ _v.set(x,y+hAt(x,z),z).project(camera); if(_
 /* v34 글자 겹침: 같은 장에 놓인 이름표끼리 겹치면 뒤의 것을 위로 밀어 올림(데미지 숫자는 빼고) */
 let LBLF=0; function deoverlapLabels(){ const L=[]; for(const el of labelsEl.children){ if(el._f===LBLF&&el.style.display!=="none"&&!el.classList.contains("dmg")) L.push(el); } LBLF++; if(L.length<2) return; L.sort((a,b)=>b._sy-a._sy);
   for(let i=1;i<L.length;i++){ const b=L[i]; for(let j=0;j<i;j++){ const a=L[j]; const w=(a._w+b._w)/2; if(Math.abs(a._sx-b._sx)<w*.9){ const top=a._sy-a._hh; if(b._sy>top&&b._sy-b._hh<a._sy){ b._sy=top-2; } } } b.style.transform=`translate(${Math.round(b._sx-b._w/2)}px,${Math.round(b._sy-b._hh)}px)`; } }
+/* v45: 괴물 체력바 — 금테·10칸 눈금·광택, 맞으면 줄어든 만큼 흰 잔상이 잠깐 남았다가 스르륵 따라 줄어듦 (상태 바뀔 때만 style 씀) */
+function hpBar(el,p){ p=clamp(p,0,1); let b=el._hb; if(!b||!b.isConnected){ b=el._hb=el.querySelector(".hp"); if(!b) return; el._hi=b.querySelector("i"); el._hs=b.querySelector("s"); el._hwi=el._hwg=null; } const now=performance.now(), dt=Math.min(.1,(now-(el._hl||now))/1000); el._hl=now; if(el._hp==null){ el._hp=p; el._hg=p; } if(p<el._hp-1e-4) el._ht=.42; else el._ht=Math.max(0,(el._ht||0)-dt); if(p>el._hg) el._hg=p; else if(el._ht<=0&&el._hg>p) el._hg=Math.max(p,el._hg-dt*(.3+(el._hg-p)*2.2)); el._hp=p; const wi=Math.round(p*1000)/10, wg=Math.round(el._hg*1000)/10; if(el._hwi!==wi){ el._hwi=wi; el._hi.style.width=wi+"%"; b.classList.toggle("low",p<.3&&p>0); } if(el._hs&&el._hwg!==wg){ el._hwg=wg; el._hs.style.width=wg+"%"; } }
 function floatDmg(x,y,z,txt,cls){ txt=String(txt); cls=cls||""; if(!cls&&txt[0]==="+") cls="gain"; const el=makeLabel("dmg "+cls); const dx=Math.round((Math.random()-.5)*44); placeLabel(el,x,y,z,`<em class="${cls==="crit"&&txt[0]==="-"?"c":""}" style="--dx:${dx}px">${txt}</em>`); setTimeout(()=>el.remove(),1150); }
 
 /* ================= 효과 ================= */
@@ -1602,10 +1620,10 @@ function tickMobs(dt){
     let dr=m.rot-m.mesh.rotation.y; while(dr>Math.PI) dr-=Math.PI*2; while(dr<-Math.PI) dr+=Math.PI*2; m.mesh.rotation.y+=dr*Math.min(1,dt*8);
     if(m.mesh.userData.gl){ animState(m.mesh,m.hit>0&&m.hp>0?"hit":m.state==="chase"?(d>(m.boss?3.4:2.3)?"run":"idle"):m.state==="wander"?"walk":"idle"); if(m.mesh.userData.lunge>.2) animState(m.mesh,"attack"); m.mesh.rotation.x=0; }
     hitTint(m.mesh,m.hit/.15); const sc=m.scale*(m.hit>0?1.12:1); m.mesh.scale.set(sc*(1+Math.sin(tnow/600+m.x)*.02),sc*(1+Math.sin(tnow/600+m.x+1)*.03),sc); HITF.apply(m,dt); WARN.tick(m,aggro&&d<=(m.boss?3.4:2.3),dt);
-    if(d<48){ const h=m.mesh.userData.h||4; placeLabel(m.lbl,m.x,h*m.scale,m.z,`${m.boss?"👑 ":""}${m.n} <b>Lv.${m.lv}${m.power?" · 파워 "+m.power:""}</b><span class="hp"><i style="width:${Math.round(m.hp/m.mhp*100)}%"></i></span>`); } else m.lbl.style.display="none";
+    if(d<48){ const h=m.mesh.userData.h||4; placeLabel(m.lbl,m.x,h*m.scale,m.z,`${m.boss?"👑 ":""}${m.n} <b>Lv.${m.lv}${m.power?" · 파워 "+m.power:""}</b><span class="hp mob"><s></s><i></i></span>`); hpBar(m.lbl,m.hp/m.mhp); } else m.lbl.style.display="none";
   }
   WARN.end();
-  const bb=$("bossbar"); const near=mobs.find(m=>m.boss&&Math.hypot(m.x-P.x,m.z-P.z)<40); if(near){ bb.hidden=false; $("bossNm").textContent=(near.trialOf?"승급 시험: ":"")+near.n; $("bossHp").style.width=Math.round(near.hp/near.mhp*100)+"%"; } else bb.hidden=true;
+  const bb=$("bossbar"); const near=mobs.find(m=>m.boss&&Math.hypot(m.x-P.x,m.z-P.z)<40); if(near){ bb.hidden=false; $("bossNm").textContent=(near.trialOf?"승급 시험: ":"")+near.n; hpBar(bb,near.hp/near.mhp); } else bb.hidden=true;
 }
 function damageMob(m,dmg,crit){ if(m.titan){ titanHit(m,dmg,crit); return; } if(m.hp<=0) return; dmg=Math.round(dmg); m.hp-=dmg; m.hit=.15; P.combat=4; try{ HITF.knock(m,dmg,crit); }catch(e){} floatDmg(m.x,3.5*m.scale,m.z,"-"+fmt(dmg),crit?"crit":""); fxSpark(m.x,1.8*m.scale,m.z,crit?0xffe08a:0xffffff,crit?16:8); tone(crit?660:440,.06,"square",0,.08);
   if(m.hp<=0){ killMob(m); } }
@@ -2074,7 +2092,7 @@ function tickTitan(dt){ if(!started) return; titanRoll(); const dead=titanLeft()
     TITAN.stompT-=dt; if(d<26&&!P.dead){ if(TITAN.stompT<=0&&TITAN.warnT<=0){ TITAN.warnT=1.1; fxRing(TITAN_POS.x,TITAN_POS.z,0xff4040,26,1.1); tone(70,.5,"sawtooth",0,.12); }
       if(TITAN.warnT>0){ TITAN.warnT-=dt; if(TITAN.warnT<=0){ TITAN.stompT=rnd(3.5,5); fxRing(TITAN_POS.x,TITAN_POS.z,0xffb070,30,.6); fxSpark(TITAN_POS.x,1,TITAN_POS.z,0xcfc4ac,40); P.shake=Math.max(P.shake||0,.8); thud();
         if(Math.hypot(P.x-TITAN_POS.x,P.z-TITAN_POS.z)<13) hurtPlayer(mobStats(G.lv,false).atk*1.6*(1-dmgReduce(stat().def)),m.n); } } }
-    if(d<70) placeLabel(m.lbl,TITAN_POS.x,(m.mesh.userData.h||4)*m.scale*.5,TITAN_POS.z,`🌋 ${m.n} <b>모두의 거대 보스 · 남은 체력 ${fmt(titanLeft())}</b><span class="hp"><i style="width:${Math.round(titanLeft()/TITAN_HP*100)}%"></i></span>`); else m.lbl.style.display="none"; }
+    if(d<70) placeLabel(m.lbl,TITAN_POS.x,(m.mesh.userData.h||4)*m.scale*.5,TITAN_POS.z,`🌋 ${m.n} <b>모두의 거대 보스 · 남은 체력 ${fmt(titanLeft())}</b><span class="hp mob"><s></s><i></i></span>`), hpBar(m.lbl,titanLeft()/TITAN_HP); else m.lbl.style.display="none"; }
   const pill=$("titanPill"); if(pill){ const pct=Math.round(titanLeft()/TITAN_HP*100); const txt=TB.claimed||dead?"🌋 🏆 이번 주 승리":`🌋 ${titanDef(TB.w).n} ${pct}%`; if(pill._t!==txt){ pill._t=txt; pill.textContent=txt; } } }
 function titanGo(){ if(mobs.some(m=>!m.titan&&m.state==="chase"&&Math.hypot(m.x-P.x,m.z-P.z)<16)){ toast("전투 중에는 안 돼요"); return; } P.x=TITAN_POS.x+rnd(-3,3); P.z=TITAN_POS.z+30; P.invul=2; closeLayer(); toast("거대 보스 앞에 왔어요!","빨간 고리가 보이면 멀리 피해요",2.6); }
 function showTitan(){ titanRoll(); const D=titanDef(TB.w); const left=titanLeft(), pct=Math.round(left/TITAN_HP*100); const end=titanWeekStart(TB.w+1); const hrs=Math.max(0,(end-Date.now())/3600000);
@@ -4039,7 +4057,7 @@ window.__gw={GT,GTO,DS,gtTotal,gtStage,gtDonate,gtGive,gtData,showGate,dsEnter,d
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="abcb041a";
+(function(){ var CUR="2533b218";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
