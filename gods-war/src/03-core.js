@@ -78,14 +78,15 @@ function inCapital(x,z){ const r=regionAt(x,z); return r&&r.cap?r:null; }
 const canvas=$("view");
 const HIGH=()=>G.gfx!=="low";
 const ECO=()=>G.eco!==false;
+try{ if(ECO()) document.body.classList.add("eco"); }catch(e){}
 /* v30 배터리: 배터리가 20% 이하이고 충전 중이 아니면 자동 초절약(초당 24장·해상도 더 낮게) */
 const LOWBAT={on:false,told:false};
 try{ navigator.getBattery&&navigator.getBattery().then(b=>{ const f=()=>{ const on=ECO()&&!b.charging&&b.level<=.2; if(on!==LOWBAT.on){ LOWBAT.on=on; try{ resize(); }catch(e){} if(on&&!LOWBAT.told&&typeof toast==="function"){ LOWBAT.told=true; toast("🔋 배터리가 얼마 없어요","초절약 모드로 바꿨어요 (충전하면 원래대로)",3); } } }; f(); b.addEventListener("levelchange",f); b.addEventListener("chargingchange",f); }).catch(()=>{}); }catch(e){}   // v19.2 배터리 절약(기본 켬): 초당 30장, 화면 해상도·그림자 낮춤, 가만히 있으면 20장
 const renderer=new THREE.WebGLRenderer({canvas,antialias:!ECO(),powerPreference:ECO()?"low-power":"high-performance"});
 /* v20.2 배터리 절약 강화: 화면 크기와 상관없이 그리는 점 개수를 약 90만 개로 제한(큰 탭은 원래 400만 개 넘게 그렸음) */
-function ecoRatio(){ const dpr=devicePixelRatio||1; if(!ECO()) return Math.min(dpr,HIGH()?2:1.5); const px=Math.max(1,innerWidth*innerHeight); return clamp(Math.min(dpr,Math.sqrt((LOWBAT.on?500000:700000)/px),HIGH()?1.4:1.15),.55,2); }
+function ecoRatio(){ const dpr=devicePixelRatio||1; if(!ECO()) return Math.min(dpr,HIGH()?2:1.5); const px=Math.max(1,innerWidth*innerHeight); return clamp(Math.min(dpr,Math.sqrt((LOWBAT.on?380000:520000)/px),HIGH()?1.25:1.0),.55,2); }
 renderer.setPixelRatio(ecoRatio());
-renderer.shadowMap.enabled=HIGH(); renderer.shadowMap.type=ECO()?THREE.PCFShadowMap:THREE.PCFSoftShadowMap; if(ECO()) renderer.shadowMap.autoUpdate=false;   // 절약 모드: 그림자는 3장에 한 번만 다시 계산
+renderer.shadowMap.enabled=HIGH()&&!ECO(); renderer.shadowMap.type=ECO()?THREE.PCFShadowMap:THREE.PCFSoftShadowMap; if(ECO()) renderer.shadowMap.autoUpdate=false;   // 절약 모드: 그림자는 3장에 한 번만 다시 계산
 renderer.outputEncoding=THREE.sRGBEncoding; renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=.95;
 renderer.physicallyCorrectLights=false;
 const scene=new THREE.Scene(); scene.background=new THREE.Color(0x9fd4ff); scene.fog=new THREE.Fog(0xdcefff,55,165);
@@ -98,11 +99,11 @@ function toon(o){ return mat(o); }
 function glowMat(color,op){ return new THREE.MeshBasicMaterial({color,transparent:true,opacity:op==null?.9:op,depthWrite:false,blending:THREE.AdditiveBlending}); }
 const hemi=new THREE.HemisphereLight(0xdff3ff,0x6b5a4a,.5); scene.add(hemi);
 scene.add(new THREE.AmbientLight(0xffffff,.12));
-const sun=new THREE.DirectionalLight(0xfff1d6,1.25); sun.position.set(40,80,30); sun.castShadow=HIGH();
-if(HIGH()){ sun.shadow.mapSize.set(ECO()?768:2048,ECO()?768:2048); const s=sun.shadow.camera; const R=ECO()?42:55; s.left=-R;s.right=R;s.top=R;s.bottom=-R;s.near=10;s.far=220; sun.shadow.bias=-.0006; sun.shadow.normalBias=.03; sun.shadow.radius=3; }
+const sun=new THREE.DirectionalLight(0xfff1d6,1.25); sun.position.set(40,80,30); sun.castShadow=HIGH()&&!ECO();   // v37 배터리: 절약 모드는 진짜 그림자 대신 발밑 동그란 그림자
+if(HIGH()&&!ECO()){ sun.shadow.mapSize.set(ECO()?768:2048,ECO()?768:2048); const s=sun.shadow.camera; const R=ECO()?42:55; s.left=-R;s.right=R;s.top=R;s.bottom=-R;s.near=10;s.far=220; sun.shadow.bias=-.0006; sun.shadow.normalBias=.03; sun.shadow.radius=3; }
 scene.add(sun); scene.add(sun.target);
 const fill=new THREE.DirectionalLight(0xb8d4ff,.3); fill.position.set(-30,40,-50); scene.add(fill);
-function shadowify(o){ o.traverse(m=>{ if(m.isMesh){ m.castShadow=HIGH(); m.receiveShadow=HIGH(); } }); return o; }
+function shadowify(o){ if(ECO()) return o; o.traverse(m=>{ if(m.isMesh){ m.castShadow=HIGH(); m.receiveShadow=HIGH(); } }); return o; }
 const GEO={ box:new THREE.BoxGeometry(1,1,1), rbox:new THREE.BoxGeometry(1,1,1,2,2,2), sph:new THREE.SphereGeometry(.5,18,14), cyl:new THREE.CylinderGeometry(.5,.5,1,14), cone:new THREE.ConeGeometry(.5,1,12), ring:new THREE.RingGeometry(.8,1,48) };
 function box(w,h,d,m,x,y,z){ const o=new THREE.Mesh(GEO.box,m); o.scale.set(w,h,d); o.position.set(x||0,y||0,z||0); return o; }
 function cyl(rt,rb,h,m,x,y,z,seg){ const o=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,seg||14),m); o.position.set(x||0,y||0,z||0); return o; }
@@ -359,7 +360,7 @@ function makeMob(shape,color,scale){ const g=new THREE.Group(); const m=mat({col
 /* ================= 라벨 ================= */
 const labelsEl=$("labels"); const _v=new THREE.Vector3();
 function makeLabel(cls){ const d=document.createElement("div"); d.className="lbl "+(cls||""); labelsEl.appendChild(d); return d; }
-function placeLabel(el,x,y,z,html){ _v.set(x,y+hAt(x,z),z).project(camera); if(_v.z>1||Math.abs(_v.x)>1.2||Math.abs(_v.y)>1.2){ el.style.display="none"; return; } el.style.display=""; const sx=(_v.x+1)/2*innerWidth, sy=(1-_v.y)/2*innerHeight; if(html!==undefined&&el._h!==html){ el._h=html; el.innerHTML=html; el._w=0; } if(!el._w){ el._w=el.offsetWidth||1; el._hh=el.offsetHeight||1; } el._sx=sx; el._sy=sy; el._f=LBLF; el.style.transform=`translate(${Math.round(sx-el._w/2)}px,${Math.round(sy-el._hh)}px)`; }
+function placeLabel(el,x,y,z,html){ _v.set(x,y+hAt(x,z),z).project(camera); if(_v.z>1||Math.abs(_v.x)>1.2||Math.abs(_v.y)>1.2){ el.style.display="none"; return; } el.style.display=""; const sx=(_v.x+1)/2*innerWidth; let sy=(1-_v.y)/2*innerHeight; if(html!==undefined&&el._h!==html){ el._h=html; el.innerHTML=html; el._w=0; } if(!el._w){ el._w=el.offsetWidth||1; el._hh=el.offsetHeight||1; } if(sy-el._hh<44) sy=44+el._hh;   /* v37: 화면 위로 잘려 나가지 않게 */ el._sx=sx; el._sy=sy; el._f=LBLF; el.style.transform=`translate(${Math.round(sx-el._w/2)}px,${Math.round(sy-el._hh)}px)`; }
 /* v34 글자 겹침: 같은 장에 놓인 이름표끼리 겹치면 뒤의 것을 위로 밀어 올림(데미지 숫자는 빼고) */
 let LBLF=0; function deoverlapLabels(){ const L=[]; for(const el of labelsEl.children){ if(el._f===LBLF&&el.style.display!=="none"&&!el.classList.contains("dmg")) L.push(el); } LBLF++; if(L.length<2) return; L.sort((a,b)=>b._sy-a._sy);
   for(let i=1;i<L.length;i++){ const b=L[i]; for(let j=0;j<i;j++){ const a=L[j]; const w=(a._w+b._w)/2; if(Math.abs(a._sx-b._sx)<w*.9){ const top=a._sy-a._hh; if(b._sy>top&&b._sy-b._hh<a._sy){ b._sy=top-2; } } } b.style.transform=`translate(${Math.round(b._sx-b._w/2)}px,${Math.round(b._sy-b._hh)}px)`; } }

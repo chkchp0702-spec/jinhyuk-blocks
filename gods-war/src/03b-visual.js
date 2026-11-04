@@ -2,7 +2,7 @@
 /* ================= 고급 그래픽: 외곽선 · 풀밭 · 밤낮 · 별 · 블룸 후처리 ================= */
 /* ---- 만화풍 외곽선(뒤집힌 껍질) ---- */
 const OUTLINE_MAT=new THREE.MeshBasicMaterial({color:0x1b1430,side:THREE.BackSide,toneMapped:false});
-function outlined(g,thick){ const list=[]; g.traverse(m=>{ if(m.isMesh&&m.material&&!m.material.transparent&&m.material.type!=="MeshBasicMaterial"&&!m.userData.noOutline) list.push(m); });
+function outlined(g,thick){ if(ECO()) return g; const list=[]; g.traverse(m=>{ if(m.isMesh&&m.material&&!m.material.transparent&&m.material.type!=="MeshBasicMaterial"&&!m.userData.noOutline) list.push(m); });
   list.forEach(m=>{ const o=new THREE.Mesh(m.geometry,OUTLINE_MAT); o.position.copy(m.position); o.rotation.copy(m.rotation); o.scale.copy(m.scale).multiplyScalar(thick||1.07); o.castShadow=false; o.receiveShadow=false; o.userData.outline=true; m.parent.add(o); }); return g; }
 
 /* ---- 맞으면 번쩍(히트 플래시): 그 캐릭터만 재질을 한 번 복사해 빛깔을 잠깐 바꿈 ---- */
@@ -41,6 +41,12 @@ function hitTint(obj,k,col){ if(!obj) return; k=Math.max(0,Math.min(1,k||0)); co
   field(new THREE.SphereGeometry(.28,6,5),mat({color:0xffffff,emissive:0xcfe8ff,emissiveIntensity:.3,roughness:.7}),Math.round(N*.18),3,.3,.5,1.1,70); // 흰 꽃
 })();
 
+/* ---- v37 배터리: 절약 모드 발밑 동그란 그림자(진짜 그림자 맵 대신) ---- */
+const BLOB=(function(){ if(!ECO()) return {tick(){}}; const geo=new THREE.CircleGeometry(1,14); geo.rotateX(-Math.PI/2); const mat=new THREE.MeshBasicMaterial({color:0x000000,transparent:true,opacity:.26,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2}); mat.fog=false; const pool=[]; let used=0;
+  function get(){ let m=pool[used]; if(!m){ m=new THREE.Mesh(geo,mat); m.userData.noOutline=true; m.renderOrder=-1; m.frustumCulled=true; scene.add(m); pool.push(m); } used++; m.visible=true; return m; }
+  function put(x,z,r,lift){ if(Math.hypot(x-P.x,z-P.z)>70) return; const m=get(); const h=lift||0; const k=Math.max(.35,1-h*.12); m.position.set(x,hAt(x,z)+.08,z); m.scale.setScalar(r*k); m.material.opacity=.26*k; }
+  function tick(){ used=0; if(!started) return; put(P.x,P.z,P.ride?1.6:1.05,P.y); for(const m of mobs){ if(m.dead&&!m.mesh.visible) continue; put(m.x,m.z,.9*(m.scale||1)*(m.boss?1.3:1),0); } for(const id in PEERS){ const o=PEERS[id]; if(o.dead) continue; put(o.x,o.z,1.05,0); } for(const o of NPCS){ put(o.x,o.z,1.1,0); } for(let i=used;i<pool.length;i++) pool[i].visible=false; }
+  return {tick}; })();
 /* ---- 별 ---- */
 const STARS=(function(){ const N=1400; const g=new THREE.BufferGeometry(); const p=new Float32Array(N*3); for(let i=0;i<N;i++){ const a=rnd(0,6.283), e=rnd(.05,1.5); p[i*3]=Math.cos(a)*Math.cos(e)*400; p[i*3+1]=Math.sin(e)*400; p[i*3+2]=Math.sin(a)*Math.cos(e)*400; } g.setAttribute("position",new THREE.BufferAttribute(p,3)); const m=new THREE.PointsMaterial({color:0xffffff,size:2.2,transparent:true,opacity:0,depthWrite:false,sizeAttenuation:true,fog:false}); const pts=new THREE.Points(g,m); scene.add(pts); return pts; })();
 /* 달 */
