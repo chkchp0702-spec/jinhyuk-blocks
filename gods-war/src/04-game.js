@@ -51,7 +51,7 @@ function killMob(m){ if(m.war&&typeof warOnKill==="function") warOnKill(m); cons
   floatDmg(m.x,4,m.z,`+${m.gold} 금화`,"");
   // 드랍
   const rg=REGIONS[m.rg]; const roll=Math.random(); let tier=-1; if(m.boss){ tier=m.world?3:Math.min(3,Math.floor(rg.lv[1]/10)+1); if(Math.random()<.35) tier=Math.min(3,tier+1); } else if(roll<.06){ tier=Math.min(3,Math.floor(rg.lv[0]/8)); if(Math.random()<.15) tier=Math.min(3,tier+1); }
-  if(tier>=0){ const s=pick(["w","a","r"]); G.bag.push({s,t:tier}); toast(`${RAR[tier].n} 아이템!`,itemName(s,tier),2.2); jingle([659,784,1046]); }
+  if(tier>=0){ const s=pick(["w","a","r"]); G.bag.push({s,t:tier}); try{ LOOT.drop(m.x,m.z,tier); }catch(e){} toast(`${RAR[tier].n} 아이템!`,itemName(s,tier),2.2); jingle([659,784,1046]); }
   if(Math.random()<(m.boss?1:.08)){ G.pots++; }
   if(m.boss){ G.bossKills++; toast(`${m.n} 처치!`,`경험치 +${m.xp} · 금화 +${m.gold}`,2.6); jingle([523,659,784,1046,1318]); buzz([40,30,80]); if(m.trialOf){ finishTrial(true); } }
   questEvent("kill",m); removeMob(m); saveGame(); }
