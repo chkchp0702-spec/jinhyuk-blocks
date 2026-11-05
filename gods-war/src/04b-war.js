@@ -103,7 +103,7 @@ function resolveWar(){ const ev=WAR.cur; if(!ev||ev.none||ev.resolved) return; e
   const msg=warApply(ev,sc.a,sc.d,ev.end+(sc.any?1:0)); W.sim=Math.max(W.sim==null?0:W.sim,ev.slot); saveWorld(); paintTerritory(); try{ net.pushWorld(); }catch(e){} cleanupUnits(); $("warbar").hidden=true;
   if(WAR.joined){ const won=(WAR.side==="att")===attWin; const lv=G.lv; let gold=Math.round((60+lv*12)*(1+WAR.my/15)), xp=Math.round((80+lv*20)*(1+WAR.my/15)); if(WAR.my<3){ gold=Math.round(gold*.3); xp=Math.round(xp*.3); } if(won){ gold*=2; xp*=2; G.war++; } G.gold+=gold; gainXp(xp); saveGame(); showWarResult(won,msg,sc,gold,xp); }
   else toast("⚔ 전쟁 결과",msg,3.5); WAR.joined=false; WAR.side=null; }
-function tickWar(dt){ const now=Date.now(); const slot=warSlotNow();
+function tickWar(dt){ const now=Date.now(); const slot=warSlotNow(); if(typeof WARFX!=="undefined") try{ WARFX.tick(dt); }catch(e){}
   if(WAR.cur&&!WAR.cur.none&&!WAR.cur.resolved&&now>=WAR.cur.end) resolveWar();
   if(!WAR.cur||WAR.cur.slot!==slot){ cleanupUnits(); const ev=(W.sim==null||W.sim<slot)?warEvent(slot):null; WAR.cur=ev||{slot,none:true}; WAR.contrib={}; WAR.my=0; WAR.joined=false; WAR.side=null; WAR.announced=false; WAR.spawnT=0; }
   const ev=WAR.cur; if(!warActive()){ $("warbar").hidden=true; return; }
