@@ -482,7 +482,7 @@ body.eco #bossbar[data-ph="2"] .bpo{animation:none}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v62";
+const VER="v63";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -1819,6 +1819,38 @@ const BOSSBAR={ cur:null, ph:0, ico:{wolf:"🐺",naga:"🐍",snake:"🐍",apep:"
   } };
 </script>
 
+<script>
+/* v63: 구름 그림자 — 큰 구름 그늘이 땅 위를 천천히 흘러감(그래픽 높음만 · 절약 모드는 단순 무늬, 땅 셰이더 안에서 계산 → 그리기 호출·폴리곤 그대로).
+   해가 비추는 빛(직사광)만 가리므로 하늘빛은 남아 자연스럽고, 밤·던전·집 안에선 꺼짐. 흐린 날씨면 구름이 더 많아짐. */
+const CLOUDSHADE=(function(){
+  const U={uCS:{value:0},uCov:{value:.5},uWind:{value:new THREE.Vector2(0,0)}};
+  const on=HIGH(), lite=ECO();   // 배터리 절약 모드는 구름 무늬를 더 단순하게(소음 2겹)
+  const GL=`uniform float uCS; uniform float uCov; uniform vec2 uWind; varying vec2 vCW;
+float csH(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
+float csN(vec2 p){ vec2 i=floor(p), f=fract(p); f=f*f*(3.-2.*f); return mix(mix(csH(i),csH(i+vec2(1,0)),f.x),mix(csH(i+vec2(0,1)),csH(i+vec2(1,1)),f.x),f.y); }
+float cloudShade(vec2 w){ vec2 p=(w+uWind)*.022; float n=csN(p)*.68+csN(p*2.3+5.2)*.32;
+#ifndef CS_LITE
+ n=n*.9+csN(p*5.1+9.7)*.1;
+#endif
+ float c=smoothstep(uCov,uCov+.16,n); return 1.-c*uCS; }
+`;
+  function patch(m){ if(!m||m.userData.cs||!(m.isMeshStandardMaterial||m.isMeshLambertMaterial)) return; m.userData.cs=1; const prev=m.onBeforeCompile;
+    m.onBeforeCompile=function(sh,r){ if(prev) prev.call(this,sh,r); Object.assign(sh.uniforms,U);
+      sh.vertexShader="varying vec2 vCW;\n"+sh.vertexShader.replace("#include <begin_vertex>","#include <begin_vertex>\nvCW=(modelMatrix*vec4(transformed,1.)).xz;");
+      sh.fragmentShader=(lite?"#define CS_LITE\n":"")+GL+sh.fragmentShader.replace("#include <aomap_fragment>","{ float cs=cloudShade(vCW); reflectedLight.directDiffuse*=cs; reflectedLight.directSpecular*=cs; }\n#include <aomap_fragment>"); };
+    m.customProgramCacheKey=function(){ return "cs1"+(lite?"l":""); }; m.needsUpdate=true; }
+  if(on){ try{ TERRAIN.traverse(o=>{ if(o.isMesh) patch(o.material); });
+      /* 수도 광장·마을 땅 원반도 같이(땅에 붙은 납작한 동그라미·고리만) */
+      scene.children.forEach(o=>{ if(!o.isMesh||!o.geometry) return; const t=o.geometry.type; if((t==="CircleGeometry"||t==="RingGeometry")&&Math.abs(o.rotation.x+Math.PI/2)<.01&&o.position.y<.2) patch(o.material); }); }catch(e){} }
+  let cs=0, cov=.5;
+  function tick(dt,indoor){ if(!on) return; U.uWind.value.x-=dt*2.6; U.uWind.value.y-=dt*1.1; if(U.uWind.value.x<-9000) U.uWind.value.set(0,0);
+    const d=(typeof DAY!=="undefined"&&DAY.d!=null)?DAY.d:1; const w=(typeof WEATHER!=="undefined")?WEATHER.type:"clear";
+    const tc=w==="clear"?.5:w==="gold"?.6:w==="wind"?.46:.36;            // 흐린 날은 구름이 더 많이 덮음
+    const ts=indoor?0:clamp((d-.5)/.35,0,1)*(w==="storm"||w==="blizzard"?.3:w==="rain"||w==="snow"?.38:.46);
+    const k=Math.min(1,dt*.8); cs+=(ts-cs)*k; cov+=(tc-cov)*k; U.uCS.value=cs; U.uCov.value=cov; }
+  return {tick,U,on,patch};
+})();
+</script>
 <script>
 /* ================= 플레이어 ================= */
 const P={x:0,z:0,y:0,vy:0,rot:0,hp:1,walk:0,moving:false,atkCd:0,sklCd:[0,0,0],rage:0,haste:0,combat:0,dashT:0,atkAnim:0,slow:0,weak:0,shadow:0,dizzy:0,heat:0,dead:false,deadT:0,orbitT:0,orbitTick:0,capProg:0,capRg:-1,bag:null,trial:null,invul:0,hitFlash:0};
@@ -6088,7 +6120,7 @@ function update(dt){
   if(P.guide){ const dx=P.guide.x-P.x, dz=P.guide.z-P.z, dist=Math.hypot(dx,dz); if(dist<7){ const lb=P.guide.label; setGuide(null); toast("도착!",lb,1.5); } else { $("gArrow").style.transform=`rotate(${Math.atan2(dx,-dz)-Math.PI/2}rad)`; $("gTxt").textContent=`${P.guide.label} · ${Math.round(dist)}m`; } }
   P.bubbleT=Math.max(0,(P.bubbleT||0)-dt); if(P.bubbleT>0) placeLabel(myLbl,P.x,4.9,P.z,`<span class="bub">${P.bubble}</span>${G.title?titleHtml(G.title):""}`); else{ const mtt=mtMyTag(); if((G.title||G.gd||mtt)&&!P.dead) placeLabel(myLbl,P.x,4.6,P.z,(G.title?titleHtml(G.title):"")+(G.gd?gdTagHtml(gdTag()):"")+mtt); else myLbl.style.display="none"; }
   // 하늘색: 지금 있는 세계의 색으로 천천히
-  const theme=P.x>=0?(P.z<0?REALMS[0]:REALMS[2]):(P.z<0?REALMS[1]:REALMS[3]); const center=Math.hypot(P.x,P.z)<70; if(DG.on) dgSky(dt); else if(HM.on) dayNight(dt,false,REALMS[HM.r]); else if(DS.on) dsSky(dt); else if(PG.on) pgSky(dt); else if(typeof xzOn==='function'&&xzOn()) xzOn().sky(dt); else { dayNight(dt,center,theme); tickWeather(dt,REALMS.indexOf(theme),center); tickParticles(dt,P.x,P.z,center?1:REALMS.indexOf(theme)); } const XZ=typeof xzOn==='function'&&!!xzOn(); ATMO.tick(dt,REALMS.indexOf(theme),center,DG.on||HM.on||DS.on||PG.on||XZ); if(typeof NIGHTFX!=="undefined") NIGHTFX.tick(dt,REALMS.indexOf(theme),center,DG.on||HM.on||DS.on||PG.on||XZ); HORIZON.tick(DG.on||HM.on||DS.on||PG.on||XZ); CLOUDS.forEach(c=>{ c.position.x+=c.userData.v*dt; if(c.position.x>280) c.position.x=-280; });
+  const theme=P.x>=0?(P.z<0?REALMS[0]:REALMS[2]):(P.z<0?REALMS[1]:REALMS[3]); const center=Math.hypot(P.x,P.z)<70; if(DG.on) dgSky(dt); else if(HM.on) dayNight(dt,false,REALMS[HM.r]); else if(DS.on) dsSky(dt); else if(PG.on) pgSky(dt); else if(typeof xzOn==='function'&&xzOn()) xzOn().sky(dt); else { dayNight(dt,center,theme); tickWeather(dt,REALMS.indexOf(theme),center); tickParticles(dt,P.x,P.z,center?1:REALMS.indexOf(theme)); } const XZ=typeof xzOn==='function'&&!!xzOn(); ATMO.tick(dt,REALMS.indexOf(theme),center,DG.on||HM.on||DS.on||PG.on||XZ); if(typeof NIGHTFX!=="undefined") NIGHTFX.tick(dt,REALMS.indexOf(theme),center,DG.on||HM.on||DS.on||PG.on||XZ); HORIZON.tick(DG.on||HM.on||DS.on||PG.on||XZ); if(typeof CLOUDSHADE!=="undefined") CLOUDSHADE.tick(dt,DG.on||HM.on||DS.on||PG.on||XZ); CLOUDS.forEach(c=>{ c.position.x+=c.userData.v*dt; if(c.position.x>280) c.position.x=-280; });
   // 카메라
   const low=ZOOM<1?.6+.4*ZOOM:1; const lift=clamp((1.2-ZOOM)/.6,0,1); /* v35: 가까이 볼수록 카메라를 낮추고 살짝 올려다봐 하늘·먼 산이 보이게 */ const cz=P.z+12.5*ZOOM, cy=11.5*ZOOM*low*(1-lift*.12); P.shake=Math.max(0,(P.shake||0)-dt*3); P.hitFlash=Math.max(0,(P.hitFlash||0)-dt); hitTint(player,P.hitFlash/.25*.8,0xff4040); const sh=P.shake*.35; const gy=P.gy||0; if(typeof CAMX!=="undefined"&&CAMX.on){ camera.position.lerp(CAMX.pos,Math.min(1,dt*2)); camera.lookAt(CAMX.look); } else if(P.preview){ const a=performance.now()/2600; camera.position.lerp(new THREE.Vector3(P.x+Math.sin(a)*9,gy+4.2,P.z+Math.cos(a)*9),Math.min(1,dt*5)); camera.lookAt(P.x,gy-.6,P.z); } else { camera.position.lerp(new THREE.Vector3(P.x,gy+cy,cz),Math.min(1,dt*7)); camera.lookAt(P.x+rnd(-sh,sh),gy+2.2+(1-low)*1.2+lift*lift*1.05+rnd(-sh,sh),P.z-5*ZOOM); } { const zf=Math.max(1,ZOOM*.85); scene.fog.near*=zf; scene.fog.far*=zf; } const tfov=(innerWidth<innerHeight?66:52)+(P.atkAnim>.2?3:0); camera.fov+=(tfov-camera.fov)*Math.min(1,dt*8); camera.updateProjectionMatrix(); TIME.value=performance.now()/1000; skyMat.uniforms.time.value=TIME.value; WATER.uniforms.sunDir.value.copy(sun.position).sub(new THREE.Vector3(P.x,0,P.z)).normalize(); if(POST){ P.tintA=Math.max(0,(P.tintA||0)-dt/(P.tintD||1)); POST.comp.uniforms.tintA.value=P.tintA; if(P.tintC) POST.comp.uniforms.tint.value.copy(P.tintC); } try{ GRADE.tick(dt); }catch(e){} if(POST) POST.comp.uniforms.hurt.value=P.hp/st.mhp<.3?.6+Math.sin(performance.now()/150)*.3:P.hitFlash>0?.8:0; P.hitFlash=Math.max(0,P.hitFlash-dt);
   toastT-=dt; if(toastT<=0) $("toast").style.opacity=0; mmT-=dt; if(mmT<=0){ mmT=ECO()?.5:.25; if(DG.on) dgMinimap(); else if(HM.on) hmMinimap(); else if(DS.on) dsMinimap(); else if(PG.on) pgMinimap(); else if(typeof xzOn==='function'&&xzOn()) xzOn().mm(); else drawMinimap(); } hud();
@@ -6116,7 +6148,7 @@ window.__gw={PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoard,showPlay,p
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="da40bdf1";
+(function(){ var CUR="329535b0";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
