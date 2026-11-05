@@ -39,6 +39,7 @@ button{font:inherit;-webkit-tap-highlight-color:transparent}
 .lbl.dmg.crit em{font-size:33px;color:#ffe066;text-shadow:0 0 1px #000,2px 2px 0 #7a2a00,-2px 2px 0 #7a2a00,2px -2px 0 #7a2a00,-2px -2px 0 #7a2a00,0 3px 0 #7a2a00,0 0 16px rgba(255,150,40,.95);animation:dmgCrit 1.05s cubic-bezier(.2,.8,.3,1) forwards}
 .lbl.dmg.crit em.c::before{content:"치명타!";display:block;font-size:13px;color:#fff6c8;letter-spacing:1px;margin-bottom:-2px}
 .lbl.dmg.me em{color:#ff5b5b;font-size:23px;text-shadow:0 0 1px #000,2px 2px 0 #3a0010,-2px 2px 0 #3a0010,2px -2px 0 #3a0010,-2px -2px 0 #3a0010,0 3px 0 #3a0010}
+.lbl.dmg.heal em{font-size:24px;color:#6dff8e;text-shadow:0 0 1px #000,2px 2px 0 #0b4a22,-2px 2px 0 #0b4a22,2px -2px 0 #0b4a22,-2px -2px 0 #0b4a22,0 3px 0 #0b4a22,0 0 12px rgba(80,255,140,.8);animation:dmgGain 1.3s ease-out forwards}
 .lbl.dmg.gain em{font-size:18px;color:#ffe27a;animation:dmgGain 1.1s ease-out forwards}
 @keyframes dmgPop{0%{transform:translate(0,calc(10px + var(--sy,0px))) scale(.3);opacity:0}12%{transform:translate(calc(var(--dx)*.15),calc(-8px + var(--sy,0px))) scale(1.45);opacity:1}30%{transform:translate(calc(var(--dx)*.35),calc(-16px + var(--sy,0px))) scale(1)}72%{opacity:1}100%{transform:translate(var(--dx),calc(-66px + var(--sy,0px))) scale(.8);opacity:0}}
 @keyframes dmgCrit{0%{transform:translate(0,calc(10px + var(--sy,0px))) scale(.2) rotate(-8deg);opacity:0}12%{transform:translate(0,calc(-10px + var(--sy,0px))) scale(1.7) rotate(4deg);opacity:1}22%{transform:translate(-3px,calc(-14px + var(--sy,0px))) scale(1.15) rotate(-3deg)}30%{transform:translate(3px,calc(-16px + var(--sy,0px))) scale(1.25) rotate(0)}75%{opacity:1}100%{transform:translate(var(--dx),calc(-74px + var(--sy,0px))) scale(.9);opacity:0}}
@@ -482,7 +483,7 @@ body.eco #bossbar[data-ph="2"] .bpo{animation:none}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v63";
+const VER="v64";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -1852,6 +1853,36 @@ float cloudShade(vec2 w){ vec2 p=(w+uWind)*.022; float n=csN(p)*.68+csN(p*2.3+5.
 })();
 </script>
 <script>
+/* v64: 물약 회복 연출 — 마시면 몸 둘레로 초록 빛 나선 두 줄이 빙글빙글 올라가고, ✚ 빛 십자가 둥실 떠오르며,
+   몸이 잠깐 초록빛으로 은은히 빛나고, 머리 위에 초록 「+회복량」 숫자. 발밑엔 초록 마법진.
+   빛 나선은 점 묶음 하나(밝은 눈밭에서도 보이게 진한 초록 테두리)(그리기 1번), 십자는 3~5장, 0.9~1.3초 뒤 모두 사라짐. PointLight 없음. */
+const HEALFX=(function(){
+  let dot=null, cross=null;
+  function tex(draw){ const c=document.createElement("canvas"); c.width=c.height=64; draw(c.getContext("2d"),64); return new THREE.CanvasTexture(c); }
+  function dotT(){ return dot||(dot=tex((g,s)=>{ const r=g.createRadialGradient(s/2,s/2,0,s/2,s/2,s/2); r.addColorStop(0,"rgba(255,255,255,1)"); r.addColorStop(.3,"rgba(255,255,255,.8)"); r.addColorStop(1,"rgba(255,255,255,0)"); g.fillStyle=r; g.fillRect(0,0,s,s); })); }
+  function crossT(){ return cross||(cross=tex((g,s)=>{ const c=s/2; const r=g.createRadialGradient(c,c,0,c,c,c); r.addColorStop(0,"rgba(120,255,160,.55)"); r.addColorStop(1,"rgba(120,255,160,0)"); g.fillStyle=r; g.fillRect(0,0,s,s);
+      g.fillStyle="#1f8a45"; g.fillRect(c-8,c-22,16,44); g.fillRect(c-22,c-8,44,16); g.fillStyle="#7dffa6"; g.fillRect(c-5,c-19,10,38); g.fillRect(c-19,c-5,38,10); g.fillStyle="#fff"; g.fillRect(c-2,c-14,4,28); g.fillRect(c-14,c-2,28,4); })); }
+  const C1=new THREE.Color(0x5dff8a), C2=new THREE.Color(0xd8ffe4);
+  function play(amount){ if(typeof player==="undefined"||!player) return; const eco=ECO(), N=eco?22:44, H=3.4;
+    /* 빛 나선 두 줄 */
+    const geo=new THREE.BufferGeometry(), pos=new Float32Array(N*3), col=new Float32Array(N*4); geo.setAttribute("position",new THREE.BufferAttribute(pos,3)); geo.setAttribute("rgba",new THREE.BufferAttribute(col,4));
+    /* 밝은 눈밭에서도 보이게: 더하기 빛이 아니라 진한 초록 테두리 + 밝은 속 점 */
+    const m=new THREE.Points(geo,new THREE.ShaderMaterial({uniforms:{sz:{value:renderer.getPixelRatio()*(eco?130:145)}},transparent:true,depthWrite:false,
+      vertexShader:"attribute vec4 rgba; varying vec4 vC; uniform float sz; void main(){ vC=rgba; vec4 mv=modelViewMatrix*vec4(position,1.); gl_PointSize=sz/-mv.z; gl_Position=projectionMatrix*mv; }",
+      fragmentShader:"varying vec4 vC; void main(){ float d=length(gl_PointCoord-.5)*2.; if(d>1.) discard; vec3 rim=vec3(.05,.42,.18); vec3 c=mix(vC.rgb,rim,smoothstep(.45,.8,d)); float a=vC.a*(1.-smoothstep(.8,1.,d)); gl_FragColor=vec4(c,a); }"})); m.frustumCulled=false; m.renderOrder=5; m.userData.noOutline=true; scene.add(m);
+    FX.push({m,t:0,d:1.25,own:true,tick:(f,k)=>{ const by=(P.y||0)+hAt(P.x,P.z); for(let i=0;i<N;i++){ const s=i&1, u=(i>>1)/(N/2); const h=clamp(k*2.3-u*1.3,0,1); const vis=h>0&&h<1?Math.sin(h*Math.PI):0;
+        const a=s*Math.PI+h*7+k*3, r=1.15*(1-h*.45); pos[i*3]=P.x+Math.cos(a)*r; pos[i*3+1]=by+.2+h*H; pos[i*3+2]=P.z+Math.sin(a)*r;
+        const c=(i%3===0)?C2:C1; col[i*4]=c.r; col[i*4+1]=c.g; col[i*4+2]=c.b; col[i*4+3]=vis*(1-k*.3); }
+      geo.attributes.position.needsUpdate=true; geo.attributes.rgba.needsUpdate=true; P.healGlow=Math.max(P.healGlow||0,1-k); }});
+    /* ✚ 빛 십자 둥실 */
+    const nc=eco?3:5; for(let j=0;j<nc;j++){ const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:crossT(),toneMapped:false,transparent:true,depthWrite:false,opacity:0})); sp.renderOrder=6; scene.add(sp); const a=j/nc*6.28+rnd(-.3,.3), r=rnd(.7,1.3), sz=rnd(.7,1.05);
+      FX.push({m:sp,t:-j*.12,d:.95,tick:(f,k)=>{ if(k<0){ sp.visible=false; return; } sp.visible=true; const e=1-Math.pow(1-k,2); sp.position.set(P.x+Math.cos(a)*r,(P.y||0)+hAt(P.x,P.z)+1.2+e*2.6,P.z+Math.sin(a)*r); const s=sz*(k<.2?k/.2:1); sp.scale.set(s,s,1); sp.material.opacity=k<.2?k/.2:1-(k-.2)/.8; }}); }
+    if(typeof SFX!=="undefined") try{ SFX.runeAt(P.x,P.z,0x5dff8a,4.2,.9); }catch(e){}
+    if(amount>0) floatDmg(P.x,4.4,P.z,"+"+fmt(amount),"heal"); }
+  return {play};
+})();
+</script>
+<script>
 /* ================= 플레이어 ================= */
 const P={x:0,z:0,y:0,vy:0,rot:0,hp:1,walk:0,moving:false,atkCd:0,sklCd:[0,0,0],rage:0,haste:0,combat:0,dashT:0,atkAnim:0,slow:0,weak:0,shadow:0,dizzy:0,heat:0,dead:false,deadT:0,orbitT:0,orbitTick:0,capProg:0,capRg:-1,bag:null,trial:null,invul:0,hitFlash:0};
 let player=null, weaponMesh=null, orbitMesh=null;
@@ -1943,7 +1974,7 @@ function useSkill(i){ i=i||0; if(P.dead||layerOpen) return; const S=RM().skills[
   else if(S.type==="rage"){ P.rage=S.dur; fxRing(P.x,P.z,S.color,7,.8); fxSpark(P.x,2,P.z,S.color,30); tone(90,.5,"sawtooth",0,.2); buzz([40,30,40]); }
   else if(S.type==="dash"){ try{ SFX.speed(P.x,P.z,P.rot,S.color); setTimeout(()=>{ try{ SFX.speed(P.x,P.z,P.rot,S.color); }catch(e){} },120); }catch(e){} P.dashT=.25; P.dashX=Math.sin(P.rot)*S.dist/.25; P.dashZ=Math.cos(P.rot)*S.dist/.25; P.vy=7; P.invul=Math.max(P.invul,.5); setTimeout(()=>{ aoe(S.r,S.mult); thud(); },300); tone(500,.2,"triangle"); }
   $("hurt").style.opacity=0; }
-function usePotion(){ if(P.dead||G.pots<=0||layerOpen) return; const st=stat(); if(P.hp>=st.mhp){ toast("체력이 가득해요"); return; } G.pots--; P.hp=Math.min(st.mhp,P.hp+Math.round(st.mhp*.5)); fxRing(P.x,P.z,0x9dffb8,4); jingle([523,659]); saveGame(); }
+function usePotion(){ if(P.dead||G.pots<=0||layerOpen) return; const st=stat(); if(P.hp>=st.mhp){ toast("체력이 가득해요"); return; } G.pots--; const h0=P.hp; P.hp=Math.min(st.mhp,P.hp+Math.round(st.mhp*.5)); fxRing(P.x,P.z,0x9dffb8,4); jingle([523,659,784,1047]); if(typeof HEALFX!=="undefined") try{ HEALFX.play(P.hp-h0); }catch(e){} saveGame(); }
 function hurtPlayer(dmg,from){ if(P.dead||P.invul>0) return; if(P.y>0.8&&!(typeof from==="object"&&from&&from.sure)){ if(!P.dodgeT||performance.now()-P.dodgeT>350){ P.dodgeT=performance.now(); G.dodges=(G.dodges||0)+1; floatDmg(P.x,4.2,P.z,"피함!","gain"); tone(1200,.05,"sine",0,.06); } return; } dmg=Math.max(1,Math.round(dmg)); P.hp-=dmg; P.combat=5; P.shake=Math.max(P.shake||0,.6); if(player.userData.gl&&P.atkAnim<=0) animState(player,"hit"); P.hitFlash=.25; floatDmg(P.x,4.2,P.z,"-"+fmt(dmg),"me"); $("hurt").style.opacity=Math.min(1,.4+ (1-P.hp/stat().mhp)); setTimeout(()=>{ $("hurt").style.opacity=P.hp/stat().mhp<.3?.5:0; },250); thud(); buzz(25);
   if(P.hp<=0){ P.hp=0; die(from); } }
 
@@ -6122,7 +6153,7 @@ function update(dt){
   // 하늘색: 지금 있는 세계의 색으로 천천히
   const theme=P.x>=0?(P.z<0?REALMS[0]:REALMS[2]):(P.z<0?REALMS[1]:REALMS[3]); const center=Math.hypot(P.x,P.z)<70; if(DG.on) dgSky(dt); else if(HM.on) dayNight(dt,false,REALMS[HM.r]); else if(DS.on) dsSky(dt); else if(PG.on) pgSky(dt); else if(typeof xzOn==='function'&&xzOn()) xzOn().sky(dt); else { dayNight(dt,center,theme); tickWeather(dt,REALMS.indexOf(theme),center); tickParticles(dt,P.x,P.z,center?1:REALMS.indexOf(theme)); } const XZ=typeof xzOn==='function'&&!!xzOn(); ATMO.tick(dt,REALMS.indexOf(theme),center,DG.on||HM.on||DS.on||PG.on||XZ); if(typeof NIGHTFX!=="undefined") NIGHTFX.tick(dt,REALMS.indexOf(theme),center,DG.on||HM.on||DS.on||PG.on||XZ); HORIZON.tick(DG.on||HM.on||DS.on||PG.on||XZ); if(typeof CLOUDSHADE!=="undefined") CLOUDSHADE.tick(dt,DG.on||HM.on||DS.on||PG.on||XZ); CLOUDS.forEach(c=>{ c.position.x+=c.userData.v*dt; if(c.position.x>280) c.position.x=-280; });
   // 카메라
-  const low=ZOOM<1?.6+.4*ZOOM:1; const lift=clamp((1.2-ZOOM)/.6,0,1); /* v35: 가까이 볼수록 카메라를 낮추고 살짝 올려다봐 하늘·먼 산이 보이게 */ const cz=P.z+12.5*ZOOM, cy=11.5*ZOOM*low*(1-lift*.12); P.shake=Math.max(0,(P.shake||0)-dt*3); P.hitFlash=Math.max(0,(P.hitFlash||0)-dt); hitTint(player,P.hitFlash/.25*.8,0xff4040); const sh=P.shake*.35; const gy=P.gy||0; if(typeof CAMX!=="undefined"&&CAMX.on){ camera.position.lerp(CAMX.pos,Math.min(1,dt*2)); camera.lookAt(CAMX.look); } else if(P.preview){ const a=performance.now()/2600; camera.position.lerp(new THREE.Vector3(P.x+Math.sin(a)*9,gy+4.2,P.z+Math.cos(a)*9),Math.min(1,dt*5)); camera.lookAt(P.x,gy-.6,P.z); } else { camera.position.lerp(new THREE.Vector3(P.x,gy+cy,cz),Math.min(1,dt*7)); camera.lookAt(P.x+rnd(-sh,sh),gy+2.2+(1-low)*1.2+lift*lift*1.05+rnd(-sh,sh),P.z-5*ZOOM); } { const zf=Math.max(1,ZOOM*.85); scene.fog.near*=zf; scene.fog.far*=zf; } const tfov=(innerWidth<innerHeight?66:52)+(P.atkAnim>.2?3:0); camera.fov+=(tfov-camera.fov)*Math.min(1,dt*8); camera.updateProjectionMatrix(); TIME.value=performance.now()/1000; skyMat.uniforms.time.value=TIME.value; WATER.uniforms.sunDir.value.copy(sun.position).sub(new THREE.Vector3(P.x,0,P.z)).normalize(); if(POST){ P.tintA=Math.max(0,(P.tintA||0)-dt/(P.tintD||1)); POST.comp.uniforms.tintA.value=P.tintA; if(P.tintC) POST.comp.uniforms.tint.value.copy(P.tintC); } try{ GRADE.tick(dt); }catch(e){} if(POST) POST.comp.uniforms.hurt.value=P.hp/st.mhp<.3?.6+Math.sin(performance.now()/150)*.3:P.hitFlash>0?.8:0; P.hitFlash=Math.max(0,P.hitFlash-dt);
+  const low=ZOOM<1?.6+.4*ZOOM:1; const lift=clamp((1.2-ZOOM)/.6,0,1); /* v35: 가까이 볼수록 카메라를 낮추고 살짝 올려다봐 하늘·먼 산이 보이게 */ const cz=P.z+12.5*ZOOM, cy=11.5*ZOOM*low*(1-lift*.12); P.shake=Math.max(0,(P.shake||0)-dt*3); P.hitFlash=Math.max(0,(P.hitFlash||0)-dt); if(P.hitFlash>0||!(P.healGlow>0)) hitTint(player,P.hitFlash/.25*.8,0xff4040); else hitTint(player,(P.healGlow=Math.max(0,P.healGlow-dt*.9))*.35,0x6dff9a); const sh=P.shake*.35; const gy=P.gy||0; if(typeof CAMX!=="undefined"&&CAMX.on){ camera.position.lerp(CAMX.pos,Math.min(1,dt*2)); camera.lookAt(CAMX.look); } else if(P.preview){ const a=performance.now()/2600; camera.position.lerp(new THREE.Vector3(P.x+Math.sin(a)*9,gy+4.2,P.z+Math.cos(a)*9),Math.min(1,dt*5)); camera.lookAt(P.x,gy-.6,P.z); } else { camera.position.lerp(new THREE.Vector3(P.x,gy+cy,cz),Math.min(1,dt*7)); camera.lookAt(P.x+rnd(-sh,sh),gy+2.2+(1-low)*1.2+lift*lift*1.05+rnd(-sh,sh),P.z-5*ZOOM); } { const zf=Math.max(1,ZOOM*.85); scene.fog.near*=zf; scene.fog.far*=zf; } const tfov=(innerWidth<innerHeight?66:52)+(P.atkAnim>.2?3:0); camera.fov+=(tfov-camera.fov)*Math.min(1,dt*8); camera.updateProjectionMatrix(); TIME.value=performance.now()/1000; skyMat.uniforms.time.value=TIME.value; WATER.uniforms.sunDir.value.copy(sun.position).sub(new THREE.Vector3(P.x,0,P.z)).normalize(); if(POST){ P.tintA=Math.max(0,(P.tintA||0)-dt/(P.tintD||1)); POST.comp.uniforms.tintA.value=P.tintA; if(P.tintC) POST.comp.uniforms.tint.value.copy(P.tintC); } try{ GRADE.tick(dt); }catch(e){} if(POST) POST.comp.uniforms.hurt.value=P.hp/st.mhp<.3?.6+Math.sin(performance.now()/150)*.3:P.hitFlash>0?.8:0; P.hitFlash=Math.max(0,P.hitFlash-dt);
   toastT-=dt; if(toastT<=0) $("toast").style.opacity=0; mmT-=dt; if(mmT<=0){ mmT=ECO()?.5:.25; if(DG.on) dgMinimap(); else if(HM.on) hmMinimap(); else if(DS.on) dsMinimap(); else if(PG.on) pgMinimap(); else if(typeof xzOn==='function'&&xzOn()) xzOn().mm(); else drawMinimap(); } hud();
 }
 function resize(){ const w=innerWidth,h=innerHeight; try{ renderer.setPixelRatio(ecoRatio()); }catch(e){} renderer.setSize(w,h,false); camera.aspect=w/h; camera.fov=w<h?66:52; camera.updateProjectionMatrix(); }
@@ -6148,7 +6179,7 @@ window.__gw={PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoard,showPlay,p
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="329535b0";
+(function(){ var CUR="30368f3a";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
