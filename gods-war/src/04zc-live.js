@@ -1,6 +1,6 @@
 <script>
 /* ================= v56-3: 🌌 라그나로크의 밤 — 한 번뿐인 생방송 세계 이벤트 (IDEAS G11/5-6) =================
-   축제 시즌(04l)의 마지막 토요일 저녁 8시(한국 시간)에 모든 폰에서 똑같이 벌어지는 큰 사건. 첫 회는 개막 기념 11/7(토) 저녁 8시.
+   매주 금요일 저녁 9시(한국 시간)에 모든 폰에서 똑같이 벌어지는 큰 사건 (사용자 11/5 "매주 금요일 9시로"). 첫 회 11/6(금). 상대 뱀은 주마다 돌아가며 바뀜.
    10분 전부터 화면 위 보라색 띠에 카운트다운 → 수도마다 열리는 「🌌 라그나로크의 문」으로 바다 결투장(지도 밖 x≈-380, z≈380)에 모임.
    ① 비늘 깨기: 뱀 둘레 수정 비늘을 때릴 때마다 1점(깨면 +6) — 모두의 점수를 더해 뱀 체력이 줄어듦
    ② 혼돈 괴물 막기: 바다에서 기어오르는 혼돈 괴물을 모두 함께 잡기 (처치 수 합산)
@@ -11,7 +11,7 @@
    보관(retained) 주제 lv/<회차>/<id> = {i,n,r,e,s(비늘 점수),k(처치),p(힘),ts} → 다 더하기. 단계는 시각 + 모두의 합으로 각 폰이 똑같이 정함. */
 const LVX=-380, LVZ=380, LV_IN=14, LV_OUT=46;
 const LV_PRE=10*60000, LV_P1=6*60000, LV_P2=4*60000, LV_P3=45000, LV_FIN=17000, LV_END=16*60000;
-const LV_PREMIERE=Date.UTC(2026,10,7,11,0,0);   // 2026-11-07(토) 20:00 KST
+const LV_PREMIERE=Date.UTC(2026,10,6,12,0,0);   // 첫 회 2026-11-06(금) 21:00 KST
 const LV_BOSS=[
  {n:"세계 뱀 요르문간드",w:"아스가르드",c:0x3f8a5a,c2:0x9ad88a,eye:0xffe040},
  {n:"가뭄의 뱀 브리트라",w:"인도",c:0x8a4a2a,c2:0xe0a060,eye:0xff8040},
@@ -21,8 +21,8 @@ const LV={on:false,built:false,parts:[],ser:null,isle:null,scales:[],gods:[],bea
 const LVO={};
 const CAMX={on:false,pos:new THREE.Vector3(),look:new THREE.Vector3()};
 function lvIn(x,z){ return Math.abs(x-LVX)<150&&Math.abs(z-LVZ)<150; }
-function lvAt(day){ return day*86400000+11*3600000; }
-function lvEvents(){ const L=[{id:"p0",t:LV_PREMIERE,b:0}]; const S=ssNo(); for(let s=Math.max(0,S-1);s<=S+1;s++){ const t=lvAt(ssStartDay(s+1)-2); if(Math.abs(t-LV_PREMIERE)>86400000) L.push({id:"s"+s,t,b:(s+1)%4}); } return L.sort((a,b)=>a.t-b.t); }
+function lvAt(day){ return day*86400000+12*3600000; }   // 그날 21:00 KST
+function lvEvents(){ const L=[]; const k0=kday(LV_PREMIERE); let k=kday(); k-=((k-k0)%7+7)%7; for(let w=-1;w<=2;w++){ const d=k+w*7; if(d<k0) continue; const n=Math.round((d-k0)/7); L.push({id:"f"+n,t:lvAt(d),b:n%4}); } return L.sort((a,b)=>a.t-b.t); }
 function lvCur(){ const now=Date.now(); return lvEvents().find(e=>now<e.t+LV_END)||null; }
 function lvPast(){ const now=Date.now(); return lvEvents().filter(e=>now>=e.t+LV_END); }
 function lvIsle(){ return Date.now()>=LV_PREMIERE+LV_END||!!(G.lvDone&&Object.keys(G.lvDone).length); }
@@ -220,7 +220,7 @@ XZONE.push({on:()=>LV.on,clamp:()=>{ if(!lvIn(P.x,P.z)){ lvExit(true,true); retu
 /* ---------- 창 ---------- */
 function showLive(){ const e=lvCur(), live=lvLive(e), past=lvPast(); const B=lvBoss(e); const ph=e?lvPhase(e):"none"; const done=G.lvDone||{};
   const next=e?(live?`<b style="color:#e8d4ff">지금 벌어지고 있어요!</b> ${({gather:"곧 시작해요 — 결투장에 모여요",p1:"① 비늘 깨기",p2:"② 혼돈 괴물 막기",p3:"③ 신들의 힘 모으기",finale:"마지막 한 방!",done:"승리!"})[ph]||""}`:`다음: <b style="color:#e8d4ff">${lvWhen(e.t)}</b> · ${lvLeft(e.t-Date.now())} 남음`):"";
-  card(`<h2>🌌 라그나로크의 밤</h2><p>축제 시즌의 마지막 토요일 저녁 8시, <b>모든 사람의 폰에서 똑같이</b> 벌어지는 큰 사건이에요. 하늘이 갈라지고 바다에서 거대한 뱀이 솟아올라요. 네 세계 사람이 모두 한곳에 모여 함께 물리쳐요!</p>
+  card(`<h2>🌌 라그나로크의 밤</h2><p>매주 금요일 저녁 9시, <b>모든 사람의 폰에서 똑같이</b> 벌어지는 큰 사건이에요. 하늘이 갈라지고 바다에서 거대한 뱀이 솟아올라요. 네 세계 사람이 모두 한곳에 모여 함께 물리쳐요!</p>
    <p>${next}${e?` · 이번 상대: <b>${B.n}</b>`:""}</p>
    <div class="row"><div class="ic">💠</div><div class="t"><div>① 비늘 깨기</div><span>뱀 둘레의 수정 비늘을 때리면 1점, 깨면 +6 — 모두의 점수가 더해져요 · 빨간 고리(꼬리 내려치기)는 피해요</span></div></div>
    <div class="row"><div class="ic">⚔</div><div class="t"><div>② 혼돈 괴물 막기</div><span>바다에서 기어오르는 괴물을 모두 함께 잡아요</span></div></div>
