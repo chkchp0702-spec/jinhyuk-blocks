@@ -396,6 +396,36 @@ body.eco .lbl .hp.low i,body.eco #bossbar .bar.hp.low i{animation:none}
 #coop[hidden]{display:none} #coop b{display:block;font-size:11px;color:#9dffb8} #coop small{opacity:.85} #coop i{position:absolute;left:0;bottom:0;height:3px;background:linear-gradient(90deg,#5fdc8a,#c8ffd8)} #coop.done{border-color:#ffd24a} #coop.done i{background:#ffd24a}
 .skslots{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:4px 0 8px} .skslot{border:2px solid rgba(255,255,255,.25);border-radius:12px;background:rgba(255,255,255,.07);color:#fff;font-family:inherit;padding:7px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer} .skslot b{font-size:11px;color:var(--gold)} .skslot span{font-size:13px} .skslot.on{border-color:var(--gold);background:rgba(255,207,74,.18);box-shadow:0 0 10px rgba(255,207,74,.5)}
 .frbtn{display:flex;flex-direction:column;gap:4px}
+
+/* v59 보스 체력판 */
+#bossbar{width:min(80vw,400px)!important;display:flex;align-items:center;gap:0;text-align:left;filter:drop-shadow(0 3px 6px rgba(0,0,0,.55))}
+#bossbar[hidden]{display:none}
+#bossbar.in{animation:bbIn .45s cubic-bezier(.2,1.4,.4,1)}
+@keyframes bbIn{0%{opacity:0;transform:translateX(-50%) translateY(-14px) scale(.9)}100%{opacity:1;transform:translateX(-50%)}}
+#bossbar .bpo{position:relative;z-index:2;flex:0 0 auto;width:50px;height:50px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 40% 35%,#5a2a3a,#1a0610 70%);box-shadow:0 0 0 2px #2a1404,0 0 0 4px var(--bc,#ffcf4a),0 0 0 5px rgba(60,30,0,.9),0 0 16px 4px var(--bg,rgba(255,160,40,.45))}
+#bossbar .bpo b{font-size:28px;line-height:1;filter:drop-shadow(0 2px 0 #000)}
+#bossbar .bmain{flex:1;min-width:0;margin-left:-10px;padding:3px 10px 4px 16px;border-radius:0 12px 12px 0;background:linear-gradient(180deg,rgba(40,14,24,.88),rgba(12,4,10,.88));box-shadow:inset 0 1px 0 rgba(255,220,150,.25),0 0 0 1px rgba(0,0,0,.6),0 0 0 2px var(--bc,#ffcf4a)}
+#bossbar .btop{display:flex;align-items:baseline;gap:6px;white-space:nowrap;overflow:hidden}
+#bossbar .btop em{font-style:normal;font-size:10px;font-weight:800;color:#2a1000;background:linear-gradient(180deg,#ffe9a0,var(--bc,#ffcf4a));padding:1px 6px;border-radius:6px;flex:0 0 auto}
+#bossbar .nm{font-size:15px!important;font-weight:900;color:#fff2c8!important;text-shadow:0 2px 0 #000,0 0 8px var(--bg,rgba(255,160,40,.6));overflow:hidden;text-overflow:ellipsis}
+#bossbar .btop small{font-size:10px;color:#ffd890;opacity:.9;flex:0 0 auto;margin-left:auto}
+#bossbar .bar.hp{margin-top:3px;position:relative}
+#bossbar .bar.hp .pm{position:absolute;top:-2px;bottom:-2px;width:2px;margin-left:-1px;background:#fff6d8;z-index:3;box-shadow:0 0 3px #000;text-decoration:none}
+#bossbar #bossNum{position:absolute;inset:0;z-index:4;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;text-shadow:0 1px 0 #000,0 0 3px #000;letter-spacing:.3px}
+#bossbar .bpips{display:flex;gap:5px;margin-top:3px}
+#bossbar .bpips i{width:9px;height:9px;transform:rotate(45deg);background:#ffcf4a;box-shadow:0 0 0 1px #3a1a00,0 0 6px rgba(255,200,80,.8);transition:background .3s,box-shadow .3s}
+#bossbar[data-ph="1"] .bpips i:nth-child(1),#bossbar[data-ph="2"] .bpips i:nth-child(-n+2){background:#3a2030;box-shadow:0 0 0 1px #000}
+#bossbar[data-ph="2"] .bpo{animation:bbRage .6s ease-in-out infinite alternate}
+@keyframes bbRage{to{box-shadow:0 0 0 2px #2a1404,0 0 0 4px #ff4a2e,0 0 0 5px rgba(60,0,0,.9),0 0 22px 8px rgba(255,60,30,.7)}}
+#bossPh{position:absolute;left:50%;top:100%;transform:translateX(-50%);margin-top:4px;white-space:nowrap;font-size:13px;font-weight:900;color:#ffe08a;text-shadow:0 2px 0 #000,0 0 10px #ff5a20;opacity:0}
+#bossbar.phx #bossPh{animation:bbPh 1.8s ease-out}
+#bossbar.phx .bmain{animation:bbFlash .5s ease-out}
+@keyframes bbPh{0%{opacity:0;transform:translateX(-50%) scale(1.6)}15%{opacity:1;transform:translateX(-50%) scale(1)}75%{opacity:1}100%{opacity:0;transform:translateX(-50%) translateY(-4px)}}
+@keyframes bbFlash{0%{background:linear-gradient(180deg,rgba(255,240,200,.95),rgba(255,120,60,.9))}100%{}}
+#bossbar.kw{--bc:#c9a6ff;--bg:rgba(170,120,255,.55)} #bossbar.kt{--bc:#ff8a5a;--bg:rgba(255,100,50,.55)} #bossbar.kr{--bc:#8fe3ff;--bg:rgba(90,200,255,.5)} #bossbar.ks{--bc:#a8f08a;--bg:rgba(120,230,90,.45)} #bossbar.kd{--bc:#ff9adf;--bg:rgba(255,100,200,.45)}
+body.eco #bossbar[data-ph="2"] .bpo{animation:none}
+@media (orientation:portrait){ #bossbar .bpo{width:42px;height:42px} #bossbar .bpo b{font-size:23px} }
+@media (orientation:landscape) and (max-height:540px){ #bossbar{top:max(6px,env(safe-area-inset-top))!important;width:min(35vw,288px)!important} body:has(#warbar:not([hidden])) #bossbar{top:calc(max(6px,env(safe-area-inset-top)) + 50px)!important} #bossbar .bpo{width:44px;height:44px} #bossbar .bpo b{font-size:24px} #bossbar .nm{font-size:13px!important} }
 </style>
 </head>
 <body>
@@ -421,7 +451,7 @@ body.eco .lbl .hp.low i,body.eco #bossbar .bar.hp.low i{animation:none}
 <div id="zoomBtns"><button id="zIn" type="button">+</button><button id="zOut" type="button">−</button></div>
 <div id="quest"></div>
 <div id="warbar" hidden></div>
-<div id="bossbar" hidden><div class="nm" id="bossNm"></div><div class="bar hp"><s></s><i id="bossHp" style="width:100%"></i></div></div>
+<div id="bossbar" hidden><div class="bpo"><b id="bossIco">👑</b></div><div class="bmain"><div class="btop"><em id="bossKind"></em><span class="nm" id="bossNm"></span><small id="bossLv"></small></div><div class="bar hp"><s></s><i id="bossHp" style="width:100%"></i><u class="pm" style="left:33.3%"></u><u class="pm" style="left:66.6%"></u><span id="bossNum"></span></div><div class="bpips"><i></i><i></i><i></i></div></div><div id="bossPh"></div></div>
 <div id="chat"></div>
 
 <div class="acts">

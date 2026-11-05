@@ -44,7 +44,7 @@ function tickMobs(dt){
     if(d<48){ const h=m.mesh.userData.h||4; placeLabel(m.lbl,m.x,h*m.scale,m.z,`${m.boss?"👑 ":m.elite?"<em style=\"color:#ffd24a\">★정예</em> ":""}${m.n} <b>Lv.${m.lv}${m.power?" · 파워 "+m.power:""}</b><span class="hp mob"><s></s><i></i></span>`); hpBar(m.lbl,m.hp/m.mhp); } else m.lbl.style.display="none";
   }
   WARN.end();
-  const bb=$("bossbar"); const near=mobs.find(m=>m.boss&&Math.hypot(m.x-P.x,m.z-P.z)<40); if(near){ bb.hidden=false; $("bossNm").textContent=(near.trialOf?"승급 시험: ":"")+near.n; hpBar(bb,near.hp/near.mhp); } else bb.hidden=true;
+  const near=mobs.find(m=>m.boss&&m.hp>0&&Math.hypot(m.x-P.x,m.z-P.z)<40); BOSSBAR.update(near||null);
 }
 function damageMob(m,dmg,crit){ if(m.titan){ titanHit(m,dmg,crit); return; } if(m.hp<=0) return; dmg=Math.round(dmg); m.hp-=dmg; m.hit=.15; P.combat=4; try{ HITF.knock(m,dmg,crit); }catch(e){} floatDmg(m.x,3.5*m.scale,m.z,"-"+fmt(dmg),crit?"crit":""); fxSpark(m.x,1.8*m.scale,m.z,crit?0xffe08a:0xffffff,crit?16:8); tone(crit?660:440,.06,"square",0,.08);
   if(m.hp<=0){ killMob(m); } }
