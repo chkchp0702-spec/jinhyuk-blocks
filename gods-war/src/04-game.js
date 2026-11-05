@@ -10,7 +10,7 @@ function setRealmTheme(){ const R=RM(); document.documentElement.style.setProper
 
 /* ================= 괴물 ================= */
 const mobs=[]; const REG_STATE=REGIONS.map(()=>({bossT:rnd(20,60),boss:null}));
-function mobStats(lv,boss){ const m=boss?9:1; return {mhp:Math.round((45+lv*26)*m),atk:(6+lv*3.2)*(boss?1.5:1),xp:Math.round((10+lv*7)*(boss?12:1)),gold:Math.round((4+lv*2)*(boss?15:1))}; }
+function mobStats(lv,boss){ const m=boss?10:1; return {mhp:Math.round((60+lv*34)*m),atk:(8+lv*4.2)*(boss?1.6:1),xp:Math.round((10+lv*7)*(boss?12:1)),gold:Math.round((4+lv*2)*(boss?15:1))}; }
 function spawnMob(rg,boss,world){
   const R=rg.realm>=0?REALMS[rg.realm]:REALMS[Math.floor(Date.now()/60000)%4];
   const def=boss?(world?R.worldBoss:R.boss):pick(R.mobs);
@@ -26,14 +26,14 @@ function tickMobs(dt){
   REGIONS.forEach(rg=>{ const d=Math.hypot(P.x-rg.x,P.z-rg.z); const s=REG_STATE[rg.id]; if(d>rg.r+50) return; if(typeof warActive==="function"&&warActive()&&WAR.cur.rg===rg.id) return; const cnt=mobs.filter(m=>m.rg===rg.id&&!m.boss).length; const want=rg.cap?3:rg.center?7:5; if(cnt<want&&Math.random()<dt*.8) spawnMob(rg,false,false);
     if(!rg.cap&&!P.trial){ s.bossT-=dt; if(s.bossT<=0&&!s.boss&&d<rg.r+10){ spawnMob(rg,true,!!rg.center); s.bossT=rg.center?300:240; } } });
   const st=stat(); WARN.begin();
-  for(let i=mobs.length-1;i>=0;i--){ const m=mobs[i]; if(m.war||m.titan||m.dg||m.ds) continue; const dx=P.x-m.x, dz=P.z-m.z, d=Math.hypot(dx,dz);
+  for(let i=mobs.length-1;i>=0;i--){ const m=mobs[i]; if(m.war||m.titan||m.dg||m.ds||m.ev) continue; const dx=P.x-m.x, dz=P.z-m.z, d=Math.hypot(dx,dz);
     if(d>150){ removeMob(m); continue; }
     m.hit=Math.max(0,m.hit-dt); m.cd-=dt; m.t-=dt;
-    const spd=(m.boss?3.4:m.shape==="wolf"?5.2:3.6)*(m.scale>1.5?1.1:1);
+    const spd=(m.boss?3.8:m.shape==="wolf"?5.8:4.2)*(m.scale>1.5?1.1:1);
     const safe=inCapital(P.x,P.z); const shrineD=safe?Math.hypot(P.x-ALTARS[safe.id].shrine.x,P.z-ALTARS[safe.id].shrine.z):99;
-    const aggro=!P.dead&&d<(m.boss?26:13)&&shrineD>18&&!(m.trial===false);
+    const aggro=!P.dead&&d<(m.boss?28:(m.evId>=0?40:(m.elite?18:15)))&&shrineD>18&&!(m.trial===false);
     if(m.trialOf&&!P.trial){ removeMob(m); continue; }
-    if(aggro){ m.state="chase"; if(d>(m.boss?3.4:2.3)){ m.x+=dx/d*spd*dt; m.z+=dz/d*spd*dt; m.rot=Math.atan2(dx,dz); } else if(m.cd<=0){ m.cd=m.boss?1.6:1.3; hurtPlayer(m.atk*(1-dmgReduce(st.def)),m.n); m.mesh.userData.lunge=.25; if(m.mesh.userData.gl) animState(m.mesh,"attack"); } }
+    if(aggro){ m.state="chase"; if(d>(m.boss?3.4:2.3)){ m.x+=dx/d*spd*dt; m.z+=dz/d*spd*dt; m.rot=Math.atan2(dx,dz); } else if(m.cd<=0){ m.cd=m.boss?1.4:(m.elite?1.05:1.15); hurtPlayer(m.atk*(1-dmgReduce(st.def)),m.n); m.mesh.userData.lunge=.25; if(m.mesh.userData.gl) animState(m.mesh,"attack"); } }
     else { if(m.t<=0){ m.t=rnd(1.5,4); m.state=Math.random()<.5?"idle":"wander"; m.wx=m.hx+rnd(-8,8); m.wz=m.hz+rnd(-8,8); } if(m.state==="wander"){ const wx=m.wx-m.x, wz=m.wz-m.z, wd=Math.hypot(wx,wz); if(wd>.5){ m.x+=wx/wd*1.6*dt; m.z+=wz/wd*1.6*dt; m.rot=Math.atan2(wx,wz); } } }
     const rg=REGIONS[m.rg]; const rd=Math.hypot(m.x-rg.x,m.z-rg.z); if(rd>rg.r+6){ m.x+= (rg.x-m.x)/rd*spd*dt; m.z+=(rg.z-m.z)/rd*spd*dt; }
     m.x=clamp(m.x,-WORLD_HALF+3,WORLD_HALF-3); m.z=clamp(m.z,-WORLD_HALF+3,WORLD_HALF-3);
@@ -41,7 +41,7 @@ function tickMobs(dt){
     let dr=m.rot-m.mesh.rotation.y; while(dr>Math.PI) dr-=Math.PI*2; while(dr<-Math.PI) dr+=Math.PI*2; m.mesh.rotation.y+=dr*Math.min(1,dt*8);
     if(m.mesh.userData.gl){ animState(m.mesh,m.hit>0&&m.hp>0?"hit":m.state==="chase"?(d>(m.boss?3.4:2.3)?"run":"idle"):m.state==="wander"?"walk":"idle"); if(m.mesh.userData.lunge>.2) animState(m.mesh,"attack"); m.mesh.rotation.x=0; }
     hitTint(m.mesh,m.hit/.15); const sc=m.scale*(m.hit>0?1.12:1); m.mesh.scale.set(sc*(1+Math.sin(tnow/600+m.x)*.02),sc*(1+Math.sin(tnow/600+m.x+1)*.03),sc); HITF.apply(m,dt); WARN.tick(m,aggro&&d<=(m.boss?3.4:2.3),dt);
-    if(d<48){ const h=m.mesh.userData.h||4; placeLabel(m.lbl,m.x,h*m.scale,m.z,`${m.boss?"👑 ":""}${m.n} <b>Lv.${m.lv}${m.power?" · 파워 "+m.power:""}</b><span class="hp mob"><s></s><i></i></span>`); hpBar(m.lbl,m.hp/m.mhp); } else m.lbl.style.display="none";
+    if(d<48){ const h=m.mesh.userData.h||4; placeLabel(m.lbl,m.x,h*m.scale,m.z,`${m.boss?"👑 ":m.elite?"<em style=\"color:#ffd24a\">★정예</em> ":""}${m.n} <b>Lv.${m.lv}${m.power?" · 파워 "+m.power:""}</b><span class="hp mob"><s></s><i></i></span>`); hpBar(m.lbl,m.hp/m.mhp); } else m.lbl.style.display="none";
   }
   WARN.end();
   const bb=$("bossbar"); const near=mobs.find(m=>m.boss&&Math.hypot(m.x-P.x,m.z-P.z)<40); if(near){ bb.hidden=false; $("bossNm").textContent=(near.trialOf?"승급 시험: ":"")+near.n; hpBar(bb,near.hp/near.mhp); } else bb.hidden=true;
