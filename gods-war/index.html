@@ -452,7 +452,7 @@ body.eco .lbl .hp.low i,body.eco #bossbar .bar.hp.low i{animation:none}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v56";
+const VER="v57";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -2388,7 +2388,7 @@ function petBonus(){ const p=G.pet>=0&&G.pets&&!expPetAway(G.pet)&&G.pets[G.pet]
 function petArr(){ const p=G.pet>=0&&G.pets&&!expPetAway(G.pet)&&G.pets[G.pet]; return p?[G.pet,p.lv]:null; }
 function petGain(n){ const p=G.pet>=0&&G.pets&&!expPetAway(G.pet)&&G.pets[G.pet]; if(!p||p.lv>=PET_MAX) return 0; p.xp=(p.xp||0)+n; let up=0; while(p.lv<PET_MAX&&p.xp>=petNeed(p.lv)){ p.xp-=petNeed(p.lv); p.lv++; up++; } if(p.lv>=PET_MAX) p.xp=0; if(up&&PETMESH.me){ rebuildMyPet(); } return up; }
 function petOnKill(m){ petData(); const b=petBonus(); if(b>0){ const extra=Math.max(1,Math.round(m.gold*b/100)); G.gold+=extra; }
-  const up=petGain(m.boss?6:1); if(up){ const p=G.pets[G.pet]; toast(`${PETS[G.pet].n} Lv.${p.lv}!`,`금화 보너스 +${p.lv*2}%`,2); jingle([784,988,1175]); }
+  const up=petGain(m.boss?6:1); if(PETMESH.me&&(up||m.boss||Math.random()<.35)) petJoy(PETMESH.me,up?"♥":"♪",up?"#ff4f86":"#ffb020"); if(up){ const p=G.pets[G.pet]; toast(`${PETS[G.pet].n} Lv.${p.lv}!`,`금화 보너스 +${p.lv*2}%`,2); jingle([784,988,1175]); }
   if(!G.egg&&!m.war&&!m.titan){ const first=!G.eggEver; const ch=first?1:m.boss?.3:.02; if(Math.random()<ch){ const rg=REGIONS[m.rg]; const r=rg&&rg.realm>=0?rg.realm:rint(0,3); G.egg={r,t0:Date.now()}; G.eggEver=1;
       toast(`🥚 ${PETS[r].egg}을(를) 주웠어요!`,"20분 뒤에 깨어나요 · 게임을 꺼 둬도 자라요",3.2); jingle([659,880,1046,1318]); fxRing(m.x,m.z,PETS[r].c,6,.8); } } }
 function eggLeft(){ return G.egg?Math.max(0,G.egg.t0+EGG_MS-Date.now()):0; }
@@ -2407,7 +2407,7 @@ function makePet(r,lv){ const D=PETS[r]; const g=new THREE.Group(); const body=n
   const m=mat({color:D.c,roughness:.55}), m2=mat({color:D.c2,roughness:.55}), eye=mat({color:0x111111,roughness:.25}), wh=mat({color:0xffffff,emissive:0xffffff,emissiveIntensity:.8}), gold=mat({color:0xffc83a,metalness:.4,roughness:.35});
   const b=sph(.55,m,0,0,0); b.scale.set(1,.9,1.15); body.add(b);
   const h=sph(.46,m,0,.62,.55); body.add(h);
-  [-1,1].forEach(s=>{ body.add(sph(.12,eye,s*.19,.7,.94)); body.add(sph(.04,wh,s*.19+.04,.75,1.03)); body.add(sph(.07,mat({color:0xff9aa8,roughness:.8}),s*.3,.55,.9)); });
+  const eyes=[]; [-1,1].forEach(s=>{ const ey=sph(.12,eye,s*.19,.7,.94); body.add(ey); eyes.push(ey); const sh=sph(.04,wh,s*.19+.04,.75,1.03); body.add(sh); eyes.push(sh); body.add(sph(.07,mat({color:0xff9aa8,roughness:.8}),s*.3,.55,.9)); });
   const wings=[];
   if(D.kind==="griffin"||D.kind==="bird"){ const bk=new THREE.Mesh(GEO.cone,mat({color:0xffa53a,roughness:.5})); bk.scale.set(.2,.32,.2); bk.rotation.x=Math.PI/2; bk.position.set(0,.55,1.05); body.add(bk); }
   else { body.add(sph(.24,m2,0,.5,.95)); }
@@ -2418,20 +2418,45 @@ function makePet(r,lv){ const D=PETS[r]; const g=new THREE.Group(); const body=n
   const legN=D.kind==="horse8"?8:D.kind==="bird"?2:4; for(let k=0;k<legN;k++){ const row=D.kind==="horse8"?Math.floor(k/2):k%2===0?0:1; const side=k%2===0?-1:1; const z=legN===2?0:legN===8?(.35-Math.floor(k/2)*.23):(Math.floor(k/2)?-.3:.3); body.add(cyl(.08,.07,.4,D.kind==="bird"?mat({color:0xffa53a}):m2,side*(legN===8?.22+(row%2)*.05:.25),-.48,z,8)); }
   const tail=sph(.16,m2,0,.15,-.68); tail.scale.set(1,1,1.6); body.add(tail);
   if(lv>=10){ const c=new THREE.Mesh(new THREE.TorusGeometry(.2,.05,6,16),gold); c.rotation.x=Math.PI/2; c.position.set(0,1.18,.55); body.add(c); }
-  g.userData={body,wings,fly:D.kind!=="horse8",t:Math.random()*6};
+  g.userData={body,wings,eyes,eyeS:eyes.map(e=>e.scale.y),fly:D.kind!=="horse8",t:Math.random()*6,blink:1+Math.random()*3,idle:0,joy:0,joyD:1,lunge:0,lean:0,mv:0};
   const sc=.7+Math.min(lv||1,PET_MAX)*.02; g.scale.setScalar(sc); return g; }
 function drawPetPreview(cv,r){ try{ const rr=new THREE.WebGLRenderer({canvas:cv,alpha:true,antialias:true}); rr.setSize(cv.width,cv.height,false); const sc=new THREE.Scene(); sc.add(new THREE.HemisphereLight(0xffffff,0x553366,1.1)); const dl=new THREE.DirectionalLight(0xffffff,1); dl.position.set(2,4,5); sc.add(dl); const pet=makePet(r,1); pet.scale.setScalar(1.3); sc.add(pet); const cam=new THREE.PerspectiveCamera(40,cv.width/cv.height,.1,50); cam.position.set(0,1.2,4.4); cam.lookAt(0,.4,0); let t=0; const loop=()=>{ if(!document.body.contains(cv)){ rr.dispose(); return; } t+=.03; pet.rotation.y=Math.sin(t)*.7; pet.position.y=Math.abs(Math.sin(t*3))*.2; pet.userData.wings.forEach(w=>w.rotation.z=w.userData.s*Math.sin(t*12)*.5); rr.render(sc,cam); requestAnimationFrame(loop); }; loop(); }catch(e){} }
 const PETMESH={me:null,others:{}};
 function rebuildMyPet(){ if(PETMESH.me){ scene.remove(PETMESH.me.mesh); PETMESH.me=null; } const a=petArr(); if(!a||!started) return; const mesh=makePet(a[0],a[1]); scene.add(mesh); PETMESH.me={mesh,x:P.x-1.5,z:P.z-1.5,key:a.join(","),atk:1}; }
 function followPet(o,ox,oz,orot,dt){ const bx=ox-Math.sin(orot)*1.6+Math.cos(orot)*1.3, bz=oz-Math.cos(orot)*1.6-Math.sin(orot)*1.3; const dx=bx-o.x, dz=bz-o.z, L=Math.hypot(dx,dz);
   if(L>30){ o.x=bx; o.z=bz; } else if(L>.3){ const sp=Math.min(L*3,16); o.x+=dx/L*sp*dt; o.z+=dz/L*sp*dt; }
-  const u=o.mesh.userData; u.t+=dt*(L>.5?14:5); const tx=o.tx!=null?o.tx:bx+Math.sin(orot)*3, tz=o.tz!=null?o.tz:bz+Math.cos(orot)*3; o.mesh.rotation.y=Math.atan2(tx-o.x,tz-o.z);
-  const fly=u.fly?1.6+Math.sin(u.t*.4)*.25:Math.abs(Math.sin(u.t*.7))*.25; o.mesh.position.set(o.x,hAt(o.x,o.z)+fly,o.z); u.wings.forEach(w=>w.rotation.z=w.userData.s*Math.sin(u.t*2.2)*.6); u.body.rotation.z=Math.sin(u.t*.35)*.08; }
-function tickPets(dt){ if(!started) return; tickEgg(dt);
+  const u=o.mesh.userData; const mv=L>.5; u.t+=dt*(mv?14:5); const tx=o.tx!=null?o.tx:bx+Math.sin(orot)*3, tz=o.tz!=null?o.tz:bz+Math.cos(orot)*3;
+  petAnim(o,u,mv,Math.atan2(tx-o.x,tz-o.z),o.tx!=null,dt); }
+// v57 신수 손맛: 통통 튀는 걸음(눌림·늘어남)·몸 기울기·눈 깜빡임·공격 돌진·기쁨(폴짝 한 바퀴 + ♥/♪)
+const PETFX={tex:{},pool:[]};
+function petEmoTex(ch,col){ const k=ch+col; if(PETFX.tex[k]) return PETFX.tex[k]; const c=document.createElement("canvas"); c.width=c.height=64; const x=c.getContext("2d"); x.font="bold 50px sans-serif"; x.textAlign="center"; x.textBaseline="middle"; x.lineWidth=7; x.strokeStyle="#fff"; x.strokeText(ch,32,35); x.fillStyle=col; x.fillText(ch,32,35); const t=new THREE.CanvasTexture(c); PETFX.tex[k]=t; return t; }
+function petEmo(o,ch,col){ if(!o||!o.mesh||!o.mesh.visible) return; let sp=PETFX.pool.find(q=>!q.visible); if(!sp){ if(PETFX.pool.length>=6) return; sp=new THREE.Sprite(new THREE.SpriteMaterial({transparent:true,depthWrite:false,fog:false})); sp.userData.noOutline=true; sp.renderOrder=5; scene.add(sp); PETFX.pool.push(sp); }
+  sp.material.map=petEmoTex(ch,col); sp.material.needsUpdate=true; sp.visible=true; sp.userData.o=o; sp.userData.a=0; sp.userData.dx=(Math.random()-.5)*.6; }
+function petJoy(o,ch,col){ if(!o||!o.mesh) return; const u=o.mesh.userData; if(u.joy>0) return; u.joy=u.joyD=ch==="♥"?1.0:.7; u.idle=0; petEmo(o,ch||"♥",col||"#ff4f86"); }
+function petAnim(o,u,mv,face,fight,dt){ const b=u.body;
+  u.mv+=((mv?1:0)-u.mv)*Math.min(1,dt*6);
+  let d=face-o.mesh.rotation.y; d=Math.atan2(Math.sin(d),Math.cos(d)); o.mesh.rotation.y+=d*Math.min(1,dt*9); u.lean+=(clamp(-d*1.2,-.45,.45)*u.mv-u.lean)*Math.min(1,dt*6);
+  u.lunge=Math.max(0,u.lunge-dt*3.2); const lg=Math.sin(u.lunge*Math.PI);
+  // 기쁨: 가만히 4~9초 있으면 폴짝 한 바퀴 + ♥
+  if(!mv&&!fight){ u.idle+=dt; if(u.idle>(u.idleN||(u.idleN=4+Math.random()*5))){ u.idleN=0; petJoy(o,Math.random()<.7?"♥":"♪",Math.random()<.7?"#ff4f86":"#ffb020"); } } else u.idle=0;
+  let jy=0, spin=0; if(u.joy>0){ u.joy=Math.max(0,u.joy-dt); const p=1-u.joy/u.joyD; jy=Math.sin(p*Math.PI)*(u.joyD>.9?1.1:.6); spin=u.joyD>.9?p*Math.PI*2:Math.sin(p*Math.PI*4)*.35; }
+  let y, sy=1, sxz=1, pitch=0;
+  if(u.fly){ y=1.6+Math.sin(u.t*.4)*.25; pitch=.28*u.mv-lg*.5; const fl=Math.sin(u.t*(mv?2.6:2.2)); u.wings.forEach(w=>w.rotation.z=w.userData.s*fl*(.55+.35*u.mv)); sy=1+.05*Math.sin(u.t*.8); sxz=2-sy; }
+  else { const ph=u.t*.7, hop=Math.abs(Math.sin(ph)), k=.35+.65*u.mv, cs=Math.cos(ph*2); y=hop*(.18+.32*u.mv); sy=1-.16*cs*k; sxz=1+.09*cs*k; pitch=Math.sin(ph*2+1)*.13*u.mv-lg*.4; u.wings.forEach(w=>w.rotation.z=w.userData.s*Math.sin(u.t*2.2)*.6); }
+  if(u.joy>0&&u.joyD>.9){ const p=1-u.joy/u.joyD; if(p<.15||p>.88){ const q=p<.15?p/.15:(1-p)/.12; sy*=1-.22*(1-q); sxz*=1+.12*(1-q); } }
+  o.mesh.position.set(o.x,hAt(o.x,o.z)+y+jy,o.z);
+  b.scale.set(sxz,sy,sxz); b.position.set(0,u.fly?0:.68*(sy-1),lg*.55); b.rotation.set(pitch,spin,u.lean+Math.sin(u.t*.35)*.06);
+  // 눈 깜빡임
+  u.blink-=dt; let ek=1; if(u.blink<0){ ek=Math.abs(u.blink+.07)/.07; ek=Math.max(.12,Math.min(1,ek)); if(u.blink<-.14) u.blink=1.8+Math.random()*3.5; }
+  if(u.joy>0&&u.joyD>.9) ek=Math.min(ek,.35);   // 기쁠 땐 눈웃음
+  u.eyes.forEach((e,i)=>e.scale.y=u.eyeS[i]*ek); }
+function tickPetFX(dt){ for(const sp of PETFX.pool){ if(!sp.visible) continue; const q=sp.userData; q.a+=dt; const p=q.a/1.1; const o=q.o; if(p>=1||!o||!o.mesh||!o.mesh.parent){ sp.visible=false; continue; }
+  const s=o.mesh.scale.x; sp.position.set(o.mesh.position.x+q.dx*p, o.mesh.position.y+1.25*s+p*1.1, o.mesh.position.z); const pop=p<.18?(p/.18)*1.25:p<.3?1.25-(p-.18)/.12*.25:1; sp.scale.setScalar(.75*pop); sp.material.opacity=p>.7?(1-p)/.3:1; } }
+function tickPets(dt){ if(!started) return; tickEgg(dt); tickPetFX(dt);
   const a=petArr(); if(a&&(!PETMESH.me||PETMESH.me.key!==a.join(","))) rebuildMyPet(); if(!a&&PETMESH.me) rebuildMyPet();
   const me=PETMESH.me; if(me){ me.mesh.visible=!P.dead; me.tx=me.tz=null;
     me.atk-=dt; const tgt=mobs.find(m=>m.hp>0&&(m.state==="chase"||m.titan)&&Math.hypot(m.x-me.x,m.z-me.z)<(m.titan?14:8));
-    if(tgt){ me.tx=tgt.x; me.tz=tgt.z; if(me.atk<=0&&!P.dead){ me.atk=1.4; const p=G.pets[G.pet]; const dmg=stat().atk*(.15+.012*p.lv); fxLine(me.x,me.z,Math.atan2(tgt.x-me.x,tgt.z-me.z),Math.min(8,Math.hypot(tgt.x-me.x,tgt.z-me.z)),PETS[G.pet].c); damageMob(tgt,dmg,false); } }
+    if(tgt){ me.tx=tgt.x; me.tz=tgt.z; if(me.atk<=0&&!P.dead){ me.atk=1.4; me.mesh.userData.lunge=1; const p=G.pets[G.pet]; const dmg=stat().atk*(.15+.012*p.lv); fxLine(me.x,me.z,Math.atan2(tgt.x-me.x,tgt.z-me.z),Math.min(8,Math.hypot(tgt.x-me.x,tgt.z-me.z)),PETS[G.pet].c); damageMob(tgt,dmg,false); } }
     followPet(me,P.x,P.z,P.rot,dt); }
   // 친구·쉬는 친구의 신수
   const want={};
@@ -5955,7 +5980,7 @@ window.__gw={PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoard,showPlay,p
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="916ebec6";
+(function(){ var CUR="8d4ee03c";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
