@@ -40,9 +40,20 @@ button{font:inherit;-webkit-tap-highlight-color:transparent}
 .lbl.dmg.crit em.c::before{content:"치명타!";display:block;font-size:13px;color:#fff6c8;letter-spacing:1px;margin-bottom:-2px}
 .lbl.dmg.me em{color:#ff5b5b;font-size:23px;text-shadow:0 0 1px #000,2px 2px 0 #3a0010,-2px 2px 0 #3a0010,2px -2px 0 #3a0010,-2px -2px 0 #3a0010,0 3px 0 #3a0010}
 .lbl.dmg.gain em{font-size:18px;color:#ffe27a;animation:dmgGain 1.1s ease-out forwards}
-@keyframes dmgPop{0%{transform:translate(0,10px) scale(.3);opacity:0}12%{transform:translate(calc(var(--dx)*.15),-8px) scale(1.45);opacity:1}30%{transform:translate(calc(var(--dx)*.35),-16px) scale(1)}72%{opacity:1}100%{transform:translate(var(--dx),-66px) scale(.8);opacity:0}}
-@keyframes dmgCrit{0%{transform:translate(0,10px) scale(.2) rotate(-8deg);opacity:0}12%{transform:translate(0,-10px) scale(1.7) rotate(4deg);opacity:1}22%{transform:translate(-3px,-14px) scale(1.15) rotate(-3deg)}30%{transform:translate(3px,-16px) scale(1.25) rotate(0)}75%{opacity:1}100%{transform:translate(var(--dx),-74px) scale(.9);opacity:0}}
+@keyframes dmgPop{0%{transform:translate(0,calc(10px + var(--sy,0px))) scale(.3);opacity:0}12%{transform:translate(calc(var(--dx)*.15),calc(-8px + var(--sy,0px))) scale(1.45);opacity:1}30%{transform:translate(calc(var(--dx)*.35),calc(-16px + var(--sy,0px))) scale(1)}72%{opacity:1}100%{transform:translate(var(--dx),calc(-66px + var(--sy,0px))) scale(.8);opacity:0}}
+@keyframes dmgCrit{0%{transform:translate(0,calc(10px + var(--sy,0px))) scale(.2) rotate(-8deg);opacity:0}12%{transform:translate(0,calc(-10px + var(--sy,0px))) scale(1.7) rotate(4deg);opacity:1}22%{transform:translate(-3px,calc(-14px + var(--sy,0px))) scale(1.15) rotate(-3deg)}30%{transform:translate(3px,calc(-16px + var(--sy,0px))) scale(1.25) rotate(0)}75%{opacity:1}100%{transform:translate(var(--dx),calc(-74px + var(--sy,0px))) scale(.9);opacity:0}}
 @keyframes dmgGain{0%{transform:translate(0,6px) scale(.6);opacity:0}15%{transform:translate(0,-6px) scale(1.12);opacity:1}70%{opacity:1}100%{transform:translate(0,-56px) scale(.95);opacity:0}}
+/* v54: 치명타 별빛 터짐 · 연타 합계 */
+.lbl.dmg.crit em{position:relative;isolation:isolate;font-size:36px;background:none}
+.lbl.dmg.crit em .burst{position:absolute;left:50%;top:58%;width:110px;height:110px;margin:-55px 0 0 -55px;z-index:-1;border-radius:50%;pointer-events:none;background:radial-gradient(circle,rgba(255,250,210,.95) 0 12%,rgba(255,190,60,.7) 22%,rgba(255,120,20,0) 58%),repeating-conic-gradient(from 0deg,rgba(255,226,120,.9) 0 7deg,rgba(255,226,120,0) 7deg 30deg);-webkit-mask:radial-gradient(circle,#000 30%,transparent 70%);mask:radial-gradient(circle,#000 30%,transparent 70%);animation:dmgBurst .55s ease-out forwards}
+.lbl.dmg.crit em.c::before{font-size:14px;color:#fff;text-shadow:0 0 1px #000,1px 1px 0 #b53a00,-1px 1px 0 #b53a00,1px -1px 0 #b53a00,-1px -1px 0 #b53a00,0 0 8px rgba(255,120,0,.9)}
+@keyframes dmgBurst{0%{transform:scale(.2) rotate(0);opacity:1}40%{opacity:1}100%{transform:scale(1.35) rotate(40deg);opacity:0}}
+.lbl.dmg.combo{z-index:3;text-align:center;pointer-events:none;margin:34px 0 0 92px}
+.lbl.dmg.combo b{display:block;font-weight:900;font-size:15px;font-style:italic;color:#fff;letter-spacing:.5px;padding:1px 9px;border-radius:9px;background:linear-gradient(180deg,#ff9a3c,#d2361c);border:1.5px solid #ffe08a;box-shadow:0 2px 6px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.5);text-shadow:0 1px 0 #5a1000}
+.lbl.dmg.combo i{display:block;font-style:normal;font-weight:900;font-size:19px;color:#ffe066;margin-top:1px;text-shadow:0 0 1px #000,2px 2px 0 #4a1a00,-2px 2px 0 #4a1a00,2px -2px 0 #4a1a00,-2px -2px 0 #4a1a00}
+.lbl.dmg.combo.pop b,.lbl.dmg.combo.pop i{animation:comboPop .3s cubic-bezier(.2,1.6,.4,1)}
+@keyframes comboPop{0%{transform:scale(1.45)}100%{transform:scale(1)}}
+
 
 .hud{position:fixed;z-index:5;pointer-events:none;display:flex;gap:6px}
 .tl{top:max(8px,env(safe-area-inset-top));left:10px;flex-direction:column;align-items:flex-start}
@@ -441,7 +452,7 @@ body.eco .lbl .hp.low i,body.eco #bossbar .bar.hp.low i{animation:none}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v53";
+const VER="v54";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -896,7 +907,8 @@ let LBLF=0; function deoverlapLabels(){ const L=[]; for(const el of labelsEl.chi
   for(let i=1;i<L.length;i++){ const b=L[i]; for(let j=0;j<i;j++){ const a=L[j]; const w=(a._w+b._w)/2; if(Math.abs(a._sx-b._sx)<w*.9){ const top=a._sy-a._hh; if(b._sy>top&&b._sy-b._hh<a._sy){ b._sy=top-2; } } } b.style.transform=`translate(${Math.round(b._sx-b._w/2)}px,${Math.round(b._sy-b._hh)}px)`; } }
 /* v45: 괴물 체력바 — 금테·10칸 눈금·광택, 맞으면 줄어든 만큼 흰 잔상이 잠깐 남았다가 스르륵 따라 줄어듦 (상태 바뀔 때만 style 씀) */
 function hpBar(el,p){ p=clamp(p,0,1); let b=el._hb; if(!b||!b.isConnected){ b=el._hb=el.querySelector(".hp"); if(!b) return; el._hi=b.querySelector("i"); el._hs=b.querySelector("s"); el._hwi=el._hwg=null; } const now=performance.now(), dt=Math.min(.1,(now-(el._hl||now))/1000); el._hl=now; if(el._hp==null){ el._hp=p; el._hg=p; } if(p<el._hp-1e-4) el._ht=.42; else el._ht=Math.max(0,(el._ht||0)-dt); if(p>el._hg) el._hg=p; else if(el._ht<=0&&el._hg>p) el._hg=Math.max(p,el._hg-dt*(.3+(el._hg-p)*2.2)); el._hp=p; const wi=Math.round(p*1000)/10, wg=Math.round(el._hg*1000)/10; if(el._hwi!==wi){ el._hwi=wi; el._hi.style.width=wi+"%"; b.classList.toggle("low",p<.3&&p>0); } if(el._hs&&el._hwg!==wg){ el._hwg=wg; el._hs.style.width=wg+"%"; } }
-function floatDmg(x,y,z,txt,cls){ txt=String(txt); cls=cls||""; if(!cls&&txt[0]==="+") cls="gain"; const el=makeLabel("dmg "+cls); const dx=Math.round((Math.random()-.5)*44); placeLabel(el,x,y,z,`<em class="${cls==="crit"&&txt[0]==="-"?"c":""}" style="--dx:${dx}px">${txt}</em>`); setTimeout(()=>el.remove(),1150); }
+/* v54: 치명타 숫자 별빛 터짐 + 같은 괴물 연타 숫자 위로 쌓기 + 「연타 ×N」 합계 */
+const DMGST=[]; function floatDmg(x,y,z,txt,cls){ txt=String(txt); cls=cls||""; if(!cls&&txt[0]==="+") cls="gain"; const el=makeLabel("dmg "+cls); let dx=Math.round((Math.random()-.5)*44), sy=0; const isHit=txt[0]==="-"&&(cls===""||cls==="crit"); if(isHit){ const now=performance.now(); for(let i=DMGST.length-1;i>=0;i--){ if(now-DMGST[i].t>1300){ const o=DMGST[i]; if(o.c) o.c.remove(); DMGST.splice(i,1); } } let st=null; for(const o of DMGST){ if(Math.abs(o.x-x)<2.6&&Math.abs(o.z-z)<2.6){ st=o; break; } } const v=+txt.replace(/[^0-9]/g,"")||0; if(st&&now-st.t<650){ st.n++; st.sum+=v; st.k=(st.k+1)%4; } else if(st){ st.n=1; st.sum=v; st.k=0; } else { st={x,z,n:1,sum:v,k:0,c:null}; DMGST.push(st); if(DMGST.length>12){ const o=DMGST.shift(); if(o.c) o.c.remove(); } } st.t=now; st.x=x; st.z=z; sy=-st.k*22; dx=Math.round(dx*.6+(st.k%2?14:-14)); if(st.n>=3){ if(!st.c||!st.c.isConnected){ st.c=makeLabel("dmg combo"); } placeLabel(st.c,x,y,z,`<b>연타 ×${st.n}</b><i>${fmt(st.sum)}</i>`); st.c.classList.remove("pop"); void st.c.offsetWidth; st.c.classList.add("pop"); clearTimeout(st.ct); const c=st.c; st.ct=setTimeout(()=>{ c.remove(); },1250); } } const cc=cls==="crit"&&txt[0]==="-"; placeLabel(el,x,y,z,`<em class="${cc?"c":""}" style="--dx:${dx}px;--sy:${sy}px">${cc?'<s class="burst"></s>':''}${txt}</em>`); setTimeout(()=>el.remove(),cc?1250:1150); }
 
 /* ================= 효과 ================= */
 const FX=[];
@@ -5354,7 +5366,7 @@ window.__gw={PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoard,showPlay,p
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="ef05f350";
+(function(){ var CUR="d4a9f367";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
