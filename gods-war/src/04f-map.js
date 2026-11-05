@@ -58,7 +58,7 @@ function drawMinimap(ctxIn,size){ const big=!!ctxIn; const ctx=ctxIn||mctx; cons
   if(P.guide&&P.guide.x!=null){ const gx=tx(P.guide.x), gz=tz(P.guide.z); ctx.lineCap="round"; ctx.lineWidth=6*u; ctx.strokeStyle="#1557b0"; ctx.beginPath(); ctx.moveTo(tx(P.x),tz(P.z)); ctx.lineTo(gx,gz); ctx.stroke(); ctx.lineWidth=4*u; ctx.strokeStyle="#4285f4"; ctx.stroke(); }
   // 몬스터(가까운 것만 작게) · 보스
   mobs.forEach(m=>{ if(m.war||m.titan) return; if(!big&&Math.hypot(m.x-P.x,m.z-P.z)>70) return; if(m.boss){ mapPin(ctx,tx(m.x),tz(m.z),(big?4.2:5.2)*u,"#f29900","👑"); } else { dot(ctx,tx(m.x),tz(m.z),(big?1.3:1.8)*u,"rgba(217,48,37,.85)","#fff",.6*u); } });
-  if(typeof warActive==="function"&&warActive()){ WAR.units.forEach(un=>{ if(un.dead) return; dot(ctx,tx(un.x),tz(un.z),1.5*u,WAR.joined?(un.side===WAR.side?"#1e8e3e":"#d93025"):(un.side==="att"?"#f29900":"#4285f4"),"#fff",.5*u); });
+  if(typeof warActive==="function"&&warActive()){ WAR.units.forEach(un=>{ if(un.dead||(un.hidden&&!(WAR.joined&&un.side===WAR.side))) return; dot(ctx,tx(un.x),tz(un.z),1.5*u,WAR.joined?(un.side===WAR.side?"#1e8e3e":"#d93025"):(un.side==="att"?"#f29900":"#4285f4"),"#fff",.5*u); });
     const g=TERR_RINGS[WAR.cur.rg].position; const pul=1+.3*Math.sin(performance.now()/180); ctx.beginPath(); ctx.arc(tx(g.x),tz(g.z),9*u*pul,0,6.2832); ctx.fillStyle="rgba(217,48,37,.18)"; ctx.fill(); mapPin(ctx,tx(g.x),tz(g.z),(big?5:6.5)*u,"#d93025","⚔"); }
   if(typeof DG!=="undefined"&&DG.doors) DG.doors.forEach(d=>mapPin(ctx,tx(d.x),tz(d.z),(big?4.5:5)*u,"#7a4ae8","🌀"));
   if(typeof OR!=="undefined") OR.spots.forEach(s=>mapPin(ctx,tx(s.x),tz(s.z),(big?4.2:4.8)*u,"#3a8fc8","🗿"));
