@@ -68,6 +68,7 @@ button{font:inherit;-webkit-tap-highlight-color:transparent}
 .bar.hp i{background:linear-gradient(90deg,#ff3d4a,#ff8a5c)} .bar.xp i{background:linear-gradient(90deg,#4aa3ff,#9be7ff)} .bar.xp{height:7px}
 .bar span{position:absolute;inset:0;font-size:10px;line-height:11px;text-align:center;text-shadow:0 1px 0 #000}
 .gold{color:var(--gold)}
+/* v65 금화가 금화 칸으로 날아감 */ .coinfly{position:fixed;left:-9px;top:-9px;width:18px;height:18px;border-radius:50%;z-index:30;pointer-events:none;background:radial-gradient(circle at 34% 30%,#fffbe0 0 14%,#ffe27a 30%,#ffbf26 62%,#b87508 100%);border:1.5px solid #7a4a00;box-shadow:0 0 6px 2px rgba(255,214,90,.75),inset 0 -2px 0 rgba(120,70,0,.45);will-change:transform} .coinfly::after{content:"";position:absolute;left:4px;top:3px;width:6px;height:8px;border:1.5px solid rgba(150,90,0,.55);border-radius:50%} .cpop{animation:cpop .32s ease-out} @keyframes cpop{0%{transform:scale(1);filter:none}35%{transform:scale(1.28);filter:drop-shadow(0 0 6px #ffd24a) brightness(1.4)}100%{transform:scale(1);filter:none}} .gold.cpop{display:inline-block;transform-origin:30% 50%}
 #titanPill{position:fixed;right:10px;top:calc(max(8px,env(safe-area-inset-top)) + 262px);z-index:5;font-size:13px;cursor:pointer;pointer-events:auto;border:1px solid rgba(255,140,80,.6);color:#ffd9b0;font-family:inherit} #netPill{font-size:12px;gap:6px} #netPill .dot{width:9px;height:9px;border-radius:50%;background:#777;display:inline-block;box-shadow:0 0 4px #000} #netPill .dot.on{background:#3fd27a;box-shadow:0 0 6px #3fd27a}
 #region{font-size:14px;color:#fff;letter-spacing:.5px}
 #region b{font-weight:400;color:var(--c1)}
@@ -483,7 +484,7 @@ body.eco #bossbar[data-ph="2"] .bpo{animation:none}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v64";
+const VER="v65";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -1883,6 +1884,33 @@ const HEALFX=(function(){
 })();
 </script>
 <script>
+/* ================= 금화가 금화 칸으로 날아감 (v65) =================
+   괴물을 쓰러뜨리면 그 자리에서 반짝이는 금화 몇 개가 톡 튀어 오른 뒤 → 화면 왼쪽 위 금화 숫자 칸으로 휘익 날아 들어감.
+   들어갈 때마다 "띵" 소리, 금화 칸이 톡 커지며 금빛으로 반짝. 보스는 금화 8개.
+   그림(3D)이 아니라 화면 위 작은 동그라미(DOM)라 그리기 호출 0. 한 번에 최대 14개, 배터리 절약 모드는 절반. 금화 양·계산은 그대로. */
+const COINFLY=(()=>{ let live=0; const V=new THREE.Vector3();
+  function target(){ const el=document.getElementById("pgold"); if(!el) return null; const r=el.getBoundingClientRect(); if(!r.width||r.bottom<0) return null; return {x:r.left-9,y:r.top+r.height/2,el}; }
+  function pop(el){ const box=el.parentElement||el; box.classList.remove("cpop"); void box.offsetWidth; box.classList.add("cpop"); }
+  function burst(x,y,z,n){ try{ if(document.hidden||typeof camera==="undefined") return; const T=target(); if(!T) return; V.set(x,y+hAt(x,z),z).project(camera); if(V.z>1) return;
+      const sx=(V.x+1)/2*innerWidth, sy=(1-V.y)/2*innerHeight; if(sx<-40||sx>innerWidth+40||sy<-40||sy>innerHeight+40) return;
+      n=Math.min(n||4,(typeof ECO==="function"&&ECO())?3:8, 14-live); for(let i=0;i<n;i++) one(sx,sy,T,i,n); }catch(e){} }
+  function one(sx,sy,T,i,n){ const c=document.createElement("div"); c.className="coinfly"; document.body.appendChild(c); live++;
+    const a=-Math.PI/2+(i-(n-1)/2)*.55+(Math.random()-.5)*.4, r=34+Math.random()*26; const px=sx+Math.cos(a)*r, py=sy+Math.sin(a)*r;
+    const mx=(px+T.x)/2+(Math.random()-.5)*60, my=Math.min(py,T.y)-30-Math.random()*40;
+    const dur=780+i*70; let anim=null;
+    if(c.animate){ anim=c.animate([
+        {transform:`translate(${sx}px,${sy}px) scale(.3) rotateY(0deg)`,opacity:0},
+        {transform:`translate(${px}px,${py}px) scale(1.15) rotateY(180deg)`,opacity:1,offset:.22,easing:"ease-out"},
+        {transform:`translate(${px}px,${py+6}px) scale(1) rotateY(300deg)`,opacity:1,offset:.36,easing:"ease-in"},
+        {transform:`translate(${mx}px,${my}px) scale(.9) rotateY(540deg)`,opacity:1,offset:.68,easing:"ease-in"},
+        {transform:`translate(${T.x}px,${T.y}px) scale(.55) rotateY(720deg)`,opacity:.95}],{duration:dur,delay:i*55,fill:"both"}); }
+    const done=()=>{ if(!c.parentNode) return; c.remove(); live--; pop(T.el); try{ tone(1568+i*90,.05,"sine",0,.05); tone(2093+i*90,.08,"triangle",.03,.035); }catch(e){} };
+    if(anim) anim.onfinish=done; else { c.style.transform=`translate(${T.x}px,${T.y}px)`; setTimeout(done,dur); }
+    setTimeout(()=>{ if(c.parentNode){ c.remove(); live--; } },dur+i*55+600); }
+  return {burst};
+})();
+</script>
+<script>
 /* ================= 플레이어 ================= */
 const P={x:0,z:0,y:0,vy:0,rot:0,hp:1,walk:0,moving:false,atkCd:0,sklCd:[0,0,0],rage:0,haste:0,combat:0,dashT:0,atkAnim:0,slow:0,weak:0,shadow:0,dizzy:0,heat:0,dead:false,deadT:0,orbitT:0,orbitTick:0,capProg:0,capRg:-1,bag:null,trial:null,invul:0,hitFlash:0};
 let player=null, weaponMesh=null, orbitMesh=null;
@@ -1933,7 +1961,7 @@ function tickMobs(dt){
 function damageMob(m,dmg,crit){ if(m.titan){ titanHit(m,dmg,crit); return; } if(m.hp<=0) return; dmg=Math.round(dmg); m.hp-=dmg; m.hit=.15; P.combat=4; try{ HITF.knock(m,dmg,crit); }catch(e){} floatDmg(m.x,3.5*m.scale,m.z,"-"+fmt(dmg),crit?"crit":""); fxSpark(m.x,1.8*m.scale,m.z,crit?0xffe08a:0xffffff,crit?16:8); tone(crit?660:440,.06,"square",0,.08);
   if(m.hp<=0){ killMob(m); } }
 function killMob(m){ if(m.war&&typeof warOnKill==="function") warOnKill(m); const st=stat(); G.kills++; G.mk=G.mk||{}; G.mk[m.n]=(G.mk[m.n]||0)+1; const gap=lvGap(m.lv||G.lv); gainXp(Math.round(m.xp*gap)); G.gold+=Math.round(m.gold*(gap<1?.5+gap*.5:1)*((typeof ssWinner==="function"&&ssWinner()===G.realm)?1.1:1)); try{ petOnKill(m); }catch(e){ console.warn(e); } try{ hmOnKill(m); }catch(e){} fxFlash(m.x,2,m.z,0xffe08a,m.boss?6:2.2,.45); fxRing(m.x,m.z,0xffffff,m.boss?10:3);
-  floatDmg(m.x,4,m.z,`+${m.gold} 금화`,"");
+  floatDmg(m.x,4,m.z,`+${m.gold} 금화`,""); if(typeof COINFLY!=="undefined") COINFLY.burst(m.x,1.6*m.scale,m.z,m.boss?8:m.elite?5:3);
   // 드랍
   const rg=REGIONS[m.rg]; const roll=Math.random(); let tier=-1; if(m.boss){ tier=m.world?3:Math.min(3,Math.floor(rg.lv[1]/10)+1); if(Math.random()<.35) tier=Math.min(3,tier+1); } else if(roll<.06){ tier=Math.min(3,Math.floor(rg.lv[0]/8)); if(Math.random()<.15) tier=Math.min(3,tier+1); }
   if(tier>=0){ const s=pick(["w","a","r"]); G.bag.push({s,t:tier}); try{ LOOT.drop(m.x,m.z,tier); }catch(e){} toast(`${RAR[tier].n} 아이템!`,itemName(s,tier),2.2); jingle([659,784,1046]); }
@@ -6179,7 +6207,7 @@ window.__gw={PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoard,showPlay,p
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="30368f3a";
+(function(){ var CUR="7fa53436";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
