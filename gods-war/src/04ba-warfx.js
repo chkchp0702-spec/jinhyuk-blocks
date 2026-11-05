@@ -5,7 +5,7 @@
    - 전투가 시작되는 순간 "⚔ 전투 개시!" 큰 배너 + 뿔나팔·함성 소리 + 화면 흔들림.
    그리기 호출: 깃대 1 + 꼭지 1 + 천 5 + 고리 1. PointLight 없음. 게임 규칙·점수는 그대로(모습만). */
 const WARFX=(function(){
-  const root=new THREE.Group(); root.userData.noOutline=true; root.visible=false; scene.add(root);
+  const root=new THREE.Group(); root.userData.noOutline=true; root.userData.cullR=-1; root.visible=false; scene.add(root);
   const uT={value:0};
   /* 깃대(+금빛 꼭지) 4개를 한 번에 */
   const poleG=new THREE.CylinderGeometry(.09,.12,7,6); poleG.translate(0,3.5,0);
