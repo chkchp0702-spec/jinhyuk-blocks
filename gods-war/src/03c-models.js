@@ -137,13 +137,21 @@ function refreshGL(){ if(!MODELS.animsReady) return;
 /* v34 배터리: 나무·바위·집·성 (KayKit hex 모델 약 350개)을 하나하나 그리던 것(한 화면 300~600번 그리기 호출) →
    같은 모델끼리 100×100 칸마다 InstancedMesh 하나로 묶어 그림(호출 10~40번). 칸은 내 위치·시야에서 먼 것은 숨김(hexTick). */
 const HEXI={list:[],t:0,x:1e9,z:1e9};
+/* v55: 나무가 바람에 살랑살랑 — 꼭대기일수록 크게 휘고 가끔 돌풍(정점 셰이더, 높음 그래픽만, 그리기 호출 그대로) */
+const TSWAY=new Map(); function treeSwayMat(m){ if(!m||Array.isArray(m)) return m; let c=TSWAY.get(m); if(c) return c; c=m.clone(); c.onBeforeCompile=sh=>{ sh.uniforms.uTime=TIME; sh.vertexShader="uniform float uTime;\n"+sh.vertexShader.replace("#include <project_vertex>",`vec4 mvPosition=vec4(transformed,1.0);
+#ifdef USE_INSTANCING
+mvPosition=instanceMatrix*mvPosition;
+{ float _h=max(mvPosition.y-instanceMatrix[3].y,0.); float _ph=instanceMatrix[3].x*.11+instanceMatrix[3].z*.07; float _g=.55+.45*sin(uTime*.37+_ph*.3); float _w=(sin(uTime*1.25+_ph)*.75+sin(uTime*2.7+_ph*1.7)*.25)*_g; float _b=.008*_h*_h; mvPosition.x+=_w*_b+_g*_b*.35; mvPosition.z+=cos(uTime*1.05+_ph*1.3)*_b*.45*_g; }
+#endif
+mvPosition=modelViewMatrix*mvPosition;
+gl_Position=projectionMatrix*mvPosition;`); }; c.customProgramCacheKey=()=>"tsway"; TSWAY.set(m,c); return c; }
 function onHexReady(){ try{ PLACED.forEach(p=>{ if(p.obj){ scene.remove(p.obj); p.obj=null; } }); HEXI.list.forEach(im=>scene.remove(im)); HEXI.list=[];
   const groups={}; const CH=100; const _m=new THREE.Matrix4(), _q=new THREE.Quaternion(), _s=new THREE.Vector3(), _p=new THREE.Vector3(), _e=new THREE.Euler();
   PLACED.forEach(p=>{ const h=hexPick(p); if(!h) return; const src=MODELS.hex[h.name]; if(!src) return; src.updateMatrixWorld(true); const cx=Math.floor(p.x/CH), cz=Math.floor(p.z/CH); let mi=0;
     _p.set(p.x,hAt(p.x,p.z)-.05,p.z); _q.setFromEuler(_e.set(0,p.rot||0,0)); _s.setScalar(h.scale); const root=new THREE.Matrix4().compose(_p,_q,_s);
     src.traverse(o=>{ if(!o.isMesh) return; const key=h.name+"|"+(mi++)+"|"+cx+"|"+cz; let g=groups[key]; if(!g){ g=groups[key]={geo:o.geometry,mat:o.material,mats:[],cx,cz,minx:1e9,maxx:-1e9,minz:1e9,maxz:-1e9,r:0}; } g.mats.push(_m.multiplyMatrices(root,o.matrixWorld).clone());
       const rr=(o.geometry.boundingSphere?o.geometry.boundingSphere.radius:3)*h.scale; g.r=Math.max(g.r,rr); g.minx=Math.min(g.minx,p.x); g.maxx=Math.max(g.maxx,p.x); g.minz=Math.min(g.minz,p.z); g.maxz=Math.max(g.maxz,p.z); }); });
-  for(const k in groups){ const g=groups[k]; const im=new THREE.InstancedMesh(g.geo,g.mat,g.mats.length); g.mats.forEach((m,i)=>im.setMatrixAt(i,m)); im.instanceMatrix.needsUpdate=true; im.castShadow=HIGH(); im.receiveShadow=HIGH()&&!ECO(); im.frustumCulled=false; im.userData.noOutline=true; im.userData.cullR=-1;
+  for(const k in groups){ const g=groups[k]; const im=new THREE.InstancedMesh(g.geo,(HIGH()&&/^trees?_/.test(k))?treeSwayMat(g.mat):g.mat,g.mats.length); g.mats.forEach((m,i)=>im.setMatrixAt(i,m)); im.instanceMatrix.needsUpdate=true; im.castShadow=HIGH(); im.receiveShadow=HIGH()&&!ECO(); im.frustumCulled=false; im.userData.noOutline=true; im.userData.cullR=-1;
     im.userData.hx={minx:g.minx-g.r,maxx:g.maxx+g.r,minz:g.minz-g.r,maxz:g.maxz+g.r}; scene.add(im); HEXI.list.push(im); } HEXI.x=1e9; hexTick(1); }catch(e){ console.warn(e); } }
 function hexTick(dt){ HEXI.t-=dt; if(HEXI.t>0||!HEXI.list.length) return; HEXI.t=.3; if(Math.hypot(P.x-HEXI.x,P.z-HEXI.z)<4&&HEXI.zoom===ZOOM) return; HEXI.x=P.x; HEXI.z=P.z; HEXI.zoom=ZOOM;
   const far=170*Math.max(1,ZOOM*.85)+20, back=P.z+16+14*ZOOM;
