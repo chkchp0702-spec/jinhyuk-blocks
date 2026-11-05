@@ -82,16 +82,19 @@ button{font:inherit;-webkit-tap-highlight-color:transparent}
 .br{right:10px;bottom:max(12px,env(safe-area-inset-bottom));flex-direction:column;align-items:flex-end;pointer-events:auto}
 .mbtn{border:0;cursor:pointer;color:#fff;font-size:15px;border-radius:14px;padding:9px 12px;min-width:60px;background:rgba(20,14,40,.75);border:2px solid rgba(255,255,255,.22);backdrop-filter:blur(6px)}
 .mbtn:active{transform:translateY(2px)}
-.acts{position:fixed;right:12px;bottom:calc(max(12px,env(safe-area-inset-bottom)) + 60px);z-index:5;display:grid;grid-template-columns:64px 64px 84px;grid-template-rows:64px 84px;gap:8px;align-items:end;justify-items:end;pointer-events:auto}
+.acts{position:fixed;right:12px;bottom:calc(max(12px,env(safe-area-inset-bottom)) + 60px);z-index:5;display:grid;grid-template-columns:64px 64px 84px;grid-template-rows:60px 60px 84px;gap:7px;align-items:end;justify-items:end;pointer-events:auto}
 .act{width:64px;height:64px;border-radius:50%;border:3px solid rgba(255,255,255,.5);color:#fff;font-size:14px;line-height:1.05;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;box-shadow:0 5px 0 rgba(0,0,0,.4);cursor:pointer;touch-action:none}
 .act:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.4)}
-.act.atk{background:radial-gradient(circle at 35% 30%,#ff9a7a,#d82f3c 70%);grid-column:3;grid-row:2;width:84px;height:84px;font-size:17px}
+.act.atk{background:radial-gradient(circle at 35% 30%,#ff9a7a,#d82f3c 70%);grid-column:3;grid-row:3;width:84px;height:84px;font-size:17px}
 .act.thr{position:absolute;left:-64px;bottom:8px;background:radial-gradient(circle at 35% 30%,#ffe2a8,#e08a1e 70%);color:#2a1606;font-size:11px;padding:0 3px;white-space:normal;word-break:keep-all;line-height:1;text-shadow:0 1px 0 rgba(255,255,255,.4)}
 .act.lock{filter:grayscale(1) brightness(.6)} .act.lock small{font-size:9px}
 .act.skl{background:radial-gradient(circle at 35% 30%,var(--c2),var(--c1) 70%);color:#1b1430;text-shadow:0 1px 0 rgba(255,255,255,.4);font-size:11px;padding:0 3px;white-space:normal;word-break:keep-all;line-height:1}
-.act.pot{background:radial-gradient(circle at 35% 30%,#9dffb8,#1f9f58 70%);grid-column:2;grid-row:2}
-.act.jmp{background:radial-gradient(circle at 35% 30%,#bcd6ff,#3a5bd6 70%);grid-column:1;grid-row:2}
-.act.skl{grid-row:1}
+.act.pot{background:radial-gradient(circle at 35% 30%,#9dffb8,#1f9f58 70%);grid-column:2;grid-row:3}
+.act.jmp{background:radial-gradient(circle at 35% 30%,#bcd6ff,#3a5bd6 70%);grid-column:1;grid-row:3}
+.act.skl{width:60px;height:60px;justify-self:center}
+#bSkill0{grid-row:2;grid-column:1} #bSkill1{grid-row:2;grid-column:2} #bSkill2{grid-row:2;grid-column:3}
+#bSkill3{grid-row:1;grid-column:1} #bSkill4{grid-row:1;grid-column:2} #bSkill5{grid-row:1;grid-column:3}
+.act.skl .kn{position:absolute;top:-3px;left:-3px;width:17px;height:17px;border-radius:50%;background:rgba(20,12,4,.85);color:#ffe9a8;font-size:10px;line-height:17px;text-align:center;z-index:4;pointer-events:none;text-shadow:none}
 .act .cd{position:absolute;inset:-3px;border-radius:50%;background:conic-gradient(rgba(0,0,0,.65) var(--p,0%),transparent 0);pointer-events:none}
 .act small{font-size:11px;opacity:.9}
 #joy{position:fixed;width:124px;height:124px;margin:-62px 0 0 -62px;border-radius:50%;background:rgba(20,14,40,.28);border:3px solid rgba(255,255,255,.55);z-index:4;pointer-events:none;box-shadow:0 0 0 2px rgba(0,0,0,.25),inset 0 0 18px rgba(255,255,255,.08);transition:opacity .2s}
@@ -181,7 +184,7 @@ body:has(#title) #joy{display:none}
 .chatlog{max-height:200px;overflow:auto;background:rgba(0,0,0,.3);border-radius:12px;padding:8px 10px;font-size:14px;display:flex;flex-direction:column;gap:4px;text-align:left} .chatlog b{font-weight:400}
 .chatin{display:flex;gap:6px;align-items:center}
 .lbl .bub{position:relative}
-@media (max-height:640px){ #zoomBtns{top:calc(max(8px,env(safe-area-inset-top)) + 188px)} .act{width:56px;height:56px} .act.atk{width:72px;height:72px;font-size:15px} .acts{grid-template-columns:56px 56px 72px;grid-template-rows:56px 72px} #minimap{width:136px;height:136px} }
+@media (max-height:640px){ #zoomBtns{top:calc(max(8px,env(safe-area-inset-top)) + 188px)} .act{width:56px;height:56px} .act.atk{width:72px;height:72px;font-size:15px} .acts{grid-template-columns:54px 54px 72px;grid-template-rows:50px 50px 72px;gap:6px} .act.skl{width:50px;height:50px;font-size:10px} #minimap{width:136px;height:136px} }
 
 /* v15.1 가로 화면 · 선명한 글씨 */
 html,body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
@@ -411,9 +414,12 @@ body.eco .lbl .hp.low i,body.eco #bossbar .bar.hp.low i{animation:none}
 <div id="chat"></div>
 
 <div class="acts">
-  <button class="act skl" id="bSkill0" type="button"><span id="sklNm0">기술</span><small id="sklCd0"></small><i class="cd" id="sklCdV0"></i></button>
-  <button class="act skl" id="bSkill1" type="button"><span id="sklNm1">기술</span><small id="sklCd1"></small><i class="cd" id="sklCdV1"></i></button>
-  <button class="act skl" id="bSkill2" type="button"><span id="sklNm2">기술</span><small id="sklCd2"></small><i class="cd" id="sklCdV2"></i></button>
+  <button class="act skl" id="bSkill0" type="button"><b class="kn">1</b><span id="sklNm0">기술</span><small id="sklCd0"></small><i class="cd" id="sklCdV0"></i></button>
+  <button class="act skl" id="bSkill1" type="button"><b class="kn">2</b><span id="sklNm1">기술</span><small id="sklCd1"></small><i class="cd" id="sklCdV1"></i></button>
+  <button class="act skl" id="bSkill2" type="button"><b class="kn">3</b><span id="sklNm2">기술</span><small id="sklCd2"></small><i class="cd" id="sklCdV2"></i></button>
+  <button class="act skl" id="bSkill3" type="button"><b class="kn">4</b><span id="sklNm3">기술</span><small id="sklCd3"></small><i class="cd" id="sklCdV3"></i></button>
+  <button class="act skl" id="bSkill4" type="button"><b class="kn">5</b><span id="sklNm4">기술</span><small id="sklCd4"></small><i class="cd" id="sklCdV4"></i></button>
+  <button class="act skl" id="bSkill5" type="button"><b class="kn">6</b><span id="sklNm5">기술</span><small id="sklCd5"></small><i class="cd" id="sklCdV5"></i></button>
   <button class="act pot" id="bPot" type="button">물약<small id="potN">0</small></button>
   <button class="act jmp" id="bJump" type="button">점프</button>
   <button class="act atk" id="bAtk" type="button">공격</button>
@@ -435,7 +441,7 @@ body.eco .lbl .hp.low i,body.eco #bossbar .bar.hp.low i{animation:none}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v51";
+const VER="v52";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -4311,11 +4317,12 @@ const SK_NEW=[
    {n:"제우스의 심판",desc:"궁극기: 하늘 번개가 떨어져 큰 폭발 + 모두 2초 멈춤",type:"ult",r:16,mult:6.5,stun:2,cd:30,color:0xaee8ff,rank:6} ] ];
 REALMS.forEach((R,r)=>{ if(R.skills.length<9) SK_NEW[r].forEach(S=>R.skills.push(S)); });
 P.sklCd=new Array(9).fill(0);
-function skSlots(){ if(!Array.isArray(G.sk)||G.sk.length!==3) G.sk=[0,1,2]; return G.sk; }
+const SKN=6; /* v52: 화면 기술 버튼 6칸 */
+function skSlots(){ if(!Array.isArray(G.sk)) G.sk=[0,1,2]; if(G.sk.length!==SKN){ const a=G.sk.slice(0,SKN); for(let k=0;a.length<SKN&&k<9;k++) if(a.indexOf(k)<0) a.push(k); G.sk=a; } return G.sk; }
 function skSlot(i){ const s=skSlots()[i]; return (RM().skills[s]?s:i); }
 function skCan(si){ const S=RM().skills[si]; return !!S&&G.rank>=S.rank; }
 function skIcon(S){ return {aoe:"💥",line:"➖",orbit:"🌀",bolt:"⚡",heal:"💚",rage:"🔥",dash:"💨",multi:"🏹",shield:"🛡",team:"🤝",meteor:"☄️",pull:"🌪",freeze:"❄️",summon:"🐺",ult:"🌟"}[S.type]||"✨"; }
-function skNames(){ const R=RM(); for(let i=0;i<3;i++){ const el=$("sklNm"+i); if(el) el.textContent=(R.skills[skSlot(i)]||{}).n||"기술"; } try{ for(let i=0;i<3;i++){ HUDM["lk"+i]=null; HUDM["co"+i]=null; HUDM["cv"+i]=null; } }catch(e){} }
+function skNames(){ const R=RM(); for(let i=0;i<SKN;i++){ const el=$("sklNm"+i); if(el) el.textContent=(R.skills[skSlot(i)]||{}).n||"기술"; } try{ for(let i=0;i<SKN;i++){ HUDM["lk"+i]=null; HUDM["co"+i]=null; HUDM["cv"+i]=null; } }catch(e){} }
 /* ---------- 새 기술 쓰기 ---------- */
 const SKX={multi:1,shield:1,team:1,meteor:1,pull:1,freeze:1,summon:1,ult:1};
 const SKS={sum:[],bub:null};
@@ -4364,19 +4371,19 @@ NETR.tb=(o,d)=>{ if(!d.to||d.to.indexOf(G.id)<0||P.dead) return; const st=stat()
 /* ---------- 새 기술 배우면 알려 주고, 잠긴 칸에 자동으로 끼움 ---------- */
 const SKL={t:0};
 function skLearnTick(dt){ if(!started||G.realm<0) return; SKL.t-=dt; if(SKL.t>0) return; SKL.t=1; const R=RM(); const sl=skSlots(); let ch=false;
-  for(let i=0;i<3;i++){ if(!skCan(sl[i])){ const free=R.skills.map((S,k)=>k).filter(k=>skCan(k)&&sl.indexOf(k)<0); if(free.length){ sl[i]=free[0]; ch=true; } } }
+  for(let i=0;i<SKN;i++){ if(!skCan(sl[i])){ const free=R.skills.map((S,k)=>k).filter(k=>skCan(k)&&sl.indexOf(k)<0); if(free.length){ sl[i]=free[0]; ch=true; } } }
   G.skSeen=G.skSeen||0; const n=R.skills.filter(S=>G.rank>=S.rank).length; if(n>G.skSeen){ const first=G.skSeen===0; let fresh=R.skills.filter(S=>G.rank>=S.rank).slice(G.skSeen); if(first) fresh=fresh.filter(S=>R.skills.indexOf(S)>=3); G.skSeen=n; ch=true; if(fresh.length) setTimeout(()=>{ if(!layerOpen) toast(`✨ 새 기술 ${fresh.length}개를 배웠어요!`,`${fresh.map(S=>S.n).join(" · ")} — 📖 기술 책에서 칸에 끼워요`,3.4); },1200); }
   if(ch){ skNames(); saveGame(); } }
 XTICK.push(skLearnTick);
 /* ---------- 📖 기술 책 ---------- */
 let SKPICK=-1;
 function showSkills(){ const R=RM(), sl=skSlots();
-  const slotHtml=[0,1,2].map(i=>{ const S=R.skills[sl[i]]; return `<button class="skslot${SKPICK===i?" on":""}" data-sl="${i}"><b>${i+1}번 칸</b><span>${skIcon(S)} ${S.n}</span></button>`; }).join("");
+  const slotHtml=[0,1,2,3,4,5].map(i=>{ const S=R.skills[sl[i]]; return `<button class="skslot${SKPICK===i?" on":""}" data-sl="${i}"><b>${i+1}번 칸</b><span>${skIcon(S)} ${S.n}</span></button>`; }).join("");
   const rows=R.skills.map((S,k)=>{ const can=skCan(k), at=sl.indexOf(k); return `<div class="row"${can?"":' style="opacity:.6"'}><div class="ic">${can?skIcon(S):"🔒"}</div><div class="t"><div>${S.n}${at>=0?` <i class="st on">${at+1}번 칸</i>`:""}${k>=3?' <small style="color:#9dffb8">새 기술</small>':""}</div><span>${S.desc} · ${S.cd}초${can?"":` · ${R.ranks[S.rank]}부터`}</span></div>${can?(at>=0?"":`<button class="buy" data-k="${k}">${SKPICK>=0?(SKPICK+1)+"번 칸에":"끼우기"}</button>`):""}</div>`; }).join("");
-  card(`<h2>📖 ${R.n}의 기술 책</h2><p>기술이 <b>${R.skills.length}개</b> 있어요. 화면의 기술 버튼 <b>3칸</b>에 배운 기술 중 마음에 드는 것을 골라 끼워요. 칸을 먼저 누르고 기술의 「끼우기」를 누르면 그 칸에 들어가요. 쿨타임은 기술마다 따로라서 바꿔 끼워도 그대로예요.</p>
+  card(`<h2>📖 ${R.n}의 기술 책</h2><p>기술이 <b>${R.skills.length}개</b> 있어요. 화면의 기술 버튼 <b>6칸</b>에 배운 기술 중 마음에 드는 것을 골라 끼워요(버튼 왼쪽 위 숫자가 칸 번호). 칸을 먼저 누르고 기술의 「끼우기」를 누르면 그 칸에 들어가요. 쿨타임은 기술마다 따로라서 바꿔 끼워도 그대로예요.</p>
    <div class="skslots">${slotHtml}</div>${rows}<p style="font-size:12px">승급할수록 새 기술이 열려요. 🤝 기술은 근처 친구도 함께 회복시켜 줘요.</p>`);
   layers.querySelectorAll("[data-sl]").forEach(b=>b.onclick=()=>{ SKPICK=SKPICK===+b.dataset.sl?-1:+b.dataset.sl; showSkills(); });
-  layers.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>{ const k=+b.dataset.k; let i=SKPICK; if(i<0){ i=sl.findIndex(x=>!skCan(x)); if(i<0) i=2; } sl[i]=k; SKPICK=-1; skNames(); saveGame(); tone(880,.06); toast(`${i+1}번 칸: ${R.skills[k].n}`,null,1.2); showSkills(); }); }
+  layers.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>{ const k=+b.dataset.k; let i=SKPICK; if(i<0){ i=sl.findIndex(x=>!skCan(x)); if(i<0) i=SKN-1; } sl[i]=k; SKPICK=-1; skNames(); saveGame(); tone(880,.06); toast(`${i+1}번 칸: ${R.skills[k].n}`,null,1.2); showSkills(); }); }
 setTimeout(()=>{ const z=$("zoomBtns"); if(!z) return; const b=document.createElement("button"); b.id="bSkBook"; b.type="button"; b.textContent="📖"; b.style.fontSize="17px"; b.addEventListener("pointerdown",e=>e.stopPropagation()); b.onclick=e=>{ e.stopPropagation(); if(started&&!layerOpen) showSkills(); }; z.appendChild(b); },0);
 TITLES.push({id:"sk9",n:"기술의 달인",t:2,h:"기술 9개를 모두 배우기",g:()=>[RM().skills.filter(S=>G.rank>=S.rank).length,9]},{id:"sk500",n:"기술 폭풍",t:1,h:"기술 500번 쓰기",g:()=>[G.sklN||0,500]});
 </script>
@@ -4385,6 +4392,11 @@ TITLES.push({id:"sk9",n:"기술의 달인",t:2,h:"기술 9개를 모두 배우�
    새 버전으로 처음 켜면 한 번, 무엇이 바뀌었는지 쉬운 말로 보여 줌(G.seenVer). 메뉴 → 업데이트 소식에서 다시 볼 수 있음.
    ※ 버전을 올릴 때마다 맨 앞에 한 줄 묶음을 더해요(오래된 것은 8개까지만 남김). */
 const PATCH_NOTES=[
+ {v:"v52",d:"11/5",t:"✨ 기술 버튼 6칸",items:[
+   "화면 오른쪽 아래 기술 버튼이 3칸 → 6칸이 됐어요! 배운 기술을 한 번에 6개까지 바로 쓸 수 있어요.",
+   "버튼 왼쪽 위 작은 숫자가 칸 번호예요. 📖 기술 책에서 칸을 누르고 원하는 기술을 「끼우기」하면 바뀌어요.",
+   "예전에 끼워 둔 3칸은 그대로 두고, 남은 3칸에는 배운 기술이 저절로 들어가요.",
+   "키보드: K · U · I (1~3번 칸) · Y · H · N (4~6번 칸)."]},
  {v:"v51",d:"11/5",t:"⚔ 전쟁이 달라졌어요 — 전술 · 전투 종류",items:[
    "전쟁마다 종류가 달라요: ⚔ 정면 대결 · 🏰 공성전(나무 성벽·성문·망루 vs 공성추) · 🚩 깃발 쟁탈전 · 🌫 안개 속 매복전.",
    "공격대가 분대마다 작전을 바꿔요: 양옆 포위 · 궁수 일제 사격 후 전진 · 방패 진형 · 거짓 후퇴 + 숨은 기병 · 기병 측면 돌파. 화면에 「적의 작전」이 떠요.",
@@ -4999,14 +5011,14 @@ function setSound(on){ soundOn=!!on; save("gw-sound",soundOn?"1":"0"); try{ if(s
 (function(){ const z=$("zoomBtns"); if(!z) return; const b=document.createElement("button"); b.id="bSnd"; b.type="button"; b.textContent=soundOn?"🔊":"🔇"; b.style.fontSize="17px"; b.setAttribute("aria-label","소리 끄기·켜기"); b.addEventListener("pointerdown",e=>e.stopPropagation()); b.onclick=e=>{ e.stopPropagation(); setSound(!soundOn); }; z.appendChild(b); const d=document.createElement("button"); d.id="bDg"; d.type="button"; d.textContent="🌀 미궁"; d.style.cssText="width:auto;padding:0 11px;border-radius:18px;font-size:14px;white-space:nowrap;border-color:rgba(180,150,255,.7)"; d.addEventListener("pointerdown",e=>e.stopPropagation()); d.onclick=e=>{ e.stopPropagation(); if(started&&!layerOpen) showDungeon(); }; z.appendChild(d); })();
 $("zIn").onclick=()=>setZoom(ZOOM*.8); $("zOut").onclick=()=>setZoom(ZOOM*1.25); fitShadow();
 addEventListener("pointerup",endJoy); addEventListener("pointercancel",endJoy);
-const keys={}; addEventListener("keydown",e=>{ keys[e.key.toLowerCase()]=1; if(e.key===" ") jump(); if(e.key.toLowerCase()==="j") attack(); if(e.key.toLowerCase()==="k") useSkill(0); if(e.key.toLowerCase()==="u") useSkill(1); if(e.key.toLowerCase()==="i") useSkill(2); if(e.key.toLowerCase()==="l") usePotion(); if(e.key.toLowerCase()==="o") throwWeapon(); }); addEventListener("keyup",e=>{ keys[e.key.toLowerCase()]=0; });
+const keys={}; addEventListener("keydown",e=>{ keys[e.key.toLowerCase()]=1; if(e.key===" ") jump(); if(e.key.toLowerCase()==="j") attack(); if(e.key.toLowerCase()==="k") useSkill(0); if(e.key.toLowerCase()==="u") useSkill(1); if(e.key.toLowerCase()==="i") useSkill(2); if(e.key.toLowerCase()==="y") useSkill(3); if(e.key.toLowerCase()==="h") useSkill(4); if(e.key.toLowerCase()==="n") useSkill(5); if(e.key.toLowerCase()==="l") usePotion(); if(e.key.toLowerCase()==="o") throwWeapon(); }); addEventListener("keyup",e=>{ keys[e.key.toLowerCase()]=0; });
 /* v15.1 점프: 더 높이(약 3m) + 공중에서 한 번 더(2단 점프). 공중 높이 0.8 넘으면 괴물·병사·화살·발구르기 공격을 피함(hurtPlayer) */
 function jump(){ if(P.dead||layerOpen) return; if(P.y<=0.01){ P.vy=13; P.air=1; tone(300,.08,"triangle"); if(player&&player.userData.gl) animState(player,"jump"); fxSpark(P.x,.3,P.z,0xffffff,8); }
   else if(P.air===1){ P.air=2; P.vy=Math.max(P.vy,11); P.twirl=.45; tone(520,.08,"triangle"); tone(780,.06,"triangle",.04); fxRing(P.x,P.z,RM().c1,3,.35); if(player&&player.userData.gl) animState(player,"jump"); } }
 /* v39 눌림 반짝: 버튼 누르면 그 자리에서 금빛 고리가 퍼짐(DOM 하나, 0.32초 뒤 지움, 동시 최대 4개) */
 document.addEventListener("pointerdown",e=>{ const b=e.target&&e.target.closest&&e.target.closest(".act,.mbtn,#zoomBtns button,.go,.buy"); if(!b||b.classList.contains("lock")) return; if(document.querySelectorAll(".prfx").length>=4) return; const r=b.getBoundingClientRect(); const f=document.createElement("i"); f.className="prfx"; f.style.left=(r.left+r.width/2)+"px"; f.style.top=(r.top+r.height/2)+"px"; const sz=Math.min(1.6,Math.max(.7,r.width/60)); f.style.width=f.style.height=Math.round(16*sz)+"px"; f.style.margin=(-8*sz)+"px 0 0 "+(-8*sz)+"px"; document.body.appendChild(f); setTimeout(()=>f.remove(),340); },{capture:true,passive:true});
 const hold=(el,fn,rep)=>{ let t=null; el.addEventListener("pointerdown",e=>{ e.preventDefault(); initAudio(); fn(); if(rep){ clearInterval(t); t=setInterval(fn,rep); } }); const stop=()=>{ clearInterval(t); t=null; }; el.addEventListener("pointerup",stop); el.addEventListener("pointercancel",stop); el.addEventListener("pointerleave",stop); };
-hold($("bAtk"),attack,120); hold($("bSkill0"),()=>useSkill(0)); hold($("bSkill1"),()=>useSkill(1)); hold($("bSkill2"),()=>useSkill(2)); hold($("bPot"),usePotion); hold($("bJump"),jump); hold($("bThrow"),throwWeapon);
+hold($("bAtk"),attack,120); hold($("bSkill0"),()=>useSkill(0)); hold($("bSkill1"),()=>useSkill(1)); hold($("bSkill2"),()=>useSkill(2)); hold($("bSkill3"),()=>useSkill(3)); hold($("bSkill4"),()=>useSkill(4)); hold($("bSkill5"),()=>useSkill(5)); hold($("bPot"),usePotion); hold($("bJump"),jump); hold($("bThrow"),throwWeapon);
 $("bBag").onclick=()=>showBag(); $("bQuest").onclick=()=>showQuests(); $("bMap").onclick=()=>showMap(); $("bSay").onclick=()=>showSay(); $("bMenu").onclick=()=>showMenu(); $("minimap").onclick=()=>showMap();
 
 /* ================= HUD ================= */
@@ -5014,7 +5026,7 @@ $("bBag").onclick=()=>showBag(); $("bQuest").onclick=()=>showQuests(); $("bMap")
 const HUDM={}; function hT(id,v){ if(HUDM[id]===v) return; HUDM[id]=v; $(id).textContent=v; } function hW(id,v){ v=Math.round(v*2)/2+"%"; if(HUDM[id]===v) return; HUDM[id]=v; $(id).style.width=v; }
 let hudT=0;
 function hud(){ hudT-=1; if(hudT>0) return; hudT=ECO()?3:1; const st=stat(); hT("pname",(G.hero!=null&&typeof TB!=="undefined"&&G.hero>=TB.w-1?"🏅 ":"")+(G.name||"-")); hT("prank",RM().ranks[G.rank]); hW("hpBar",clamp(P.hp/st.mhp*100,0,100)); hT("hpTxt",`${fmt(P.hp)} / ${fmt(st.mhp)}`); hW("xpBar",clamp(G.xp/xpNeed(G.lv)*100,0,100)); hT("plv",String(G.lv)); hT("pgold",fmt(G.gold)); hT("pwar",G.war?`⚔ ${G.war}`:""); hT("potN",String(G.pots));
-  [0,1,2].forEach(i=>{ const si=skSlot(i), S=RM().skills[si]; const lock=G.rank<S.rank; const b=$("bSkill"+i); if(HUDM["lk"+i]!==lock){ HUDM["lk"+i]=lock; b.classList.toggle("lock",lock); } hT("sklCd"+i,lock?`${RM().ranks[S.rank]}`:(P.sklCd[si]>0?Math.ceil(P.sklCd[si])+"초":"")); const cool=!lock&&P.sklCd[si]>0; if(HUDM["co"+i]!==cool){ const was=HUDM["co"+i]; HUDM["co"+i]=cool; b.classList.toggle("cool",cool); if(was&&!cool) sklReady(b,i); } const pv=P.sklCd[si]>0?Math.round(P.sklCd[si]/S.cd*100)+"%":"0%"; if(HUDM["cv"+i]!==pv){ HUDM["cv"+i]=pv; $("sklCdV"+i).style.setProperty("--p",pv); } }); throwHud(); }
+  [0,1,2,3,4,5].forEach(i=>{ const si=skSlot(i), S=RM().skills[si]; const lock=G.rank<S.rank; const b=$("bSkill"+i); if(HUDM["lk"+i]!==lock){ HUDM["lk"+i]=lock; b.classList.toggle("lock",lock); } hT("sklCd"+i,lock?`${RM().ranks[S.rank]}`:(P.sklCd[si]>0?Math.ceil(P.sklCd[si])+"초":"")); const cool=!lock&&P.sklCd[si]>0; if(HUDM["co"+i]!==cool){ const was=HUDM["co"+i]; HUDM["co"+i]=cool; b.classList.toggle("cool",cool); if(was&&!cool) sklReady(b,i); } const pv=P.sklCd[si]>0?Math.round(P.sklCd[si]/S.cd*100)+"%":"0%"; if(HUDM["cv"+i]!==pv){ HUDM["cv"+i]=pv; $("sklCdV"+i).style.setProperty("--p",pv); } }); throwHud(); }
 
 /* ================= 화면(창) ================= */
 const layers=$("layers"); let layerOpen=false;
@@ -5193,7 +5205,7 @@ window.__gw={PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoard,showPlay,p
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="efc06c28";
+(function(){ var CUR="b4c80250";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);

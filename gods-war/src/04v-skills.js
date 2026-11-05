@@ -32,11 +32,12 @@ const SK_NEW=[
    {n:"제우스의 심판",desc:"궁극기: 하늘 번개가 떨어져 큰 폭발 + 모두 2초 멈춤",type:"ult",r:16,mult:6.5,stun:2,cd:30,color:0xaee8ff,rank:6} ] ];
 REALMS.forEach((R,r)=>{ if(R.skills.length<9) SK_NEW[r].forEach(S=>R.skills.push(S)); });
 P.sklCd=new Array(9).fill(0);
-function skSlots(){ if(!Array.isArray(G.sk)||G.sk.length!==3) G.sk=[0,1,2]; return G.sk; }
+const SKN=6; /* v52: 화면 기술 버튼 6칸 */
+function skSlots(){ if(!Array.isArray(G.sk)) G.sk=[0,1,2]; if(G.sk.length!==SKN){ const a=G.sk.slice(0,SKN); for(let k=0;a.length<SKN&&k<9;k++) if(a.indexOf(k)<0) a.push(k); G.sk=a; } return G.sk; }
 function skSlot(i){ const s=skSlots()[i]; return (RM().skills[s]?s:i); }
 function skCan(si){ const S=RM().skills[si]; return !!S&&G.rank>=S.rank; }
 function skIcon(S){ return {aoe:"💥",line:"➖",orbit:"🌀",bolt:"⚡",heal:"💚",rage:"🔥",dash:"💨",multi:"🏹",shield:"🛡",team:"🤝",meteor:"☄️",pull:"🌪",freeze:"❄️",summon:"🐺",ult:"🌟"}[S.type]||"✨"; }
-function skNames(){ const R=RM(); for(let i=0;i<3;i++){ const el=$("sklNm"+i); if(el) el.textContent=(R.skills[skSlot(i)]||{}).n||"기술"; } try{ for(let i=0;i<3;i++){ HUDM["lk"+i]=null; HUDM["co"+i]=null; HUDM["cv"+i]=null; } }catch(e){} }
+function skNames(){ const R=RM(); for(let i=0;i<SKN;i++){ const el=$("sklNm"+i); if(el) el.textContent=(R.skills[skSlot(i)]||{}).n||"기술"; } try{ for(let i=0;i<SKN;i++){ HUDM["lk"+i]=null; HUDM["co"+i]=null; HUDM["cv"+i]=null; } }catch(e){} }
 /* ---------- 새 기술 쓰기 ---------- */
 const SKX={multi:1,shield:1,team:1,meteor:1,pull:1,freeze:1,summon:1,ult:1};
 const SKS={sum:[],bub:null};
@@ -85,19 +86,19 @@ NETR.tb=(o,d)=>{ if(!d.to||d.to.indexOf(G.id)<0||P.dead) return; const st=stat()
 /* ---------- 새 기술 배우면 알려 주고, 잠긴 칸에 자동으로 끼움 ---------- */
 const SKL={t:0};
 function skLearnTick(dt){ if(!started||G.realm<0) return; SKL.t-=dt; if(SKL.t>0) return; SKL.t=1; const R=RM(); const sl=skSlots(); let ch=false;
-  for(let i=0;i<3;i++){ if(!skCan(sl[i])){ const free=R.skills.map((S,k)=>k).filter(k=>skCan(k)&&sl.indexOf(k)<0); if(free.length){ sl[i]=free[0]; ch=true; } } }
+  for(let i=0;i<SKN;i++){ if(!skCan(sl[i])){ const free=R.skills.map((S,k)=>k).filter(k=>skCan(k)&&sl.indexOf(k)<0); if(free.length){ sl[i]=free[0]; ch=true; } } }
   G.skSeen=G.skSeen||0; const n=R.skills.filter(S=>G.rank>=S.rank).length; if(n>G.skSeen){ const first=G.skSeen===0; let fresh=R.skills.filter(S=>G.rank>=S.rank).slice(G.skSeen); if(first) fresh=fresh.filter(S=>R.skills.indexOf(S)>=3); G.skSeen=n; ch=true; if(fresh.length) setTimeout(()=>{ if(!layerOpen) toast(`✨ 새 기술 ${fresh.length}개를 배웠어요!`,`${fresh.map(S=>S.n).join(" · ")} — 📖 기술 책에서 칸에 끼워요`,3.4); },1200); }
   if(ch){ skNames(); saveGame(); } }
 XTICK.push(skLearnTick);
 /* ---------- 📖 기술 책 ---------- */
 let SKPICK=-1;
 function showSkills(){ const R=RM(), sl=skSlots();
-  const slotHtml=[0,1,2].map(i=>{ const S=R.skills[sl[i]]; return `<button class="skslot${SKPICK===i?" on":""}" data-sl="${i}"><b>${i+1}번 칸</b><span>${skIcon(S)} ${S.n}</span></button>`; }).join("");
+  const slotHtml=[0,1,2,3,4,5].map(i=>{ const S=R.skills[sl[i]]; return `<button class="skslot${SKPICK===i?" on":""}" data-sl="${i}"><b>${i+1}번 칸</b><span>${skIcon(S)} ${S.n}</span></button>`; }).join("");
   const rows=R.skills.map((S,k)=>{ const can=skCan(k), at=sl.indexOf(k); return `<div class="row"${can?"":' style="opacity:.6"'}><div class="ic">${can?skIcon(S):"🔒"}</div><div class="t"><div>${S.n}${at>=0?` <i class="st on">${at+1}번 칸</i>`:""}${k>=3?' <small style="color:#9dffb8">새 기술</small>':""}</div><span>${S.desc} · ${S.cd}초${can?"":` · ${R.ranks[S.rank]}부터`}</span></div>${can?(at>=0?"":`<button class="buy" data-k="${k}">${SKPICK>=0?(SKPICK+1)+"번 칸에":"끼우기"}</button>`):""}</div>`; }).join("");
-  card(`<h2>📖 ${R.n}의 기술 책</h2><p>기술이 <b>${R.skills.length}개</b> 있어요. 화면의 기술 버튼 <b>3칸</b>에 배운 기술 중 마음에 드는 것을 골라 끼워요. 칸을 먼저 누르고 기술의 「끼우기」를 누르면 그 칸에 들어가요. 쿨타임은 기술마다 따로라서 바꿔 끼워도 그대로예요.</p>
+  card(`<h2>📖 ${R.n}의 기술 책</h2><p>기술이 <b>${R.skills.length}개</b> 있어요. 화면의 기술 버튼 <b>6칸</b>에 배운 기술 중 마음에 드는 것을 골라 끼워요(버튼 왼쪽 위 숫자가 칸 번호). 칸을 먼저 누르고 기술의 「끼우기」를 누르면 그 칸에 들어가요. 쿨타임은 기술마다 따로라서 바꿔 끼워도 그대로예요.</p>
    <div class="skslots">${slotHtml}</div>${rows}<p style="font-size:12px">승급할수록 새 기술이 열려요. 🤝 기술은 근처 친구도 함께 회복시켜 줘요.</p>`);
   layers.querySelectorAll("[data-sl]").forEach(b=>b.onclick=()=>{ SKPICK=SKPICK===+b.dataset.sl?-1:+b.dataset.sl; showSkills(); });
-  layers.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>{ const k=+b.dataset.k; let i=SKPICK; if(i<0){ i=sl.findIndex(x=>!skCan(x)); if(i<0) i=2; } sl[i]=k; SKPICK=-1; skNames(); saveGame(); tone(880,.06); toast(`${i+1}번 칸: ${R.skills[k].n}`,null,1.2); showSkills(); }); }
+  layers.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>{ const k=+b.dataset.k; let i=SKPICK; if(i<0){ i=sl.findIndex(x=>!skCan(x)); if(i<0) i=SKN-1; } sl[i]=k; SKPICK=-1; skNames(); saveGame(); tone(880,.06); toast(`${i+1}번 칸: ${R.skills[k].n}`,null,1.2); showSkills(); }); }
 setTimeout(()=>{ const z=$("zoomBtns"); if(!z) return; const b=document.createElement("button"); b.id="bSkBook"; b.type="button"; b.textContent="📖"; b.style.fontSize="17px"; b.addEventListener("pointerdown",e=>e.stopPropagation()); b.onclick=e=>{ e.stopPropagation(); if(started&&!layerOpen) showSkills(); }; z.appendChild(b); },0);
 TITLES.push({id:"sk9",n:"기술의 달인",t:2,h:"기술 9개를 모두 배우기",g:()=>[RM().skills.filter(S=>G.rank>=S.rank).length,9]},{id:"sk500",n:"기술 폭풍",t:1,h:"기술 500번 쓰기",g:()=>[G.sklN||0,500]});
 </script>
