@@ -107,7 +107,7 @@ function pkTick(dt){ if(!started||G.realm<0) return; const tn=performance.now();
   for(let i=PK.list.length-1;i>=0;i--){ const p=PK.list[i]; p.t-=dt; const d=Math.hypot(P.x-p.x,P.z-p.z);
     if(p.t<=0||d>90||!evOver()){ scene.remove(p.g); p.lbl.remove(); PK.list.splice(i,1); continue; }
     const y=hAt(p.x,p.z); p.o.position.y=.9+Math.sin(tn/280+p.x)*.18; p.ring.position.y=.12; p.ring.scale.setScalar(1+Math.sin(tn/300)*.15); p.g.position.y=y; if(d<40) placeLabel(p.lbl,p.x,2.1,p.z,"✨"); else p.lbl.style.display="none";
-    if(d<1.9&&!P.dead){ scene.remove(p.g); p.lbl.remove(); PK.list.splice(i,1); G.pk=(G.pk||0)+1; const txt=p.T.f(); fxSpark(p.x,1.2,p.z,p.T.c,p.T.trap?10:18); if(!p.T.trap){ tone(1000,.06,"sine",0,.06); tone(1400,.08,"sine",.05,.05); } floatDmg(p.x,3.2,p.z,`${p.T.ic} ${p.T.n}`,p.T.trap?"me":"gain"); toast(`${p.T.ic} ${p.T.n}!`,txt,1.8); saveGame(); } } }
+    if(d<1.9&&!P.dead){ scene.remove(p.g); p.lbl.remove(); PK.list.splice(i,1); G.pk=(G.pk||0)+1; const txt=p.T.f(); fxSpark(p.x,1.2,p.z,p.T.c,p.T.trap?10:18); try{ PICKFLY.pick(p.T,p.x,p.z); }catch(e){} if(!p.T.trap){ tone(1000,.06,"sine",0,.06); tone(1400,.08,"sine",.05,.05); } floatDmg(p.x,3.2,p.z,`${p.T.ic} ${p.T.n}`,p.T.trap?"me":"gain"); toast(`${p.T.ic} ${p.T.n}!`,txt,1.8); saveGame(); } } }
 XTICK.push(pkTick);
 
 /* ---------- 🗺 보물 지도 ---------- */
@@ -120,6 +120,7 @@ function tmTick(dt){ const T=PK.tm; if(!T) return; T.t-=dt; T.g.rotation.y+=dt; 
   if(T.t<=0) { end(); toast("🗺 보물 지도가 바래 버렸어요",null,1.6); return; }
   if(d<8&&!T.guards){ T.guards=[]; for(let i=0;i<2;i++){ const m=evSpawnFree(T.x+rnd(-4,4),T.z+rnd(-4,4),2); if(m){ m.n=m.n; m.tg=1; T.guards.push(m); } } toast("🗺 보물 지킴이가 나타났어요!","지킴이를 모두 쓰러뜨려야 보물을 꺼내요",2.2); tone(140,.4,"sawtooth",0,.12); }
   if(T.guards&&d<3&&T.guards.every(m=>m.hp<=0||mobs.indexOf(m)<0)){ end(); const L=G.lv; const gold=Math.round((120+L*30)*rnd(.9,1.3)); const xp=Math.round(xpNeed(L)*.08); G.gold+=gold; gainXp(xp); G.rune=(G.rune||0)+1; G.ore=(G.ore||0)+4; G.tmN=(G.tmN||0)+1; const got=[`금화 +${fmt(gold)}`,`경험치 +${fmt(xp)}`,"✨ +1","⛓ +4"]; if(Math.random()<.6) got.push("🎁 "+evGear(.3,T.x,T.z)); else { try{ LOOT.drop(T.x,T.z,1); }catch(e){} }
+    try{ COINFLY.burst(T.x,1,T.z,8); [["✨",0x9fe0ff],["⛓",0xc8d0dc],["🎁",0xb070ff]].forEach((q,i)=>PICKFLY.fly(T.x,1,T.z,q[0],q[1],i)); }catch(e){}
     try{ lvBanner("🗺 보물을 찾았어요!","숨겨진 보물 상자",got.join(" · "),"#ffd24a"); }catch(e){ toast("🗺 보물 상자!",got.join(" · "),3); } jingle([523,659,784,1046,1318]); saveGame(); } }
 XTICK.push(tmTick);
 
