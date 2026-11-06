@@ -5,7 +5,7 @@
    - 빨리 달릴 때(질주·신수 타기) 먼지 더 크게, 점프하고 내려앉으면 먼지 고리
    - 미리 만든 몇 장을 돌려 씀(새로 만들지 않음), PointLight 없음, 배터리 절약 모드는 먼지 적게·발자국 8개까지 */
 /* v60: 물 위를 걸으면 찰방 물보라(물방울 튀김) + 물결 고리가 퍼짐, 가만히 서 있어도 잔물결, 물에 뛰어내리면 큰 첨벙 */
-const STEP=(()=>{ let puffs=null, prints=null, pi=0, ri=0, last=-1, side=1, prevY=0, rings=null, rgi=0, wsp=null, wspT=0, wIdle=0;
+const STEP=(()=>{ let puffs=null, prints=null, pi=0, ri=0, last=-1, side=1, prevY=0, rings=null, rgi=0, wsp=null, wspT=0, wIdle=0, sqX=0, sqV=0, vyP=0, peak=0;
   function tex(draw){ const c=document.createElement("canvas"); c.width=c.height=64; draw(c.getContext("2d"),64); return new THREE.CanvasTexture(c); }
   const softT=()=>tex((g,s)=>{ const r=g.createRadialGradient(s/2,s/2,0,s/2,s/2,s/2); r.addColorStop(0,"rgba(255,255,255,1)"); r.addColorStop(.35,"rgba(255,255,255,.7)"); r.addColorStop(.7,"rgba(255,255,255,.2)"); r.addColorStop(1,"rgba(255,255,255,0)"); g.fillStyle=r; g.fillRect(0,0,s,s); });
   const printT=()=>tex((g,s)=>{ g.fillStyle="#fff"; g.filter="blur(1px)"; g.beginPath(); g.ellipse(s/2,s*.38,s*.2,s*.26,0,0,7); g.fill(); g.beginPath(); g.ellipse(s/2,s*.8,s*.15,s*.13,0,0,7); g.fill(); });
@@ -33,9 +33,17 @@ const STEP=(()=>{ let puffs=null, prints=null, pi=0, ri=0, last=-1, side=1, prev
   function land(){ { const w=waterAt(P.x,P.z,(P.gy!=null?P.gy:hAt(P.x,P.z))); if(w){ ring(P.x,w.y,P.z,3.4,1.1,.9); ring(P.x,w.y,P.z,2.2,.8,.7); drops(P.x,w.y,P.z,ECO()?5:12,1.5); splashSnd(true); return; } }
     const g=ground(P.x,P.z); const n=ECO()?3:(HIGH()?8:5); for(let i=0;i<n;i++){ const a=i/n*Math.PI*2; puff(P.x+Math.cos(a)*.5,P.z+Math.sin(a)*.5,g,-Math.cos(a),-Math.sin(a),1.3); }
     const rx=Math.cos(P.rot), rz=-Math.sin(P.rot); print(P.x+rx*.32,P.z+rz*.32,g,P.rot); print(P.x-rx*.32,P.z-rz*.32,g,P.rot); }
+  /* v72: 점프 손맛 — 뛰어오를 때 쭉 늘었다가, 떨어질 땐 길쭉, 땅에 닿으면 납작 찌그러졌다 탱 하고 돌아옴(용수철). 착지엔 흙먼지 고리 + 쿵 소리, 높이서 떨어지면 화면 살짝 흔들림. 크기만 바꿔 그리기 호출 0. */
+  function landPop(){ const imp=clamp(-vyP/22,.35,1); sqX=-.26*imp; sqV=0; const gy=P.gy!=null?P.gy:hAt(P.x,P.z); if(!waterAt(P.x,P.z,gy)){ ring(P.x,gy,P.z,1.4+2.2*imp,.5,.38+.3*imp); if(imp>.6&&!ECO()) ring(P.x,gy,P.z,.9+1.2*imp,.35,.5); }
+    try{ if(typeof tone==="function"){ tone(70+30*imp,.12,"sine"); tone(140,.05,"triangle",.01); } }catch(e){} if(imp>.7&&typeof P!=="undefined") P.shake=Math.max(P.shake||0,.18*imp); }
+  function squash(dt){ if(typeof player==="undefined"||!player) return; const u=player.userData; if(u.sqB==null||u.sqO!==player){ u.sqB=player.scale.y; u.sqO=player; }
+    if(P.dead||P.ride){ sqX=0; sqV=0; player.scale.setScalar(u.sqB); return; }
+    if(prevY===0&&P.y>0) sqV+=2.6; const tg=P.y>0.05?clamp(P.vy>0?P.vy/13:-P.vy/22,0,1)*.09:0; dt=Math.min(dt,.05);
+    for(let i=0;i<2;i++){ const h=dt/2; sqV+=(-210*(sqX-tg)-15*sqV)*h; sqX+=sqV*h; } sqX=clamp(sqX,-.32,.28);
+    const b=u.sqB, sy=1+sqX, sxz=1-sqX*.55; player.scale.set(b*sxz,b*sy,b*sxz); }
   function tick(dt){ if(!puffs){ if(typeof scene==="undefined") return; init(); }
     if(P.moving&&P.y===0&&!P.dead){ const k=Math.floor(P.walk/Math.PI); if(k!==last){ if(last>=0) step(P.haste>0||P.ride); last=k; } }
-    if(prevY>.6&&P.y===0&&!P.dead) land(); prevY=P.y;
+    if(P.y>0) peak=Math.max(peak,P.y); if(prevY>0&&P.y===0){ if(peak>.6&&!P.dead){ land(); landPop(); } peak=0; } squash(dt); prevY=P.y; vyP=P.vy;
     wspT-=dt; if(wspT<=0){ wspT=wsp&&wsp.length?15:4; scanWater(); }
     if(!P.moving&&P.y===0&&!P.dead){ wIdle-=dt; if(wIdle<=0){ wIdle=1.3; const w=waterAt(P.x,P.z,(P.gy!=null?P.gy:hAt(P.x,P.z))); if(w) ring(P.x,w.y,P.z,1.3,1.4,.45); } }
     for(const r of rings){ if(!r.m.visible) continue; r.t+=dt; const k=r.t/r.d; if(k>=1){ r.m.visible=false; continue; } const e=1-Math.pow(1-k,2.2); r.m.scale.setScalar(.25+r.sz*e); r.m.material.opacity=r.op*(1-k)*(1-k*.3); }
