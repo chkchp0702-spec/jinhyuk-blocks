@@ -16,7 +16,7 @@ const EGG_MS=20*60000, PET_MAX=20;
 function petNeed(lv){ return 12*lv; }
 function petData(){ G.pets=G.pets||{}; if(G.pet==null) G.pet=-1; return G.pets; }
 function petBonus(){ const p=G.pet>=0&&G.pets&&!expPetAway(G.pet)&&G.pets[G.pet]; return p?p.lv*2:0; }   // 금화 +%
-function petArr(){ const p=G.pet>=0&&G.pets&&!expPetAway(G.pet)&&G.pets[G.pet]; return p?[G.pet,p.lv]:null; }
+function petArr(){ const p=G.pet>=0&&G.pets&&!expPetAway(G.pet)&&G.pets[G.pet]; return p?(p.sh?[G.pet,p.lv,1]:[G.pet,p.lv]):null; }
 function petGain(n){ const p=G.pet>=0&&G.pets&&!expPetAway(G.pet)&&G.pets[G.pet]; if(!p||p.lv>=PET_MAX) return 0; p.xp=(p.xp||0)+n; let up=0; while(p.lv<PET_MAX&&p.xp>=petNeed(p.lv)){ p.xp-=petNeed(p.lv); p.lv++; up++; } if(p.lv>=PET_MAX) p.xp=0; if(up&&PETMESH.me){ rebuildMyPet(); } return up; }
 function petOnKill(m){ petData(); const b=petBonus(); if(b>0){ const extra=Math.max(1,Math.round(m.gold*b/100)); G.gold+=extra; }
   const up=petGain(m.boss?6:1); if(PETMESH.me&&(up||m.boss||Math.random()<.35)) petJoy(PETMESH.me,up?"♥":"♪",up?"#ff4f86":"#ffb020"); if(up){ const p=G.pets[G.pet]; toast(`${PETS[G.pet].n} Lv.${p.lv}!`,`금화 보너스 +${p.lv*2}%`,2); jingle([784,988,1175]); }
@@ -34,8 +34,8 @@ function hatchEgg(){ petData(); const r=G.egg.r; G.egg=null; const had=G.pets[r]
 function petIdle(r){ petData(); const n=Math.floor(r.kills||0); if(!n) return null; const p=G.pet>=0&&!expPetAway(G.pet)&&G.pets[G.pet]; if(!p) return null; const lv0=p.lv; petGain(n); return {n:PETS[G.pet].n,lv0,lv:p.lv}; }
 
 // 신수 모델(코드로 만든 귀여운 아기 동물)
-function makePet(r,lv){ const D=PETS[r]; const g=new THREE.Group(); const body=new THREE.Group(); g.add(body);
-  const m=mat({color:D.c,roughness:.55}), m2=mat({color:D.c2,roughness:.55}), eye=mat({color:0x111111,roughness:.25}), wh=mat({color:0xffffff,emissive:0xffffff,emissiveIntensity:.8}), gold=mat({color:0xffc83a,metalness:.4,roughness:.35});
+function makePet(r,lv,sh){ const D=PETS[r]||PETS[0]; const g=new THREE.Group(); const body=new THREE.Group(); g.add(body);
+  const m=mat(sh?{color:D.c,roughness:.35,metalness:.25,emissive:D.c,emissiveIntensity:.35}:{color:D.c,roughness:.55}), m2=mat(sh?{color:D.c2,roughness:.35,metalness:.25,emissive:D.c2,emissiveIntensity:.3}:{color:D.c2,roughness:.55}), eye=mat({color:0x111111,roughness:.25}), wh=mat({color:0xffffff,emissive:0xffffff,emissiveIntensity:.8}), gold=mat({color:0xffc83a,metalness:.4,roughness:.35});
   const b=sph(.55,m,0,0,0); b.scale.set(1,.9,1.15); body.add(b);
   const h=sph(.46,m,0,.62,.55); body.add(h);
   const eyes=[]; [-1,1].forEach(s=>{ const ey=sph(.12,eye,s*.19,.7,.94); body.add(ey); eyes.push(ey); const sh=sph(.04,wh,s*.19+.04,.75,1.03); body.add(sh); eyes.push(sh); body.add(sph(.07,mat({color:0xff9aa8,roughness:.8}),s*.3,.55,.9)); });
@@ -49,11 +49,12 @@ function makePet(r,lv){ const D=PETS[r]; const g=new THREE.Group(); const body=n
   const legN=D.kind==="horse8"?8:D.kind==="bird"?2:4; for(let k=0;k<legN;k++){ const row=D.kind==="horse8"?Math.floor(k/2):k%2===0?0:1; const side=k%2===0?-1:1; const z=legN===2?0:legN===8?(.35-Math.floor(k/2)*.23):(Math.floor(k/2)?-.3:.3); body.add(cyl(.08,.07,.4,D.kind==="bird"?mat({color:0xffa53a}):m2,side*(legN===8?.22+(row%2)*.05:.25),-.48,z,8)); }
   const tail=sph(.16,m2,0,.15,-.68); tail.scale.set(1,1,1.6); body.add(tail);
   if(lv>=10){ const c=new THREE.Mesh(new THREE.TorusGeometry(.2,.05,6,16),gold); c.rotation.x=Math.PI/2; c.position.set(0,1.18,.55); body.add(c); }
-  g.userData={body,wings,eyes,eyeS:eyes.map(e=>e.scale.y),fly:D.kind!=="horse8",t:Math.random()*6,blink:1+Math.random()*3,idle:0,joy:0,joyD:1,lunge:0,lean:0,mv:0};
+  let star=null; if(sh){ const ring=new THREE.Group(); for(let k=0;k<5;k++){ const a=k/5*6.283; const st=new THREE.Mesh(new THREE.OctahedronGeometry(.09,0),glowMat(0xfff6c0,.95)); st.position.set(Math.cos(a)*.95,.5,Math.sin(a)*.95); st.userData.noOutline=true; ring.add(st); } body.add(ring); star=ring; }
+  g.userData={body,wings,eyes,eyeS:eyes.map(e=>e.scale.y),fly:D.kind!=="horse8",t:Math.random()*6,blink:1+Math.random()*3,idle:0,joy:0,joyD:1,lunge:0,lean:0,mv:0,star};
   const sc=.7+Math.min(lv||1,PET_MAX)*.02; g.scale.setScalar(sc); return g; }
 function drawPetPreview(cv,r){ try{ const rr=new THREE.WebGLRenderer({canvas:cv,alpha:true,antialias:true}); rr.setSize(cv.width,cv.height,false); const sc=new THREE.Scene(); sc.add(new THREE.HemisphereLight(0xffffff,0x553366,1.1)); const dl=new THREE.DirectionalLight(0xffffff,1); dl.position.set(2,4,5); sc.add(dl); const pet=makePet(r,1); pet.scale.setScalar(1.3); sc.add(pet); const cam=new THREE.PerspectiveCamera(40,cv.width/cv.height,.1,50); cam.position.set(0,1.2,4.4); cam.lookAt(0,.4,0); let t=0; const loop=()=>{ if(!document.body.contains(cv)){ rr.dispose(); return; } t+=.03; pet.rotation.y=Math.sin(t)*.7; pet.position.y=Math.abs(Math.sin(t*3))*.2; pet.userData.wings.forEach(w=>w.rotation.z=w.userData.s*Math.sin(t*12)*.5); rr.render(sc,cam); requestAnimationFrame(loop); }; loop(); }catch(e){} }
 const PETMESH={me:null,others:{}};
-function rebuildMyPet(){ if(PETMESH.me){ scene.remove(PETMESH.me.mesh); PETMESH.me=null; } const a=petArr(); if(!a||!started) return; const mesh=makePet(a[0],a[1]); scene.add(mesh); PETMESH.me={mesh,x:P.x-1.5,z:P.z-1.5,key:a.join(","),atk:1}; }
+function rebuildMyPet(){ if(PETMESH.me){ scene.remove(PETMESH.me.mesh); PETMESH.me=null; } const a=petArr(); if(!a||!started) return; const mesh=makePet(a[0],a[1],a[2]); scene.add(mesh); PETMESH.me={mesh,x:P.x-1.5,z:P.z-1.5,key:a.join(","),atk:1}; }
 function followPet(o,ox,oz,orot,dt){ const bx=ox-Math.sin(orot)*1.6+Math.cos(orot)*1.3, bz=oz-Math.cos(orot)*1.6-Math.sin(orot)*1.3; const dx=bx-o.x, dz=bz-o.z, L=Math.hypot(dx,dz);
   if(L>30){ o.x=bx; o.z=bz; } else if(L>.3){ const sp=Math.min(L*3,16); o.x+=dx/L*sp*dt; o.z+=dz/L*sp*dt; }
   const u=o.mesh.userData; const mv=L>.5; u.t+=dt*(mv?14:5); const tx=o.tx!=null?o.tx:bx+Math.sin(orot)*3, tz=o.tz!=null?o.tz:bz+Math.cos(orot)*3;
@@ -80,7 +81,7 @@ function petAnim(o,u,mv,face,fight,dt){ const b=u.body;
   // 눈 깜빡임
   u.blink-=dt; let ek=1; if(u.blink<0){ ek=Math.abs(u.blink+.07)/.07; ek=Math.max(.12,Math.min(1,ek)); if(u.blink<-.14) u.blink=1.8+Math.random()*3.5; }
   if(u.joy>0&&u.joyD>.9) ek=Math.min(ek,.35);   // 기쁠 땐 눈웃음
-  u.eyes.forEach((e,i)=>e.scale.y=u.eyeS[i]*ek); }
+  u.eyes.forEach((e,i)=>e.scale.y=u.eyeS[i]*ek); if(u.star) u.star.rotation.y+=dt*2.2; }
 function tickPetFX(dt){ for(const sp of PETFX.pool){ if(!sp.visible) continue; const q=sp.userData; q.a+=dt; const p=q.a/1.1; const o=q.o; if(p>=1||!o||!o.mesh||!o.mesh.parent){ sp.visible=false; continue; }
   const s=o.mesh.scale.x; sp.position.set(o.mesh.position.x+q.dx*p, o.mesh.position.y+1.25*s+p*1.1, o.mesh.position.z); const pop=p<.18?(p/.18)*1.25:p<.3?1.25-(p-.18)/.12*.25:1; sp.scale.setScalar(.75*pop); sp.material.opacity=p>.7?(1-p)/.3:1; } }
 function tickPets(dt){ if(!started) return; tickEgg(dt); tickPetFX(dt);
@@ -95,7 +96,7 @@ function tickPets(dt){ if(!started) return; tickEgg(dt); tickPetFX(dt);
   for(const id in GHOSTS){ const g=GHOSTS[id]; if(g.p&&g.p.pt) want["g"+id]={pt:g.p.pt,x:g.x,z:g.z,rot:g.mesh.rotation.y}; }
   for(const k in PETMESH.others){ const o=PETMESH.others[k]; const w=want[k]; if(!w||o.key!==w.pt.join(",")){ scene.remove(o.mesh); delete PETMESH.others[k]; } }
   for(const k in want){ const w=want[k]; if(Math.hypot(w.x-P.x,w.z-P.z)>70){ if(PETMESH.others[k]){ scene.remove(PETMESH.others[k].mesh); delete PETMESH.others[k]; } continue; }
-    let o=PETMESH.others[k]; if(!o){ const mesh=makePet(w.pt[0],w.pt[1]); scene.add(mesh); o=PETMESH.others[k]={mesh,x:w.x-1.5,z:w.z-1.5,key:w.pt.join(",")}; } followPet(o,w.x,w.z,w.rot,dt); } }
+    let o=PETMESH.others[k]; if(!o){ const mesh=makePet(w.pt[0],w.pt[1],w.pt[2]); scene.add(mesh); o=PETMESH.others[k]={mesh,x:w.x-1.5,z:w.z-1.5,key:w.pt.join(",")}; } followPet(o,w.x,w.z,w.rot,dt); } }
 function showPets(){ petData(); const eg=G.egg?`<div class="row"><div class="ic">🥚</div><div class="t"><div>${PETS[G.egg.r].egg} 품는 중</div><span>${eggLeft()>0?`깨어나기까지 ${Math.ceil(eggLeft()/60000)}분 · 게임을 꺼 둬도 자라요`:"곧 깨어나요!"}</span></div></div>`:`<div class="row"><div class="ic">🥚</div><div class="t"><div>알 없음</div><span>괴물을 잡으면 가끔 알이 나와요(보스는 자주). 알은 한 번에 하나만 품을 수 있어요.</span></div></div>`;
   const rows=PETS.map((D,r)=>{ const p=G.pets[r]; if(!p) return `<div class="row" style="opacity:.55"><div class="ic">❔</div><div class="t"><div>???</div><span>${REALMS[r].n}의 신수 · ${D.egg}에서 태어나요</span></div></div>`;
     const on=G.pet===r, away=expPetAway(r); return `<div class="row"><div class="ic" style="color:#${D.c.toString(16).padStart(6,"0")}">${REALMS[r].icon}</div><div class="t"><div>${D.n} Lv.${p.lv}${away?' <i class="st">🧭 원정 중</i>':on?' <i class="st on">함께하는 중</i>':""}</div><span>금화 +${p.lv*2}% · 공격 함께 ${p.lv>=PET_MAX?"· 최고 레벨!":`· 다음 레벨까지 ${petNeed(p.lv)-Math.floor(p.xp||0)}마리`}${p.lv>=10?" · 👑 왕관":""}</span></div>${on||away?"":`<button class="buy" data-pet="${r}">데려가기</button>`}</div>`; }).join("");

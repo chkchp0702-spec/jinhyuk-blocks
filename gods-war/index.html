@@ -496,7 +496,7 @@ body.eco #bossbar[data-ph="2"] .bpo{animation:none}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v68";
+const VER="v69";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -2649,7 +2649,7 @@ const EGG_MS=20*60000, PET_MAX=20;
 function petNeed(lv){ return 12*lv; }
 function petData(){ G.pets=G.pets||{}; if(G.pet==null) G.pet=-1; return G.pets; }
 function petBonus(){ const p=G.pet>=0&&G.pets&&!expPetAway(G.pet)&&G.pets[G.pet]; return p?p.lv*2:0; }   // 금화 +%
-function petArr(){ const p=G.pet>=0&&G.pets&&!expPetAway(G.pet)&&G.pets[G.pet]; return p?[G.pet,p.lv]:null; }
+function petArr(){ const p=G.pet>=0&&G.pets&&!expPetAway(G.pet)&&G.pets[G.pet]; return p?(p.sh?[G.pet,p.lv,1]:[G.pet,p.lv]):null; }
 function petGain(n){ const p=G.pet>=0&&G.pets&&!expPetAway(G.pet)&&G.pets[G.pet]; if(!p||p.lv>=PET_MAX) return 0; p.xp=(p.xp||0)+n; let up=0; while(p.lv<PET_MAX&&p.xp>=petNeed(p.lv)){ p.xp-=petNeed(p.lv); p.lv++; up++; } if(p.lv>=PET_MAX) p.xp=0; if(up&&PETMESH.me){ rebuildMyPet(); } return up; }
 function petOnKill(m){ petData(); const b=petBonus(); if(b>0){ const extra=Math.max(1,Math.round(m.gold*b/100)); G.gold+=extra; }
   const up=petGain(m.boss?6:1); if(PETMESH.me&&(up||m.boss||Math.random()<.35)) petJoy(PETMESH.me,up?"♥":"♪",up?"#ff4f86":"#ffb020"); if(up){ const p=G.pets[G.pet]; toast(`${PETS[G.pet].n} Lv.${p.lv}!`,`금화 보너스 +${p.lv*2}%`,2); jingle([784,988,1175]); }
@@ -2667,8 +2667,8 @@ function hatchEgg(){ petData(); const r=G.egg.r; G.egg=null; const had=G.pets[r]
 function petIdle(r){ petData(); const n=Math.floor(r.kills||0); if(!n) return null; const p=G.pet>=0&&!expPetAway(G.pet)&&G.pets[G.pet]; if(!p) return null; const lv0=p.lv; petGain(n); return {n:PETS[G.pet].n,lv0,lv:p.lv}; }
 
 // 신수 모델(코드로 만든 귀여운 아기 동물)
-function makePet(r,lv){ const D=PETS[r]; const g=new THREE.Group(); const body=new THREE.Group(); g.add(body);
-  const m=mat({color:D.c,roughness:.55}), m2=mat({color:D.c2,roughness:.55}), eye=mat({color:0x111111,roughness:.25}), wh=mat({color:0xffffff,emissive:0xffffff,emissiveIntensity:.8}), gold=mat({color:0xffc83a,metalness:.4,roughness:.35});
+function makePet(r,lv,sh){ const D=PETS[r]||PETS[0]; const g=new THREE.Group(); const body=new THREE.Group(); g.add(body);
+  const m=mat(sh?{color:D.c,roughness:.35,metalness:.25,emissive:D.c,emissiveIntensity:.35}:{color:D.c,roughness:.55}), m2=mat(sh?{color:D.c2,roughness:.35,metalness:.25,emissive:D.c2,emissiveIntensity:.3}:{color:D.c2,roughness:.55}), eye=mat({color:0x111111,roughness:.25}), wh=mat({color:0xffffff,emissive:0xffffff,emissiveIntensity:.8}), gold=mat({color:0xffc83a,metalness:.4,roughness:.35});
   const b=sph(.55,m,0,0,0); b.scale.set(1,.9,1.15); body.add(b);
   const h=sph(.46,m,0,.62,.55); body.add(h);
   const eyes=[]; [-1,1].forEach(s=>{ const ey=sph(.12,eye,s*.19,.7,.94); body.add(ey); eyes.push(ey); const sh=sph(.04,wh,s*.19+.04,.75,1.03); body.add(sh); eyes.push(sh); body.add(sph(.07,mat({color:0xff9aa8,roughness:.8}),s*.3,.55,.9)); });
@@ -2682,11 +2682,12 @@ function makePet(r,lv){ const D=PETS[r]; const g=new THREE.Group(); const body=n
   const legN=D.kind==="horse8"?8:D.kind==="bird"?2:4; for(let k=0;k<legN;k++){ const row=D.kind==="horse8"?Math.floor(k/2):k%2===0?0:1; const side=k%2===0?-1:1; const z=legN===2?0:legN===8?(.35-Math.floor(k/2)*.23):(Math.floor(k/2)?-.3:.3); body.add(cyl(.08,.07,.4,D.kind==="bird"?mat({color:0xffa53a}):m2,side*(legN===8?.22+(row%2)*.05:.25),-.48,z,8)); }
   const tail=sph(.16,m2,0,.15,-.68); tail.scale.set(1,1,1.6); body.add(tail);
   if(lv>=10){ const c=new THREE.Mesh(new THREE.TorusGeometry(.2,.05,6,16),gold); c.rotation.x=Math.PI/2; c.position.set(0,1.18,.55); body.add(c); }
-  g.userData={body,wings,eyes,eyeS:eyes.map(e=>e.scale.y),fly:D.kind!=="horse8",t:Math.random()*6,blink:1+Math.random()*3,idle:0,joy:0,joyD:1,lunge:0,lean:0,mv:0};
+  let star=null; if(sh){ const ring=new THREE.Group(); for(let k=0;k<5;k++){ const a=k/5*6.283; const st=new THREE.Mesh(new THREE.OctahedronGeometry(.09,0),glowMat(0xfff6c0,.95)); st.position.set(Math.cos(a)*.95,.5,Math.sin(a)*.95); st.userData.noOutline=true; ring.add(st); } body.add(ring); star=ring; }
+  g.userData={body,wings,eyes,eyeS:eyes.map(e=>e.scale.y),fly:D.kind!=="horse8",t:Math.random()*6,blink:1+Math.random()*3,idle:0,joy:0,joyD:1,lunge:0,lean:0,mv:0,star};
   const sc=.7+Math.min(lv||1,PET_MAX)*.02; g.scale.setScalar(sc); return g; }
 function drawPetPreview(cv,r){ try{ const rr=new THREE.WebGLRenderer({canvas:cv,alpha:true,antialias:true}); rr.setSize(cv.width,cv.height,false); const sc=new THREE.Scene(); sc.add(new THREE.HemisphereLight(0xffffff,0x553366,1.1)); const dl=new THREE.DirectionalLight(0xffffff,1); dl.position.set(2,4,5); sc.add(dl); const pet=makePet(r,1); pet.scale.setScalar(1.3); sc.add(pet); const cam=new THREE.PerspectiveCamera(40,cv.width/cv.height,.1,50); cam.position.set(0,1.2,4.4); cam.lookAt(0,.4,0); let t=0; const loop=()=>{ if(!document.body.contains(cv)){ rr.dispose(); return; } t+=.03; pet.rotation.y=Math.sin(t)*.7; pet.position.y=Math.abs(Math.sin(t*3))*.2; pet.userData.wings.forEach(w=>w.rotation.z=w.userData.s*Math.sin(t*12)*.5); rr.render(sc,cam); requestAnimationFrame(loop); }; loop(); }catch(e){} }
 const PETMESH={me:null,others:{}};
-function rebuildMyPet(){ if(PETMESH.me){ scene.remove(PETMESH.me.mesh); PETMESH.me=null; } const a=petArr(); if(!a||!started) return; const mesh=makePet(a[0],a[1]); scene.add(mesh); PETMESH.me={mesh,x:P.x-1.5,z:P.z-1.5,key:a.join(","),atk:1}; }
+function rebuildMyPet(){ if(PETMESH.me){ scene.remove(PETMESH.me.mesh); PETMESH.me=null; } const a=petArr(); if(!a||!started) return; const mesh=makePet(a[0],a[1],a[2]); scene.add(mesh); PETMESH.me={mesh,x:P.x-1.5,z:P.z-1.5,key:a.join(","),atk:1}; }
 function followPet(o,ox,oz,orot,dt){ const bx=ox-Math.sin(orot)*1.6+Math.cos(orot)*1.3, bz=oz-Math.cos(orot)*1.6-Math.sin(orot)*1.3; const dx=bx-o.x, dz=bz-o.z, L=Math.hypot(dx,dz);
   if(L>30){ o.x=bx; o.z=bz; } else if(L>.3){ const sp=Math.min(L*3,16); o.x+=dx/L*sp*dt; o.z+=dz/L*sp*dt; }
   const u=o.mesh.userData; const mv=L>.5; u.t+=dt*(mv?14:5); const tx=o.tx!=null?o.tx:bx+Math.sin(orot)*3, tz=o.tz!=null?o.tz:bz+Math.cos(orot)*3;
@@ -2713,7 +2714,7 @@ function petAnim(o,u,mv,face,fight,dt){ const b=u.body;
   // 눈 깜빡임
   u.blink-=dt; let ek=1; if(u.blink<0){ ek=Math.abs(u.blink+.07)/.07; ek=Math.max(.12,Math.min(1,ek)); if(u.blink<-.14) u.blink=1.8+Math.random()*3.5; }
   if(u.joy>0&&u.joyD>.9) ek=Math.min(ek,.35);   // 기쁠 땐 눈웃음
-  u.eyes.forEach((e,i)=>e.scale.y=u.eyeS[i]*ek); }
+  u.eyes.forEach((e,i)=>e.scale.y=u.eyeS[i]*ek); if(u.star) u.star.rotation.y+=dt*2.2; }
 function tickPetFX(dt){ for(const sp of PETFX.pool){ if(!sp.visible) continue; const q=sp.userData; q.a+=dt; const p=q.a/1.1; const o=q.o; if(p>=1||!o||!o.mesh||!o.mesh.parent){ sp.visible=false; continue; }
   const s=o.mesh.scale.x; sp.position.set(o.mesh.position.x+q.dx*p, o.mesh.position.y+1.25*s+p*1.1, o.mesh.position.z); const pop=p<.18?(p/.18)*1.25:p<.3?1.25-(p-.18)/.12*.25:1; sp.scale.setScalar(.75*pop); sp.material.opacity=p>.7?(1-p)/.3:1; } }
 function tickPets(dt){ if(!started) return; tickEgg(dt); tickPetFX(dt);
@@ -2728,7 +2729,7 @@ function tickPets(dt){ if(!started) return; tickEgg(dt); tickPetFX(dt);
   for(const id in GHOSTS){ const g=GHOSTS[id]; if(g.p&&g.p.pt) want["g"+id]={pt:g.p.pt,x:g.x,z:g.z,rot:g.mesh.rotation.y}; }
   for(const k in PETMESH.others){ const o=PETMESH.others[k]; const w=want[k]; if(!w||o.key!==w.pt.join(",")){ scene.remove(o.mesh); delete PETMESH.others[k]; } }
   for(const k in want){ const w=want[k]; if(Math.hypot(w.x-P.x,w.z-P.z)>70){ if(PETMESH.others[k]){ scene.remove(PETMESH.others[k].mesh); delete PETMESH.others[k]; } continue; }
-    let o=PETMESH.others[k]; if(!o){ const mesh=makePet(w.pt[0],w.pt[1]); scene.add(mesh); o=PETMESH.others[k]={mesh,x:w.x-1.5,z:w.z-1.5,key:w.pt.join(",")}; } followPet(o,w.x,w.z,w.rot,dt); } }
+    let o=PETMESH.others[k]; if(!o){ const mesh=makePet(w.pt[0],w.pt[1],w.pt[2]); scene.add(mesh); o=PETMESH.others[k]={mesh,x:w.x-1.5,z:w.z-1.5,key:w.pt.join(",")}; } followPet(o,w.x,w.z,w.rot,dt); } }
 function showPets(){ petData(); const eg=G.egg?`<div class="row"><div class="ic">🥚</div><div class="t"><div>${PETS[G.egg.r].egg} 품는 중</div><span>${eggLeft()>0?`깨어나기까지 ${Math.ceil(eggLeft()/60000)}분 · 게임을 꺼 둬도 자라요`:"곧 깨어나요!"}</span></div></div>`:`<div class="row"><div class="ic">🥚</div><div class="t"><div>알 없음</div><span>괴물을 잡으면 가끔 알이 나와요(보스는 자주). 알은 한 번에 하나만 품을 수 있어요.</span></div></div>`;
   const rows=PETS.map((D,r)=>{ const p=G.pets[r]; if(!p) return `<div class="row" style="opacity:.55"><div class="ic">❔</div><div class="t"><div>???</div><span>${REALMS[r].n}의 신수 · ${D.egg}에서 태어나요</span></div></div>`;
     const on=G.pet===r, away=expPetAway(r); return `<div class="row"><div class="ic" style="color:#${D.c.toString(16).padStart(6,"0")}">${REALMS[r].icon}</div><div class="t"><div>${D.n} Lv.${p.lv}${away?' <i class="st">🧭 원정 중</i>':on?' <i class="st on">함께하는 중</i>':""}</div><span>금화 +${p.lv*2}% · 공격 함께 ${p.lv>=PET_MAX?"· 최고 레벨!":`· 다음 레벨까지 ${petNeed(p.lv)-Math.floor(p.xp||0)}마리`}${p.lv>=10?" · 👑 왕관":""}</span></div>${on||away?"":`<button class="buy" data-pet="${r}">데려가기</button>`}</div>`; }).join("");
@@ -3725,7 +3726,7 @@ function rdSet(on){ if(on&&!rdCan()){ toast("신수가 Lv.5가 되면 탈 수 �
   if(on){ fxRing(P.x,P.z,0xffffff,4,.5); fxSpark(P.x,1,P.z,PETS[G.pet].c,20); tone(660,.08,"triangle"); tone(990,.1,"triangle",.06); G.rideN=(G.rideN||0)+1; } else { fxSpark(P.x,1,P.z,0xffffff,8); tone(440,.08,"triangle"); }
   rdBtn(); try{ saveGame(); }catch(e){} }
 function rdBtn(){ if(!RD.btn){ const acts=document.querySelector(".acts"); if(!acts) return; const b=document.createElement("button"); b.className="act"; b.id="bRide"; b.type="button"; b.addEventListener("pointerdown",e=>{ e.stopPropagation(); e.preventDefault(); if(!layerOpen&&!P.dead) rdSet(!P.ride); }); acts.appendChild(b); RD.btn=b; }
-  const can=rdCan(); RD.btn.hidden=!can&&!P.ride; RD.btn.classList.toggle("on",!!P.ride); const ic=G.pet>=0?["🦅","🐎","🐦","🦄"][G.pet]:"🐎"; const html=`${ic}<small>${P.ride?"내리기":"타기"}</small>`; if(RD.btn.innerHTML!==html) RD.btn.innerHTML=html; }
+  const can=rdCan(); RD.btn.hidden=!can&&!P.ride; RD.btn.classList.toggle("on",!!P.ride); const ic=G.pet>=0?(["🦅","🐎","🐦","🦄","🔥"][G.pet]||"🐾"):"🐎"; const html=`${ic}<small>${P.ride?"내리기":"타기"}</small>`; if(RD.btn.innerHTML!==html) RD.btn.innerHTML=html; }
 function rdTick(dt){ if(!started) return; RD.t-=dt; if(RD.t<=0){ RD.t=.5; rdBtn(); }
   if(P.ride&&(!rdCan()||P.dead||(typeof DG!=="undefined"&&DG.on)||(typeof HM!=="undefined"&&HM.on))){ P.ride=false; const me=PETMESH.me; if(me&&me.mesh.userData._bs!=null) me.mesh.scale.setScalar(me.mesh.userData._bs); rdBtn(); }
   if(P.ride){ const me=PETMESH.me; if(me){ const m=me.mesh; const bob=P.moving&&P.y===0?Math.abs(Math.sin(P.walk*.55))*.18:0; me.x=P.x; me.z=P.z; m.position.set(P.x,(P.gy||0)+P.y+bob,P.z); m.rotation.y=player.rotation.y; m.visible=!P.dead; player.position.y+=bob; }
@@ -3811,7 +3812,7 @@ function rcEnd(ok,why){ const c=RC.c, t=RC.t, path=RC.path.slice(), rival=RC.riv
 /* ---------- 창 ---------- */
 function showRace(c){ if(c==null) c=G.realm; const a=typeof petArr==="function"?petArr():null; const co=RC.courses[c]; const bd=rcBoard(c).slice(0,10).map((x,k)=>`<div class="row"><div class="ic">${k===0?"🥇":k===1?"🥈":k===2?"🥉":k+1}</div><div class="t"><div>${x.n}${x.me?" (나)":""}</div><span>${REALMS[x.r]?REALMS[x.r].n:""} · <b style="color:var(--gold)">${rcFmt(x.t)}</b></span></div></div>`).join("");
   card(`<h2>🐎 신수 타기 · 🏁 하늘 고리 경주</h2>
-   <div class="row"><div class="ic">${G.pet>=0?["🦅","🐎","🐦","🦄"][G.pet]:"🐣"}</div><div class="t"><div>신수 타기</div><span>${a?(a[1]>=5?`${PETS[a[0]].n} Lv.${a[1]} — 오른쪽 아래 「타기」 버튼! 이동 1.6배 · 공중에서 활공`:`${PETS[a[0]].n} Lv.${a[1]} — Lv.5부터 탈 수 있어요 (${5-a[1]}레벨 남음)`):"짝꿍 신수가 있어야 해요 (메뉴 → 🐣 신수)"}</span></div>${a&&a[1]>=5?`<button class="buy" id="rdGo">${P.ride?"내리기":"타기"}</button>`:""}</div>
+   <div class="row"><div class="ic">${G.pet>=0?(["🦅","🐎","🐦","🦄","🔥"][G.pet]||"🐾"):"🐣"}</div><div class="t"><div>신수 타기</div><span>${a?(a[1]>=5?`${PETS[a[0]].n} Lv.${a[1]} — 오른쪽 아래 「타기」 버튼! 이동 1.6배 · 공중에서 활공`:`${PETS[a[0]].n} Lv.${a[1]} — Lv.5부터 탈 수 있어요 (${5-a[1]}레벨 남음)`):"짝꿍 신수가 있어야 해요 (메뉴 → 🐣 신수)"}</span></div>${a&&a[1]>=5?`<button class="buy" id="rdGo">${P.ride?"내리기":"타기"}</button>`:""}</div>
    <p>세계마다 수도 앞 <b>출발 문</b>에서 시작해요. 고리 ${RC_N}개를 순서대로 통과! 금빛 고리는 점프로. 내 가장 빠른 기록은 <b>그림자</b>로 남아서, 내가 꺼져 있어도 다른 사람이 내 그림자와 겨뤄요.</p>
    <div class="exgrid three">${REALMS.map((R,i)=>`<button class="buy ${i===c?"":"alt"}" data-rc="${i}">${R.icon} ${R.n}<small>${rcMine(i)?"내 기록 "+rcFmt(rcMine(i).t):"기록 없음"}</small></button>`).join("")}</div>
    <button class="go" id="rcWay" style="align-self:center">${rcNearGate()===co?"🏁 여기서 출발!":`${REALMS[c].n} 출발 문으로 길 안내`}</button>
@@ -4712,6 +4713,15 @@ TITLES.push({id:"sk9",n:"기술의 달인",t:2,h:"기술 9개를 모두 배우�
    새 버전으로 처음 켜면 한 번, 무엇이 바뀌었는지 쉬운 말로 보여 줌(G.seenVer). 메뉴 → 업데이트 소식에서 다시 볼 수 있음.
    ※ 버전을 올릴 때마다 맨 앞에 한 줄 묶음을 더해요(오래된 것은 8개까지만 남김). */
 const PATCH_NOTES=[
+ {v:"v69",d:"11/6",t:"🔎 숨은 아기 신상 · 🥚 신수 둥지 · ⚔️ 발할라 결투장",items:[
+   "🔎 숨은 아기 신상 56개: 덤불·바위 더미·속 빈 통나무·큰 버섯·부러진 기둥·꽃밭 속에 손바닥만 한 신상이 숨어 있어요. 가까이 가면 「딸랑♪」이 점점 빨라져요!",
+   "🔎 🗿 지혜의 석상이 하루 한 번 힌트를 줘요. ✨ 이번 주의 황금 신상은 모두가 같은 곳을 찾고, 먼저 찾은 10명이 명부에 올라요. 찾은 신상 앞에서 「📣 여기 숨은 신상!」",
+   "🥚 신수 둥지: Lv10 넘은 신수를 수도의 둥지에 맡기고 다른 사람 신수와 짝을 지으면, 8시간 뒤 두 사람 모두 섞인 알! (꺼 둬도 시간이 흘러요)",
+   "🥚 새 섞인 신수 6종(히포그리프·태양 독수리·하늘 사자·불꽃 갈기 말·구름 말·무지개 새) + 아주 가끔 ✨ 별빛 신수(5%). 신수 정보에 부모 이름이 남아요. 아무도 없으면 🦚 둥지 지기 공작이 짝이 되어 줘요.",
+   "⚔️ 발할라 결투장: 수도의 결투장 문 → 결투 석판에서 비슷한 힘의 상대 3명 중 골라 ⚔ 1:1 또는 🤝 2:2(친구의 수비 영웅이 내 편)!",
+   "⚔️ 내 수비 영웅이 결투장을 지켜요 — 내가 꺼 둬도 다른 사람이 도전하면 내 영웅이 대신 싸우고, 다음에 켜면 보고서가 와요. 결투장 안에서는 힘을 맞춰 줘서 처음 온 사람도 이길 수 있어요. 지면 무릎만 꿇어요.",
+   "⚔️ 결투 점수로 🥉 청동 → 🥈 은 → 🥇 금 → 💎 신화 방패, 매주 월요일 정산 상자, 시즌 1~10등은 결투장 둘레에 금빛 석상!",
+   "🏅 새 칭호 13개 · 🏡 새 신전 장식 «아기 신상 정원»."]},
  {v:"v56",d:"11/5",t:"🪜 하늘 탑 · 🌳 소원 나무 · 🌌 라그나로크의 밤",items:[
    "🪜 신들의 하늘 탑: 수도의 「하늘 탑 문」으로 들어가 점프로 30층을 올라요! 레벨·장비 상관없이 모두 같은 점프 — 디딤돌·좁은 다리·움직이는 발판·🌀 빙글 막대·🍄 튕기는 버섯·☁ 사라지는 구름.",
    "🪜 5층마다 🚩 깃발(떨어지면 거기서 다시). 꼭대기 종을 치면 「땡!」 — 오늘 오른 사람 명부에 이름과 시간이 올라가요. 날마다 3개 층 모양이 바뀌어요.",
@@ -5955,6 +5965,476 @@ DECO.push({n:"세계 뱀의 비늘",ic:"🐍",t:3,sc:25,p:0,trophy:1,mk:r=>{ con
 TITLES.push({id:"lv1",n:"그날 그곳에 있었다",t:3,h:"라그나로크의 밤에 함께하기",g:()=>[G.lvThere||0,1]},{id:"lvisle",n:"뱀의 섬 사냥꾼",t:1,h:"뱀의 섬에서 괴물 50마리 잡기",g:()=>[G.lvIsleK||0,50]});
 </script>
 <script>
+/* ================= v69-1: 🔎 숨은 아기 신상 찾기 — 지도 곳곳 반짝이 보물찾기 (IDEAS G11/6-1) =================
+   네 세계마다 12개(두 사냥터 6개씩) + 함께 쓰는 땅 8개(세계의 중심 4 · 태양의 사막 2 · 뱀의 섬 2) = 56개.
+   자리는 고정 씨앗으로 정해져서 모든 폰·모든 날 같은 곳. 신상마다 숨는 곳이 있음(덤불·바위 더미·속 빈 통나무·버섯·부러진 기둥·꽃밭).
+   가까이 가면 "딸랑♪"이 점점 빨라지고, 닿으면 신상이 폴짝 뛰며 도감 칸이 채워짐 + 작은 선물. 4·12·56개 칭호, 12개면 신전 장식.
+   🗿 지혜의 석상 앞에서 하루 한 번 힌트(안 찾은 신상 하나의 대강 자리로 길 안내).
+   ✨ 이번 주의 황금 신상: 주마다 자리가 바뀜(주 번호 씨앗) — 모두가 같은 곳을 찾고, 먼저 찾은 10명이 명부에(보관 hid/<주>/<id>).
+   찾은 신상 앞에서 「📣 여기 숨은 신상!」 → 근처 사람 화면에 빛기둥(t:"hidp"). */
+const HD_N=56;
+const HD_HIDE=[{n:"덤불 속",ic:"🌿"},{n:"바위 더미 사이",ic:"🪨"},{n:"속 빈 통나무 안",ic:"🪵"},{n:"큰 버섯 아래",ic:"🍄"},{n:"부러진 기둥 뒤",ic:"🏛"},{n:"꽃밭 속",ic:"🌼"}];
+const HD={spots:[],built:false,t:0,ding:0,lbl:null,gold:null,gw:-1,beams:[],q:[],visT:0,near:null};
+const HDO={};   // HDO[주][id]={i,n,r,ts}
+function hdWeek(){ return Math.floor((kday()+3)/7); }
+function hdData(){ G.hid=G.hid||{f:{},gw:{}}; G.hid.f=G.hid.f||{}; G.hid.gw=G.hid.gw||{}; return G.hid; }
+function hdCount(){ return Object.keys(hdData().f).length; }
+/* ---------- 자리 정하기 (고정 씨앗) ---------- */
+function hdMakeSpots(){ const S=[]; const r0=dgRng(20261106); const far=(x,z)=>S.every(s=>Math.hypot(s.x-x,s.z-z)>14);
+  const place=(area,n,lo,hi,zone,name)=>{ let k=0, tries=0; while(k<n&&tries<400){ tries++; const a=r0()*6.283, d=lo+r0()*(hi-lo); const x=area.x+Math.cos(a)*d, z=area.z+Math.sin(a)*d; if(Math.abs(x)>WORLD_HALF-14||Math.abs(z)>WORLD_HALF-14) continue; if(!far(x,z)) continue; S.push({x,z,zone,rg:name,cx:area.x,cz:area.z,h:S.length%6}); k++; } };
+  for(let r=0;r<4;r++){ for(const j of [1,2]){ const rg=REGIONS[r*3+j]; place(rg,6,8,rg.r*.85,"w"+r,rg.n); } }
+  place(REGIONS[12],4,20,52,"c",REGIONS[12].n);
+  [[70,10],[-30,60]].forEach(([lx,lz])=>S.push({x:DSX+lx,z:DSZ+lz,zone:"d",rg:"태양의 사막",cx:DSX,cz:DSZ,h:S.length%6}));
+  [[30,-20],[-26,28]].forEach(([lx,lz])=>S.push({x:LVX+lx,z:LVZ+lz,zone:"s",rg:"뱀의 섬",cx:LVX,cz:LVZ,h:S.length%6}));
+  return S.slice(0,HD_N); }
+/* ---------- 모델 ---------- */
+function hdStatue(col,gold){ const g=new THREE.Group(); const st=gold?M.gold:mat({color:0xeee8da,roughness:.7}), ac=gold?mat({color:0xfff2a0,metalness:.6,roughness:.3,emissive:0x664400,emissiveIntensity:.5}):mat({color:col,roughness:.6});
+  g.add(cyl(.42,.5,.28,st,0,.14,0,10)); const body=new THREE.Group(); body.position.y=.28; g.add(body);
+  const b=sph(.34,st,0,.36,0); b.scale.set(1,1.05,.9); body.add(b); body.add(sph(.3,st,0,.92,.02));
+  const eyeM=mat({color:0x222222}); [-1,1].forEach(s=>{ body.add(sph(.05,eyeM,s*.11,.96,.27)); const w=sph(.2,ac,s*.36,.5,-.12); w.scale.set(.45,1,.7); w.rotation.z=s*.6; body.add(w); });
+  const halo=new THREE.Mesh(new THREE.TorusGeometry(.2,.035,6,18),gold?glowMat(0xffe08a,.95):glowMat(col,.85)); halo.rotation.x=Math.PI/2; halo.position.y=1.3; halo.userData.noOutline=true; body.add(halo);
+  g.userData={body,halo}; return g; }
+function hdHide(h){ const g=new THREE.Group(); const leaf=mat({color:0x4f9a48,roughness:.85}), leaf2=mat({color:0x6cb85a,roughness:.85}), rock=mat({color:0x8d8a84,roughness:.95}), wood=mat({color:0x7a5236,roughness:.95}), marble=M.marble||mat({color:0xf4efe2});
+  if(h===0){ [[.9,.5,.3,.8],[-.8,.45,.4,.75],[.1,.5,-.9,.8],[-.3,.35,.95,.55]].forEach(([x,y,z,s],i)=>{ const b=sph(s,i%2?leaf2:leaf,x,y,z); b.scale.y*=.85; g.add(b); }); }
+  else if(h===1){ [[.85,.4,.2,.6],[-.8,.35,-.1,.55],[.1,.3,-.85,.5],[.3,.9,-.4,.4]].forEach(([x,y,z,s])=>{ const r=new THREE.Mesh(new THREE.DodecahedronGeometry(s,0),rock); r.position.set(x,y,z); r.rotation.set(x,z,y); g.add(r); }); }
+  else if(h===2){ const lg=new THREE.Mesh(new THREE.CylinderGeometry(.75,.8,2.6,12,1,true),wood); lg.material.side=THREE.DoubleSide; lg.rotation.z=Math.PI/2; lg.position.set(0,.7,0); g.add(lg); const ring=new THREE.Mesh(new THREE.TorusGeometry(.75,.08,6,16),mat({color:0xc89a6a})); ring.rotation.y=Math.PI/2; ring.position.set(1.3,.7,0); g.add(ring); }
+  else if(h===3){ [[.55,1.6,.2,.9,0xd94a3a],[-.6,1.2,-.3,.7,0xe8a040]].forEach(([x,y,z,s,c])=>{ g.add(cyl(.12,.16,y,mat({color:0xf3ead8}),x,y/2,z,8)); const cap=sph(s,mat({color:c,roughness:.6}),x,y,z); cap.scale.y*=.5; g.add(cap); [0,1,2].forEach(k=>g.add(sph(.1,mat({color:0xffffff}),x+Math.cos(k*2)*s*.5,y+s*.35,z+Math.sin(k*2)*s*.5))); }); }
+  else if(h===4){ g.add(cyl(.45,.5,1.6,marble,.8,.8,0,10)); const tp=cyl(.45,.45,1.1,marble,-.6,.35,.5,10); tp.rotation.z=Math.PI/2; tp.rotation.y=.6; g.add(tp); g.add(box(1.1,.25,1.1,marble,.8,.12,0)); }
+  else { for(let k=0;k<9;k++){ const a=k/9*6.283, d=.5+(k%3)*.25; g.add(cyl(.03,.03,.8,leaf,Math.cos(a)*d,.4,Math.sin(a)*d,4)); g.add(sph(.14,mat({color:[0xffe04a,0xff9ad0,0xffffff][k%3],roughness:.7}),Math.cos(a)*d,.82,Math.sin(a)*d)); } [[.8,0],[-.7,.4],[0,-.8]].forEach(([x,z])=>{ const gr=sph(.45,leaf2,x,.25,z); gr.scale.y*=1.4; g.add(gr); }); }
+  return g; }
+function hdZoneOk(s){ if(s.zone==="d") return typeof gtOpen==="function"?!!gtOpen():true; if(s.zone==="s") return typeof lvIsle==="function"?lvIsle():true; return true; }
+function hdBuild(){ if(HD.built) return; HD.built=true; HD.spots=hdMakeSpots();
+  HD.spots.forEach((s,i)=>{ const col=s.zone[0]==="w"?new THREE.Color(REALMS[+s.zone[1]].c1).getHex():0x9ad8ff; const g=new THREE.Group(); const hide=hdHide(s.h); g.add(hide); const st=hdStatue(col,false); st.scale.setScalar(.62); const off=s.h===2?[.6,.35,0]:s.h===4?[-.1,0,-.2]:[0,0,0]; st.position.set(off[0],off[1],off[2]); g.add(st);
+    g.position.set(s.x,hAt(s.x,s.z),s.z); g.rotation.y=(i*2.399)%6.283; g.visible=false; scene.add(shadowify(g)); g.traverse(o=>{ if(o.material&&o.material.blending===THREE.AdditiveBlending){ o.castShadow=false; o.userData.noOutline=true; } }); s.g=g; s.st=st; s.hop=0; }); }
+setTimeout(()=>{ try{ hdBuild(); }catch(e){ console.warn(e); } },20);
+/* ---------- 황금 신상 (이번 주) ---------- */
+function hdGoldSpot(w){ if(!HD.spots.length) return null; const r=dgRng(w*7919+13); const L=HD.spots.map((s,i)=>i).filter(i=>HD.spots[i].zone[0]==="w"||HD.spots[i].zone==="c"); const i=L[Math.floor(r()*L.length)]; const s=HD.spots[i]; const a=r()*6.283; return {x:s.x+Math.cos(a)*3.2,z:s.z+Math.sin(a)*3.2,i,rg:s.rg,zone:s.zone}; }
+function hdGoldSync(){ const w=hdWeek(); if(HD.gw===w&&HD.gold) return; HD.gw=w; if(HD.gold){ scene.remove(HD.gold.g); HD.gold=null; } const sp=hdGoldSpot(w); if(!sp) return; const g=hdStatue(0xffd24a,true); g.scale.setScalar(.75); g.position.set(sp.x,hAt(sp.x,sp.z),sp.z); g.visible=false; const gl=new THREE.Mesh(new THREE.RingGeometry(.7,1.1,24),glowMat(0xffd24a,.6)); gl.rotation.x=-Math.PI/2; gl.position.y=.06; gl.userData.noOutline=true; g.add(gl); scene.add(shadowify(g)); g.traverse(o=>{ if(o.material&&o.material.blending===THREE.AdditiveBlending){ o.castShadow=false; o.userData.noOutline=true; } }); HD.gold={...sp,g,hop:0,w}; }
+function hdGoldBoard(w){ const o=HDO[w]||{}; const L=Object.values(o); const me=hdData().gw[w]; if(me&&!o[G.id]) L.push({i:G.id,n:G.name,r:G.realm,ts:me}); return L.sort((a,b)=>a.ts-b.ts); }
+NETX.push({sub:()=>"hid/"+hdWeek()+"/+",pre:"hid/",f:(d,topic)=>{ if(!d||!d.i||!d.ts) return; const w=+String(topic).split("/")[1]; if(!(w>=0)) return; (HDO[w]=HDO[w]||{})[d.i]=d; }});
+/* ---------- 찾기 ---------- */
+function hdFind(i){ const D=hdData(); if(D.f[i]) return; const s=HD.spots[i]; D.f[i]=Date.now(); const n=hdCount(); const gold=30+G.lv*6; G.gold+=gold; let extra=""; if(n%4===0){ G.ore=(G.ore||0)+3; extra=" · ⛓ 쇳조각 +3"; } if(n%12===0){ G.rune=(G.rune||0)+2; extra+=" · ✨ 룬 가루 +2"; } if(n===HD_N){ G.gold+=3000; extra+=" · 🎉 다 찾았다! 금화 +3,000"; }
+  if(n>=12&&!D.deco){ D.deco=1; try{ hmAdd(HD_DECO,"숨은 신상 12개를 찾아서"); }catch(e){} }
+  saveGame(); s.hop=1; fxRing(s.x,s.z,0xfff2a0,4,.6); fxSpark(s.x,1.2,s.z,0xfff2a0,26); jingle([1046,1318,1568,2093]); buzz(25);
+  toast(`🔎 숨은 아기 신상을 찾았어요! (${n}/${HD_N})`,`${HD_HIDE[s.h].ic} ${s.rg} · ${HD_HIDE[s.h].n} · 금화 +${gold}${extra}`,2.8); if(G.hidHint&&G.hidHint.i===i){ G.hidHint=null; if(P.guide&&P.guide.hd) { P.guide=null; $("guide").hidden=true; } } }
+function hdFindGold(){ const D=hdData(), H=HD.gold; if(!H||D.gw[H.w]) return; D.gw[H.w]=Date.now(); const rank=hdGoldBoard(H.w).filter(x=>x.ts<D.gw[H.w]).length+1; const L=G.lv; const gold=400+L*40; G.gold+=gold; G.rune=(G.rune||0)+3; G.hidGold=(G.hidGold||0)+1; saveGame();
+  try{ net.pushRet("hid/"+H.w+"/"+G.id,{i:G.id,n:G.name,r:G.realm,ts:D.gw[H.w]}); }catch(e){}
+  H.hop=1; fxRing(H.x,H.z,0xffd24a,8,.9); for(let k=0;k<3;k++) setTimeout(()=>fxSpark(H.x,1.5,H.z,0xffd24a,30),k*160); jingle([784,1046,1318,1568,2093]); buzz([30,30,60]);
+  try{ lvBanner("이번 주의 황금 신상",`✨ ${rank<=10?rank+"번째로 찾았어요!":"찾았어요!"}`,`금화 +${fmt(gold)} · ✨ 룬 가루 +3${rank<=10?" · 명부에 이름이 올라가요":""}`,"#ffd24a"); }catch(e){ toast("✨ 황금 신상을 찾았어요!",`금화 +${gold}`,2.6); } }
+/* ---------- 📣 여기 숨은 신상! ---------- */
+function hdBeam(x,z,col){ const m=new THREE.Mesh(new THREE.CylinderGeometry(.6,.6,40,12,1,true),glowMat(col||0xfff2a0,.55)); m.position.set(x,hAt(x,z)+20,z); m.userData.noOutline=true; scene.add(m); HD.beams.push({m,t:20}); }
+function hdShout(){ const n=HD.near; if(!n) return; const now=Date.now(); if(HD.shT&&now-HD.shT<8000){ toast("조금 있다가 다시 알려 줄 수 있어요"); return; } HD.shT=now; hdBeam(n.x,n.z); try{ net.send({t:"hidp",x:Math.round(n.x*10)/10,z:Math.round(n.z*10)/10,g:n.gold?1:0}); }catch(e){} tone(880,.08,"triangle"); tone(1175,.1,"triangle",.08); toast("📣 여기 숨은 신상! — 근처 사람에게 빛기둥을 보여 줬어요",null,1.8); }
+NETR.hidp=(o,d)=>{ if(!(d.x>-1e4)||!(d.z>-1e4)) return; if(Math.hypot(d.x-P.x,d.z-P.z)>120) return; hdBeam(d.x,d.z,d.g?0xffd24a:0xfff2a0); toast(`📣 ${o.name}: 여기 숨은 ${d.g?"황금 ":""}신상!`,"빛기둥을 따라가 봐요",2.2); tone(1318,.08,"triangle"); };
+/* ---------- 힌트 (지혜의 석상, 하루 한 번) ---------- */
+function hdDir(dx,dz){ const a=Math.atan2(dx,-dz); const k=Math.round(a/(Math.PI/4)); return ["북","북동","동","남동","남","남서","서","북서"][(k+8)%8]+"쪽"; }
+function hdOracleNear(){ try{ return OR.spots.some(o=>o&&Math.hypot(P.x-o.x,P.z-o.z)<9); }catch(e){ return false; } }
+function hdHint(){ const D=hdData(); const today=kday(); if(G.hidHint&&G.hidHint.d===today){ hdGuide(G.hidHint); return; } if(D.hintD===today){ toast("오늘 힌트는 이미 들었어요","내일 또 물어봐요",1.8); return; }
+  if(!hdOracleNear()){ const o=OR.spots[Math.max(0,G.realm)]; if(o) setGuide({x:o.x,z:o.z+4,label:"🗿 지혜의 석상"}); toast("🗿 힌트는 수도의 지혜의 석상이 알려 줘요","석상으로 길 안내할게요",2); closeLayer(); return; }
+  const L=HD.spots.map((s,i)=>i).filter(i=>!D.f[i]&&hdZoneOk(HD.spots[i])); if(!L.length){ toast("찾을 수 있는 신상을 다 찾았어요!"); return; }
+  const mine=L.filter(i=>HD.spots[i].zone==="w"+G.realm); const pool=mine.length?mine:L; const i=pool[Math.floor(Math.random()*pool.length)]; const s=HD.spots[i]; const a=Math.random()*6.283, d=rnd(3,7);
+  G.hidHint={d:today,i,x:s.x+Math.cos(a)*d,z:s.z+Math.sin(a)*d}; D.hintD=today; saveGame(); closeLayer();
+  card(`<h2>🗿 지혜의 석상의 힌트</h2><p style="font-size:17px">"<b>${s.rg}</b>의 ${hdDir(s.x-s.cx,s.z-s.cz)}, <b>${HD_HIDE[s.h].ic} ${HD_HIDE[s.h].n}</b>에 아기 신상이 숨어 있느니라…"</p><p style="font-size:13px">그 근처까지 길 안내해 줄게요. 가까이 가면 "딸랑♪" 소리가 빨라져요!</p><button class="go" id="hdGo" style="align-self:center">🔎 찾으러 가기</button>`);
+  jingle([392,523,659,784]); $("hdGo").onclick=()=>{ closeLayer(); hdGuide(G.hidHint); }; }
+function hdGuide(h){ if(!h) return; P.guide=null; setGuide({x:h.x,z:h.z,label:"🔎 힌트 자리 근처",hd:1}); if(P.guide) P.guide.hd=1; }
+/* ---------- 매 프레임 ---------- */
+function hdTick(dt){ if(!started||G.realm<0||!HD.built) return; const tn=performance.now(); hdGoldSync(); const D=hdData();
+  for(let i=HD.beams.length-1;i>=0;i--){ const b=HD.beams[i]; b.t-=dt; b.m.material.opacity=Math.min(.55,b.t/3)*(.75+Math.sin(tn/160)*.25); if(b.t<=0){ scene.remove(b.m); HD.beams.splice(i,1); } }
+  // 보이는 것만 (가까운 것)
+  HD.visT-=dt; if(HD.visT<=0){ HD.visT=.8; HD.spots.forEach(s=>{ const v=Math.abs(s.x-P.x)<70&&Math.abs(s.z-P.z)<70; if(s.g.visible!==v){ s.g.visible=v; if(v) s.g.position.y=hAt(s.x,s.z); } }); if(HD.gold){ const v=Math.abs(HD.gold.x-P.x)<70&&Math.abs(HD.gold.z-P.z)<70; if(HD.gold.g.visible!==v){ HD.gold.g.visible=v; if(v) HD.gold.g.position.y=hAt(HD.gold.x,HD.gold.z); } } }
+  // 움직임: 안 찾은 신상은 후광이 반짝, 찾은 신상은 가끔 기지개
+  let best=null, bd=1e9;
+  HD.spots.forEach((s,i)=>{ if(!s.g.visible) return; const u=s.st.userData; const f=!!D.f[i]; u.halo.material.opacity=f?.35:.55+Math.sin(tn/250+i)*.35; u.halo.rotation.z+=dt*(f?.5:2);
+    if(s.hop>0){ s.hop=Math.max(0,s.hop-dt*1.1); const p=1-s.hop; u.body.position.y=.28+Math.sin(p*Math.PI)*1.1; u.body.rotation.y=p*Math.PI*2; } else { u.body.position.y=.28+(f?0:Math.abs(Math.sin(tn/700+i))*.04); u.body.rotation.y=f?Math.sin(tn/1800+i)*.4:0; }
+    const d=Math.hypot(P.x-s.x,P.z-s.z); if(!f&&hdZoneOk(s)&&d<bd){ bd=d; best=i; } if(!f&&d<1.9&&!P.dead&&hdZoneOk(s)) hdFind(i); });
+  const H=HD.gold; let gd=1e9; if(H&&H.g.visible){ const u=H.g.userData; u.halo.rotation.z+=dt*3; const got=!!D.gw[H.w]; if(H.hop>0){ H.hop=Math.max(0,H.hop-dt*1.1); const p=1-H.hop; u.body.position.y=.28+Math.sin(p*Math.PI)*1.4; u.body.rotation.y=p*Math.PI*4; } else u.body.position.y=.28+Math.abs(Math.sin(tn/400))*.12; gd=Math.hypot(P.x-H.x,P.z-H.z); if(!got&&gd<2&&!P.dead) hdFindGold(); if(!got&&gd<40&&Math.random()<dt*3) fxSpark(H.x+rnd(-.5,.5),1.6,H.z+rnd(-.5,.5),0xffd24a,2); }
+  // 딸랑♪ — 가까울수록 빨라짐
+  const gOk=H&&!D.gw[H.w]; const dd=Math.min(bd,gOk?gd:1e9); HD.ding-=dt; if(dd<24&&!layerOpen){ if(HD.ding<=0){ HD.ding=.22+dd/24*1.3; const f=dd===gd?1568:1318; tone(f,.06,"sine",0,.045); tone(f*1.5,.05,"sine",.05,.03); } }
+  // 가까운(찾은) 신상 → 📣 버튼
+  HD.near=null; HD.spots.forEach((s,i)=>{ if(!HD.near&&s.g.visible&&Math.hypot(P.x-s.x,P.z-s.z)<5) HD.near={x:s.x,z:s.z,i}; }); if(H&&H.g.visible&&D.gw[H.w]&&gd<5) HD.near={x:H.x,z:H.z,gold:1};
+  // 이번 주 황금 신상 이름표
+  if(!HD.lbl) HD.lbl=makeLabel("ally"); if(H&&H.g.visible&&gd<16&&!layerOpen) placeLabel(HD.lbl,H.x,2.2,H.z,D.gw[H.w]?"✨ <b>황금 신상</b> (찾음)":"✨ <b>황금 신상</b>"); else HD.lbl.style.display="none"; }
+XTICK.push(hdTick);
+/* ---------- 창 ---------- */
+function showHidden(){ const D=hdData(), n=hdCount(); const H=HD.gold; const w=hdWeek(); const bd=hdGoldBoard(w);
+  const zones=[0,1,2,3].map(r=>({ic:REALMS[r].icon,n:REALMS[r].n,z:"w"+r,c:REALMS[r].c1})).concat([{ic:"⭐",n:"세계의 중심",z:"c",c:"#cfd6ff"},{ic:"☀",n:"태양의 사막",z:"d",c:"#ffd27a"},{ic:"🏝",n:"뱀의 섬",z:"s",c:"#9ad88a"}]);
+  const grid=zones.map(Z=>{ const idx=HD.spots.map((s,i)=>i).filter(i=>HD.spots[i].zone===Z.z); const got=idx.filter(i=>D.f[i]).length; return `<div class="row"><div class="ic" style="color:${Z.c}">${Z.ic}</div><div class="t"><div>${Z.n} <b>${got}/${idx.length}</b></div><span style="letter-spacing:2px">${idx.map(i=>D.f[i]?"🗿":"▫").join("")}</span></div></div>`; }).join("");
+  const hintBtn=G.hidHint&&G.hidHint.d===kday()?`<button class="buy" id="hdHint">🧭 오늘 힌트 자리로 길 안내</button>`:D.hintD===kday()?`<button class="buy alt" disabled>🗿 오늘 힌트는 들었어요</button>`:`<button class="buy" id="hdHint">🗿 지혜의 석상에게 힌트 듣기</button>`;
+  card(`<h2>🔎 숨은 아기 신상</h2><p>세계 곳곳 덤불·바위·통나무·버섯·기둥·꽃밭에 손바닥만 한 아기 신상이 숨어 있어요. 가까이 가면 <b>딸랑♪</b> 소리가 점점 빨라져요. 찾은 신상 <b style="color:var(--gold)">${n}/${HD_N}</b></p>
+   <div class="idlegrid"><div><b>🗿 ${n}</b><span>찾은 신상</span></div><div><b>✨ ${G.hidGold||0}</b><span>찾은 황금 신상</span></div></div>
+   <h3>✨ 이번 주의 황금 신상</h3><p style="font-size:14px">${H?`이번 주에는 <b style="color:#ffd24a">${H.rg}</b> 어딘가에 숨어 있어요! ${D.gw[w]?"✅ 찾았어요":"모두 함께 찾아요 — 먼저 찾은 10명은 명부에 이름이 올라가요"}`:"곧 숨어요"}</p>
+   ${bd.length?bd.slice(0,10).map((x,k)=>`<div class="row"><div class="ic">${["🥇","🥈","🥉"][k]||k+1}</div><div class="t"><div><b style="color:${REALMS[x.r]?REALMS[x.r].c1:"#fff"}">${x.n}</b>${x.i===G.id?" (나)":""}</div><span>${fmtAgo(x.ts)}</span></div></div>`).join(""):`<p style="font-size:12px">아직 아무도 못 찾았어요. 첫 번째가 되어 봐요!</p>`}
+   <h3>🗺 찾은 곳</h3>${grid}
+   <div class="exgrid">${hintBtn}</div>
+   <p style="font-size:12px">찾을 때마다 금화 · 4개마다 쇳조각 · 12개마다 룬 가루 · 12개면 신전 장식 «아기 신상 정원» · 다 찾으면 금화 3,000 + 칭호. 찾은 신상 앞에서 「📣 여기 숨은 신상!」을 누르면 근처 사람에게 빛기둥을 보여 줘요. 사막·뱀의 섬 신상은 그곳이 열리면 찾을 수 있어요.</p>`);
+  if($("hdHint")) $("hdHint").onclick=hdHint; }
+CTX_EXTRA.push(()=>{ if(hdOracleNear()&&hdData().hintD!==kday()) return {t:"🗿 숨은 신상 힌트 듣기",f:hdHint}; return HD.near?{t:HD.near.gold?"📣 여기 황금 신상!":"📣 여기 숨은 신상!",f:hdShout}:null; });
+MENU_X.push({ic:"🔎",n:"숨은 아기 신상",id:"hdBtn",sub:()=>`찾은 신상 ${hdCount()}/${HD_N} · ✨ 이번 주 황금 신상 ${HD.gold?HD.gold.rg:""}${hdData().gw[hdWeek()]?" (찾음)":""}`,f:showHidden});
+const HD_DECO=DECO.length;
+DECO.push({n:"아기 신상 정원",ic:"🗿",t:2,sc:15,p:0,trophy:1,mk:r=>{ const g=new THREE.Group(); g.add(cyl(1.3,1.4,.3,mat({color:0x6cb85a}),0,.15,0,16)); [-.6,.6,0].forEach((x,k)=>{ const s=hdStatue(new THREE.Color(REALMS[(r+k)%4].c1).getHex(),k===2); s.scale.setScalar(.7); s.position.set(x,.3,k===2?-.5:.3); g.add(s); }); return g; }});
+TITLES.push({id:"hd4",n:"숨바꼭질 새내기",t:0,h:"숨은 아기 신상 4개 찾기",g:()=>[hdCount(),4]},{id:"hd12",n:"눈 밝은 탐험가",t:1,h:"숨은 아기 신상 12개 찾기",g:()=>[hdCount(),12]},{id:"hd56",n:"숨바꼭질의 신",t:3,h:"숨은 아기 신상 56개 모두 찾기",g:()=>[hdCount(),HD_N]},{id:"hdg",n:"황금 신상 사냥꾼",t:2,h:"이번 주의 황금 신상 3번 찾기",g:()=>[G.hidGold||0,3]});
+</script>
+<script>
+/* ================= v69-2: 🥚 신수 둥지 — 다른 사람 신수와 짝지어 새 신수 알 (IDEAS G11/6-2) =================
+   수도마다 커다란 「신수 둥지」. Lv10 넘은 신수를 맡기고, 둥지 게시판에서 친구나 처음 보는 사람의 신수와 짝을 지음.
+   짝을 지은 때부터 8시간(게임을 꺼 둬도 흐름) 뒤 두 사람 모두 「섞인 알」을 받음 — 섞인 신수 6종이 새로 생김.
+     그리핀+슬레이프니르=히포그리프 · 그리핀+가루다=태양 독수리 · 그리핀+페가수스=하늘 사자
+     슬레이프니르+가루다=불꽃 갈기 말 · 슬레이프니르+페가수스=구름 말 · 가루다+페가수스=무지개 새
+     (섞인 신수끼리 짝지으면 그 부모 중 하나씩 골라 다시 섞임 · 불사조와 짝지으면 반반)
+   아주 가끔(5%, 확률 공개 · 돈과 상관없음) 반짝이는 ✨별빛 신수. 신수 정보에 "부모: ○○의 그리핀 · △△의 페가수스".
+   8시간 동안 아무도 짝을 안 지으면 🦚 둥지 지기 공작이 짝이 되어 줌(혼자 놀 때도 손해 없음).
+   보관(retained) 주제: ne/<id> = {i,n,r,pk,pl,sh,ts,m(짝 id),mt(짝 지은 때),mk,ml,mn,msh,d(끝)}  ·  nk/<받는 사람>/<보낸 사람> = 🙏 고마워
+   짝 짓기는 한쪽이 먼저 "이 신수랑!" 하고 올리면(m) 상대 폰이 다음에 볼 때 받아들임 — 가장 먼저 온 짝 하나. */
+const NB=PETS.length;   // 섞인 신수가 시작하는 번호 (불사조 다음)
+PETS.push(
+ {n:"아기 히포그리프",kind:"pegasus",c:0xe8d27a,c2:0xb8c6d8,egg:"섞인 무늬 알",par:[0,1]},
+ {n:"아기 태양 독수리",kind:"bird",c:0xffc23a,c2:0xff7a2a,egg:"섞인 무늬 알",par:[0,2]},
+ {n:"아기 하늘 사자",kind:"griffin",c:0xfff4d8,c2:0xffcf4a,egg:"섞인 무늬 알",par:[0,3]},
+ {n:"아기 불꽃 갈기 말",kind:"horse8",c:0xc8b8a8,c2:0xff7a30,egg:"섞인 무늬 알",par:[1,2]},
+ {n:"아기 구름 말",kind:"pegasus",c:0xdce8f8,c2:0x8ab0e0,egg:"섞인 무늬 알",par:[1,3]},
+ {n:"아기 무지개 새",kind:"bird",c:0xff9ad0,c2:0x8ad8ff,egg:"섞인 무늬 알",par:[2,3]});
+const NE_PAIR={"0-1":NB,"0-2":NB+1,"0-3":NB+2,"1-2":NB+3,"1-3":NB+4,"2-3":NB+5};
+const NE_H=8, NE_MINLV=10, NE_SHINY=.05, NE_ICON=["🦅","🐎","🐦","🦄","🔥","🦄","🦅","🦁","🐎","☁","🌈"];
+const NE={spots:[],lbl:null,t:0,pubT:6,q:[],gotQ:[]};
+const NEO={};
+function nePetIc(r){ return NE_ICON[r]||"🐾"; }
+function neBase(x){ if(x<4||x===4) return [x]; const D=PETS[x]; return D&&D.par?D.par:[0]; }
+function neOutcomes(a,b){ const S=new Set(); neBase(a).forEach(pa=>neBase(b).forEach(pb=>{ if(pa===pb) S.add(pa); else if(pa===4||pb===4){ S.add(4); S.add(pa===4?pb:pa); } else S.add(NE_PAIR[Math.min(pa,pb)+"-"+Math.max(pa,pb)]); })); return [...S]; }
+function neChild(a,b,rr){ const A=neBase(a), B=neBase(b); const pa=A[Math.floor(rr()*A.length)], pb=B[Math.floor(rr()*B.length)]; if(pa===pb) return pa; if(pa===4||pb===4) return rr()<.5?4:(pa===4?pb:pa); return NE_PAIR[Math.min(pa,pb)+"-"+Math.max(pa,pb)]; }
+function neHash(s){ let h=2166136261; s=String(s); for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); } return h>>>0; }
+function neMine(){ const n=G.nest; return n&&n.pk>=0&&!n.d?n:null; }
+function neAway(r){ const n=neMine(); return !!n&&n.pk===r; }
+(function(){ const _ea=expPetAway; expPetAway=function(r){ return _ea(r)||neAway(r); };
+  const _es=expStart; expStart=function(d,h){ if(neAway(G.pet)){ toast("🥚 그 신수는 지금 둥지에 있어요","둥지에서 돌아오면 원정을 보낼 수 있어요",2.2); return; } return _es(d,h); };
+  const _he=hatchEgg; hatchEgg=function(){ const e=G.egg; const r=e?e.r:-1, sh=e&&e.sh, par=e&&e.par; const had=r>=0&&G.pets&&G.pets[r]&&G.pets[r].sh; _he(); if(r<0) return; const p=G.pets&&G.pets[r]; if(!p) return; let ch=false; if(par&&!p.par){ p.par=par; ch=true; } if(sh&&!had){ p.sh=1; ch=true; setTimeout(()=>{ toast(`✨ 별빛 ${PETS[r].n}!`,"반짝반짝 빛나는 아주 드문 신수예요",3); jingle([1318,1568,2093,2637]); },900); } if(ch){ saveGame(); try{ rebuildMyPet(); net.hello(); net.pushProfile(1); }catch(e2){} } }; })();
+/* ---------- 둥지 모델 ---------- */
+function neModel(){ const g=new THREE.Group(); const st=M.marble||mat({color:0xf4efe2}), twig=mat({color:0x9a6a3a,roughness:1}), twig2=mat({color:0x7a5030,roughness:1});
+  g.add(cyl(3.2,3.6,1.2,st,0,.6,0,20)); { const rim=new THREE.Mesh(new THREE.TorusGeometry(3.4,.12,6,40),M.gold); rim.rotation.x=Math.PI/2; rim.position.y=1.22; g.add(rim); }
+  for(let k=0;k<26;k++){ const a=k/26*6.283; const t=cyl(.12,.12,3.6,k%2?twig:twig2,Math.cos(a)*2.4,2,Math.sin(a)*2.4,5); t.rotation.z=Math.PI/2; t.rotation.y=-a+(k%3-1)*.35; t.rotation.x=(k%2?.25:-.25); g.add(t); }
+  const bowl=new THREE.Mesh(new THREE.TorusGeometry(2.3,.75,8,22),twig); bowl.rotation.x=Math.PI/2; bowl.position.y=2; g.add(bowl); const inner=cyl(1.9,1.4,.4,twig2,0,1.6,0,16); g.add(inner);
+  const eggs=[]; [[0,0,0xfff2c8,1],[-.95,.5,0xc8e4ff,.8],[.9,-.6,0xffd0e8,.8]].forEach(([x,z,c,s])=>{ const e=sph(.7*s,mat({color:c,roughness:.45,emissive:c,emissiveIntensity:.12}),x,2.4+.25*s,z); e.scale.y*=1.3; g.add(e); eggs.push(e); for(let k=0;k<3;k++){ const sp=sph(.12*s,mat({color:0xffffff}),x+Math.cos(k*2.1)*.45*s,2.5+.25*s+(k-1)*.3*s,z+Math.sin(k*2.1)*.45*s+.3*s); g.add(sp); } });
+  const glow=new THREE.Mesh(new THREE.RingGeometry(3.6,4.3,40),glowMat(0xffe0a0,.35)); glow.rotation.x=-Math.PI/2; glow.position.y=.08; glow.userData.noOutline=true; g.add(glow);
+  const sign=new THREE.Group(); sign.add(cyl(.1,.1,1.8,twig2,0,.9,0,6)); sign.add(box(1.6,.7,.12,mat({color:0xf3e2b8,roughness:.9}),0,1.75,0)); sign.position.set(3.8,0,1.6); g.add(sign);
+  g.userData={eggs,glow}; return g; }
+setTimeout(()=>{ for(let r=0;r<4;r++){ let s; try{ s=xCapSpot(r,30); }catch(e){ const c=REGIONS[r*3]; s={x:c.x+(c.x>0?-30:30),z:c.z+12,rot:0}; } XSPOT_USED.push({r,x:s.x,z:s.z,rad:6}); const g=neModel(); g.position.set(s.x,hAt(s.x,s.z),s.z); g.rotation.y=s.rot; scene.add(shadowify(g)); g.traverse(o=>{ if(o.material&&o.material.blending===THREE.AdditiveBlending){ o.castShadow=false; o.userData.noOutline=true; } }); NE.spots[r]={x:s.x,z:s.z,rot:s.rot,g}; } },15);
+function neNear(){ if(typeof TW!=="undefined"&&TW.on) return null; for(const s of NE.spots){ if(s&&Math.hypot(P.x-s.x,P.z-s.z)<6.5) return s; } return null; }
+/* ---------- 게시판 · 짝 짓기 ---------- */
+function neClaimed(id,ts){ for(const k in NEO){ const z=NEO[k]; if(z&&z.m===id&&z.mt>ts&&!z.d) return z; } const me=neMine(); return me&&me.m===id&&me.mt>ts?me:null; }
+function neBoard(){ const now=Date.now(), L=[]; for(const id in NEO){ const y=NEO[id]; if(!y||id===G.id||y.d||!(y.pk>=0)||y.m||now-y.ts>3*86400000) continue; if(neClaimed(id,y.ts)) continue; L.push(y); } return L.sort((a,b)=>b.ts-a.ts); }
+function nePub(){ const n=G.nest; if(!n) return; try{ net.pushRet("ne/"+G.id,{i:G.id,n:G.name,r:G.realm,pk:n.pk,pl:n.pl,sh:n.sh?1:0,ts:n.ts,m:n.m||"",mt:n.mt||0,mk:n.mk==null?-1:n.mk,ml:n.ml||0,mn:n.mn||"",msh:n.msh?1:0,d:n.d?1:0}); }catch(e){} }
+function neDeposit(r){ if(neMine()){ toast("이미 둥지에 신수가 있어요"); return; } const p=G.pets&&G.pets[r]; if(!p) return; if(p.lv<NE_MINLV){ toast(`신수가 Lv.${NE_MINLV} 이상이어야 맡길 수 있어요`); return; } if(typeof expPetAway==="function"&&G.exp&&G.exp.pet===r){ toast("그 신수는 원정 중이에요"); return; } if(!neNear()){ toast("수도의 신수 둥지 앞에서 맡길 수 있어요"); return; }
+  G.nest={pk:r,pl:p.lv,sh:p.sh?1:0,ts:Date.now(),m:"",mt:0,mk:-1,ml:0,mn:"",msh:0,d:0}; saveGame(); nePub(); try{ rebuildMyPet(); net.hello(); net.pushProfile(1); }catch(e){}
+  const s=neNear(); if(s){ fxRing(s.x,s.z,0xffe0a0,7,.8); fxSpark(s.x,3,s.z,PETS[r].c,26); } jingle([659,784,988,1318]); toast(`🥚 ${PETS[r].n}${josa(PETS[r].n,"을","를")} 둥지에 맡겼어요`,"게시판에서 짝을 고르거나, 누군가 골라 주길 기다려요 · 꺼 둬도 괜찮아요",3); }
+function nePair(id){ const me=neMine(); if(!me||me.m){ toast("먼저 내 신수를 둥지에 맡겨요"); return false; } const y=NEO[id]; if(!y||y.m||y.d||neClaimed(id,y.ts)){ toast("이미 다른 짝이 생긴 신수예요"); return false; }
+  Object.assign(me,{m:y.i,mt:Date.now(),mk:y.pk,ml:y.pl,mn:y.n,msh:y.sh?1:0}); saveGame(); nePub(); const s=neNear(); if(s){ fxRing(s.x,s.z,0xff9ad0,8,.9); fxSpark(s.x,3.5,s.z,0xff9ad0,30); } jingle([784,988,1175,1568]); buzz(25);
+  toast(`💞 ${y.n}님의 ${PETS[y.pk].n}${josa(PETS[y.pk].n,"와","과")} 짝이 되었어요!`,`${NE_H}시간 뒤 두 사람 모두 섞인 알을 받아요`,3); return true; }
+function neCancel(){ const me=neMine(); if(!me||me.m) return; G.nest=null; try{ net.pushRet("ne/"+G.id,{i:G.id,n:G.name,r:G.realm,pk:-1,ts:Date.now(),d:1}); }catch(e){} saveGame(); try{ rebuildMyPet(); net.hello(); net.pushProfile(1); }catch(e){} toast("신수가 둥지에서 돌아왔어요"); }
+function neOnRec(y){ if(!y||!y.i||y.i===G.id) return; NEO[y.i]=y; const me=neMine(); if(me&&!me.m&&y.m===G.id&&y.mt>me.ts&&!y.d){ Object.assign(me,{m:y.i,mt:y.mt,mk:y.pk,ml:y.pl,mn:y.n,msh:y.sh?1:0}); saveGame(); nePub(); NE.q.push(`💞 ${y.n}님이 내 ${PETS[me.pk].n}${josa(PETS[me.pk].n,"을","를")} 짝으로 골랐어요!`); } }
+/* ---------- 알 나오기 ---------- */
+function neDeliver(){ const me=neMine(); if(!me) return; const rr=dgRng((me.mt%2000000000)^neHash(G.id)); const child=neChild(me.pk,me.mk,rr); const sh=rr()<NE_SHINY; const par=[`${G.name}의 ${PETS[me.pk].n}`,`${me.mn}의 ${PETS[me.mk]?PETS[me.mk].n:"신수"}`];
+  const egg={r:child,sh:sh?1:0,par,from:me.m,fn:me.mn}; G.nestEggs=G.nestEggs||[]; G.nestEggs.push(egg); G.nestN=(G.nestN||0)+1; if(sh) G.nestSh=(G.nestSh||0)+1; const pk=me.pk;
+  // 신수가 둥지에서 돌아오며 조금 자람
+  const p=G.pets[pk]; if(p&&p.lv<PET_MAX){ p.lv=Math.min(PET_MAX,p.lv+1); }
+  G.nest=null; try{ net.pushRet("ne/"+G.id,{i:G.id,n:G.name,r:G.realm,pk:-1,ts:Date.now(),d:1}); }catch(e){} saveGame(); try{ rebuildMyPet(); net.hello(); net.pushProfile(1); }catch(e){} NE.gotQ.push(egg); }
+function neShowEgg(e){ const sp=e.from==="spirit"; const outs=PETS[e.r];
+  card(`<h2>🥚 둥지에서 섞인 알이 나왔어요!</h2><p style="font-size:16px">${sp?"🦚 <b>둥지 지기 공작</b>":`<b>${e.fn}</b>님`}의 신수와 내 신수 사이에서 <b>${e.sh?"✨ 반짝이는 ":""}${outs.egg}</b>이 태어났어요.</p>
+   <p style="font-size:13px">부모: ${e.par.join(" · ")}<br>알은 곧 깨어나요! 내 신수도 둥지에서 돌아오며 레벨이 1 올랐어요.</p>
+   ${sp?"":`<button class="go" id="neThx" style="align-self:center;font-size:20px;padding:10px 30px">🙏 고마워!</button>`}<button class="buy alt" id="neOk" style="align-self:center">${sp?"좋아요!":"나중에"}</button>`);
+  jingle([523,659,784,1046,1318]); if($("neThx")) $("neThx").onclick=()=>{ try{ net.pushRet("nk/"+e.from+"/"+G.id,{i:G.id,n:G.name,ts:Date.now()}); }catch(er){} closeLayer(); toast(`🙏 ${e.fn}님에게 고마운 마음을 보냈어요`,null,1.8); }; $("neOk").onclick=closeLayer; }
+NETX.push({sub:"ne/+",pre:"ne/",f:d=>neOnRec(d)});
+NETX.push({sub:()=>"nk/"+G.id+"/+",pre:"nk/",f:d=>{ if(!d||!d.i||d.i===G.id||!d.ts) return; G.nkSeen=G.nkSeen||{}; const k=d.i+":"+d.ts; if(G.nkSeen[k]) return; G.nkSeen[k]=1; G.nkGot=(G.nkGot||0)+1; saveGame(); NE.q.push(`🙏 ${d.n}님이 신수 둥지 짝꿍이 되어 줘서 고마워해요!`); }});
+/* ---------- 매 프레임 ---------- */
+function neTick(dt){ if(!started||G.realm<0) return; const tn=performance.now();
+  NE.spots.forEach((s,i)=>{ if(!s) return; const u=s.g.userData; u.glow.material.opacity=.28+Math.sin(tn/700)*.1; u.eggs.forEach((e,k)=>{ e.rotation.z=Math.sin(tn/300+k*2)*(.06+(neMine()&&i===G.realm&&k===0?.12:0)); }); });
+  NE.t-=dt; if(NE.t>0) return; NE.t=.5;
+  if(!NE.lbl) NE.lbl=makeLabel("ally"); const s=NE.spots.find(s=>s&&Math.hypot(P.x-s.x,P.z-s.z)<30); if(s&&!layerOpen&&!(typeof TW!=="undefined"&&TW.on)){ const n=neBoard().length; placeLabel(NE.lbl,s.x,5.6,s.z,`🥚 <b>신수 둥지</b>${n?` · 짝 찾는 신수 ${n}`:""}`); } else NE.lbl.style.display="none";
+  const me=neMine(); const now=Date.now();
+  if(me&&!me.m&&now-me.ts>=NE_H*3600000){ Object.assign(me,{m:"spirit",mt:me.ts,mk:rint(0,3),ml:me.pl,mn:"둥지 지기 공작",msh:0}); saveGame(); nePub(); }
+  if(me&&me.m&&now>=me.mt+NE_H*3600000) neDeliver();
+  if(!G.egg&&G.nestEggs&&G.nestEggs.length){ const e=G.nestEggs.shift(); G.egg={r:e.r,t0:Date.now()-EGG_MS+4000,sh:e.sh,par:e.par}; G.eggEver=1; saveGame(); }
+  if(!layerOpen&&!P.dead){ if(NE.gotQ.length) neShowEgg(NE.gotQ.shift()); else if(NE.q.length){ toast(NE.q.shift(),null,2.8); jingle([784,988,1175]); } }
+  NE.pubT-=.5; if(NE.pubT<=0){ NE.pubT=300; if(G.nest) nePub(); } }
+XTICK.push(neTick);
+/* ---------- 창 ---------- */
+function neLeft(ms){ return fmtLeft(Math.max(60000,ms)); }
+function showNest(){ petData(); const me=neMine(), near=neNear(), now=Date.now(); const L=neBoard();
+  let top;
+  if(me){ const D=PETS[me.pk]; if(me.m){ const mk=PETS[me.mk]; const outs=neOutcomes(me.pk,me.mk).map(x=>`${nePetIc(x)} ${PETS[x].n.replace("아기 ","")}`).join(" · ");
+      top=`<div class="row"><div class="ic">💞</div><div class="t"><div>${nePetIc(me.pk)} 내 ${D.n} ♥ ${me.m==="spirit"?"🦚 ":""}${me.mn}의 ${mk?mk.n:"신수"}</div><span>섞인 알까지 ${neLeft(me.mt+NE_H*3600000-now)} · 게임을 꺼 둬도 시간이 흘러요<br>나올 수 있는 신수: ${outs} (✨ 별빛 ${Math.round(NE_SHINY*100)}%)</span></div></div>`; }
+    else top=`<div class="row"><div class="ic">${nePetIc(me.pk)}</div><div class="t"><div>내 ${me.sh?"✨":""}${D.n} Lv.${me.pl} — 짝을 기다리는 중</div><span>아래 게시판에서 짝을 고르거나, 누군가 골라 주길 기다려요. ${neLeft(me.ts+NE_H*3600000-now)} 안에 아무도 없으면 🦚 둥지 지기 공작이 짝이 되어 줘요.</span></div><button class="buy alt" id="neBack">데려오기</button></div>`; }
+  else { const ok=Object.keys(G.pets||{}).map(Number).filter(r=>G.pets[r].lv>=NE_MINLV&&!(G.exp&&G.exp.pet===r));
+    top=ok.length?`<p style="font-size:13px">어떤 신수를 둥지에 맡길까요? (Lv.${NE_MINLV} 이상)</p><div class="exgrid">${ok.map(r=>`<button class="buy" data-dep="${r}" ${near?"":"disabled"}>${nePetIc(r)} ${G.pets[r].sh?"✨":""}${PETS[r].n.replace("아기 ","")} Lv.${G.pets[r].lv}</button>`).join("")}</div>${near?"":`<p style="font-size:12px;color:var(--gold)">수도의 신수 둥지 앞에서 맡길 수 있어요</p>`}`
+      :`<p style="font-size:13px">Lv.${NE_MINLV} 넘은 신수가 있어야 맡길 수 있어요. 신수와 함께 괴물을 잡으면 신수가 자라요.</p>`; }
+  const rows=L.slice(0,14).map(y=>{ const D=PETS[y.pk]; const R=REALMS[y.r]; const outs=me&&!me.m?neOutcomes(me.pk,y.pk).map(x=>nePetIc(x)).join(""):""; return `<div class="row"><div class="ic">${nePetIc(y.pk)}</div><div class="t"><div>${y.sh?"✨":""}${D?D.n:"신수"} Lv.${y.pl}</div><span><b style="color:${R?R.c1:"#fff"}">${y.n}</b>${R?" · "+R.n:""} · ${fmtAgo(y.ts)}${outs?` · 나올 수 있는 신수 ${outs}`:""}</span></div>${me&&!me.m?`<button class="buy" data-pair="${y.i}">이 신수랑!</button>`:""}</div>`; }).join("");
+  card(`<h2>🥚 신수 둥지</h2><p>내 신수를 맡기고 다른 사람(처음 보는 사람도)의 신수와 짝을 지으면, ${NE_H}시간 뒤 <b>두 사람 모두</b> 섞인 알을 받아요. 그리핀+페가수스 = 하늘 사자처럼 새로운 신수가 태어나요!</p>
+   ${top}
+   <div class="idlegrid"><div><b>🥚 ${G.nestN||0}</b><span>둥지에서 받은 알</span></div><div><b>✨ ${G.nestSh||0}</b><span>별빛 신수 알</span></div><div><b>🙏 ${G.nkGot||0}</b><span>받은 고마워</span></div></div>
+   <h3>📋 짝 찾는 신수</h3>${rows||'<p style="font-size:13px">지금은 짝을 찾는 신수가 없어요. 내 신수를 먼저 맡겨 두면 다른 사람이 골라 줄 수 있어요.</p>'}
+   ${near?"":`<button class="buy" id="neWay" style="align-self:center">신수 둥지로 길 안내</button>`}
+   <p style="font-size:12px">섞인 신수 6종: 🦄 히포그리프 · 🦅 태양 독수리 · 🦁 하늘 사자 · 🐎 불꽃 갈기 말 · ☁ 구름 말 · 🌈 무지개 새. 이미 있는 신수가 나오면 그 신수 레벨 +2. ✨ 별빛 신수는 ${Math.round(NE_SHINY*100)}% — 진짜 돈과는 아무 상관 없어요. 맡긴 신수는 둥지에 있는 동안 따라다니지 않아요.</p>`);
+  layers.querySelectorAll("[data-dep]").forEach(b=>b.onclick=()=>{ neDeposit(+b.dataset.dep); showNest(); });
+  layers.querySelectorAll("[data-pair]").forEach(b=>b.onclick=()=>{ if(nePair(b.dataset.pair)) showNest(); });
+  if($("neBack")) $("neBack").onclick=()=>{ neCancel(); showNest(); };
+  if($("neWay")) $("neWay").onclick=()=>{ const s=NE.spots[Math.max(0,G.realm)]; if(s) setGuide({x:s.x,z:s.z+5,label:"🥚 신수 둥지"}); closeLayer(); }; }
+CTX_EXTRA.push(()=>neNear()?{t:neBoard().length?`🥚 신수 둥지 (${neBoard().length})`:"🥚 신수 둥지",f:showNest}:null);
+MENU_X.push({ic:"🥚",n:"신수 둥지",id:"neBtn",sub:()=>{ const me=neMine(); if(me) return me.m?`💞 짝꿍과 알 품는 중 · ${neLeft(me.mt+NE_H*3600000-Date.now())} 남음`:"내 신수가 짝을 기다려요"; return `신수를 맡기고 짝 짓기 · 짝 찾는 신수 ${neBoard().length}`; },f:showNest});
+/* ---------- 신수 도감 (섞인 신수·별빛·부모 포함) ---------- */
+showPets=function(){ petData(); const eg=G.egg?`<div class="row"><div class="ic">🥚</div><div class="t"><div>${G.egg.sh?"✨ ":""}${(PETS[G.egg.r]||PETS[0]).egg} 품는 중</div><span>${eggLeft()>0?`깨어나기까지 ${Math.ceil(eggLeft()/60000)}분 · 게임을 꺼 둬도 자라요`:"곧 깨어나요!"}</span></div></div>`:`<div class="row"><div class="ic">🥚</div><div class="t"><div>알 없음</div><span>괴물을 잡으면 가끔 알이 나와요(보스는 자주). 🥚 신수 둥지에서 짝을 지어도 알이 생겨요.</span></div></div>`;
+  const where=r=>r<4?`${REALMS[r].n}의 신수 · ${PETS[r].egg}에서 태어나요`:r===4?"태양의 사막 · 혼돈의 뱀 아펩이 가끔 떨어뜨려요":`섞인 신수 · 🥚 신수 둥지에서 ${PETS[PETS[r].par[0]].n.replace("아기 ","")}+${PETS[PETS[r].par[1]].n.replace("아기 ","")}`;
+  const rows=PETS.map((D,r)=>{ const p=G.pets[r]; if(!p) return `<div class="row" style="opacity:.55"><div class="ic">❔</div><div class="t"><div>???</div><span>${where(r)}</span></div></div>`;
+    const on=G.pet===r, away=expPetAway(r), nest=neAway(r); return `<div class="row"><div class="ic" style="color:#${D.c.toString(16).padStart(6,"0")}">${nePetIc(r)}</div><div class="t"><div>${p.sh?"✨ 별빛 ":""}${D.n} Lv.${p.lv}${nest?' <i class="st">🥚 둥지</i>':away?' <i class="st">🧭 원정 중</i>':on?' <i class="st on">함께하는 중</i>':""}</div><span>금화 +${p.lv*2}% · 공격 함께 ${p.lv>=PET_MAX?"· 최고 레벨!":`· 다음 레벨까지 ${petNeed(p.lv)-Math.floor(p.xp||0)}마리`}${p.lv>=10?" · 👑 왕관":""}${p.par?`<br>부모: ${p.par.join(" · ")}`:""}</span></div>${on||away?"":`<button class="buy" data-pet="${r}">데려가기</button>`}</div>`; }).join("");
+  card(`<h2>🐣 신수</h2><p>신수 도감 ${Object.keys(G.pets).length}/${PETS.length} · 신수는 괴물을 같이 공격하고 금화를 더 주워 줘요. 친구 화면에도 보여요.</p>${eg}${rows}<p style="font-size:12px">괴물 1마리 = 신수 경험치 1 (보스 6). 쉬는 동안 수련한 괴물 수만큼 신수도 자라요. 레벨 10이 되면 왕관, 그리고 🥚 신수 둥지에 맡길 수 있어요!</p>`);
+  layers.querySelectorAll("[data-pet]").forEach(b=>b.onclick=()=>{ G.pet=+b.dataset.pet; saveGame(); rebuildMyPet(); try{ net.hello(); net.pushProfile(1); }catch(e){} jingle([659,784,1046]); showPets(); }); };
+TITLES.push({id:"ne1",n:"신수 둥지지기",t:1,h:"신수 둥지에서 섞인 알 받기",g:()=>[G.nestN||0,1]},{id:"ne5",n:"신수 중매쟁이",t:2,h:"신수 둥지에서 알 5개 받기",g:()=>[G.nestN||0,5]},{id:"nesh",n:"별빛 신수의 주인",t:3,h:"✨ 별빛 신수 얻기",g:()=>[Object.values(G.pets||{}).some(p=>p.sh)?1:0,1]},{id:"nedex",n:"신수 박사",t:3,h:"신수 도감 8칸 채우기",g:()=>[Object.keys(G.pets||{}).length,8]});
+</script>
+<script>
+/* ================= v69-3: ⚔️ 발할라 결투장 — 내가 꺼 둬도 내 영웅이 대신 싸움 (IDEAS G11/6-3) =================
+   수도마다 「⚔️ 발할라 결투장 문」 → 지도 밖(x≈380, z≈380) 둥근 결투장. 처음 들어가면 내 「수비 영웅」(모습·장비·짝꿍 신수·기술 3개)이 등록됨.
+   다른 사람이 도전하면 그 사람 폰에서 내 영웅이 저절로 움직이며 싸움 → 내가 자고 있어도 내 영웅이 결투장을 지킴.
+   다음에 켜면 "쉬는 동안 내 영웅이 N번 도전을 받아 M번 막아냈어요!" 보고서(이긴 사람 이름 · 🤝 좋은 결투!).
+   도전: 비슷한 힘의 상대 3명 중 골라 ⚔ 1:1 또는 🤝 2:2(내 친구의 수비 영웅이 내 편 로봇처럼 같이 싸움). 진짜 사람이 모자라면 신전 수련 전사(로봇)가 채움.
+   힘 맞추기: 결투장 안에서는 체력을 100으로 맞추고, 상대 체력은 내 공격력에 맞춰 줌(힘 차이는 아주 조금만 반영) → 처음 온 사람도 이길 수 있음.
+   다치지 않음 — 결투장 체력이 0이 되면 무릎만 꿇어요. 물약은 결투마다 2번(체력 +30). 90초가 지나면 체력이 더 많이 남은 쪽이 이김.
+   결투 점수(이번 주) → 🥉 청동 → 🥈 은(120) → 🥇 금(300) → 💎 신화(600) 방패. 매주 월요일 정산 상자. 점수는 하루 10판까지 오름(그 뒤는 연습).
+   시즌(4주) 결투 점수 1~10등은 다음 시즌 내내 결투장 둘레에 금빛 석상으로 서 있음(첫 시즌엔 지금 순위).
+   보관(retained) 주제: ard/<id> = 수비 영웅 {i,n,r,k,l,lk,e,pt,sk,sx,wk,pw,p,w,sp,s,ps,psn,ts}
+                     arr/<수비 영웅 id>/<도전한 사람 id> = 결과 {i,n,r,o,w(도전자가 이김 1),ts,gg(좋은 결투)} */
+const ARX=380, ARZ=380, AR_R=19, AR_OUT=44, AR_T=90, AR_DAY=10;
+const AR_TIER=[{n:"청동 방패",ic:"🥉",min:0,c:"#e0a070"},{n:"은 방패",ic:"🥈",min:120,c:"#d8dde6"},{n:"금 방패",ic:"🥇",min:300,c:"#ffcf4a"},{n:"신화 방패",ic:"💎",min:600,c:"#d08aff"}];
+const AR_BOTS=[["수련 천사 엘리엘","빛의 견습 기사 하니엘"],["발키리 수련생 힐드","아인헤리야르 토르발"],["아르주나의 제자 비라","가루다 견습 무사 아난"],["아테나의 견습 전사 레아","스파르타 수련생 니코스"]];
+const AR_SAY=["좋은 결투! 🤝","또 겨뤄요!","강하다!","고마워!"];
+const AR={on:false,built:false,parts:[],gates:[],gateLbl:null,cd:0,f:null,hud:null,picks:null,mode:1,stat:[],statKey:"",lbl:[],repQ:[],repT:0,amb:0,pubT:4,t:0,fx:[],hp0:0,boardLbl:null};
+const ARD={}, ARR={};
+function arIn(x,z){ return Math.abs(x-ARX)<150&&Math.abs(z-ARZ)<150; }
+function arWeek(){ return Math.floor((kday()+3)/7); }
+function arSeason(){ try{ return ssNo(); }catch(e){ return 0; } }
+function arTier(p){ let t=0; AR_TIER.forEach((x,i)=>{ if((p||0)>=x.min) t=i; }); return t; }
+function arPow(){ const st=stat(); return Math.round(st.atk+st.mhp*.1+G.lv*2+G.rank*10); }
+function arData(){ const w=arWeek(), S=arSeason(), day=kday(); const a=G.ar=G.ar||{w,p:0,n:0,d:day,win:0,lose:0,dw:0,dl:0,sp:0,s:S,seen:{},regT:0};
+  a.seen=a.seen||{}; if(a.d!==day){ a.d=day; a.n=0; }
+  if(a.w!==w){ const old=a.p||0, oldT=arTier(old); if(a.w!=null&&old>0){ const L=G.lv; const gold=[300,700,1500,3000][oldT]+L*20*(oldT+1), ore=[3,6,10,16][oldT], rune=[1,2,4,6][oldT]; G.gold+=gold; G.ore=(G.ore||0)+ore; G.rune=(G.rune||0)+rune; a.bestT=Math.max(a.bestT||0,oldT); AR.repQ.push({chest:1,t:oldT,gold,ore,rune,p:old}); } a.w=w; a.p=0; }
+  if(a.s!==S){ a.psn=a.s; a.ps=a.sp||0; a.sp=0; a.s=S; }
+  return a; }
+/* ---------- 수비 영웅 기록 ---------- */
+function arSkills(){ const R=RM(); let sl=[0,1,2]; try{ sl=skSlots(); }catch(e){} const L=[]; sl.forEach(i=>{ const S=R.skills[i]; if(S&&G.rank>=(S.rank||0)&&L.length<3&&L.indexOf(i)<0) L.push(i); }); return L; }
+function arMyRec(){ const a=arData(), st=stat(); const l=G.look||{}; const sk=arSkills(); let wk="sword"; try{ wk=myWeaponKind(); }catch(e){}
+  return {i:G.id,n:G.name,r:G.realm,k:G.rank,l:G.lv,lk:[l.face||0,l.body||0,l.hat||0,l.cape||0,l.weapon||0,l.tint||0],e:[G.eq.w,G.eq.a,G.eq.r],pt:typeof petArr==="function"?petArr():null,sk:sk.map(i=>RM().skills[i].n),sx:sk.map(i=>RM().skills[i].type),wk,pw:arPow(),p:a.p,w:a.w,sp:a.sp,s:a.s,ps:a.ps||0,psn:a.psn==null?-1:a.psn,ts:Date.now()}; }
+function arPub(){ const a=arData(); if(!a.regT) return; try{ net.pushRet("ard/"+G.id,arMyRec()); }catch(e){} }
+NETX.push({sub:"ard/+",pre:"ard/",f:d=>{ if(!d||!d.i||d.i===G.id||!(d.r>=0)) return; ARD[d.i]=d; }});
+NETX.push({sub:()=>"arr/"+G.id+"/+",pre:"arr/",f:d=>{ if(!d||!d.i||d.o!==G.id||!d.ts) return; ARR[d.i]=d; AR.repT=Math.max(AR.repT,performance.now()); }});
+/* ---------- 상대 고르기 ---------- */
+function arBot(k,myPw){ const r=(G.realm+1+k)%4; const nm=AR_BOTS[r][(k+arWeek())%2]; const rk=clamp(G.rank+(k===2?1:0)-(k===0?1:0),0,6); return {i:"bot:"+k,n:nm,r,k:rk,l:clamp(G.lv+k-1,1,60),lk:[0,0,0,0,0,0],e:[Math.min(3,Math.floor(rk/2)),Math.min(3,Math.floor(rk/2)),-1],pt:null,sk:[],sx:["aoe","line","dash"].slice(0,1+Math.min(2,Math.floor(rk/2))),wk:k===1?"bow":"sword",pw:Math.round(myPw*([.88,.97,1.06][k]||1)),p:0,bot:1}; }
+function arPick(shuffle){ const my=arPow(), now=Date.now(); const L=Object.values(ARD).filter(d=>now-(d.ts||0)<21*86400000&&d.i!==G.id); L.sort((a,b)=>Math.abs(a.pw-my)-Math.abs(b.pw-my)); let top=L.slice(0,8); if(shuffle){ for(let i=top.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [top[i],top[j]]=[top[j],top[i]]; } } const P3=top.slice(0,3); for(let k=0;P3.length<3;k++) P3.push(arBot(k,my)); P3.sort((a,b)=>a.pw-b.pw); AR.picks=P3; return P3; }
+function arFriends(){ const L=[]; const now=Date.now(); for(const id in ARD){ const d=ARD[id]; if(now-(d.ts||0)>21*86400000) continue; const fr=(G.frN&&G.frN[id])||(PEERS[id])||(typeof gdTag==="function"&&d.gd&&d.gd===gdTag())||(G.wsGiveNm&&G.wsGiveNm[id]); L.push({d,fr:!!fr}); } L.sort((a,b)=>(b.fr?1:0)-(a.fr?1:0)||Math.abs(a.d.pw-arPow())-Math.abs(b.d.pw-arPow())); return L.map(x=>x.d); }
+/* ---------- 결투장 만들기 ---------- */
+function arBuild(){ if(AR.built) return; AR.built=true; const add=o=>{ scene.add(o); AR.parts.push(o); return o; };
+  const stone=mat({color:0x9a8a78,roughness:.9}), dk=mat({color:0x6a5a4a,roughness:.95}), sand=mat({color:0xe8d6aa,roughness:1}), wood=mat({color:0x7a5236,roughness:.95}), gold=M.gold;
+  const G0=new THREE.Group();
+  const base=new THREE.Mesh(new THREE.CircleGeometry(AR_OUT+2,64),stone); base.rotation.x=-Math.PI/2; base.position.set(ARX,-.02,ARZ); G0.add(base);
+  const pit=new THREE.Mesh(new THREE.CircleGeometry(AR_R,56),sand); pit.rotation.x=-Math.PI/2; pit.position.set(ARX,.01,ARZ); G0.add(pit);
+  const ringL=new THREE.Mesh(new THREE.RingGeometry(AR_R-.1,AR_R+.9,64),gold); ringL.rotation.x=-Math.PI/2; ringL.position.set(ARX,.03,ARZ); G0.add(ringL);
+  const rune=new THREE.Mesh(new THREE.RingGeometry(4,4.6,40),glowMat(0xffc860,.35)); rune.rotation.x=-Math.PI/2; rune.position.set(ARX,.05,ARZ); rune.userData.noOutline=true; G0.add(rune); AR.rune=rune;
+  // 바깥 벽 + 방패
+  const wall=new THREE.Mesh(new THREE.CylinderGeometry(AR_OUT+2,AR_OUT+2,5,64,1,true),dk); wall.material.side=THREE.DoubleSide; wall.position.set(ARX,2.5,ARZ); G0.add(wall);
+  for(let k=0;k<20;k++){ const a=k/20*6.283; if(Math.abs(Math.atan2(Math.sin(a-Math.PI/2),Math.cos(a-Math.PI/2)))<.3) continue; const x=ARX+Math.cos(a)*(AR_OUT+1.6), z=ARZ+Math.sin(a)*(AR_OUT+1.6); const sh=new THREE.Group(); sh.add(cyl(1.3,1.3,.25,mat({color:[0xc83a3a,0x3a6ac8,0xe8c040,0x3a9a5a][k%4],roughness:.6}),0,0,0,18)); sh.add(cyl(.35,.35,.35,gold,0,0,0,10)); sh.children.forEach(c=>c.rotation.x=Math.PI/2); sh.position.set(x,3.2,z); sh.lookAt(ARX,3.2,ARZ); G0.add(sh); }
+  // 기둥 8개 + 금빛 지붕 들보
+  for(let k=0;k<8;k++){ const a=k/8*6.283+Math.PI/8; const x=ARX+Math.cos(a)*(AR_R+3.5), z=ARZ+Math.sin(a)*(AR_R+3.5); G0.add(cyl(.8,1,9,stone,x,4.5,z,10)); G0.add(box(2,.5,2,gold,x,9.2,z)); const f=sph(.6,glowMat(0xffa040,.85),x,10,z); f.userData.noOutline=true; G0.add(f); }
+  // 남쪽 결투 석판 (여기서 상대 고르기)
+  const tab=new THREE.Group(); tab.add(box(4.2,2.6,.5,stone,0,1.9,0)); tab.add(box(4.6,.4,.8,gold,0,3.3,0)); tab.add(box(4.6,.6,.8,dk,0,.3,0)); const sw=box(.25,2.4,.1,mat({color:0xd8dde6,metalness:.7,roughness:.3}),-.7,2,.3); sw.rotation.z=.6; tab.add(sw); const sw2=sw.clone(); sw2.rotation.z=-.6; sw2.position.x=.7; tab.add(sw2);
+  tab.position.set(ARX,0,ARZ+AR_R+6); G0.add(tab); AR.tab={x:ARX,z:ARZ+AR_R+6};
+  add(shadowify(G0));
+  { const g=pgArch(false); g.position.set(ARX,0,ARZ+AR_OUT-2.5); add(shadowify(g)); AR.exitArch={x:ARX,z:ARZ+AR_OUT-3.2}; }
+  AR.parts.forEach(o=>o.traverse&&o.traverse(m=>{ if(m.material&&m.material.blending===THREE.AdditiveBlending){ m.castShadow=false; m.userData.noOutline=true; } })); }
+function arShow(v){ AR.parts.forEach(o=>o.visible=v); AR.stat.forEach(s=>s.g.visible=v); }
+(function(){ const _h=hAt; hAt=function(x,z){ return arIn(x,z)?0:_h(x,z); }; })();
+/* ---------- 시즌 석상 ---------- */
+function arStatueList(){ const S=arSeason(); const recs=Object.values(ARD).concat([arMyRec()]); let L=recs.map(r=>({r,v:r.s===S-1?(r.sp||0):r.psn===S-1?(r.ps||0):0})).filter(x=>x.v>0); let prev=true; if(!L.length){ prev=false; L=recs.map(r=>({r,v:r.s===S?(r.sp||0):0})).filter(x=>x.v>0); } L.sort((a,b)=>b.v-a.v); return {L:L.slice(0,10),prev}; }
+function arStatues(){ const {L,prev}=arStatueList(); const key=(prev?"p":"c")+L.map(x=>x.r.i+":"+x.v).join(","); if(key===AR.statKey) return; AR.statKey=key; AR.stat.forEach(s=>{ scene.remove(s.g); s.lbl.remove(); }); AR.stat=[];
+  L.forEach((x,k)=>{ const a=-Math.PI/2+(k-4.5)*.36; const px=ARX+Math.cos(a)*(AR_R+11), pz=ARZ+Math.sin(a)*(AR_R+11); const g=new THREE.Group(); g.add(cyl(1.3,1.5,1.2+(k<3?.6:0),M.marble,0,.6+(k<3?.3:0),0,14)); g.add(cyl(1.35,1.35,.15,M.gold,0,1.25+(k<3?.6:0),0,14));
+    let av; try{ av=makeAvatar(x.r.r,x.r.k||0,true,{}); av.traverse(o=>{ if(o.isMesh) o.material=M.gold; }); }catch(e){ av=new THREE.Group(); av.add(sph(1,M.gold,0,2,0)); } av.position.y=1.3+(k<3?.6:0); av.scale.setScalar(k===0?1.25:k<3?1.1:1); av.rotation.y=Math.atan2(ARX-px,ARZ-pz); g.add(av);
+    g.position.set(px,0,pz); scene.add(shadowify(g)); g.visible=AR.on; AR.stat.push({g,x:px,z:pz,lbl:makeLabel("ally"),txt:`${["🥇","🥈","🥉"][k]||`${k+1}등`} <b>${x.r.n}</b> · ${fmt(x.v)}점${prev?"":" (지금)"}`}); }); }
+/* ---------- 들어가기 · 나가기 ---------- */
+function arEnter(){ if(AR.on||P.dead) return; if(P.trial){ toast("승급 시험 중이에요"); return; } if(mobs.some(m=>m.state==="chase"&&!m.arena&&Math.hypot(m.x-P.x,m.z-P.z)<16)){ toast("전투 중에는 갈 수 없어요"); return; }
+  try{ twBusyExit(); }catch(er){ closeLayer(); } try{ if(TW.on) twExit(true,true); }catch(er){} try{ if(LV.on) lvExit(true,true); }catch(er){}
+  const a=arData(); arBuild(); AR.on=true; arShow(true); arStatues(); AR.cd=2.5; P.x=ARX; P.z=ARZ+AR_R+9; P.y=0; P.vy=0; P.rot=Math.PI; P.invul=Math.max(P.invul||0,1.5); P.guide=null; $("guide").hidden=true; G.arIn=(G.arIn||0)+1;
+  const first=!a.regT; if(first){ a.regT=Date.now(); } saveGame(); arPub();
+  try{ lvBanner("아스가르드의 전사들이 모이는 곳","⚔️ 발할라 결투장",first?"내 수비 영웅이 등록됐어요 — 내가 꺼 둬도 대신 싸워 줘요!":"결투 석판에서 상대를 골라요","#ffcf4a"); }catch(er){}
+  fxRing(P.x,P.z,0xffcf4a,8,.8); fxSpark(P.x,2,P.z,0xffcf4a,30); jingle([392,523,659,784]); }
+function arExit(silent,noTp){ if(!AR.on) return; if(AR.f) arEndFight(null,true); AR.on=false; arShow(false); AR.stat.forEach(s=>s.lbl.style.display="none"); if(AR.boardLbl) AR.boardLbl.style.display="none";
+  if(!noTp){ const s=AR.gates[Math.max(0,G.realm)]||{x:REGIONS[G.realm*3].x,z:REGIONS[G.realm*3].z,rot:0}; P.x=s.x+Math.sin(s.rot)*6; P.z=s.z+Math.cos(s.rot)*6; P.y=0; P.vy=0; P.rot=s.rot; AR.cd=4; } if(!silent) toast("수도로 돌아왔어요",null,1.6); }
+/* ---------- 수도의 결투장 문 ---------- */
+function arGateModel(){ const g=new THREE.Group(); const st=mat({color:0x8a7a68,roughness:.9}), wd=mat({color:0x7a5236,roughness:.95}), gold=M.gold;
+  [-1,1].forEach(k=>{ g.add(cyl(.55,.7,6.6,st,k*2.9,3.3,0,10)); const sh=new THREE.Group(); sh.add(cyl(1,1,.2,mat({color:k<0?0xc83a3a:0x3a6ac8,roughness:.6}),0,0,0,18)); sh.add(cyl(.3,.3,.3,gold,0,0,0,10)); sh.children.forEach(c=>c.rotation.x=Math.PI/2); sh.position.set(k*2.9,4.6,.62); g.add(sh); });
+  const beam=box(7.4,.7,1.1,wd,0,6.9,0); g.add(beam); g.add(box(7.8,.22,1.3,gold,0,7.35,0)); [-1,1].forEach(k=>{ const sp=cyl(.07,.07,4.2,mat({color:0xd8dde6,metalness:.7,roughness:.3}),k*.9,8.5,0,6); sp.rotation.z=k*.55; g.add(sp); });
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(2.35,.2,10,40),glowMat(0xffcf4a,.8)); ring.position.y=3.2; ring.userData.noOutline=true; g.add(ring); const disc=new THREE.Mesh(new THREE.CircleGeometry(2.25,40),glowMat(0xff8a3a,.3)); disc.position.y=3.2; disc.userData.noOutline=true; g.add(disc);
+  g.userData.ring=ring; g.userData.disc=disc; return g; }
+setTimeout(()=>{ for(let r=0;r<4;r++){ let s; try{ s=xCapSpot(r,34); }catch(e){ const c=REGIONS[r*3]; s={x:c.x+(c.x>0?-36:36),z:c.z+16,rot:0}; } XSPOT_USED.push({r,x:s.x,z:s.z,rad:6}); const g=arGateModel(); g.position.set(s.x,hAt(s.x,s.z),s.z); g.rotation.y=s.rot; scene.add(shadowify(g)); g.traverse(o=>{ if(o.material&&o.material.blending===THREE.AdditiveBlending){ o.castShadow=false; o.userData.noOutline=true; } }); AR.gates[r]={x:s.x,z:s.z,rot:s.rot,g}; } },25);
+function arGateNear(){ if(AR.on) return null; if((typeof TW!=="undefined"&&TW.on)||(typeof DG!=="undefined"&&DG.on)||(typeof HM!=="undefined"&&HM.on)||(typeof DS!=="undefined"&&DS.on)||(typeof PG!=="undefined"&&PG.on)||(typeof LV!=="undefined"&&LV.on)) return null; for(const s of AR.gates){ if(s&&Math.hypot(P.x-s.x,P.z-s.z)<5.5) return s; } return null; }
+/* ---------- 영웅 (상대·내 편) ---------- */
+function arLook(a){ a=a||[]; return {face:a[0]||0,body:a[1]||0,hat:a[2]||0,cape:a[3]||0,weapon:a[4]||0,tint:a[5]||0}; }
+function arEq(e){ e=e||[-1,-1,-1]; return {w:e[0],a:e[1],r:e[2]}; }
+function arAvatar(rec){ let g=null; try{ g=(typeof avatarGL==="function"&&avatarGL(rec.r,rec.k||0,arLook(rec.lk),undefined,arEq(rec.e)))||null; }catch(e){ g=null; } if(!g){ g=makeAvatar(rec.r,rec.k||0,false,arLook(rec.lk)); try{ if(rec.e&&rec.e[0]>=0&&!g.userData.glAvatar&&g.userData.armR){ const w=makeWeapon(rec.r,rec.e[0]); w.position.set(0,-1.2,.3); g.userData.armR.add(w); } }catch(e){} } return g; }
+function arSkillKind(t){ return (t==="aoe"||t==="meteor"||t==="ult"||t==="orbit")?"ring":(t==="line"||t==="bolt"||t==="multi")?"line":(t==="dash"||t==="pull")?"dash":(t==="heal"||t==="shield"||t==="team")?"heal":"buff"; }
+function arPower(rec){ return clamp(Math.pow((rec.pw||arPow())/Math.max(1,arPow()),.3),.85,1.2); }
+function arMkAI(rec){ const sk=(rec.sx||[]).slice(0,3).map((t,i)=>({k:arSkillKind(t),n:(rec.sk&&rec.sk[i])||"기술",cd:3+i*2.5})); if(!sk.length) sk.push({k:"dash",n:"돌진 베기",cd:4}); return {sk,cd:1.4,strafe:Math.random()<.5?1:-1,stT:rnd(1.5,3),buff:0,cast:null,ranged:rec.wk==="bow"||rec.wk==="magic",healed:0,jump:0}; }
+function arFoe(rec,x,z,mult){ const f=arPower(rec), st=stat(); const mesh=arAvatar(rec); const hp=Math.round(st.atk*45*f*mult); const m={n:rec.n,shape:"hero",mesh,x,z,hx:x,hz:z,lv:rec.l||1,boss:false,world:false,hp,mhp:hp,atk:0,xp:0,gold:0,rg:12,cd:1,state:"chase",t:0,lbl:makeLabel(""),rot:0,hit:0,scale:1,power:0,ev:1,arena:1,rec,f:f*(mult<1?.85:1),ai:arMkAI(rec),walk:0};
+  mesh.position.set(x,0,z); scene.add(mesh); mobs.push(m); if(rec.pt&&PETS[rec.pt[0]]){ const pm=makePet(rec.pt[0],rec.pt[1]||1,rec.pt[2]); scene.add(pm); m.pet={mesh:pm,x:x-1.5,z:z-1.5,atk:2}; } return m; }
+function arAlly(rec,x,z){ const mesh=arAvatar(rec); mesh.position.set(x,0,z); scene.add(mesh); const a={n:rec.n,rec,mesh,x,z,hp:100,rot:Math.PI,hit:0,ai:arMkAI(rec),f:arPower(rec),walk:0,lbl:makeLabel("ally")}; if(rec.pt&&PETS[rec.pt[0]]){ const pm=makePet(rec.pt[0],rec.pt[1]||1,rec.pt[2]); scene.add(pm); a.pet={mesh:pm,x:x-1.5,z:z-1.5,atk:2}; } return a; }
+function arAnim(o,moving,dt,act){ const u=o.mesh.userData; if(u.gl){ if(act) animState(o.mesh,act); else animState(o.mesh,o.hit>0?"hit":moving?"run":"idle"); return; }
+  o.walk+=dt*(moving?10:0); const sw=moving?Math.sin(o.walk)*.7:0; if(u.legL){ u.legL.rotation.x=sw; u.legR.rotation.x=-sw; u.armL.rotation.x=-sw; u.armR.rotation.x=act==="attack"||act==="skill"?-1.6:sw; } }
+/* ---------- 효과 (예고 고리·줄·탄) ---------- */
+function arWarnRing(x,z,r,t,col){ const m=new THREE.Mesh(new THREE.RingGeometry(r-.45,r,40),glowMat(col||0xff4060,.85)); m.rotation.x=-Math.PI/2; m.position.set(x,.12,z); m.userData.noOutline=true; scene.add(m); const fill=new THREE.Mesh(new THREE.CircleGeometry(r,32),glowMat(col||0xff4060,.18)); fill.rotation.x=-Math.PI/2; fill.position.set(x,.1,z); fill.userData.noOutline=true; scene.add(fill); return {m,fill,t,T:t}; }
+function arWarnLine(x,z,rot,len,w,t){ const m=new THREE.Mesh(new THREE.PlaneGeometry(w,len),glowMat(0xff4060,.3)); m.rotation.x=-Math.PI/2; m.rotation.z=-rot; m.position.set(x+Math.sin(rot)*len/2,.12,z+Math.cos(rot)*len/2); m.userData.noOutline=true; scene.add(m); return {m,t,T:t}; }
+function arOrb(x,z,tx,tz,col,dmg,src){ const m=sph(.45,glowMat(col,.95),x,1.6,z); m.userData.noOutline=true; scene.add(m); const d=Math.hypot(tx-x,tz-z)||1; AR.fx.push({kind:"orb",m,x,z,vx:(tx-x)/d*16,vz:(tz-z)/d*16,t:1.4,dmg,src,col}); }
+function arClearFx(){ AR.fx.forEach(e=>{ if(e.m) scene.remove(e.m); if(e.w){ scene.remove(e.w.m); if(e.w.fill) scene.remove(e.w.fill); } }); AR.fx=[]; }
+/* ---------- 결투 ---------- */
+function arTargets(side){ const F=AR.f; if(!F) return []; if(side==="foe"){ const L=[]; if(!F.meDown) L.push({me:1,x:P.x,z:P.z}); F.allies.forEach(a=>{ if(a.hp>0) L.push({ally:a,x:a.x,z:a.z}); }); return L; } return F.foes.filter(m=>m.hp>0).map(m=>({foe:m,x:m.x,z:m.z})); }
+function arHitT(tg,dmg,src,sure){ const F=AR.f; if(!F||F.state!=="fight") return; if(tg.me){ if(F.meDown) return; if(!sure&&P.y>.8){ floatDmg(P.x,3,P.z,"피함!","gain"); G.dodges=(G.dodges||0)+1; return; } if(P.invul>0) return; F.myHp=Math.max(0,F.myHp-dmg); P.hitFlash=.25; P.shake=Math.max(P.shake||0,.35); floatDmg(P.x,3.6,P.z,"-"+Math.round(dmg),""); tone(150,.08,"square",0,.08); buzz(20); try{ if(player.userData.gl) animState(player,"hit"); }catch(e){} if(F.myHp<=0){ F.meDown=1; floatDmg(P.x,4.4,P.z,"무릎!",""); } }
+  else if(tg.ally){ const a=tg.ally; if(a.hp<=0) return; a.hp=Math.max(0,a.hp-dmg); a.hit=.2; floatDmg(a.x,3.6,a.z,"-"+Math.round(dmg),""); if(a.hp<=0){ a.down=0; fxSpark(a.x,1.5,a.z,0xffffff,14); } }
+  else if(tg.foe){ damageMob(tg.foe,dmg,false); } }
+function arStart(recs,mode,ally){ const F0=AR.f; if(F0) return; closeLayer(); const a=arData(); const ranked=a.n<AR_DAY; P.dead=false; AR.hp0=P.hp; const st=stat(); P.hp=Math.round(st.mhp*.5); arClearFx();
+  const F=AR.f={mode,state:"intro",cd:3.6,t:AR_T,myHp:100,pots:2,meDown:0,foes:[],allies:[],recs,ranked,lastHp:P.hp,cnt:-1};
+  P.x=ARX+(mode===2?2.5:0); P.z=ARZ+12; P.y=0; P.vy=0; P.rot=Math.PI; P.guide=null;
+  if(mode===2){ F.foes.push(arFoe(recs[0],ARX-3.5,ARZ-12,.8)); F.foes.push(arFoe(recs[1],ARX+3.5,ARZ-12,.8)); if(ally) F.allies.push(arAlly(ally,ARX-3,ARZ+12.5)); }
+  else F.foes.push(arFoe(recs[0],ARX,ARZ-12,1));
+  F.foes.forEach(m=>{ m.rot=0; m.mesh.rotation.y=0; }); arHud(true); jingle([392,523,659]); tone(110,.4,"sawtooth",0,.08); }
+function arTickFight(dt){ const F=AR.f; if(!F) return; const tn=performance.now();
+  // 체력 회복 기술 → 결투장 체력으로
+  if(F.state==="fight"&&P.hp>F.lastHp){ const st=stat(); F.myHp=Math.min(100,F.myHp+(P.hp-F.lastHp)/st.mhp*100); } { const st=stat(); P.hp=Math.round(st.mhp*.5); F.lastHp=P.hp; }
+  if(F.state==="intro"){ F.cd-=dt; P.x=ARX+(F.mode===2?2.5:0); P.z=ARZ+12; const n=Math.ceil(F.cd-.6); if(n!==F.cnt){ F.cnt=n; if(n>0){ arBig(String(n)); tone(520,.12,"square",0,.07); } else { arBig("⚔ 결투!"); tone(784,.25,"square",0,.08); tone(1046,.3,"square",.08,.08); } } if(F.cd<=0){ F.state="fight"; } }
+  else if(F.state==="fight"){ F.t-=dt; if(F.t<=0){ const mine=F.myHp/100, theirs=F.foes.reduce((s,m)=>s+m.hp/m.mhp,0)/F.foes.length; arEndFight(mine>=theirs); return; } }
+  else if(F.state==="end"){ F.cd-=dt; F.foes.concat(F.allies).forEach(o=>{ if(o.kneel!=null){ o.kneel=Math.min(1,o.kneel+dt*2); o.mesh.rotation.x=o.kneel*.45; o.mesh.position.y=-o.kneel*.45; } }); if(F.cd<=0) arAfter(); return; }
+  const fight=F.state==="fight";
+  // 상대
+  F.foes.forEach(m=>{ const ai=m.ai; m.hit=Math.max(0,m.hit-dt); if(m.hp<=0){ if(m.kneel==null) m.kneel=0; m.kneel=Math.min(1,m.kneel+dt*2); m.mesh.rotation.x=m.kneel*.45; m.mesh.position.set(m.x,-m.kneel*.45,m.z); return; } ai.cd-=dt; ai.stT-=dt; ai.buff=Math.max(0,ai.buff-dt); ai.sk.forEach(s=>s.cd-=dt); if(ai.stT<=0){ ai.stT=rnd(1.4,3.2); ai.strafe*=-1; }
+    const T=arTargets("foe"); let tg=null, td=1e9; T.forEach(t=>{ const d=Math.hypot(t.x-m.x,t.z-m.z); if(d<td){ td=d; tg=t; } });
+    let moving=false, act=null;
+    if(fight&&tg&&!ai.cast){ const dx=tg.x-m.x, dz=tg.z-m.z, d=td||1; const want=ai.ranged?9:2.2; const spd=4.6*(ai.buff>0?1.2:1); m.rot=Math.atan2(dx,dz);
+      if(d>want+.4){ m.x+=dx/d*spd*dt; m.z+=dz/d*spd*dt; moving=true; } else if(ai.ranged&&d<want-3){ m.x-=dx/d*spd*.8*dt; m.z-=dz/d*spd*.8*dt; moving=true; } else { m.x+=-dz/d*ai.strafe*1.8*dt; m.z+=dx/d*ai.strafe*1.8*dt; moving=true; }
+      const sk=ai.sk.find(s=>s.cd<=0&&(s.k!=="heal"||m.hp/m.mhp<.6)&&(s.k!=="dash"||d<9)&&(s.k!=="line"||d<12)&&(s.k!=="ring"||d<10));
+      if(sk){ sk.cd=rnd(6,9); arCast(m,sk,tg); act="skill"; }
+      else if(ai.cd<=0&&d<=want+.6){ ai.cd=ai.ranged?1.3:1.1; act="attack"; m.mesh.userData.lunge=.25; const dm=5.5*m.f*(ai.buff>0?1.3:1); if(ai.ranged) arOrb(m.x,m.z,tg.x,tg.z,ai.buff>0?0xff8a3a:new THREE.Color(REALMS[m.rec.r].c1).getHex(),dm,m); else arHitT(tg,dm,m); try{ SLASH.swing(m.x,m.z,m.rot,new THREE.Color(REALMS[m.rec.r].c1).getHex(),"sword"); }catch(e){} } }
+    if(ai.cast){ const c=ai.cast; c.t-=dt; if(c.k==="dash"&&c.t<=c.T-.45&&!c.go){ c.go=1; } if(c.go&&c.k==="dash"&&!c.done){ const s=22*dt; m.x+=Math.sin(c.rot)*s; m.z+=Math.cos(c.rot)*s; c.dist-=s; if(c.dist<=0){ c.done=1; fxRing(m.x,m.z,0xff8a3a,4,.4); arTargets("foe").forEach(t=>{ if(Math.hypot(t.x-m.x,t.z-m.z)<2.6) arHitT(t,10*m.f,m); }); } } if(c.t<=0) ai.cast=null; }
+    // 결투장 밖으로 안 나가게
+    const r=Math.hypot(m.x-ARX,m.z-ARZ); if(r>AR_R-1.2){ const k=(AR_R-1.2)/r; m.x=ARX+(m.x-ARX)*k; m.z=ARZ+(m.z-ARZ)*k; }
+    let dr=m.rot-m.mesh.rotation.y; while(dr>Math.PI) dr-=Math.PI*2; while(dr<-Math.PI) dr+=Math.PI*2; m.mesh.rotation.y+=dr*Math.min(1,dt*10);
+    const lu=m.mesh.userData.lunge||0; if(lu>0) m.mesh.userData.lunge=lu-dt; ai.jump=Math.max(0,ai.jump-dt); const jy=ai.jump>0?Math.sin(ai.jump/.5*Math.PI)*1.2:0; if(fight&&Math.random()<dt*.15) ai.jump=.5;
+    m.mesh.position.set(m.x,jy+(lu>0?.3:0),m.z); m.mesh.rotation.x=0; try{ HITF.apply(m,dt); }catch(e){} hitTint(m.mesh,m.hit/.15); arAnim(m,moving,dt,act);
+    if(m.pet) arPetTick(m.pet,m,"foe",dt);
+    placeLabel(m.lbl,m.x,4.5,m.z,`<b style="color:${REALMS[m.rec.r].c1}">${m.rec.bot?"🤖 ":""}${m.n}</b><span class="hp mob"><s></s><i></i></span>`); hpBar(m.lbl,m.hp/m.mhp); });
+  // 내 편 (2:2)
+  F.allies.forEach(a=>{ const ai=a.ai; a.hit=Math.max(0,a.hit-dt); if(a.hp<=0){ if(a.kneel==null) a.kneel=0; a.kneel=Math.min(1,a.kneel+dt*2); a.mesh.rotation.x=a.kneel*.45; a.mesh.position.y=-a.kneel*.45; placeLabel(a.lbl,a.x,3.6,a.z,`<b>${a.n}</b> 무릎`); return; }
+    ai.cd-=dt; ai.sk.forEach(s=>s.cd-=dt); const T=arTargets("ally"); let tg=null, td=1e9; T.forEach(t=>{ const d=Math.hypot(t.x-a.x,t.z-a.z); if(d<td){ td=d; tg=t; } }); let moving=false, act=null; const st=stat();
+    if(fight&&tg){ const dx=tg.x-a.x, dz=tg.z-a.z, d=td||1; const want=ai.ranged?8:2.3; a.rot=Math.atan2(dx,dz); if(d>want){ a.x+=dx/d*4.4*dt; a.z+=dz/d*4.4*dt; moving=true; }
+      const sk=ai.sk.find(s=>s.cd<=0&&s.k!=="heal"); if(sk&&d<6){ sk.cd=rnd(7,10); act="skill"; fxRing(a.x,a.z,new THREE.Color(REALMS[a.rec.r].c1).getHex(),8,.5); fxSpark(a.x,1.5,a.z,0xffffff,16); floatDmg(a.x,4.6,a.z,sk.n,"gain"); F.foes.forEach(m=>{ if(m.hp>0&&Math.hypot(m.x-a.x,m.z-a.z)<5) damageMob(m,st.atk*1.5*a.f,false); }); }
+      else if(ai.cd<=0&&d<=want+.5){ ai.cd=1.2; act="attack"; if(ai.ranged) arOrb(a.x,a.z,tg.x,tg.z,0x7ac8ff,st.atk*.55*a.f,a); else damageMob(tg.foe,st.atk*.55*a.f*rnd(.9,1.1),false); } }
+    const r=Math.hypot(a.x-ARX,a.z-ARZ); if(r>AR_R-1.2){ const k=(AR_R-1.2)/r; a.x=ARX+(a.x-ARX)*k; a.z=ARZ+(a.z-ARZ)*k; }
+    let dr=a.rot-a.mesh.rotation.y; while(dr>Math.PI) dr-=Math.PI*2; while(dr<-Math.PI) dr+=Math.PI*2; a.mesh.rotation.y+=dr*Math.min(1,dt*10); a.mesh.position.set(a.x,0,a.z); hitTint(a.mesh,a.hit/.2); arAnim(a,moving,dt,act);
+    if(a.pet) arPetTick(a.pet,a,"ally",dt);
+    placeLabel(a.lbl,a.x,4.4,a.z,`<b style="color:#7ad8ff">🤝 ${a.n}</b><span class="hp"><i style="width:${Math.round(a.hp)}%"></i></span>`); });
+  // 효과
+  for(let i=AR.fx.length-1;i>=0;i--){ const e=AR.fx[i]; e.t-=dt;
+    if(e.kind==="orb"){ e.x+=e.vx*dt; e.z+=e.vz*dt; e.m.position.set(e.x,1.6,e.z); const side=e.src&&e.src.arena?"foe":"ally"; let hit=false; arTargets(side).forEach(t=>{ if(!hit&&Math.hypot(t.x-e.x,t.z-e.z)<1.1){ hit=true; arHitT(t,e.dmg,e.src); } }); if(hit||e.t<=0||Math.hypot(e.x-ARX,e.z-ARZ)>AR_R+2){ fxSpark(e.x,1.6,e.z,e.col,8); scene.remove(e.m); AR.fx.splice(i,1); } continue; }
+    if(e.w){ const w=e.w; w.t-=dt; const p=1-w.t/w.T; w.m.material.opacity=.45+Math.sin(tn/60)*.35; if(w.fill) w.fill.material.opacity=.12+p*.25; if(w.t<=0){ scene.remove(w.m); if(w.fill) scene.remove(w.fill); e.go(); AR.fx.splice(i,1); } } }
+  // 끝?
+  if(fight){ if(F.foes.every(m=>m.hp<=0)) arEndFight(true); else if(F.meDown&&F.allies.every(a=>a.hp<=0)) arEndFight(false); }
+  arHud(); }
+function arCast(m,sk,tg){ const ai=m.ai, f=m.f; floatDmg(m.x,4.8,m.z,sk.n,"crit"); tone(330,.12,"sawtooth",0,.06); const col=new THREE.Color(REALMS[m.rec.r].c1).getHex();
+  if(sk.k==="ring"){ const x=tg.x, z=tg.z; const w=arWarnRing(x,z,3.6,1.0); ai.cast={k:"ring",t:.6,T:.6}; AR.fx.push({w,go:()=>{ fxRing(x,z,col,8,.5); fxSpark(x,1,z,col,24); P.shake=Math.max(P.shake||0,.4); thud(); arTargets("foe").forEach(t=>{ if(Math.hypot(t.x-x,t.z-z)<3.6) arHitT(t,13*f,m); }); }}); }
+  else if(sk.k==="line"){ const rot=Math.atan2(tg.x-m.x,tg.z-m.z); const x0=m.x, z0=m.z; const w=arWarnLine(x0,z0,rot,13,2.6,.85); ai.cast={k:"line",t:.9,T:.9}; m.rot=rot; AR.fx.push({w,go:()=>{ fxLine(x0,z0,rot,13,col); arTargets("foe").forEach(t=>{ const dx=t.x-x0, dz=t.z-z0; const along=dx*Math.sin(rot)+dz*Math.cos(rot), side=Math.abs(dx*Math.cos(rot)-dz*Math.sin(rot)); if(along>-1&&along<13.5&&side<1.5) arHitT(t,14*f,m); }); }}); }
+  else if(sk.k==="dash"){ const rot=Math.atan2(tg.x-m.x,tg.z-m.z); const dist=Math.min(9,Math.hypot(tg.x-m.x,tg.z-m.z)+1); const w=arWarnLine(m.x,m.z,rot,dist,2.2,.45); AR.fx.push({w,go:()=>{}}); m.rot=rot; ai.cast={k:"dash",t:.95,T:.95,rot,dist}; }
+  else if(sk.k==="heal"){ if(m.hp/m.mhp<.6&&ai.healed<2){ ai.healed++; const h=Math.round(m.mhp*.15); m.hp=Math.min(m.mhp,m.hp+h); floatDmg(m.x,3.8,m.z,"+"+fmt(h),"gain"); fxRing(m.x,m.z,0x9dffb8,5,.6); fxSpark(m.x,2,m.z,0x9dffb8,20); } else { ai.buff=5; fxRing(m.x,m.z,col,5,.5); } }
+  else { ai.buff=5; fxRing(m.x,m.z,0xff8a3a,6,.6); fxSpark(m.x,2,m.z,0xff8a3a,22); } }
+function arPetTick(o,owner,side,dt){ o.atk-=dt; o.tx=o.tz=null; const T=arTargets(side==="foe"?"foe":"ally"); let tg=null, td=1e9; T.forEach(t=>{ const d=Math.hypot(t.x-o.x,t.z-o.z); if(d<td){ td=d; tg=t; } }); if(tg&&td<9&&AR.f&&AR.f.state==="fight"){ o.tx=tg.x; o.tz=tg.z; if(o.atk<=0){ o.atk=2.6; o.mesh.userData.lunge=1; fxLine(o.x,o.z,Math.atan2(tg.x-o.x,tg.z-o.z),Math.min(8,td),0xffe08a); if(side==="foe") arHitT(tg,2*owner.f,owner,true); else damageMob(tg.foe,stat().atk*.25,false); } } try{ followPet(o,owner.x,owner.z,owner.mesh.rotation.y,dt); }catch(e){} }
+function arEndFight(win,abort){ const F=AR.f; if(!F||F.state==="end") return; arClearFx();
+  if(abort){ arCleanup(); return; }
+  F.state="end"; F.win=!!win; F.cd=3.2; const a=arData(); let dp=0; const real=F.recs.filter(r=>!r.bot);
+  if(F.ranked){ a.n++; if(win){ dp=real.length?24:12; if(F.recs.some(r=>arTier(r.p)>arTier(a.p))) dp+=6; } else dp=-6; a.p=Math.max(0,(a.p||0)+dp); a.sp=Math.max(0,(a.sp||0)+Math.max(0,dp)); }
+  if(win){ a.win=(a.win||0)+1; const L=G.lv; const gold=60+L*8; G.gold+=gold; gainXp(Math.round(xpNeed(L)*.03)); F.gold=gold; } else { a.lose=(a.lose||0)+1; G.gold+=20; F.gold=20; }
+  F.dp=dp; saveGame();
+  F.rts=Date.now(); real.forEach(r=>{ try{ net.pushRet("arr/"+r.i+"/"+G.id,{i:G.id,n:G.name,r:G.realm,o:r.i,w:win?1:0,ts:F.rts,m:F.mode}); }catch(e){} }); F.sent=real.map(r=>r.i);
+  arPub();
+  if(win) F.foes.forEach(m=>{ if(m.kneel==null) m.kneel=0; }); else F.allies.forEach(x=>{ if(x.kneel==null) x.kneel=0; });
+  arBig(win?"🏆 승리!":"💫 무릎을 꿇었어요"); if(win){ jingle([523,659,784,1046,1318,1568]); buzz([30,30,60]); fxRing(P.x,P.z,0xffcf4a,10,1); for(let k=0;k<3;k++) setTimeout(()=>fxSpark(P.x+rnd(-2,2),3,P.z+rnd(-2,2),0xffcf4a,24),k*200); try{ if(player.userData.gl) animState(player,"cheer"); }catch(e){} } else { jingle([523,494,440,392]); } }
+function arCleanup(){ const F=AR.f; if(!F) return; F.foes.forEach(m=>{ const i=mobs.indexOf(m); if(i>=0) mobs.splice(i,1); scene.remove(m.mesh); m.lbl.remove(); if(m.pet) scene.remove(m.pet.mesh); }); F.allies.forEach(a=>{ scene.remove(a.mesh); a.lbl.remove(); if(a.pet) scene.remove(a.pet.mesh); }); AR.f=null; arHud(false); P.hp=Math.max(1,Math.min(stat().mhp,AR.hp0||stat().mhp)); }
+(function(){ const _km=killMob; killMob=function(m){ if(m&&m.arena){ m.hp=0; m.lbl.style.display="none"; fxSpark(m.x,2,m.z,0xffe08a,20); floatDmg(m.x,4.4,m.z,"무릎!","gain"); if(m.pet){ scene.remove(m.pet.mesh); m.pet=null; } m.kneel=0; const i=mobs.indexOf(m); if(i>=0) mobs.splice(i,1); return; } return _km(m); };
+  const _hp=hurtPlayer; hurtPlayer=function(d,f){ if(AR.on) return; return _hp(d,f); };
+  const _up=usePotion; usePotion=function(){ const F=AR.f; if(F&&F.state==="fight"){ if(F.pots<=0){ toast("결투마다 물약은 2번까지예요"); return; } if(F.myHp>=100){ toast("체력이 가득해요"); return; } F.pots--; F.myHp=Math.min(100,F.myHp+30); fxRing(P.x,P.z,0x9dffb8,4); fxSpark(P.x,2,P.z,0x9dffb8,18); jingle([659,880]); floatDmg(P.x,3.8,P.z,"+30","gain"); return; } return _up(); };
+  const _sh=spawnAtHome; spawnAtHome=function(){ if(AR.on) arExit(true,true); _sh(); };
+  const _sw=showWarPrompt; showWarPrompt=function(){ if(AR.on){ toast("⚔ 다른 곳에서 전쟁이 벌어지고 있어요","결투장을 마치고 가 봐요",1.8); return; } _sw(); }; })();
+function arAfter(){ const F=AR.f; if(!F) return; const win=F.win, dp=F.dp, gold=F.gold, ranked=F.ranked, sent=F.sent||[], recs=F.recs, rts=F.rts||Date.now(), mode=F.mode; arCleanup(); P.x=ARX; P.z=ARZ+AR_R+9; P.rot=Math.PI; try{ arStatues(); }catch(e){} const a=arData(); const T=AR_TIER[arTier(a.p)];
+  card(`<h2>${win?"🏆 승리!":"💫 좋은 결투였어요!"}</h2><p style="font-size:16px">${recs.map(r=>`<b style="color:${REALMS[r.r].c1}">${r.n}</b>`).join(" · ")}${josa(recs[recs.length-1].n,"과","와")}의 ${mode===2?"🤝 2:2":"⚔ 1:1"} 결투</p>
+   <div class="idlegrid"><div><b>${ranked?(dp>=0?"+":"")+dp:"연습"}</b><span>${ranked?"결투 점수":"오늘 점수 결투 10판을 다 했어요"}</span></div><div><b>${T.ic} ${fmt(a.p)}</b><span>${T.n} (이번 주)</span></div><div><b>🪙 +${gold}</b><span>금화</span></div></div>
+   ${sent.length?`<p style="font-size:13px">상대에게 정해진 말 하나를 남길 수 있어요</p><div class="exgrid" id="arSay">${AR_SAY.map((s,i)=>`<button class="buy alt" data-say="${i}">${s}</button>`).join("")}</div>`:""}
+   <div class="exgrid"><button class="go" id="arAgain">⚔ 다음 결투</button><button class="buy alt" id="arOk">결투장 둘러보기</button></div>`);
+  layers.querySelectorAll("[data-say]").forEach(b=>b.onclick=()=>{ const i=+b.dataset.say; sent.forEach(id=>{ try{ net.pushRet("arr/"+id+"/"+G.id,{i:G.id,n:G.name,r:G.realm,o:id,w:win?1:0,ts:rts,m:mode,gg:i+1}); }catch(e){} }); layers.querySelectorAll("[data-say]").forEach(x=>x.disabled=true); toast(`"${AR_SAY[i]}" 를 남겼어요`,null,1.4); tone(988,.08,"triangle"); });
+  $("arAgain").onclick=()=>{ showArena(true); }; $("arOk").onclick=closeLayer; }
+/* ---------- 화면 위 결투판 ---------- */
+function arHud(show){ if(!AR.hud){ const st=document.createElement("style"); st.textContent=`#arHud{position:fixed;left:50%;top:calc(max(4px,env(safe-area-inset-top)) + 2px);transform:translateX(-50%);z-index:6;display:flex;align-items:center;gap:10px;pointer-events:none;width:min(46vw,460px)}#arHud[hidden]{display:none}#arHud .sd{flex:1;display:flex;flex-direction:column;gap:3px}#arHud .sd.r{align-items:flex-end}#arHud .nm{font-size:13px;font-weight:900;color:#fff;text-shadow:0 2px 0 #000,0 0 6px #000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}#arHud .bar{width:100%;height:13px;border-radius:7px;background:rgba(0,0,0,.55);border:2px solid #ffcf4a;overflow:hidden;box-shadow:0 0 0 2px rgba(0,0,0,.4)}#arHud .bar.s{height:8px;border-width:1px}#arHud .bar i{display:block;height:100%;transition:width .15s}#arHud .sd.l .bar i{background:linear-gradient(90deg,#3a8dff,#7ad8ff)}#arHud .sd.r .bar i{background:linear-gradient(270deg,#ff3a5a,#ff9a7a);margin-left:auto}#arHud .tm{min-width:58px;text-align:center;font-size:26px;font-weight:900;color:#ffcf4a;text-shadow:0 2px 0 #000,0 0 10px rgba(255,180,60,.7);background:radial-gradient(circle,rgba(40,20,0,.75),rgba(0,0,0,0) 70%);border-radius:50%}#arHud .tm small{display:block;font-size:10px;color:#fff}#arBig{position:fixed;left:50%;top:38%;transform:translate(-50%,-50%);z-index:8;font-size:64px;font-weight:900;color:#ffcf4a;text-shadow:0 4px 0 #6a3a00,0 0 30px rgba(255,200,80,.9);pointer-events:none;opacity:0;transition:opacity .2s,transform .2s;white-space:nowrap}#arBig.on{opacity:1;transform:translate(-50%,-50%) scale(1.08)}`; document.head.appendChild(st);
+    const h=document.createElement("div"); h.id="arHud"; h.hidden=true; document.body.appendChild(h); AR.hud=h; const b=document.createElement("div"); b.id="arBig"; document.body.appendChild(b); AR.big=b; }
+  const F=AR.f; if(show===false||!F){ AR.hud.hidden=true; return; } AR.hud.hidden=false; let top=""; ["warbar","evbar","lvbar"].forEach(id=>{ const x=$(id); if(x&&!x.hidden){ const r=x.getBoundingClientRect(); if(r.height>0) top=Math.round(r.bottom+4)+"px"; } }); if(AR.hud._t!==top){ AR.hud._t=top; AR.hud.style.top=top; }
+  const me=`<div class="nm">${G.name} ${F.pots?"🧪".repeat(F.pots):""}</div><div class="bar"><i style="width:${Math.round(F.myHp)}%"></i></div>${F.allies.map(a=>`<div class="nm" style="font-size:11px">🤝 ${a.n}</div><div class="bar s"><i style="width:${Math.round(a.hp)}%"></i></div>`).join("")}`;
+  const foes=F.foes.map((m,k)=>`<div class="nm"${k?' style="font-size:11px"':""}>${m.rec.bot?"🤖 ":""}${m.n}</div><div class="bar${k?" s":""}"><i style="width:${Math.round(Math.max(0,m.hp)/m.mhp*100)}%"></i></div>`).join("");
+  const html=`<div class="sd l">${me}</div><div class="tm">${Math.ceil(Math.max(0,F.t))}<small>${F.mode===2?"2:2":"1:1"}</small></div><div class="sd r">${foes}</div>`; if(AR.hud._h!==html){ AR.hud._h=html; AR.hud.innerHTML=html; } }
+function arBig(t){ arHud(); const b=AR.big; if(!b) return; b.textContent=t; b.classList.add("on"); clearTimeout(b._t); b._t=setTimeout(()=>b.classList.remove("on"),t.length>3?1400:650); }
+/* ---------- 쉬는 동안 수비 보고서 ---------- */
+function arReport(){ const a=arData(); if(!a.regT) return; const L=[]; for(const id in ARR){ const d=ARR[id]; const prev=a.seen[id]||{}; if(d.ts<a.regT) continue; if(d.ts>(prev.ts||0)) L.push({d,nw:1}); else if(d.ts===prev.ts&&(d.gg||0)!==(prev.gg||0)&&d.gg) L.push({d,nw:0}); else continue; a.seen[id]={ts:d.ts,gg:d.gg||0}; }
+  if(!L.length) return; let held=0, lost=0; L.forEach(x=>{ if(!x.nw) return; if(x.d.w){ lost++; a.dl=(a.dl||0)+1; a.p=Math.max(0,(a.p||0)-3); } else { held++; a.dw=(a.dw||0)+1; a.p=(a.p||0)+6; a.sp=(a.sp||0)+6; } }); saveGame(); arPub();
+  AR.repQ.push({L,held,lost}); }
+function arShowReport(q){ if(q.chest){ const T=AR_TIER[q.t]; card(`<h2>${T.ic} 지난주 결투장 정산!</h2><p style="font-size:16px">지난주 결투 점수 <b>${fmt(q.p)}</b>점 — <b style="color:${T.c}">${T.n}</b></p><div class="idlegrid"><div><b>🪙 +${fmt(q.gold)}</b><span>금화</span></div><div><b>⛓ +${q.ore}</b><span>쇳조각</span></div><div><b>✨ +${q.rune}</b><span>룬 가루</span></div></div><p style="font-size:13px">이번 주 점수는 0부터 다시 시작해요. 더 높은 방패에 도전!</p><button class="buy" id="arOk" style="align-self:center">좋아요!</button>`); jingle([523,659,784,1046,1318]); $("arOk").onclick=closeLayer; return; }
+  const rows=q.L.slice(0,10).map(x=>{ const d=x.d, R=REALMS[d.r]; return `<div class="row"><div class="ic">${x.nw?(d.w?"💫":"🛡"):"🤝"}</div><div class="t"><div><b style="color:${R?R.c1:"#fff"}">${d.n}</b>${x.nw?(d.w?"님이 이겼어요":"님을 막아냈어요!"):"님"}${d.m===2?" (2:2)":""}</div><span>${fmtAgo(d.ts)}${d.gg?` · "${AR_SAY[d.gg-1]}"`:""}</span></div></div>`; }).join("");
+  const n=q.held+q.lost; card(`<h2>⚔️ 내 수비 영웅 보고서</h2><p style="font-size:17px">${n?`쉬는 동안 내 영웅이 <b>${n}번</b> 도전을 받아 <b style="color:#7ad8ff">${q.held}번</b> 막아냈어요!`:"결투한 친구가 인사를 남겼어요!"}</p>${n?`<div class="idlegrid"><div><b>🛡 ${q.held}</b><span>막아냄 (+6점씩)</span></div><div><b>💫 ${q.lost}</b><span>짐 (−3점씩)</span></div></div>`:""}${rows}<button class="buy" id="arOk" style="align-self:center">좋아요!</button>`); jingle([659,784,988,1318]); $("arOk").onclick=closeLayer; }
+/* ---------- 매 프레임 ---------- */
+function arTick(dt){ if(!started||G.realm<0) return; const tn=performance.now(); AR.cd=Math.max(0,AR.cd-dt);
+  AR.gates.forEach(s=>{ if(!s||!s.g) return; const u=s.g.userData; u.ring.rotation.z+=dt*1.4; u.disc.material.opacity=.25+Math.sin(tn/240)*.1; });
+  if(!AR.gateLbl) AR.gateLbl=makeLabel("ally"); { const s=!AR.on?AR.gates.find(s=>s&&Math.hypot(P.x-s.x,P.z-s.z)<30):null; if(s&&!layerOpen) placeLabel(AR.gateLbl,s.x,8.6,s.z,`⚔️ <b>발할라 결투장</b>`); else AR.gateLbl.style.display="none"; }
+  AR.t-=dt; if(AR.t<=0){ AR.t=1; arData(); if(AR.repT&&tn-AR.repT>2500){ AR.repT=0; arReport(); } }
+  if(AR.repQ.length&&!layerOpen&&!P.dead&&!AR.f) arShowReport(AR.repQ.shift());
+  AR.pubT-=dt; if(AR.pubT<=0){ AR.pubT=600; arPub(); }
+  if(!AR.on) return; if(!arIn(P.x,P.z)){ arExit(true,true); return; }
+  if(AR.rune) AR.rune.material.opacity=.25+Math.sin(tn/300)*.15;
+  if(AR.f) arTickFight(dt);
+  else { // 둘러보기
+    const ex=AR.exitArch; if(ex&&AR.cd<=0&&Math.hypot(P.x-ex.x,P.z-ex.z)<2.6){ arExit(); return; }
+    if(!AR.boardLbl) AR.boardLbl=makeLabel("ally"); if(AR.tab&&Math.hypot(P.x-AR.tab.x,P.z-AR.tab.z)<26&&!layerOpen) placeLabel(AR.boardLbl,AR.tab.x,4.4,AR.tab.z,"⚔ <b>결투 석판</b> · 상대 고르기"); else AR.boardLbl.style.display="none"; }
+  AR.stat.forEach(s=>{ if(!AR.f&&!layerOpen&&Math.hypot(P.x-s.x,P.z-s.z)<14) placeLabel(s.lbl,s.x,5.4,s.z,s.txt); else s.lbl.style.display="none"; });
+  AR.amb-=dt; if(AR.amb<=0){ AR.amb=ECO()?.6:.25; fxSpark(ARX+rnd(-30,30),rnd(.5,4),ARZ+rnd(-30,30),0xffc860,2); }
+  const a=arData(); const T=AR_TIER[arTier(a.p)]; $("region").innerHTML=AR.f?`⚔️ 발할라 결투장 <b>${AR.f.mode===2?"2:2":"1:1"} 결투 중</b>`:`⚔️ 발할라 결투장 <b>${T.ic} ${fmt(a.p)}점</b>`; }
+XTICK.push(arTick);
+function arSky(dt){ SKY.tTop.setHex(0x3a5aa8); SKY.tBot.setHex(0xffc890); const k=Math.min(1,dt*1.5); SKY.top.lerp(SKY.tTop,k); SKY.bot.lerp(SKY.tBot,k); scene.fog.color.copy(SKY.bot); scene.fog.near=90; scene.fog.far=320;
+  sky.position.copy(camera.position); STARS.material.opacity=0; MOON.visible=false; sun.position.set(P.x+40,80,P.z+20); sun.target.position.set(P.x,0,P.z); sun.intensity=1.05; sun.color.setHex(0xffe0b0); hemi.intensity=.5; fill.intensity=.25; skyMat.uniforms.sunDir.value.copy(sun.position).sub(camera.position).normalize(); renderer.toneMappingExposure=.92; }
+function arMinimap(){ const ctx=mctx, S=fitCanvas(mm); const s=S*.94/(AR_OUT*2+6); const X=x=>S/2+(x-ARX)*s, Z=z=>S/2+(z-ARZ)*s;
+  ctx.fillStyle="#3a2e24"; ctx.fillRect(0,0,S,S); dot(ctx,X(ARX),Z(ARZ),AR_OUT*s,"#9a8a78","#6a5a4a",2); dot(ctx,X(ARX),Z(ARZ),AR_R*s,"#e8d6aa","#ffcf4a",2);
+  if(AR.exitArch) dot(ctx,X(AR.exitArch.x),Z(AR.exitArch.z),S/26,"#ffd27a","#fff",2); if(AR.tab) dot(ctx,X(AR.tab.x),Z(AR.tab.z),S/30,"#c8a060","#fff",1.5);
+  if(AR.f){ AR.f.foes.forEach(m=>{ if(m.hp>0) dot(ctx,X(m.x),Z(m.z),S/40,"#d93025","#fff",1.5); }); AR.f.allies.forEach(a=>{ if(a.hp>0) dot(ctx,X(a.x),Z(a.z),S/40,"#7ad8ff","#fff",1.5); }); }
+  for(const id in PEERS){ const o=PEERS[id]; if(!o.dead&&arIn(o.x,o.z)) dot(ctx,X(o.x),Z(o.z),S/36,"#1e8e3e","#fff",1.5); }
+  const px=X(P.x), pz=Z(P.z); ctx.save(); ctx.translate(px,pz); ctx.rotate(Math.PI-P.rot); ctx.fillStyle="#3a8dff"; ctx.strokeStyle="#fff"; ctx.lineWidth=2; ctx.beginPath(); const q=S/20; ctx.moveTo(0,-q); ctx.lineTo(q*.7,q*.7); ctx.lineTo(0,q*.35); ctx.lineTo(-q*.7,q*.7); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
+  mmLabel(ctx,"⚔️ 결투장",S/2,S*.07,Math.round(S/12),"#fff"); }
+XZONE.push({on:()=>AR.on,clamp:()=>{ if(!arIn(P.x,P.z)){ arExit(true,true); return false; } const lim=AR.f?AR_R-.8:AR_OUT-1.2; const r=Math.hypot(P.x-ARX,P.z-ARZ); if(r>lim){ const k=lim/r; P.x=ARX+(P.x-ARX)*k; P.z=ARZ+(P.z-ARZ)*k; } return true; },sky:arSky,mm:arMinimap});
+/* ---------- 창 ---------- */
+function arRecRow(r,i,btn){ const R=REALMS[r.r]; const T=AR_TIER[arTier(r.p)]; const f=arPower(r); return `<div class="row"><div class="ic" style="color:${R.c1}">${r.bot?"🤖":R.icon}</div><div class="t"><div><b style="color:${R.c1}">${r.n}</b> ${r.bot?"":T.ic} Lv.${r.l}</div><span>${R.ranks[r.k||0]} · 힘 ${f>1.05?"조금 셈":f<.95?"조금 약함":"비슷함"}${r.sk&&r.sk.length?` · ${r.sk.join("·")}`:""}${r.pt&&PETS[r.pt[0]]?` · ${PETS[r.pt[0]].n}`:""}${r.bot?" · 신전 수련 전사":""}</span></div>${btn}</div>`; }
+function showArena(shuffle){ const a=arData(); const T=AR_TIER[arTier(a.p)], nx=AR_TIER[arTier(a.p)+1]; const picks=(!AR.picks||shuffle)?arPick(!!shuffle):AR.picks; const mode=AR.mode;
+  const w=arWeek(), S=arSeason(); const recs=Object.values(ARD).concat(a.regT?[arMyRec()]:[]); const wk=recs.filter(r=>r.w===w&&r.p>0).sort((x,y)=>y.p-x.p).slice(0,10); const fr=arFriends().filter(d=>!picks.some(p=>p.i===d.i)).slice(0,6);
+  const inside=AR.on&&!AR.f; const btn=(r,i)=>inside?`<button class="buy" data-ar="${i}">${mode===2?"🤝 2:2":"⚔ 도전"}</button>`:"";
+  const allySel=AR.ally&&ARD[AR.ally]?ARD[AR.ally]:fr[0]||null;
+  card(`<h2>⚔️ 발할라 결투장</h2><p>내 <b>수비 영웅</b>이 결투장을 지켜요 — 내가 게임을 꺼 둬도 다른 사람이 도전하면 내 영웅이 대신 싸워요! 결투장 안에서는 체력을 맞춰 줘서 처음 온 사람도 이길 수 있어요. 다치지 않고, 지면 무릎만 꿇어요.</p>
+   <div class="idlegrid"><div><b style="color:${T.c}">${T.ic} ${fmt(a.p)}</b><span>${T.n} · 이번 주${nx?` (${nx.ic} ${nx.min}점까지 ${nx.min-a.p})`:""}</span></div><div><b>⚔ ${a.win||0}승 ${a.lose||0}패</b><span>오늘 점수 결투 ${Math.min(a.n,AR_DAY)}/${AR_DAY}</span></div><div><b>🛡 ${a.dw||0}</b><span>수비 영웅이 막아낸 수</span></div></div>
+   ${a.regT?`<p style="font-size:12px">🛡 내 수비 영웅: ${G.name} · ${RM().ranks[G.rank]} Lv.${G.lv} · 기술 ${arSkills().map(i=>RM().skills[i].n).join("·")||"없음"} (결투장에 올 때마다 지금 모습으로 바뀌어요)</p>`:`<p style="font-size:12px;color:var(--gold)">결투장에 처음 들어가면 내 수비 영웅이 등록돼요.</p>`}
+   <h3>상대 고르기</h3><div class="exgrid"><button class="buy${mode===1?"":" alt"}" id="arM1">⚔ 1:1</button><button class="buy${mode===2?"":" alt"}" id="arM2">🤝 2:2 (친구 영웅과 함께)</button><button class="buy alt" id="arShuf">🔄 다른 상대</button></div>
+   ${mode===2?`<p style="font-size:13px">내 편: ${allySel?`<b>🤝 ${allySel.n}</b>의 수비 영웅`:`🤖 ${arBot(3,arPow()).n}(신전 수련 전사)`}${fr.length>1?" · 아래에서 바꿀 수 있어요":""} · 상대: 위 3명 중 2명(고른 사람 + 옆 사람)</p>`:""}
+   ${picks.map((r,i)=>arRecRow(r,i,btn(r,i))).join("")}
+   ${mode===2&&fr.length?`<div class="exgrid" id="arAl">${fr.map(d=>`<button class="buy${allySel&&allySel.i===d.i?"":" alt"}" data-al="${d.i}">🤝 ${d.n}</button>`).join("")}</div>`:""}
+   ${inside?"":AR.on?"":`<button class="go" id="arGo" style="align-self:center">⚔️ 결투장으로 가기</button>`}
+   <h3>🏆 이번 주 결투 순위</h3>${wk.length?wk.map((r,k)=>`<div class="row"><div class="ic">${["🥇","🥈","🥉"][k]||k+1}</div><div class="t"><div><b style="color:${REALMS[r.r].c1}">${r.n}</b>${r.i===G.id?" (나)":""}</div><span>${AR_TIER[arTier(r.p)].ic} ${fmt(r.p)}점</span></div></div>`).join(""):`<p style="font-size:12px">아직 이번 주 점수가 없어요. 첫 승리를 해 봐요!</p>`}
+   <p style="font-size:12px">이기면 +24점(로봇은 +12) · 지면 −6점 · 내 영웅이 막아내면 +6점 · 하루 10판까지 점수 · 매주 월요일 정산 상자(🥉🥈🥇💎) · 시즌 1~10등은 결투장 둘레에 금빛 석상! · 물약은 결투마다 2번 · 점프로 피할 수 있어요.</p>`);
+  $("arM1").onclick=()=>{ AR.mode=1; tone(660,.05); showArena(); }; $("arM2").onclick=()=>{ AR.mode=2; tone(660,.05); showArena(); }; $("arShuf").onclick=()=>{ tone(700,.05); showArena(true); };
+  layers.querySelectorAll("[data-al]").forEach(b=>b.onclick=()=>{ AR.ally=b.dataset.al; tone(700,.05); showArena(); });
+  layers.querySelectorAll("[data-ar]").forEach(b=>b.onclick=()=>{ const i=+b.dataset.ar; const P3=AR.picks; if(AR.mode===2){ const j=i===2?1:i+1; const ally=allySel||arBot(3,arPow()); arStart([P3[i],P3[j]],2,Object.assign({},ally,{n:ally.n})); } else arStart([P3[i]],1); });
+  if($("arGo")) $("arGo").onclick=()=>{ const s=AR.gates[Math.max(0,G.realm)]; closeLayer(); if(s&&Math.hypot(P.x-s.x,P.z-s.z)<8) arEnter(); else if(s){ setGuide({x:s.x,z:s.z+5,label:"⚔️ 발할라 결투장 문"}); } }; }
+CTX_EXTRA.push(()=>{ if(arGateNear()) return {t:"⚔️ 발할라 결투장으로",f:arEnter}; if(AR.on&&!AR.f&&AR.tab&&Math.hypot(P.x-AR.tab.x,P.z-AR.tab.z)<6) return {t:"⚔ 결투 석판 — 상대 고르기",f:()=>showArena()}; return null; });
+MENU_X.push({ic:"⚔️",n:"발할라 결투장",id:"arBtn",sub:()=>{ const a=arData(); const T=AR_TIER[arTier(a.p)]; return `${T.ic} ${T.n} ${fmt(a.p)}점 · ${a.win||0}승 ${a.lose||0}패 · 🛡 수비 ${a.dw||0}번 막아냄`; },f:()=>showArena()});
+TITLES.push({id:"ar1",n:"결투장의 새내기",t:0,h:"발할라 결투장에서 첫 승리",g:()=>[(G.ar&&G.ar.win)||0,1]},{id:"ar20",n:"발할라의 전사",t:2,h:"결투 20번 이기기",g:()=>[(G.ar&&G.ar.win)||0,20]},{id:"arg",n:"금 방패의 용사",t:2,h:"한 주에 금 방패(300점) 되기",g:()=>[G.ar?Math.max(G.ar.p||0,(G.ar.bestT||0)>=2?300:0):0,300]},{id:"arm",n:"신화 방패의 전설",t:3,h:"한 주에 신화 방패(600점) 되기",g:()=>[G.ar?Math.max(G.ar.p||0,(G.ar.bestT||0)>=3?600:0):0,600]},{id:"ard10",n:"잠든 수호자",t:2,h:"수비 영웅이 도전 10번 막아내기",g:()=>[(G.ar&&G.ar.dw)||0,10]});
+</script>
+<script>
 /* ================= 아주 작은 MQTT 클라이언트 (웹소켓) — 외부 라이브러리 없이 ================= */
 function MiniMQTT(url,opt){
   const self={url,ok:false,ws:null,buf:new Uint8Array(0),pid:1,pingT:null,retry:null,closed:false,subs:[],opt};
@@ -6257,7 +6737,7 @@ window.__gw={PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoard,showPlay,p
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="cd80452b";
+(function(){ var CUR="1e087710";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
