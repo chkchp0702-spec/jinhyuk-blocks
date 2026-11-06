@@ -24,13 +24,15 @@ function lvBanner(top,big,sub,css){ let b=$("lvup"); if(!b){ b=document.createEl
   LVFX.bt=0; LVFX.b=b; LVFX.g=$("lvglow"); LVFX.r=b.querySelector(".rays"); LVFX.bg=b.querySelector(".big"); b.style.display=LVFX.g.style.display="block"; tickLvBanner(0); }
 /* 게임 시간으로 움직임(메인 루프에서 부름) — 화면이 버벅여도 순서대로 보임 */
 const easeOutBack=x=>{ const c=1.9; return 1+(c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2); };
-function tickLvBanner(dt){ if(!LVFX.b||LVFX.bt==null) return; const t=(LVFX.bt+=dt), D=3.4; const b=LVFX.b, g=LVFX.g;
+/* v72: 가운데서 톡 터진 뒤(0.9초) 작아지며 화면 위쪽 띠로 올라가 붙음 → 싸우는 화면 가운데를 오래 가리지 않음 */
+function tickLvBanner(dt){ if(!LVFX.b||LVFX.bt==null) return; const t=(LVFX.bt+=dt), D=3.1; const b=LVFX.b, g=LVFX.g;
   if(t>=D){ b.style.display=g.style.display="none"; LVFX.bt=null; $("toast").classList.remove("lvdn"); return; }
-  const op=t<.25?t/.25:t>D-.6?(D-t)/.6:1; const sc=t<.3?.6+.5*easeOutBack(t/.3):1; const dy=t>D-.6?-12*(1-(D-t)/.6):0;
-  b.style.opacity=op.toFixed(3); b.style.transform=`translate(-50%,calc(-50% + ${dy.toFixed(1)}%)) scale(${sc.toFixed(3)})`;
+  const op=t<.2?t/.2:t>D-.45?(D-t)/.45:1; const kk=clamp((t-.9)/.45,0,1), dk=kk*kk*(3-2*kk);
+  const sc=(t<.3?.6+.5*easeOutBack(t/.3):1)*(1-.38*dk); const ty=Math.max(54,innerHeight*.16), dyp=-dk*Math.max(0,b.offsetTop-ty);
+  b.style.opacity=op.toFixed(3); b.style.setProperty("--dk",dk.toFixed(3)); b.style.transform=`translate(-50%,calc(-50% + ${dyp.toFixed(1)}px)) scale(${sc.toFixed(3)})`;
   const pk=Math.min(1,t/.45); LVFX.bg.style.transform=`scale(${(t<.45?2.2-1.2*easeOutBack(pk):1).toFixed(3)})`;
-  LVFX.r.style.transform=`rotate(${(t*40).toFixed(1)}deg) scale(${(t<.4?.3+.8*t/.4:1.1-.1*Math.min(1,(t-.4)/2)).toFixed(3)})`; LVFX.r.style.opacity=(t<.4?t/.4*.9:.9-.35*Math.min(1,(t-.4)/2.4)).toFixed(3);
-  g.style.opacity=(t<.15?t/.15:Math.max(0,1-(t-.15)/1.3)).toFixed(3); }
+  LVFX.r.style.transform=`rotate(${(t*40).toFixed(1)}deg) scale(${(t<.4?.3+.8*t/.4:1.1-.1*Math.min(1,(t-.4)/2)).toFixed(3)})`; LVFX.r.style.opacity=((t<.4?t/.4*.9:.9-.35*Math.min(1,(t-.4)/2.4))*(1-.85*dk)).toFixed(3);
+  g.style.opacity=(t<.15?t/.15:Math.max(0,1-(t-.15)/1.0)).toFixed(3); }
 const hexCss=c=>"#"+(c>>>0).toString(16).padStart(6,"0");
 function celebrateLevel(lv,s0){ const s1=stat(); const hi=HIGH();
   fxPillar(0xffc94a,.95,hi?42:26,1.8,.45); if(hi) fxPillar(0xfff2c0,.3,46,1.4,.35);

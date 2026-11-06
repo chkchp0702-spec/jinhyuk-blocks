@@ -233,11 +233,15 @@ html,body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;t
 #lvup .rays{position:absolute;left:50%;top:50%;width:min(62vh,340px);height:min(62vh,340px);margin:calc(min(62vh,340px)/-2) 0 0 calc(min(62vh,340px)/-2);border-radius:50%;z-index:-1;
  background:repeating-conic-gradient(from 0deg,color-mix(in srgb,var(--lc) 55%,transparent) 0 7deg,transparent 7deg 22deg);-webkit-mask:radial-gradient(circle,#000 18%,transparent 68%);mask:radial-gradient(circle,#000 18%,transparent 68%);opacity:.85}
 #lvup .top{font-family:var(--title);font-size:clamp(14px,4.4vh,22px);letter-spacing:6px;color:#fff;text-shadow:-2px -2px 0 #1b1030,2px -2px 0 #1b1030,-2px 2px 0 #1b1030,2px 2px 0 #1b1030,0 0 14px var(--lc)}
-#lvup .big{font-family:var(--title);font-size:clamp(40px,15vh,74px);line-height:1.05;white-space:nowrap;padding:0 .15em;
+#lvup .big{font-family:var(--title);font-size:clamp(36px,13vh,66px);line-height:1.05;white-space:nowrap;padding:0 .15em;
  background:linear-gradient(180deg,#fff 8%,#ffd76a 48%,#e08a1e 92%);-webkit-background-clip:text;background-clip:text;color:transparent;
  filter:drop-shadow(0 3px 0 #1b1030) drop-shadow(2px 0 0 #1b1030) drop-shadow(-2px 0 0 #1b1030) drop-shadow(0 -2px 0 #1b1030) drop-shadow(0 0 14px var(--lc))}
 #lvup .sub{margin-top:4px;font-size:clamp(12px,3.8vh,17px);color:#fff;white-space:nowrap;text-shadow:-1.5px -1.5px 0 #1b1030,1.5px -1.5px 0 #1b1030,-1.5px 1.5px 0 #1b1030,1.5px 1.5px 0 #1b1030}
 #lvup .sub b{color:#9dff8a}
+#lvup::before{content:"";position:absolute;left:-14%;right:-14%;top:-4px;bottom:-6px;z-index:-1;opacity:var(--dk,0);pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(22,12,44,.62) 18%,rgba(22,12,44,.62) 82%,transparent);
+  border-top:2px solid color-mix(in srgb,var(--lc) 80%,transparent);border-bottom:2px solid color-mix(in srgb,var(--lc) 80%,transparent);
+  -webkit-mask:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent);mask:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent)}
 #toast.lvdn{top:66%!important;font-size:clamp(16px,3.6vw,22px)}
 #lvglow{display:none;position:fixed;inset:0;z-index:7;pointer-events:none;opacity:0;--lc:#ffd76a;background:radial-gradient(ellipse at 50% 60%,transparent 35%,color-mix(in srgb,var(--lc) 70%,transparent) 100%)}
 @media (orientation:portrait){#lvup{top:28%}#lvup .big{font-size:clamp(40px,14vw,64px)}}
@@ -497,7 +501,7 @@ body.eco #bossbar[data-ph="2"] .bpo{animation:none}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v71";
+const VER="v72";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -1317,13 +1321,15 @@ function lvBanner(top,big,sub,css){ let b=$("lvup"); if(!b){ b=document.createEl
   LVFX.bt=0; LVFX.b=b; LVFX.g=$("lvglow"); LVFX.r=b.querySelector(".rays"); LVFX.bg=b.querySelector(".big"); b.style.display=LVFX.g.style.display="block"; tickLvBanner(0); }
 /* 게임 시간으로 움직임(메인 루프에서 부름) — 화면이 버벅여도 순서대로 보임 */
 const easeOutBack=x=>{ const c=1.9; return 1+(c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2); };
-function tickLvBanner(dt){ if(!LVFX.b||LVFX.bt==null) return; const t=(LVFX.bt+=dt), D=3.4; const b=LVFX.b, g=LVFX.g;
+/* v72: 가운데서 톡 터진 뒤(0.9초) 작아지며 화면 위쪽 띠로 올라가 붙음 → 싸우는 화면 가운데를 오래 가리지 않음 */
+function tickLvBanner(dt){ if(!LVFX.b||LVFX.bt==null) return; const t=(LVFX.bt+=dt), D=3.1; const b=LVFX.b, g=LVFX.g;
   if(t>=D){ b.style.display=g.style.display="none"; LVFX.bt=null; $("toast").classList.remove("lvdn"); return; }
-  const op=t<.25?t/.25:t>D-.6?(D-t)/.6:1; const sc=t<.3?.6+.5*easeOutBack(t/.3):1; const dy=t>D-.6?-12*(1-(D-t)/.6):0;
-  b.style.opacity=op.toFixed(3); b.style.transform=`translate(-50%,calc(-50% + ${dy.toFixed(1)}%)) scale(${sc.toFixed(3)})`;
+  const op=t<.2?t/.2:t>D-.45?(D-t)/.45:1; const kk=clamp((t-.9)/.45,0,1), dk=kk*kk*(3-2*kk);
+  const sc=(t<.3?.6+.5*easeOutBack(t/.3):1)*(1-.38*dk); const ty=Math.max(54,innerHeight*.16), dyp=-dk*Math.max(0,b.offsetTop-ty);
+  b.style.opacity=op.toFixed(3); b.style.setProperty("--dk",dk.toFixed(3)); b.style.transform=`translate(-50%,calc(-50% + ${dyp.toFixed(1)}px)) scale(${sc.toFixed(3)})`;
   const pk=Math.min(1,t/.45); LVFX.bg.style.transform=`scale(${(t<.45?2.2-1.2*easeOutBack(pk):1).toFixed(3)})`;
-  LVFX.r.style.transform=`rotate(${(t*40).toFixed(1)}deg) scale(${(t<.4?.3+.8*t/.4:1.1-.1*Math.min(1,(t-.4)/2)).toFixed(3)})`; LVFX.r.style.opacity=(t<.4?t/.4*.9:.9-.35*Math.min(1,(t-.4)/2.4)).toFixed(3);
-  g.style.opacity=(t<.15?t/.15:Math.max(0,1-(t-.15)/1.3)).toFixed(3); }
+  LVFX.r.style.transform=`rotate(${(t*40).toFixed(1)}deg) scale(${(t<.4?.3+.8*t/.4:1.1-.1*Math.min(1,(t-.4)/2)).toFixed(3)})`; LVFX.r.style.opacity=((t<.4?t/.4*.9:.9-.35*Math.min(1,(t-.4)/2.4))*(1-.85*dk)).toFixed(3);
+  g.style.opacity=(t<.15?t/.15:Math.max(0,1-(t-.15)/1.0)).toFixed(3); }
 const hexCss=c=>"#"+(c>>>0).toString(16).padStart(6,"0");
 function celebrateLevel(lv,s0){ const s1=stat(); const hi=HIGH();
   fxPillar(0xffc94a,.95,hi?42:26,1.8,.45); if(hi) fxPillar(0xfff2c0,.3,46,1.4,.35);
@@ -6797,7 +6803,7 @@ window.__gw={PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoard,showPlay,p
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="d4e2dbb2";
+(function(){ var CUR="ec7e5271";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
