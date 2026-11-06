@@ -64,7 +64,8 @@ function stat(){
   return {mhp:Math.round(mhp),atk,def,crit};
 }
 function dmgReduce(def){ return def/(def+50); }
-function gainXp(n){ if(hegemon()===G.realm) n=Math.round(n*1.15); if(G.blessUntil>Date.now()) n=Math.round(n*1.2); G.xp+=n; let up=false; const s0=G.xp>=xpNeed(G.lv)&&G.lv<60?stat():null; while(G.xp>=xpNeed(G.lv)&&G.lv<60){ G.xp-=xpNeed(G.lv); G.lv++; up=true; } if(up){ P.hp=stat().mhp; jingle([523,659,784,1046]); fxSpark(P.x,2,P.z,0xffe08a,40); try{ celebrateLevel(G.lv,s0); }catch(e){ console.warn(e); toast(`레벨 ${G.lv}!`,"체력과 공격력이 올랐어요",2.2); } } }
+const LVMAX=300;   // v75: 레벨 상한 60 → 300 (60부터 계속 오름)
+function gainXp(n){ if(hegemon()===G.realm) n=Math.round(n*1.15); if(G.blessUntil>Date.now()) n=Math.round(n*1.2); G.xp+=n; let up=false; const s0=G.xp>=xpNeed(G.lv)&&G.lv<LVMAX?stat():null; while(G.xp>=xpNeed(G.lv)&&G.lv<LVMAX){ G.xp-=xpNeed(G.lv); G.lv++; up=true; } if(up){ P.hp=stat().mhp; jingle([523,659,784,1046]); fxSpark(P.x,2,P.z,0xffe08a,40); try{ celebrateLevel(G.lv,s0); }catch(e){ console.warn(e); toast(`레벨 ${G.lv}!`,"체력과 공격력이 올랐어요",2.2); } } }
 function itemName(s,t){ return RM().items[s][t]; }
 function itemDesc(s,t){ return s==="w"?`공격 +${TIER.w[t]}`:s==="a"?`체력 +${TIER.a[t]} · 방어 +${(t+1)*5}`:`치명타 ${Math.round(TIER.r[t]*100)}%`; }
 

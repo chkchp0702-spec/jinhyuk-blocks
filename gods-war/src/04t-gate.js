@@ -164,9 +164,9 @@ function dsTickMobs(dt){ const st=stat(), tn=performance.now(); const list=mobs.
 /* ---------- 매 프레임 (사막) ---------- */
 function dsTick(dt){ if(!DS.on) return; if(!dsIn(P.z)){ dsExit(true,true); return; } DS.cd=Math.max(0,DS.cd-dt); const tn=performance.now();
   const peers=dsPeers(); const list=mobs.filter(m=>m.ds&&!m.boss); const want=Math.min(14,9+peers.length*2);
-  if(list.length<want&&Math.random()<dt*1.4){ const s=dsSpot(); if(s){ const def=pick(DS_MOBS); dsSpawn(def,clamp(G.lv+rint(-1,2),10,60),false,s.x,s.z,def.shape==="naga"?1.05:rnd(.9,1.15)); } }
+  if(list.length<want&&Math.random()<dt*1.4){ const s=dsSpot(); if(s){ const def=pick(DS_MOBS); dsSpawn(def,clamp(G.lv+rint(-1,2),10,LVMAX),false,s.x,s.z,def.shape==="naga"?1.05:rnd(.9,1.15)); } }
   const slot=Math.floor(Date.now()/240000); if(DS.boss&&mobs.indexOf(DS.boss)<0) DS.boss=null;
-  if(!DS.boss&&DS.bossSlot!==slot&&Math.hypot(P.x-(DSX+DS_ARENA.x),P.z-(DSZ+DS_ARENA.z))<75){ DS.bossSlot=slot; DS.boss=dsSpawn(DS_BOSS,clamp(G.lv+6,18,60),true,DSX+DS_ARENA.x,DSZ+DS_ARENA.z-3,3.2);
+  if(!DS.boss&&DS.bossSlot!==slot&&Math.hypot(P.x-(DSX+DS_ARENA.x),P.z-(DSZ+DS_ARENA.z))<75){ DS.bossSlot=slot; DS.boss=dsSpawn(DS_BOSS,clamp(G.lv+6,18,LVMAX),true,DSX+DS_ARENA.x,DSZ+DS_ARENA.z-3,3.2);
     try{ lvBanner("혼돈의 뱀","🐍 아펩이 깨어났어요!","결투장에서 함께 쓰러뜨려요 · 빨간 고리가 보이면 피해요","#b07aff"); }catch(e){} tone(60,.9,"sawtooth",0,.2); buzz([80,40,80]); fxRing(DSX+DS_ARENA.x,DSZ+DS_ARENA.z,0xb07aff,18,1.2); P.shake=Math.max(P.shake||0,1); }
   dsTickMobs(dt);
   if(DS.arenaRing){ DS.arenaRing.material.opacity=DS.boss?.55+Math.sin(tn/150)*.2:.22; DS.arenaRing.rotation.z+=dt*(DS.boss?1.5:.3); }

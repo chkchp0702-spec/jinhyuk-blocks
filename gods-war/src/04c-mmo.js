@@ -8,7 +8,7 @@
 */
 const IDLE_MAX_H=24, IDLE_KPM=0.4, IDLE_EFF=0.5;          // 최대 시간 · 분당 처치 수 · 보상 비율
 function idleRegion(lv,realm){ const own=[realm*3,realm*3+1,realm*3+2].map(i=>REGIONS[i]); const list=own.concat([REGIONS[12]]); let best=list[0]; list.forEach(r=>{ if(r.lv[0]<=lv) best=r; }); return best; }
-function idleCap(rank){ return rank>=RANK_LV.length-1?60:Math.min(60,RANK_LV[rank+1]+6); }
+function idleCap(rank){ return rank>=RANK_LV.length-1?LVMAX:Math.min(60,RANK_LV[rank+1]+6); }
 // 같은 입력이면 어느 폰에서 계산해도 같은 결과(친구 화면의 "지금쯤 레벨"도 이걸로 계산)
 function idleSim(lv,xp,realm,rank,ms){ const mins=Math.min(IDLE_MAX_H*60,Math.max(0,ms/60000)); const cap=idleCap(rank); let kills=0,gold=0,gxp=0,left=mins; const lv0=lv;
   while(left>0){ const step=Math.min(10,left); left-=step; const rg=idleRegion(lv,realm); const L=clamp(lv,rg.lv[0],rg.lv[1]); const k=step*IDLE_KPM; const ex=(10+L*7)*IDLE_EFF*k, gd=(4+L*2)*IDLE_EFF*k; kills+=k; gold+=gd;

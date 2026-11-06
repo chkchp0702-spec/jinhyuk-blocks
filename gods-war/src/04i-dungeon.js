@@ -59,8 +59,8 @@ function dgBuild(f){ dgClear3D(); const F=DG.plan.floors[f]; const T=DG_THEME[F.
     DG.plates=pl; DG.gate={z:gz,bars,open:false,y:0}; }
   scene.add(g); DG.grp=g;
   // 괴물
-  const R=REALMS[F.realm]; const lv=clamp(G.lv+2+f,1,60);
-  if(F.k==="boss"){ const B=DG.plan.boss; dgSpawn(B,clamp(G.lv+6,1,60),true,cx,cz-10,2.4); for(let k=0;k<4;k++) dgSpawn(pick(R.mobs),lv,false,cx+(k%2?-9:9),cz-4+(k>1?8:0),1); }
+  const R=REALMS[F.realm]; const lv=clamp(G.lv+2+f,1,LVMAX);
+  if(F.k==="boss"){ const B=DG.plan.boss; dgSpawn(B,clamp(G.lv+6,1,LVMAX),true,cx,cz-10,2.4); for(let k=0;k<4;k++) dgSpawn(pick(R.mobs),lv,false,cx+(k%2?-9:9),cz-4+(k>1?8:0),1); }
   else { if(F.k==="shoot"){ dgBuildShoot(f,cx,cz,lv); return; } const n=F.k==="mobs"?9:7; const zTop=F.k==="plates"?cz-D/2+22:cz-D/2+10; for(let k=0;k<n;k++){ const x=cx+rnd(-W/2+5,W/2-5), z=rnd(zTop,cz+D/2-24); dgSpawn(pick(R.mobs),lv,false,x,z,rnd(.9,1.15)); } } }
 function dgEnter(){ if(DG.on) return; if(P.dead) return; if(mobs.some(m=>m.state==="chase"&&Math.hypot(m.x-P.x,m.z-P.z)<16)){ toast("전투 중에는 들어갈 수 없어요"); return; } if(P.trial){ toast("승급 시험 중이에요"); return; }
   closeLayer(); DG.plan=dgPlan(dgDay()); DG.on=true; DG.t0=Date.now(); DG.party={}; DG.rg=idleRegion(G.lv,G.realm).id; P.guide=null; $("guide").hidden=true; dgFloor(0); }

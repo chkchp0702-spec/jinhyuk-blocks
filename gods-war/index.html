@@ -501,7 +501,7 @@ body.eco #bossbar[data-ph="2"] .bpo{animation:none}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v74";
+const VER="v75";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -653,7 +653,8 @@ function stat(){
   return {mhp:Math.round(mhp),atk,def,crit};
 }
 function dmgReduce(def){ return def/(def+50); }
-function gainXp(n){ if(hegemon()===G.realm) n=Math.round(n*1.15); if(G.blessUntil>Date.now()) n=Math.round(n*1.2); G.xp+=n; let up=false; const s0=G.xp>=xpNeed(G.lv)&&G.lv<60?stat():null; while(G.xp>=xpNeed(G.lv)&&G.lv<60){ G.xp-=xpNeed(G.lv); G.lv++; up=true; } if(up){ P.hp=stat().mhp; jingle([523,659,784,1046]); fxSpark(P.x,2,P.z,0xffe08a,40); try{ celebrateLevel(G.lv,s0); }catch(e){ console.warn(e); toast(`레벨 ${G.lv}!`,"체력과 공격력이 올랐어요",2.2); } } }
+const LVMAX=300;   // v75: 레벨 상한 60 → 300 (60부터 계속 오름)
+function gainXp(n){ if(hegemon()===G.realm) n=Math.round(n*1.15); if(G.blessUntil>Date.now()) n=Math.round(n*1.2); G.xp+=n; let up=false; const s0=G.xp>=xpNeed(G.lv)&&G.lv<LVMAX?stat():null; while(G.xp>=xpNeed(G.lv)&&G.lv<LVMAX){ G.xp-=xpNeed(G.lv); G.lv++; up=true; } if(up){ P.hp=stat().mhp; jingle([523,659,784,1046]); fxSpark(P.x,2,P.z,0xffe08a,40); try{ celebrateLevel(G.lv,s0); }catch(e){ console.warn(e); toast(`레벨 ${G.lv}!`,"체력과 공격력이 올랐어요",2.2); } } }
 function itemName(s,t){ return RM().items[s][t]; }
 function itemDesc(s,t){ return s==="w"?`공격 +${TIER.w[t]}`:s==="a"?`체력 +${TIER.a[t]} · 방어 +${(t+1)*5}`:`치명타 ${Math.round(TIER.r[t]*100)}%`; }
 
@@ -2644,7 +2645,7 @@ document.addEventListener("DOMContentLoaded",()=>XTICK.push(dt=>{ if(!TAC.el) re
 */
 const IDLE_MAX_H=24, IDLE_KPM=0.4, IDLE_EFF=0.5;          // 최대 시간 · 분당 처치 수 · 보상 비율
 function idleRegion(lv,realm){ const own=[realm*3,realm*3+1,realm*3+2].map(i=>REGIONS[i]); const list=own.concat([REGIONS[12]]); let best=list[0]; list.forEach(r=>{ if(r.lv[0]<=lv) best=r; }); return best; }
-function idleCap(rank){ return rank>=RANK_LV.length-1?60:Math.min(60,RANK_LV[rank+1]+6); }
+function idleCap(rank){ return rank>=RANK_LV.length-1?LVMAX:Math.min(60,RANK_LV[rank+1]+6); }
 // 같은 입력이면 어느 폰에서 계산해도 같은 결과(친구 화면의 "지금쯤 레벨"도 이걸로 계산)
 function idleSim(lv,xp,realm,rank,ms){ const mins=Math.min(IDLE_MAX_H*60,Math.max(0,ms/60000)); const cap=idleCap(rank); let kills=0,gold=0,gxp=0,left=mins; const lv0=lv;
   while(left>0){ const step=Math.min(10,left); left-=step; const rg=idleRegion(lv,realm); const L=clamp(lv,rg.lv[0],rg.lv[1]); const k=step*IDLE_KPM; const ex=(10+L*7)*IDLE_EFF*k, gd=(4+L*2)*IDLE_EFF*k; kills+=k; gold+=gd;
@@ -3254,8 +3255,8 @@ function dgBuild(f){ dgClear3D(); const F=DG.plan.floors[f]; const T=DG_THEME[F.
     DG.plates=pl; DG.gate={z:gz,bars,open:false,y:0}; }
   scene.add(g); DG.grp=g;
   // 괴물
-  const R=REALMS[F.realm]; const lv=clamp(G.lv+2+f,1,60);
-  if(F.k==="boss"){ const B=DG.plan.boss; dgSpawn(B,clamp(G.lv+6,1,60),true,cx,cz-10,2.4); for(let k=0;k<4;k++) dgSpawn(pick(R.mobs),lv,false,cx+(k%2?-9:9),cz-4+(k>1?8:0),1); }
+  const R=REALMS[F.realm]; const lv=clamp(G.lv+2+f,1,LVMAX);
+  if(F.k==="boss"){ const B=DG.plan.boss; dgSpawn(B,clamp(G.lv+6,1,LVMAX),true,cx,cz-10,2.4); for(let k=0;k<4;k++) dgSpawn(pick(R.mobs),lv,false,cx+(k%2?-9:9),cz-4+(k>1?8:0),1); }
   else { if(F.k==="shoot"){ dgBuildShoot(f,cx,cz,lv); return; } const n=F.k==="mobs"?9:7; const zTop=F.k==="plates"?cz-D/2+22:cz-D/2+10; for(let k=0;k<n;k++){ const x=cx+rnd(-W/2+5,W/2-5), z=rnd(zTop,cz+D/2-24); dgSpawn(pick(R.mobs),lv,false,x,z,rnd(.9,1.15)); } } }
 function dgEnter(){ if(DG.on) return; if(P.dead) return; if(mobs.some(m=>m.state==="chase"&&Math.hypot(m.x-P.x,m.z-P.z)<16)){ toast("전투 중에는 들어갈 수 없어요"); return; } if(P.trial){ toast("승급 시험 중이에요"); return; }
   closeLayer(); DG.plan=dgPlan(dgDay()); DG.on=true; DG.t0=Date.now(); DG.party={}; DG.rg=idleRegion(G.lv,G.realm).id; P.guide=null; $("guide").hidden=true; dgFloor(0); }
@@ -4537,9 +4538,9 @@ function dsTickMobs(dt){ const st=stat(), tn=performance.now(); const list=mobs.
 /* ---------- 매 프레임 (사막) ---------- */
 function dsTick(dt){ if(!DS.on) return; if(!dsIn(P.z)){ dsExit(true,true); return; } DS.cd=Math.max(0,DS.cd-dt); const tn=performance.now();
   const peers=dsPeers(); const list=mobs.filter(m=>m.ds&&!m.boss); const want=Math.min(14,9+peers.length*2);
-  if(list.length<want&&Math.random()<dt*1.4){ const s=dsSpot(); if(s){ const def=pick(DS_MOBS); dsSpawn(def,clamp(G.lv+rint(-1,2),10,60),false,s.x,s.z,def.shape==="naga"?1.05:rnd(.9,1.15)); } }
+  if(list.length<want&&Math.random()<dt*1.4){ const s=dsSpot(); if(s){ const def=pick(DS_MOBS); dsSpawn(def,clamp(G.lv+rint(-1,2),10,LVMAX),false,s.x,s.z,def.shape==="naga"?1.05:rnd(.9,1.15)); } }
   const slot=Math.floor(Date.now()/240000); if(DS.boss&&mobs.indexOf(DS.boss)<0) DS.boss=null;
-  if(!DS.boss&&DS.bossSlot!==slot&&Math.hypot(P.x-(DSX+DS_ARENA.x),P.z-(DSZ+DS_ARENA.z))<75){ DS.bossSlot=slot; DS.boss=dsSpawn(DS_BOSS,clamp(G.lv+6,18,60),true,DSX+DS_ARENA.x,DSZ+DS_ARENA.z-3,3.2);
+  if(!DS.boss&&DS.bossSlot!==slot&&Math.hypot(P.x-(DSX+DS_ARENA.x),P.z-(DSZ+DS_ARENA.z))<75){ DS.bossSlot=slot; DS.boss=dsSpawn(DS_BOSS,clamp(G.lv+6,18,LVMAX),true,DSX+DS_ARENA.x,DSZ+DS_ARENA.z-3,3.2);
     try{ lvBanner("혼돈의 뱀","🐍 아펩이 깨어났어요!","결투장에서 함께 쓰러뜨려요 · 빨간 고리가 보이면 피해요","#b07aff"); }catch(e){} tone(60,.9,"sawtooth",0,.2); buzz([80,40,80]); fxRing(DSX+DS_ARENA.x,DSZ+DS_ARENA.z,0xb07aff,18,1.2); P.shake=Math.max(P.shake||0,1); }
   dsTickMobs(dt);
   if(DS.arenaRing){ DS.arenaRing.material.opacity=DS.boss?.55+Math.sin(tn/150)*.2:.22; DS.arenaRing.rotation.z+=dt*(DS.boss?1.5:.3); }
@@ -4786,8 +4787,12 @@ TITLES.push({id:"sk9",n:"기술의 달인",t:2,h:"기술 9개를 모두 배우�
    새 버전으로 처음 켜면 한 번, 무엇이 바뀌었는지 쉬운 말로 보여 줌(G.seenVer). 메뉴 → 업데이트 소식에서 다시 볼 수 있음.
    ※ 버전을 올릴 때마다 맨 앞에 한 줄 묶음을 더해요(오래된 것은 8개까지만 남김). */
 const PATCH_NOTES=[
+ {v:"v75",d:"11/6",t:"📈 레벨 60 넘어서 계속!",items:[
+   "레벨이 60에서 멈추지 않아요! 이제 레벨 300까지 계속 올라가요.",
+   "레벨이 오를수록 체력·공격력도 계속 커져요.",
+   "미궁·태양의 사막·이야기 보스·돌발 이벤트 괴물도 내 레벨에 맞춰 더 강해져요."]},
  {v:"v74",d:"11/6",t:"🎁 모두 레벨 60!",items:[
-   "🎁 특별 선물: 이번 업데이트 후 게임을 켜면 모든 캐릭터가 레벨 60(최고 레벨)이 돼요.",
+   "🎁 특별 선물: 이번 업데이트 후 게임을 켜면 모든 캐릭터가 레벨 60이 돼요.",
    "체력·공격력이 레벨 60에 맞게 크게 올라요. 모아 둔 장비·금화·신수는 그대로예요.",
    "계급(승급)은 그대로라서, 승급 시험을 차례로 깨면 더 높은 계급과 새 기술을 얻을 수 있어요.",
    "선물은 캐릭터마다 한 번만 받아요."]},
@@ -5266,7 +5271,7 @@ function styReward(ch){ const d=styData(); d.c=Math.max(d.c,ch+1); d.cards=d.car
    <p style="text-align:center">${ch+1>=STORY.length?"<b>1부 끝!</b> 네 세계를 구했어요 🎉":d.c<styOpenN()?`다음 장 「${STORY[d.c].n}」이 벌써 열려 있어요!`:nd>0?`다음 장 「${STORY[d.c].n}」은 <b>${nd}일 뒤</b>(월요일)에 열려요!`:""}</p>
    <button class="buy" id="stOk" style="align-self:center">좋아요!</button>`); $("stOk").onclick=()=>{ if(d.c<styOpenN()) showStory(); else closeLayer(); }; },1400); }
 /* ---------- 안개 괴물 · 보스 ---------- */
-function styMistMob(rg){ const R=REALMS[rg.realm>=0?rg.realm:0]; const def=pick(R.mobs); const lv=clamp(G.lv+rint(-1,1),1,60); const st=mobStats(lv,false); const scale=rnd(.95,1.2);
+function styMistMob(rg){ const R=REALMS[rg.realm>=0?rg.realm:0]; const def=pick(R.mobs); const lv=clamp(G.lv+rint(-1,1),1,LVMAX); const st=mobStats(lv,false); const scale=rnd(.95,1.2);
   let x,z; for(let k=0;k<14;k++){ const a=rnd(0,6.283), q=rnd(12,20); x=P.x+Math.cos(a)*q; z=P.z+Math.sin(a)*q; if(Math.hypot(x-rg.x,z-rg.z)<rg.r-4) break; x=rg.x+rnd(-rg.r*.5,rg.r*.5); z=rg.z+rnd(-rg.r*.5,rg.r*.5); }
   const mesh=(typeof mobGL==="function"&&mobGL(def.n,scale))||makeMob(def.shape,def.c,scale); styMistify(mesh,false);
   const m={n:"안개 "+def.n,shape:def.shape,mesh,x,z,hx:x,hz:z,lv,boss:false,world:false,hp:Math.round(st.mhp*1.3),mhp:Math.round(st.mhp*1.3),atk:st.atk,xp:Math.round(st.xp*1.4),gold:Math.round(st.gold*1.3),rg:rg.id,cd:0,state:"idle",t:rnd(0,2),lbl:makeLabel(""),rot:rnd(0,6.3),hit:0,scale,power:0,mist:true};
@@ -5274,7 +5279,7 @@ function styMistMob(rg){ const R=REALMS[rg.realm>=0?rg.realm:0]; const def=pick(
 function styMistify(mesh,big){ const ring=new THREE.Mesh(new THREE.RingGeometry(big?2:1.1,big?3.2:1.8,32),glowMat(0x9a5aff,.55)); ring.rotation.x=-Math.PI/2; ring.position.y=.1; ring.userData.noOutline=true; mesh.add(ring); mesh.userData.mistRing=ring;
   const fm=new THREE.MeshBasicMaterial({color:0x1a0a2a,transparent:true,opacity:.32,depthWrite:false}); for(let k=0;k<(big?7:4);k++){ const p=new THREE.Mesh(GEO.sph,fm); const a=k/(big?7:4)*6.283; p.position.set(Math.cos(a)*(big?1.6:.9),rnd(.4,1.8),Math.sin(a)*(big?1.6:.9)); p.scale.setScalar(big?2.2:1.3); p.userData.noOutline=true; mesh.add(p); }
   const eye=glowMat(0xff3050,.95); [-1,1].forEach(s=>{ const e=new THREE.Mesh(GEO.sph,eye); e.scale.setScalar(.14); e.position.set(s*.2,(mesh.userData.h||3)*.72,.55); e.userData.noOutline=true; mesh.add(e); }); }
-function styBossSpawn(st,ch){ const r=Math.max(0,G.realm); const rg=REGIONS[r*3+st.rg]; const def=st.b; const lv=clamp(G.lv+2,3,60); const s0=mobStats(lv,true); const scale=st.big?2.9:2.2; const k=(st.big?1.7:1.2)*(1+.4*Object.values(PEERS).filter(o=>Math.hypot(o.x-rg.x,o.z-rg.z)<rg.r+20).length);
+function styBossSpawn(st,ch){ const r=Math.max(0,G.realm); const rg=REGIONS[r*3+st.rg]; const def=st.b; const lv=clamp(G.lv+2,3,LVMAX); const s0=mobStats(lv,true); const scale=st.big?2.9:2.2; const k=(st.big?1.7:1.2)*(1+.4*Object.values(PEERS).filter(o=>Math.hypot(o.x-rg.x,o.z-rg.z)<rg.r+20).length);
   const mesh=makeMob(def.shape,def.c,scale); styMistify(mesh,true); const aura=new THREE.Mesh(new THREE.RingGeometry(1.6,2.4,40),glowMat(0xb07aff,.7)); aura.rotation.x=-Math.PI/2; aura.position.y=.12; aura.userData.noOutline=true; mesh.add(aura);
   const x=rg.x+rnd(-4,4), z=rg.z+rnd(-4,4); const m={n:def.n,shape:def.shape,mesh,x,z,hx:x,hz:z,lv,boss:true,world:false,hp:Math.round(s0.mhp*k),mhp:Math.round(s0.mhp*k),atk:s0.atk*(st.big?1.15:1),xp:Math.round(s0.xp*1.3),gold:Math.round(s0.gold*1.3),rg:rg.id,cd:1,state:"idle",t:1,lbl:makeLabel("boss"),rot:0,hit:0,scale,power:st.big?99:70+ch*4,styBoss:ch,aura};
   mesh.position.set(x,hAt(x,z),z); scene.add(mesh); mobs.push(m); STY.boss=m;
@@ -5353,7 +5358,7 @@ function makeElite(m){ if(!m||m.elite||m.boss) return m; m.elite=true; m.mhp=m.h
     if(el){ G.eliteN=(G.eliteN||0)+1; const o=2+Math.floor(Math.random()*3); G.ore=(G.ore||0)+o; floatDmg(x,5,z,`★ 정예 · ⛓ +${o}`,"gain"); if(Math.random()<.3){ const nm=evGear(.15,x,z); toast("★ 정예의 전리품!",nm,2); jingle([659,784,1046]); } }
     if(ev&&EV.cur&&EV.cur.id===ev&&EV.cur.onKill) EV.cur.onKill(m); }; })();
 function evSpawn(x,z,lvAdd,elite){ const rg=regionAt(x,z)||regionAt(P.x,P.z); if(!rg||rg.cap) return null; EV.noElite=true; let m=null; try{ m=spawnMob(rg,false,false); }finally{ EV.noElite=false; } if(!m) return null;
-  const lv=Math.min(60,Math.max(rg.lv[0],G.lv)+lvAdd); const st=mobStats(lv,false); Object.assign(m,{lv,hp:st.mhp,mhp:st.mhp,atk:st.atk,xp:st.xp,gold:st.gold}); m.x=m.hx=x; m.z=m.hz=z; m.mesh.position.set(x,hAt(x,z),z); if(elite) makeElite(m); m.evId=EV.cur?EV.cur.id:-1; m.state="chase"; fxRing(x,z,0xff4060,3.2,.5); fxSpark(x,1.5,z,0xff6a80,12); return m; }
+  const lv=Math.min(LVMAX,Math.max(rg.lv[0],G.lv)+lvAdd); const st=mobStats(lv,false); Object.assign(m,{lv,hp:st.mhp,mhp:st.mhp,atk:st.atk,xp:st.xp,gold:st.gold}); m.x=m.hx=x; m.z=m.hz=z; m.mesh.position.set(x,hAt(x,z),z); if(elite) makeElite(m); m.evId=EV.cur?EV.cur.id:-1; m.state="chase"; fxRing(x,z,0xff4060,3.2,.5); fxSpark(x,1.5,z,0xff6a80,12); return m; }
 function evAround(r0,r1){ const a=rnd(0,6.283), d=rnd(r0,r1); return {x:clamp(P.x+Math.sin(a)*d,-WORLD_HALF+4,WORLD_HALF-4),z:clamp(P.z+Math.cos(a)*d,-WORLD_HALF+4,WORLD_HALF-4)}; }
 function evAlive(){ return EV.cur?mobs.filter(m=>m.evId===EV.cur.id&&m.hp>0):[]; }
 
@@ -5998,8 +6003,8 @@ function lvTick(dt){ if(!started||G.realm<0) return; const tn=performance.now();
   if(LV.ph==="p1"){ for(let s=0;s<8;s++) if(!LV.scales[s]||mobs.indexOf(LV.scales[s])<0){ if(!LV.scales[s]) lvSpawnScale(s); }
     LV.warnT-=dt; if(LV.warnT<=0){ LV.warnT=rnd(4.5,6.5); const a=rnd(0,6.283), d=rnd(0,4); const x=clamp(P.x+Math.cos(a)*d,LVX-LV_OUT,LVX+LV_OUT), z=P.z+Math.sin(a)*d; const m=new THREE.Mesh(new THREE.RingGeometry(3.2,3.8,40),glowMat(0xff4060,.85)); m.rotation.x=-Math.PI/2; m.position.set(x,.15,z); m.userData.noOutline=true; scene.add(m); LV.warns.push({m,x,z,t:1.3}); LV.roar=.8; tone(90,.4,"sawtooth",0,.08); } }
   for(let i=LV.warns.length-1;i>=0;i--){ const w=LV.warns[i]; w.t-=dt; w.m.material.opacity=.4+Math.sin(tn/60)*.4; w.m.scale.setScalar(1+(1.3-w.t)*.15); if(w.t<=0){ scene.remove(w.m); LV.warns.splice(i,1); fxRing(w.x,w.z,0x9ad88a,8,.5); fxSpark(w.x,.5,w.z,0xbfe6ff,24); P.shake=Math.max(P.shake||0,.5); thud(); if(Math.hypot(P.x-w.x,P.z-w.z)<3.8) lvHurt(stat().mhp*.14,"꼬리"); } }
-  if(LV.ph==="p2"){ const n=mobs.filter(m=>m.lvm&&!m.still).length; LV.spT-=dt; if(n<Math.min(10,5+twCountPeers())&&LV.spT<=0){ LV.spT=rnd(.8,1.6); const s=lvSpot(); const d=pick(LV_CHAOS); const m=lvMob(d,clamp(G.lv+rint(-1,1),1,60),s.x,s.z,d.shape==="wolf"?1:rnd(.95,1.15)); fxSpark(s.x,1,s.z,0x8a5aff,16); } }
-  if(LV.ph==="isle"){ const n=mobs.filter(m=>m.lvm).length; LV.spT-=dt; if(n<8&&LV.spT<=0){ LV.spT=rnd(1,2.2); const s=lvSpot(4); const d=pick(LV_CHAOS); lvMob(d,clamp(G.lv+rint(0,2),1,60),s.x,s.z,1); } }
+  if(LV.ph==="p2"){ const n=mobs.filter(m=>m.lvm&&!m.still).length; LV.spT-=dt; if(n<Math.min(10,5+twCountPeers())&&LV.spT<=0){ LV.spT=rnd(.8,1.6); const s=lvSpot(); const d=pick(LV_CHAOS); const m=lvMob(d,clamp(G.lv+rint(-1,1),1,LVMAX),s.x,s.z,d.shape==="wolf"?1:rnd(.95,1.15)); fxSpark(s.x,1,s.z,0x8a5aff,16); } }
+  if(LV.ph==="isle"){ const n=mobs.filter(m=>m.lvm).length; LV.spT-=dt; if(n<8&&LV.spT<=0){ LV.spT=rnd(1,2.2); const s=lvSpot(4); const d=pick(LV_CHAOS); lvMob(d,clamp(G.lv+rint(0,2),1,LVMAX),s.x,s.z,1); } }
   lvTickMobs(dt);
   if(LV.ph==="p3"||LV.ph==="gather"||LV.ph==="p1"||LV.ph==="p2") lvGodsTick(dt,LV.ph==="p3"&&ev?lvSum(ev,"p")/lvGoal(ev,"p"):0,false);
   lvPowBtn(LV.ph==="p3"&&!layerOpen);
@@ -6301,7 +6306,7 @@ function arPub(){ const a=arData(); if(!a.regT) return; try{ net.pushRet("ard/"+
 NETX.push({sub:"ard/+",pre:"ard/",f:d=>{ if(!d||!d.i||d.i===G.id||!(d.r>=0)) return; ARD[d.i]=d; }});
 NETX.push({sub:()=>"arr/"+G.id+"/+",pre:"arr/",f:d=>{ if(!d||!d.i||d.o!==G.id||!d.ts) return; ARR[d.i]=d; AR.repT=Math.max(AR.repT,performance.now()); }});
 /* ---------- 상대 고르기 ---------- */
-function arBot(k,myPw){ const r=(G.realm+1+k)%4; const nm=AR_BOTS[r][(k+arWeek())%2]; const rk=clamp(G.rank+(k===2?1:0)-(k===0?1:0),0,6); return {i:"bot:"+k,n:nm,r,k:rk,l:clamp(G.lv+k-1,1,60),lk:[0,0,0,0,0,0],e:[Math.min(3,Math.floor(rk/2)),Math.min(3,Math.floor(rk/2)),-1],pt:null,sk:[],sx:["aoe","line","dash"].slice(0,1+Math.min(2,Math.floor(rk/2))),wk:k===1?"bow":"sword",pw:Math.round(myPw*([.88,.97,1.06][k]||1)),p:0,bot:1}; }
+function arBot(k,myPw){ const r=(G.realm+1+k)%4; const nm=AR_BOTS[r][(k+arWeek())%2]; const rk=clamp(G.rank+(k===2?1:0)-(k===0?1:0),0,6); return {i:"bot:"+k,n:nm,r,k:rk,l:clamp(G.lv+k-1,1,LVMAX),lk:[0,0,0,0,0,0],e:[Math.min(3,Math.floor(rk/2)),Math.min(3,Math.floor(rk/2)),-1],pt:null,sk:[],sx:["aoe","line","dash"].slice(0,1+Math.min(2,Math.floor(rk/2))),wk:k===1?"bow":"sword",pw:Math.round(myPw*([.88,.97,1.06][k]||1)),p:0,bot:1}; }
 function arPick(shuffle){ const my=arPow(), now=Date.now(); const L=Object.values(ARD).filter(d=>now-(d.ts||0)<21*86400000&&d.i!==G.id); L.sort((a,b)=>Math.abs(a.pw-my)-Math.abs(b.pw-my)); let top=L.slice(0,8); if(shuffle){ for(let i=top.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [top[i],top[j]]=[top[j],top[i]]; } } const P3=top.slice(0,3); for(let k=0;P3.length<3;k++) P3.push(arBot(k,my)); P3.sort((a,b)=>a.pw-b.pw); AR.picks=P3; return P3; }
 function arFriends(){ const L=[]; const now=Date.now(); for(const id in ARD){ const d=ARD[id]; if(now-(d.ts||0)>21*86400000) continue; const fr=(G.frN&&G.frN[id])||(PEERS[id])||(typeof gdTag==="function"&&d.gd&&d.gd===gdTag())||(G.wsGiveNm&&G.wsGiveNm[id]); L.push({d,fr:!!fr}); } L.sort((a,b)=>(b.fr?1:0)-(a.fr?1:0)||Math.abs(a.d.pw-arPow())-Math.abs(b.d.pw-arPow())); return L.map(x=>x.d); }
 /* ---------- 결투장 만들기 ---------- */
@@ -6759,7 +6764,7 @@ function showTitle(){
   if($("roomGo")){ const go=()=>{ if(tryPass($("roomIn").value)){ location.reload(); } else { $("passErr").textContent="비밀번호가 달라요"; buzz(60); $("roomIn").value=""; } }; $("roomGo").onclick=go; $("roomIn").onkeydown=e=>{ if(e.key==="Enter") go(); }; }
   if($("start")) $("start").onclick=()=>{ initAudio(); goFull(); if(G.realm<0){ G.name=$("nameIn").value.trim().slice(0,8); G.realm=sel; saveGame(); } begin(); };
 }
-function begin(){ closeLayer(); try{ if(load("gw-portrait")!=="1") document.body.classList.add("wantland"); lockLand(); }catch(e){} try{ warCatchUp(); }catch(e){ console.warn(e); } let idle=null; try{ idle=grantIdle(); }catch(e){ console.warn(e); } let gift60=false; if(!G.lv60){ G.lv60=1; if(G.lv<60){ G.lv=60; G.xp=0; gift60=true; } saveGame(); } /* v74: 모두 60레벨 선물(한 번) */ setRealmTheme(); buildPlayer(); spawnAtHome(); P.hp=stat().mhp; ensureQuests(); hud(); started=true; net.start(); jingle([392,523,659,784]); toast(`${RM().n}에 온 것을 환영해요`,`${RM().absolute}의 세계 · ${RM().ranks[G.rank]} ${G.name}`,3); if(gift60) setTimeout(()=>{ try{ lvBanner("🎁 특별 선물!","레벨 60","모든 모험가가 최고 레벨이 됐어요 · 승급 시험으로 계급을 올려요","#ffd24a"); }catch(e){ toast("🎁 레벨 60!","모든 모험가가 최고 레벨이 됐어요",3); } try{ fxPillar(0xffd24a,1,HIGH()?34:18,1.6,.5); }catch(e){} jingle([523,659,784,1046,1318]); },5200); if(idle) setTimeout(()=>{ if(!layerOpen&&!P.dead) showIdleReport(idle); },900); else if(G.trap&&trapHours()>=1) setTimeout(()=>{ if(!layerOpen) toast("🪤 통발에 물고기가 들어왔어요!","메뉴 → 낚시에서 걷어요",2.6); },3200); }
+function begin(){ closeLayer(); try{ if(load("gw-portrait")!=="1") document.body.classList.add("wantland"); lockLand(); }catch(e){} try{ warCatchUp(); }catch(e){ console.warn(e); } let idle=null; try{ idle=grantIdle(); }catch(e){ console.warn(e); } let gift60=false; if(!G.lv60){ G.lv60=1; if(G.lv<60){ G.lv=60; G.xp=0; gift60=true; } saveGame(); } /* v74: 모두 60레벨 선물(한 번) */ setRealmTheme(); buildPlayer(); spawnAtHome(); P.hp=stat().mhp; ensureQuests(); hud(); started=true; net.start(); jingle([392,523,659,784]); toast(`${RM().n}에 온 것을 환영해요`,`${RM().absolute}의 세계 · ${RM().ranks[G.rank]} ${G.name}`,3); if(gift60) setTimeout(()=>{ try{ lvBanner("🎁 특별 선물!","레벨 60","여기서부터 계속 더 올라가요 · 승급 시험으로 계급도 올려요","#ffd24a"); }catch(e){ toast("🎁 레벨 60!","여기서부터 계속 더 올라가요",3); } try{ fxPillar(0xffd24a,1,HIGH()?34:18,1.6,.5); }catch(e){} jingle([523,659,784,1046,1318]); },5200); if(idle) setTimeout(()=>{ if(!layerOpen&&!P.dead) showIdleReport(idle); },900); else if(G.trap&&trapHours()>=1) setTimeout(()=>{ if(!layerOpen) toast("🪤 통발에 물고기가 들어왔어요!","메뉴 → 낚시에서 걷어요",2.6); },3200); }
 
 /* ================= 매 프레임 ================= */
 const myLbl=makeLabel("ally"); let started=false, last=performance.now(), skyCur=new THREE.Color(0x9fd4ff), fogCur=new THREE.Color(0xdcefff);
@@ -6816,7 +6821,7 @@ window.__gw={PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoard,showPlay,p
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="d78ad296";
+(function(){ var CUR="80b755f6";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);

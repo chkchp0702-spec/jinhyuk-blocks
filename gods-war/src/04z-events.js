@@ -24,7 +24,7 @@ function makeElite(m){ if(!m||m.elite||m.boss) return m; m.elite=true; m.mhp=m.h
     if(el){ G.eliteN=(G.eliteN||0)+1; const o=2+Math.floor(Math.random()*3); G.ore=(G.ore||0)+o; floatDmg(x,5,z,`★ 정예 · ⛓ +${o}`,"gain"); if(Math.random()<.3){ const nm=evGear(.15,x,z); toast("★ 정예의 전리품!",nm,2); jingle([659,784,1046]); } }
     if(ev&&EV.cur&&EV.cur.id===ev&&EV.cur.onKill) EV.cur.onKill(m); }; })();
 function evSpawn(x,z,lvAdd,elite){ const rg=regionAt(x,z)||regionAt(P.x,P.z); if(!rg||rg.cap) return null; EV.noElite=true; let m=null; try{ m=spawnMob(rg,false,false); }finally{ EV.noElite=false; } if(!m) return null;
-  const lv=Math.min(60,Math.max(rg.lv[0],G.lv)+lvAdd); const st=mobStats(lv,false); Object.assign(m,{lv,hp:st.mhp,mhp:st.mhp,atk:st.atk,xp:st.xp,gold:st.gold}); m.x=m.hx=x; m.z=m.hz=z; m.mesh.position.set(x,hAt(x,z),z); if(elite) makeElite(m); m.evId=EV.cur?EV.cur.id:-1; m.state="chase"; fxRing(x,z,0xff4060,3.2,.5); fxSpark(x,1.5,z,0xff6a80,12); return m; }
+  const lv=Math.min(LVMAX,Math.max(rg.lv[0],G.lv)+lvAdd); const st=mobStats(lv,false); Object.assign(m,{lv,hp:st.mhp,mhp:st.mhp,atk:st.atk,xp:st.xp,gold:st.gold}); m.x=m.hx=x; m.z=m.hz=z; m.mesh.position.set(x,hAt(x,z),z); if(elite) makeElite(m); m.evId=EV.cur?EV.cur.id:-1; m.state="chase"; fxRing(x,z,0xff4060,3.2,.5); fxSpark(x,1.5,z,0xff6a80,12); return m; }
 function evAround(r0,r1){ const a=rnd(0,6.283), d=rnd(r0,r1); return {x:clamp(P.x+Math.sin(a)*d,-WORLD_HALF+4,WORLD_HALF-4),z:clamp(P.z+Math.cos(a)*d,-WORLD_HALF+4,WORLD_HALF-4)}; }
 function evAlive(){ return EV.cur?mobs.filter(m=>m.evId===EV.cur.id&&m.hp>0):[]; }
 
