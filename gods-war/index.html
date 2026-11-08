@@ -501,7 +501,7 @@ body.eco #bossbar[data-ph="2"] .bpo{animation:none}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v76";
+const VER="v77";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -1072,7 +1072,7 @@ const WEATHER={type:"clear",fogN:55,fogF:165,flash:0,nextBolt:5};
 const WTYPES=[["clear","clear","gold","rain"],["snow","snow","blizzard","clear"],["clear","clear","rain","wind"],["clear","rain","storm","clear"]];
 function weatherNow(realmIdx){ const slot=Math.floor(Date.now()/180000); const h=((slot*2654435761)>>>0)%4; return WTYPES[realmIdx][(h+slot+realmIdx)%4]; }
 function tickWeather(dt,realmIdx,center){ const w=center?"clear":weatherNow(realmIdx); if(w!==WEATHER.type){ WEATHER.type=w; if(typeof toast==="function"&&started) toast({clear:"하늘이 맑아졌어요",gold:"황금빛 비가 내려요",rain:"비가 내려요",snow:"눈이 내려요",blizzard:"눈보라가 몰아쳐요!",wind:"모래바람이 불어요",storm:"폭풍이 몰려와요! 번개 조심"}[w],null,2); }
-  const heavy=w==="blizzard"||w==="storm"; const tn=heavy?28:w==="rain"||w==="snow"||w==="wind"?40:55, tf=heavy?95:w==="rain"||w==="snow"||w==="wind"?130:165; WEATHER.fogN+=(tn-WEATHER.fogN)*dt; WEATHER.fogF+=(tf-WEATHER.fogF)*dt; scene.fog.near=WEATHER.fogN; scene.fog.far=WEATHER.fogF;
+  const heavy=w==="blizzard"||w==="storm"; const tn=w==="blizzard"?34:heavy?28:w==="rain"||w==="snow"||w==="wind"?40:55, tf=w==="blizzard"?115:heavy?95:w==="rain"||w==="snow"||w==="wind"?130:165; WEATHER.fogN+=(tn-WEATHER.fogN)*dt; WEATHER.fogF+=(tf-WEATHER.fogF)*dt; scene.fog.near=WEATHER.fogN; scene.fog.far=WEATHER.fogF;
   WEATHER.flash=Math.max(0,WEATHER.flash-dt*6); if(w==="storm"){ WEATHER.nextBolt-=dt; if(WEATHER.nextBolt<=0){ WEATHER.nextBolt=rnd(4,11); WEATHER.flash=1; if(soundOn&&actx){ const t=actx.currentTime; const b=actx.createBuffer(1,actx.sampleRate*.6,actx.sampleRate); const d=b.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,2.5); const src=actx.createBufferSource(); src.buffer=b; const g=actx.createGain(); g.gain.value=.25; src.connect(g).connect(actx.destination); src.start(t+.12); } if(typeof P!=="undefined") P.shake=Math.max(P.shake||0,.5); if(typeof fxBolt==="function"&&typeof P!=="undefined") fxBolt(P.x+rnd(-30,30),P.z+rnd(-30,30),0xffffff); } }
   if(WEATHER.flash>0){ hemi.intensity+=WEATHER.flash*1.5; sun.intensity+=WEATHER.flash*1.2; SKY.top.lerp(new THREE.Color(0xffffff),WEATHER.flash*.5); SKY.bot.lerp(new THREE.Color(0xffffff),WEATHER.flash*.5); } }
 
@@ -1645,6 +1645,7 @@ const HITF=(()=>{ const C=[]; const ease=k=>1-Math.pow(1-k,3);
    세상 둘레 아주 먼 곳에 산줄기 두 겹(먼 산은 연하게, 앞 산은 진하게)이 하늘색에 녹아 보임.
    밑동은 안개에 스르르 묻힘, 꼭대기는 살짝 밝은 테두리(눈·햇빛). 하늘색(안개 색)을 따라 낮·밤·세계 색이 저절로 바뀜.
    그리기 1번, 삼각형 ~800개, PointLight 없음. 미궁·집 안에서는 숨김. 멀리 볼수록(축소) 산도 멀리 밀려나 땅을 가리지 않음. */
+/* v77: 안개 짙은 날(눈보라·폭풍·비) 산 실루엣이 진해지고, 눈보라 안개가 살짝 걷혀 먼 산·하늘이 보임. */
 /* v66: 먼 산 꼭대기에 눈 덮인 봉우리(들쭉날쭉 눈 선·골짜기 줄무늬) + 해 쪽 봉우리가 노을에 주황빛으로 물듦 + 낮엔 눈이 반짝반짝(높음만). 셰이더 몇 줄만, 그리기 호출·폴리곤 그대로. */
 const HORIZON=(()=>{ const pos=[], lay=[], ht=[]; let seed=7; const R=()=>{ seed=(seed*16807)%2147483647; return seed/2147483647; };
   function ridge(r,L,n,hmin,hmax){ const ph=[R()*6,R()*6,R()*6]; const hs=[]; for(let i=0;i<=n;i++){ const a=i/n*Math.PI*2;
@@ -1655,15 +1656,15 @@ const HORIZON=(()=>{ const pos=[], lay=[], ht=[]; let seed=7; const R=()=>{ seed
       q.forEach(v=>{ pos.push(v[0],v[1],v[2]); lay.push(L); ht.push(v[3]*v[1]/hmax); }); } }
   ridge(275,0,140,26,92); ridge(245,1,120,14,58);
   const geo=new THREE.BufferGeometry(); geo.setAttribute("position",new THREE.Float32BufferAttribute(pos,3)); geo.setAttribute("lay",new THREE.Float32BufferAttribute(lay,1)); geo.setAttribute("ht",new THREE.Float32BufferAttribute(ht,1));
-  const mat=new THREE.ShaderMaterial({fog:false,side:THREE.DoubleSide,uniforms:{fogC:{value:new THREE.Color()},topC:{value:new THREE.Color()},day:{value:1},snow:{value:.5},sunset:{value:0},sunXZ:{value:new THREE.Vector2(1,0)},tm:{value:0},hq:{value:1}},
+  const mat=new THREE.ShaderMaterial({fog:false,side:THREE.DoubleSide,uniforms:{fogC:{value:new THREE.Color()},topC:{value:new THREE.Color()},day:{value:1},snow:{value:.5},sunset:{value:0},sunXZ:{value:new THREE.Vector2(1,0)},tm:{value:0},hq:{value:1},dense:{value:0}},
     vertexShader:"attribute float lay; attribute float ht; varying float vL; varying float vH; varying vec2 vP; void main(){ vL=lay; vH=ht; vP=position.xz; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }",
-    fragmentShader:"uniform vec3 fogC; uniform vec3 topC; uniform float day; uniform float snow; uniform float sunset; uniform vec2 sunXZ; uniform float tm; uniform float hq; varying float vL; varying float vH; varying vec2 vP; void main(){ vec3 m=mix(fogC*vec3(.62,.68,.82),fogC*vec3(.42,.47,.62),vL); m=mix(m,topC,(1.0-vL)*.18); float a=(.30+.32*vL)*smoothstep(-.05,.5,vH); vec3 c=mix(fogC,m,clamp(a*1.6,0.0,1.0)); float rim=smoothstep(.62,1.0,vH)*(1.0-vL)*.22*day; c+=vec3(rim); float an=atan(vP.x,vP.y); vec2 dr=normalize(vP); float face=dot(dr,sunXZ)*.5+.5; float ln=.41+vL*.07+.05*sin(an*31.0+vL*3.0)+.035*sin(an*83.0)+.02*sin(an*197.0); float sn=smoothstep(ln,ln+.07,vH)*snow*(1.0-vL*.4); vec3 sc=mix(vec3(.62,.70,.92)*.55,vec3(1.0,.99,.96),day); sc=mix(sc,vec3(1.0,.72,.55),sunset*(.45+.55*face)*.9); float sh=.80+.20*sin(an*150.0+vH*11.0)*(.6+.4*face); c=mix(c,mix(fogC,sc*sh,.82-vL*.22),sn*(.50+.38*day)); float gl=smoothstep(.28,.8,vH)*sunset*(.4+.6*face*face)*(1.0-vL*.45); c+=vec3(1.0,.50,.22)*gl*.42; if(hq>.5){ float h=fract(sin(floor(an*2200.0)*12.9898+floor(vH*110.0)*78.233)*43758.55); float tw=pow(max(0.0,sin(tm*2.3+h*50.0)),10.0); c+=vec3(1.0,.97,.9)*step(.982,h)*tw*sn*day*(.45+.4*face); } gl_FragColor=vec4(c,1.0); }"});
+    fragmentShader:"uniform vec3 fogC; uniform vec3 topC; uniform float day; uniform float snow; uniform float sunset; uniform vec2 sunXZ; uniform float tm; uniform float hq; uniform float dense; varying float vL; varying float vH; varying vec2 vP; void main(){ vec3 m=mix(fogC*vec3(.62,.68,.82),fogC*vec3(.42,.47,.62),vL); m=mix(m,topC,(1.0-vL)*.18); m=mix(m,fogC*vec3(.50,.56,.70),dense*.45); float a=(.30+.32*vL)*smoothstep(-.05,.5,vH)*(1.0+dense*(.75-vL*.25)); vec3 c=mix(fogC,m,clamp(a*1.6,0.0,1.0)); float rim=smoothstep(.62,1.0,vH)*(1.0-vL)*.22*day; c+=vec3(rim); float an=atan(vP.x,vP.y); vec2 dr=normalize(vP); float face=dot(dr,sunXZ)*.5+.5; float ln=.41+vL*.07+.05*sin(an*31.0+vL*3.0)+.035*sin(an*83.0)+.02*sin(an*197.0); float sn=smoothstep(ln,ln+.07,vH)*snow*(1.0-vL*.4); vec3 sc=mix(vec3(.62,.70,.92)*.55,vec3(1.0,.99,.96),day); sc=mix(sc,vec3(1.0,.72,.55),sunset*(.45+.55*face)*.9); float sh=.80+.20*sin(an*150.0+vH*11.0)*(.6+.4*face); c=mix(c,mix(fogC,sc*sh,.82-vL*.22),sn*(.50+.38*day)); float gl=smoothstep(.28,.8,vH)*sunset*(.4+.6*face*face)*(1.0-vL*.45); c+=vec3(1.0,.50,.22)*gl*.42; if(hq>.5){ float h=fract(sin(floor(an*2200.0)*12.9898+floor(vH*110.0)*78.233)*43758.55); float tw=pow(max(0.0,sin(tm*2.3+h*50.0)),10.0); c+=vec3(1.0,.97,.9)*step(.982,h)*tw*sn*day*(.45+.4*face); } gl_FragColor=vec4(c,1.0); }"});
   const mesh=new THREE.Mesh(geo,mat); mesh.frustumCulled=false; mesh.renderOrder=-1; mesh.userData.noOutline=true; mesh.userData.cullR=-1; mesh.castShadow=mesh.receiveShadow=false; scene.add(mesh);
   function tick(off){ mesh.visible=!off; if(off) return; mat.uniforms.fogC.value.copy(scene.fog.color); mat.uniforms.topC.value.copy(SKY.top); mat.uniforms.day.value=typeof DAY!=="undefined"&&DAY.d!=null?DAY.d:1;
     /* v66: 세계마다 눈 양(아스가르드 많이·인도 조금), 해 쪽 봉우리에 노을빛, 낮엔 눈이 반짝 */
     const U=mat.uniforms, th=P.x>=0?(P.z<0?REALMS[0]:REALMS[2]):(P.z<0?REALMS[1]:REALMS[3]); const sw={pine:1,column:.8,"tree-gold":.55,temple:.38}[th.prop]; U.snow.value+=((sw==null?.5:sw)-U.snow.value)*.03;
     const tt=((Date.now()/1000)%(typeof DAY!=="undefined"?DAY.len:480))/(typeof DAY!=="undefined"?DAY.len:480), el=Math.sin(tt*Math.PI*2); U.sunset.value=clamp(1-Math.abs(el)*3.2,0,1)*(el>-.2?1:0);
-    U.sunXZ.value.set(Math.cos(tt*Math.PI*2),.44).normalize(); U.tm.value=performance.now()/1000; U.hq.value=(typeof HIGH==="function"&&HIGH()&&!(typeof ECO==="function"&&ECO()))?1:0;
+    U.sunXZ.value.set(Math.cos(tt*Math.PI*2),.44).normalize(); U.tm.value=performance.now()/1000; /* v77: 눈보라·비처럼 안개가 짙은 날엔 산 실루엣을 더 진하게(안개 속에 희미하게라도 보이게) */ const fd=clamp((165-(scene.fog?scene.fog.far:165))/70,0,1); U.dense.value+=(fd-U.dense.value)*.05; U.hq.value=(typeof HIGH==="function"&&HIGH()&&!(typeof ECO==="function"&&ECO()))?1:0;
     const s=clamp(((scene.fog?scene.fog.far:165)*Math.max(1,ZOOM*.85)+90)/250,1,1.95); mesh.scale.set(s,s,s); mesh.position.set(camera.position.x,(P.gy||0)-4*s,camera.position.z); }
   return {mesh,tick};
 })();
@@ -6822,7 +6823,7 @@ window.__gw={PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoard,showPlay,p
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="c5c7da3b";
+(function(){ var CUR="6104f6bf";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
