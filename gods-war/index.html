@@ -252,6 +252,26 @@ html,body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;t
   -webkit-mask:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent);mask:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent)}
 @keyframes toastBand{0%{transform:translate(-50%,-50%) scale(.55)}17%{transform:translate(-50%,-50%) scale(1.08)}27%{transform:translate(-50%,-50%) scale(1)}60%{transform:translate(-50%,-50%) scale(1)}100%{transform:translate(-50%,calc(-50% - var(--up))) scale(.6)}}
 @keyframes toastRib{0%,62%{opacity:0}100%{opacity:1}}
+/* v80 지역 이름 배너: 금빛 장식선 사이 큰 이름이 서서히 나타났다 사라짐(위쪽, 가운데 안 가림) */
+#rgban{position:fixed;left:50%;top:35%;transform:translate(-50%,-50%);z-index:7;pointer-events:none;text-align:center;opacity:0;white-space:nowrap;padding:6px 64px 8px;
+  background:radial-gradient(ellipse at center,rgba(12,8,28,.62) 0%,rgba(12,8,28,.42) 45%,rgba(12,8,28,0) 72%)}
+#rgban .nm{display:inline-block;font-family:var(--title);font-size:clamp(24px,5.2vw,38px);letter-spacing:3px;line-height:1.1;
+  background:linear-gradient(180deg,#fff8dc 0%,#ffe08a 45%,#e9a93a 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 2px 0 #2a1640) drop-shadow(0 0 10px rgba(255,190,80,.35))}
+#rgban .ln{position:absolute;top:calc(6px + .55em);height:2px;width:20%;font-size:clamp(24px,5.2vw,38px);transform:scaleX(0)}
+#rgban .ln.l{right:calc(50% + var(--hw,90px));transform-origin:right;background:linear-gradient(90deg,rgba(255,207,74,0),#ffcf4a)}
+#rgban .ln.r{left:calc(50% + var(--hw,90px));transform-origin:left;background:linear-gradient(90deg,#ffcf4a,rgba(255,207,74,0))}
+#rgban .ln::after{content:"";position:absolute;top:-3px;width:7px;height:7px;background:#fff1b8;transform:rotate(45deg);box-shadow:0 0 6px #ffcf4a}
+#rgban .ln.l::after{right:-3px} #rgban .ln.r::after{left:-3px}
+#rgban small{display:block;margin-top:3px;font-size:clamp(11px,2.2vw,14px);color:#fff3d6;letter-spacing:1px;text-shadow:-1px -1px 0 #1b1030,1px -1px 0 #1b1030,-1px 1px 0 #1b1030,1px 1px 0 #1b1030,0 2px 0 #1b1030}
+#rgban.on{animation:rgIn 2.8s ease-out forwards} #rgban.on .ln{animation:rgLn 2.8s cubic-bezier(.2,.8,.3,1) forwards}
+#rgban.on .nm{animation:rgNm 2.8s ease-out forwards}
+@keyframes rgIn{0%{opacity:0}12%{opacity:1}78%{opacity:1}100%{opacity:0;transform:translate(-50%,calc(-50% - 8px))}}
+@keyframes rgLn{0%,8%{transform:scaleX(0)}35%,100%{transform:scaleX(1)}}
+@keyframes rgNm{0%{letter-spacing:14px;opacity:0}22%{letter-spacing:3px;opacity:1}100%{letter-spacing:4px}}
+#rgban.low{top:63%}
+@media (orientation:portrait){#rgban{top:30%;padding:6px 40px 8px}#rgban .ln{width:14%}}
+@media (prefers-reduced-motion: reduce){#rgban.on,#rgban.on .ln,#rgban.on .nm{animation-duration:.01s;animation-delay:2.6s}}
 @media (prefers-reduced-motion: reduce){#toast.tb{animation:none;transform:translate(-50%,calc(-50% - var(--up))) scale(.6)}#toast.tb::before{animation:none;opacity:1}}
 #lvglow{display:none;position:fixed;inset:0;z-index:7;pointer-events:none;opacity:0;--lc:#ffd76a;background:radial-gradient(ellipse at 50% 60%,transparent 35%,color-mix(in srgb,var(--lc) 70%,transparent) 100%)}
 @media (orientation:portrait){#lvup{top:28%}#lvup .big{font-size:clamp(40px,14vw,64px)}}
@@ -504,6 +524,7 @@ body.eco #bossbar[data-ph="2"] .bpo{animation:none}
 </div>
 <div id="joy" class="rest"><i class="ar u">▲</i><i class="ar d">▼</i><i class="ar l">◀</i><i class="ar r">▶</i><div id="knob"></div></div>
 <div id="toast"></div>
+<div id="rgban"><i class="ln l"></i><span class="nm"></span><i class="ln r"></i><small></small></div>
 <div id="rotate"><div class="ph">📱</div><p>휴대폰을 <b>가로로</b> 돌려 주세요</p><small>가로 화면이 훨씬 넓고 잘 보여요 · 아이폰은 화면 회전 잠금을 꺼 주세요</small><button id="keepPortrait" type="button">그냥 세로로 할래요</button></div>
 <div id="layers"></div>
 <script src="three.min.js"></script>
@@ -511,7 +532,7 @@ body.eco #bossbar[data-ph="2"] .bpo{animation:none}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v79";
+const VER="v80";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -6816,7 +6837,7 @@ function update(dt){
   if(P.bag){ P.bag.t-=dt; P.bag.mesh.rotation.y+=dt*2; if(Math.hypot(P.bag.x-P.x,P.bag.z-P.z)<2.2&&!P.dead){ G.gold+=P.bag.gold; toast(`금화 ${fmt(P.bag.gold)} 되찾음!`); jingle([659,784,1046]); scene.remove(P.bag.mesh); P.bag=null; saveGame(); } else if(P.bag.t<=0){ scene.remove(P.bag.mesh); P.bag=null; } }
   if(P.trial){ P.trial.t-=dt; if(P.trial.t<=0){ toast("시간 초과…",null,2); finishTrial(false); } else if(Math.hypot(P.x-REGIONS[G.realm*3].x,P.z-REGIONS[G.realm*3].z)>60){ toast("시험장을 벗어났어요",null,2); finishTrial(false); } }
   if(P.dead){ P.deadT-=dt; const b=$("rsp"); if(b){ $("rspT").textContent=Math.max(0,Math.ceil(P.deadT)); if(P.deadT<=0&&b.disabled){ b.disabled=false; b.onclick=respawn; $("rspT").textContent=""; } } }
-  const rg=regionAt(P.x,P.z); if(rg&&rg!==P.lastRg){ P.lastRg=rg; questEvent("visit",rg); if(!rg.cap||rg.realm!==G.realm) toast(rg.n,rg.realm>=0?`${REALMS[rg.realm].n}의 땅 · Lv.${rg.lv[0]}~${rg.lv[1]}`:`중립 · Lv.${rg.lv[0]}~${rg.lv[1]} · 세계 보스 출현`,1.6); }
+  const rg=regionAt(P.x,P.z); if(rg&&rg!==P.lastRg){ P.lastRg=rg; questEvent("visit",rg); if(!rg.cap||rg.realm!==G.realm) regionBanner(rg.n,rg.realm>=0?`${REALMS[rg.realm].n}의 땅 · Lv.${rg.lv[0]}~${rg.lv[1]}`:`중립 · Lv.${rg.lv[0]}~${rg.lv[1]} · 세계 보스 출현`,rg.realm); }
   tickMobs(dt); HITF.tick(dt); tickWar(dt); tickTerritory(dt); net.tick(dt); tickGhosts(dt); tickProj(dt); throwCd=Math.max(0,throwCd-dt); try{ tickPets(dt); tickTitan(dt); }catch(e){ console.warn(e); } try{ tickTitles(dt); tickExp(dt); dgTick(dt); tickDungeonDoors(dt); }catch(e){ console.warn(e); } try{ hmTick(dt); ssTick(dt); }catch(e){ console.warn(e); } try{ fgTick(dt); rdTick(dt); rcTick(dt); wdTick(dt); gdTick(dt); }catch(e){ console.warn(e); } try{ ctxTick(dt); vegTick(dt); hexTick(dt); bfTick(dt); }catch(e){ console.warn(e); } XTICK.forEach(f=>{ try{ f(dt); }catch(e){ console.warn(e); } }); CB.cd=Math.max(0,CB.cd-dt); tickFX(dt); try{ SLASH.tick(dt); }catch(e){} tickLvBanner(dt); tickNPCs(dt); tickMixers(dt); try{ deoverlapLabels(); BLOB.tick(); }catch(e){}
   if(P.guide){ const dx=P.guide.x-P.x, dz=P.guide.z-P.z, dist=Math.hypot(dx,dz); if(dist<7){ const lb=P.guide.label; setGuide(null); toast("도착!",lb,1.5); } else { $("gArrow").style.transform=`rotate(${Math.atan2(dx,-dz)-Math.PI/2}rad)`; $("gTxt").textContent=`${P.guide.label} · ${Math.round(dist)}m`; } }
   P.bubbleT=Math.max(0,(P.bubbleT||0)-dt); if(P.bubbleT>0) placeLabel(myLbl,P.x,4.9,P.z,`<span class="bub">${P.bubble}</span>${G.title?titleHtml(G.title):""}`); else{ const mtt=mtMyTag(); if((G.title||G.gd||mtt)&&!P.dead) placeLabel(myLbl,P.x,4.6,P.z,(G.title?titleHtml(G.title):"")+(G.gd?gdTagHtml(gdTag()):"")+mtt); else myLbl.style.display="none"; }
@@ -6848,11 +6869,20 @@ showTitle(); requestAnimationFrame(frame);
 (function(){ for(let i=0;i<6;i++){ const b=$("bSkill"+i); if(b&&!b.querySelector(".cdr")){ const r=document.createElement("i"); r.className="cdr"; b.appendChild(r); } } })();
 function sklPress(i){ const b=$("bSkill"+i); let si=i, S=null; try{ si=skSlot(i); S=RM().skills[si]; }catch(e){} const busy=!S||P.dead||layerOpen; const was=!busy&&G.rank>=S.rank&&P.sklCd[si]<=0; useSkill(i); if(!b||busy) return; const ok=was&&P.sklCd[si]>0; const k=ok?"fire":"nope"; b.classList.remove("fire","nope"); void b.offsetWidth; b.classList.add(k); clearTimeout(b._fT); b._fT=setTimeout(()=>b.classList.remove(k),ok?520:360); if(ok&&document.querySelectorAll(".sklwv").length<3){ const r=b.getBoundingClientRect(); const w=document.createElement("i"); w.className="sklwv"; w.style.left=(r.left+r.width/2)+"px"; w.style.top=(r.top+r.height/2)+"px"; w.style.setProperty("--c",S.color!=null?"#"+(S.color>>>0).toString(16).padStart(6,"0"):"#ffd86a"); document.body.appendChild(w); setTimeout(()=>w.remove(),560); } }
 function sklReady(b,i){ if(!b||P.dead) return; b.classList.remove("ready"); void b.offsetWidth; b.classList.add("ready"); clearTimeout(b._rdT); b._rdT=setTimeout(()=>b.classList.remove("ready"),720); try{ tone(1320+i*160,.06,"sine",0,.05); tone(1760+i*160,.08,"sine",.05,.04); }catch(e){} }
-window.__gw={PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoard,showPlay,pgNow,pgTileAt,STY,STORY,styData,styStart,styAdvance,styStep,styOpenN,styNextDays,showStory,styComic,styTarget,CQ,CQO,cqMis,cqTotal,cqAdd,showTeam,frTeleport,frFollow,SKS,skSlots,showSkills,showPatch,PATCH_NOTES,GT,GTO,DS,gtTotal,gtStage,gtDonate,gtGive,gtData,showGate,dsEnter,dsExit,dsSpawn,DS_MOBS,OR,orQuiz,orAnswer,orToday,showOracle,MT,mtGraduate,mtRole,showMentor,mtShowStar,NETX,NETR,PETS,showShop,bfOn,bfAdd,BUFFS,shopDeal,GD,GDO,gdCreate,gdJoin,gdLeave,gdClaim,gdAdd,gdMembers,gdWeekPts,gdLv,gdRanking,showGuild,gdMine,FG,showForge,fgStart,fgHit,fgDone,fgGive,fgLv,fgMul,RC,RCO,rcStart,rcEnd,rcBoard,showRace,rdSet,rdCan,WD,WDO,wdDonate,wdTotal,wdStage,wdGive,showWonder,wdData,HM,HOMES,DECO,hmEnter,hmExit,hmGift,hmAdd,hmBlessMsg,hmMsg,showHome,hmSlotCard,hmCollect,FS,startFish,fishPull,fishCaught,trapSet,trapClaim,showFish,nearWater,fishSpots,ssData,ssTasks,ssClaim,showSeason,ssMsg,ssNo,ssAdd,ssWinner,SSO,CTX,DG,dgEnter,dgFloor,dgFinish,dgPlan,showDungeon,showTitles,TITLES,showExp,expStart,expClaim,EXPO,DGR,TB,titanHit,titanDefeated,showTitan,titanGo,showPets,hatchEgg,petOnKill,comboFire,comboRecv,showCombos,PETMESH,idleSim,grantIdle,showIdleReport,ROSTER,autoFace,buildPlayer,GHOSTS,mmoProfile,showRoster,G,P,mobs,W,net,PEERS,WAR,forceWar,resolveWar,joinWar,begin,update,spawnMob,spawnAtHome,REGIONS,attack,useSkill,startTrial,die,respawn};
+/* v80 지역 이름 배너(모습만) */
+function regionBanner(name,sub,realm){ const el=$("rgban"); if(!el){ toast(name,sub,1.6); return; }
+  try{ el.querySelector(".nm").textContent=name; el.querySelector("small").textContent=sub||""; el.classList.remove("on"); const lv=$("lvup"), lvOn=!!(lv&&lv.style.display!=="none"&&getComputedStyle(lv).display!=="none"), tOn=typeof toastT!=="undefined"&&toastT>0, dn=$("toast").classList.contains("lvdn");
+    if(lvOn&&tOn&&dn) return;   // 위·아래 다 차 있으면 왼쪽 위 지역 칸만으로 충분
+    el.classList.toggle("low",(tOn&&!dn)||lvOn); void el.offsetWidth;
+    const w=el.querySelector(".nm").getBoundingClientRect().width; el.style.setProperty("--hw",Math.round(w/2+14)+"px");
+    el.querySelectorAll(".ln").forEach(l=>l.style.filter=realm>=0?"":"hue-rotate(220deg)");
+    el.classList.add("on"); clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove("on"),2900);
+    tone(523,.35,"sine",0,.05); tone(784,.5,"sine",.12,.04); }catch(e){ toast(name,sub,1.6); } }
+window.__gw={regionBanner,PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoard,showPlay,pgNow,pgTileAt,STY,STORY,styData,styStart,styAdvance,styStep,styOpenN,styNextDays,showStory,styComic,styTarget,CQ,CQO,cqMis,cqTotal,cqAdd,showTeam,frTeleport,frFollow,SKS,skSlots,showSkills,showPatch,PATCH_NOTES,GT,GTO,DS,gtTotal,gtStage,gtDonate,gtGive,gtData,showGate,dsEnter,dsExit,dsSpawn,DS_MOBS,OR,orQuiz,orAnswer,orToday,showOracle,MT,mtGraduate,mtRole,showMentor,mtShowStar,NETX,NETR,PETS,showShop,bfOn,bfAdd,BUFFS,shopDeal,GD,GDO,gdCreate,gdJoin,gdLeave,gdClaim,gdAdd,gdMembers,gdWeekPts,gdLv,gdRanking,showGuild,gdMine,FG,showForge,fgStart,fgHit,fgDone,fgGive,fgLv,fgMul,RC,RCO,rcStart,rcEnd,rcBoard,showRace,rdSet,rdCan,WD,WDO,wdDonate,wdTotal,wdStage,wdGive,showWonder,wdData,HM,HOMES,DECO,hmEnter,hmExit,hmGift,hmAdd,hmBlessMsg,hmMsg,showHome,hmSlotCard,hmCollect,FS,startFish,fishPull,fishCaught,trapSet,trapClaim,showFish,nearWater,fishSpots,ssData,ssTasks,ssClaim,showSeason,ssMsg,ssNo,ssAdd,ssWinner,SSO,CTX,DG,dgEnter,dgFloor,dgFinish,dgPlan,showDungeon,showTitles,TITLES,showExp,expStart,expClaim,EXPO,DGR,TB,titanHit,titanDefeated,showTitan,titanGo,showPets,hatchEgg,petOnKill,comboFire,comboRecv,showCombos,PETMESH,idleSim,grantIdle,showIdleReport,ROSTER,autoFace,buildPlayer,GHOSTS,mmoProfile,showRoster,G,P,mobs,W,net,PEERS,WAR,forceWar,resolveWar,joinWar,begin,update,spawnMob,spawnAtHome,REGIONS,attack,useSkill,startTrial,die,respawn};
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="ebf79caa";
+(function(){ var CUR="f4e00c84";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);

@@ -252,6 +252,26 @@ html,body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;t
   -webkit-mask:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent);mask:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent)}
 @keyframes toastBand{0%{transform:translate(-50%,-50%) scale(.55)}17%{transform:translate(-50%,-50%) scale(1.08)}27%{transform:translate(-50%,-50%) scale(1)}60%{transform:translate(-50%,-50%) scale(1)}100%{transform:translate(-50%,calc(-50% - var(--up))) scale(.6)}}
 @keyframes toastRib{0%,62%{opacity:0}100%{opacity:1}}
+/* v80 지역 이름 배너: 금빛 장식선 사이 큰 이름이 서서히 나타났다 사라짐(위쪽, 가운데 안 가림) */
+#rgban{position:fixed;left:50%;top:35%;transform:translate(-50%,-50%);z-index:7;pointer-events:none;text-align:center;opacity:0;white-space:nowrap;padding:6px 64px 8px;
+  background:radial-gradient(ellipse at center,rgba(12,8,28,.62) 0%,rgba(12,8,28,.42) 45%,rgba(12,8,28,0) 72%)}
+#rgban .nm{display:inline-block;font-family:var(--title);font-size:clamp(24px,5.2vw,38px);letter-spacing:3px;line-height:1.1;
+  background:linear-gradient(180deg,#fff8dc 0%,#ffe08a 45%,#e9a93a 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 2px 0 #2a1640) drop-shadow(0 0 10px rgba(255,190,80,.35))}
+#rgban .ln{position:absolute;top:calc(6px + .55em);height:2px;width:20%;font-size:clamp(24px,5.2vw,38px);transform:scaleX(0)}
+#rgban .ln.l{right:calc(50% + var(--hw,90px));transform-origin:right;background:linear-gradient(90deg,rgba(255,207,74,0),#ffcf4a)}
+#rgban .ln.r{left:calc(50% + var(--hw,90px));transform-origin:left;background:linear-gradient(90deg,#ffcf4a,rgba(255,207,74,0))}
+#rgban .ln::after{content:"";position:absolute;top:-3px;width:7px;height:7px;background:#fff1b8;transform:rotate(45deg);box-shadow:0 0 6px #ffcf4a}
+#rgban .ln.l::after{right:-3px} #rgban .ln.r::after{left:-3px}
+#rgban small{display:block;margin-top:3px;font-size:clamp(11px,2.2vw,14px);color:#fff3d6;letter-spacing:1px;text-shadow:-1px -1px 0 #1b1030,1px -1px 0 #1b1030,-1px 1px 0 #1b1030,1px 1px 0 #1b1030,0 2px 0 #1b1030}
+#rgban.on{animation:rgIn 2.8s ease-out forwards} #rgban.on .ln{animation:rgLn 2.8s cubic-bezier(.2,.8,.3,1) forwards}
+#rgban.on .nm{animation:rgNm 2.8s ease-out forwards}
+@keyframes rgIn{0%{opacity:0}12%{opacity:1}78%{opacity:1}100%{opacity:0;transform:translate(-50%,calc(-50% - 8px))}}
+@keyframes rgLn{0%,8%{transform:scaleX(0)}35%,100%{transform:scaleX(1)}}
+@keyframes rgNm{0%{letter-spacing:14px;opacity:0}22%{letter-spacing:3px;opacity:1}100%{letter-spacing:4px}}
+#rgban.low{top:63%}
+@media (orientation:portrait){#rgban{top:30%;padding:6px 40px 8px}#rgban .ln{width:14%}}
+@media (prefers-reduced-motion: reduce){#rgban.on,#rgban.on .ln,#rgban.on .nm{animation-duration:.01s;animation-delay:2.6s}}
 @media (prefers-reduced-motion: reduce){#toast.tb{animation:none;transform:translate(-50%,calc(-50% - var(--up))) scale(.6)}#toast.tb::before{animation:none;opacity:1}}
 #lvglow{display:none;position:fixed;inset:0;z-index:7;pointer-events:none;opacity:0;--lc:#ffd76a;background:radial-gradient(ellipse at 50% 60%,transparent 35%,color-mix(in srgb,var(--lc) 70%,transparent) 100%)}
 @media (orientation:portrait){#lvup{top:28%}#lvup .big{font-size:clamp(40px,14vw,64px)}}
@@ -504,6 +524,7 @@ body.eco #bossbar[data-ph="2"] .bpo{animation:none}
 </div>
 <div id="joy" class="rest"><i class="ar u">▲</i><i class="ar d">▼</i><i class="ar l">◀</i><i class="ar r">▶</i><div id="knob"></div></div>
 <div id="toast"></div>
+<div id="rgban"><i class="ln l"></i><span class="nm"></span><i class="ln r"></i><small></small></div>
 <div id="rotate"><div class="ph">📱</div><p>휴대폰을 <b>가로로</b> 돌려 주세요</p><small>가로 화면이 훨씬 넓고 잘 보여요 · 아이폰은 화면 회전 잠금을 꺼 주세요</small><button id="keepPortrait" type="button">그냥 세로로 할래요</button></div>
 <div id="layers"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
