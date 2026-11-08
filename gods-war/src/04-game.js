@@ -152,7 +152,8 @@ function questTarget(q){ if(q.k==="visit"||q.k==="cap"){ const g=TERR_RINGS[q.rg
   if(q.k==="rank"){ const a=ALTARS[G.realm*3].trial; return {x:a.x,z:a.z,label:RM().capital+" 승급 제단"}; } return null; }
 function setGuide(t){ if(!t||(P.guide&&P.guide.label===t.label)){ P.guide=null; $("guide").hidden=true; toast("길 안내 끔",null,1); return; } P.guide=t; $("guide").hidden=false; toast("길 안내: "+t.label,"화살표를 따라가요",1.6); tone(880,.08); }
 function nearestCapturable(){ let best=null,bd=1e9; REGIONS.forEach(r=>{ if(r.cap||W.o[r.id]===G.realm) return; const g=TERR_RINGS[r.id]; const d=Math.hypot(g.position.x-P.x,g.position.z-P.z); if(d<bd){ bd=d; best={x:g.position.x,z:g.position.z,label:r.n+" 제단 점령"}; } }); return best; }
-function renderQuests(){ $("quest").innerHTML=G.quests.map((q,i)=>`<div class="q${q.done?" done":""}" data-i="${i}">${q.done?"✔ ":""}${q.txt}${q.k==="kill"?` <small>${q.c}/${q.n}</small>`:""}</div>`).join(""); $("quest").querySelectorAll(".q").forEach(el=>el.onclick=()=>{ const i=+el.dataset.i; if(G.quests[i].done) claimQuest(i); else setGuide(questTarget(G.quests[i])); }); }
+let _qSeen=null; // v82: 막 완료된 임무만 반짝(처음 그릴 땐 반짝 안 함)
+function renderQuests(){ const prev=_qSeen; _qSeen=new Set(G.quests.filter(q=>q.done).map(q=>q.txt)); let jd=false; $("quest").innerHTML=G.quests.map((q,i)=>{ const nj=q.done&&prev&&!prev.has(q.txt); if(nj) jd=true; return `<div class="q${q.done?" done":""}${nj?" jd":""}" data-i="${i}">${q.done?'<i class="qck">✔</i>':""}${q.txt}${q.k==="kill"&&!q.done?` <small>${q.c}/${q.n}</small>`:""}${q.done?'<b class="qget">받기</b>':""}</div>`; }).join(""); if(jd) try{ tone(988,.08,"triangle"); tone(1319,.14,"triangle",.07); }catch(e){} $("quest").querySelectorAll(".q").forEach(el=>el.onclick=()=>{ const i=+el.dataset.i; if(G.quests[i].done) claimQuest(i); else setGuide(questTarget(G.quests[i])); }); }
 
 /* ================= 미니맵 (v10: 선명하게) ================= */
 const mm=$("minimap"), mctx=mm.getContext("2d");
