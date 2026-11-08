@@ -511,7 +511,7 @@ body.eco #bossbar[data-ph="2"] .bpo{animation:none}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v78";
+const VER="v79";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -981,7 +981,7 @@ function makeMob(shape,color,scale){ const g=new THREE.Group(); const m=mat({col
   else if(shape==="satyr"){ g.add(capsule(.42,1.3,mat({color:0xe0b890,roughness:.8}),0,2.1,0)); g.add(sph(.45,mat({color:0xe8c0a0}),0,3.1,0)); horns(3.45,0,.6,bone); g.add(capsule(.14,1,mat({color:0xe0b890}),-.62,2.5,0)); g.add(capsule(.14,1,mat({color:0xe0b890}),.62,2.5,0)); [-.28,.28].forEach(x=>{ const l=capsule(.2,.8,m,x,1.1,0); g.add(l); const h=capsule(.14,.7,dk,x,.4,.15); h.rotation.x=.4; g.add(h); }); const fl=cyl(.05,.05,.9,M.wood,.7,2.9,.4); fl.rotation.z=1.2; g.add(fl); const bd=sph(.3,dk,0,2.85,.3); bd.scale.y*=1.3; g.add(bd); eyes(3.15,.4,.16,.08); H=4; }
   else if(shape==="bull"){ const t=sph(1.3,m,0,2.5,0); t.scale.multiply(new THREE.Vector3(1.15,1.2,.85)); g.add(t); g.add(sph(.85,dk,0,4.3,.2)); const sn=capsule(.4,.7,lt,0,4.05,.9); sn.rotation.x=Math.PI/2; g.add(sn); [-1,1].forEach(sg=>{ const h=cyl(.07,.2,1.3,bone,sg*.9,4.7,.1); h.rotation.z=sg*-1.1; g.add(h); }); g.add(new THREE.Mesh(new THREE.TorusGeometry(.18,.04,6,12),M.gold)).position.set(0,3.85,1.3); const aL=capsule(.4,2.1,m,-1.65,2.5,0), aR=capsule(.4,2.1,m,1.65,2.5,0); aL.rotation.z=.25; aR.rotation.z=-.25; g.add(aL,aR); g.add(capsule(.42,1.3,dk,-.55,.65,0)); g.add(capsule(.42,1.3,dk,.55,.65,0)); const ax=cyl(.07,.07,2.4,M.wood,2.2,2.4,.5); g.add(ax); g.add(box(.9,.7,.15,metal,2.2,3.5,.5)); eyes(4.4,.9,.3,.1); H=5.8; shadowR=1.6; }
   else { g.add(capsule(.65,1.8,m,0,1.9,0)); g.add(new THREE.Mesh(new THREE.TorusGeometry(.6,.1,8,20),dk)).position.set(0,2.3,0); g.add(sph(.58,lt,0,3.15,0)); horns(3.95,0,.9,mat({color:0x2a1a1a})); g.add(capsule(.2,1.3,m,-.9,2.5,0)); g.add(capsule(.2,1.3,m,.9,2.5,0)); g.add(capsule(.25,1.2,dk,-.33,.6,0)); g.add(capsule(.25,1.2,dk,.33,.6,0)); const tri=cyl(.05,.05,2.2,mat({color:0x2a1a1a}),1.2,2.2,.3); g.add(tri); for(let k=-1;k<=1;k++) g.add(box(.08,.5,.1,metal,1.2+k*.2,3.4,.3)); eyes(3.2,.5,.2,.09); H=4.4; }
-  g.userData.h=H; const sh=new THREE.Mesh(new THREE.CircleGeometry(shadowR,20),new THREE.MeshBasicMaterial({color:0,transparent:true,opacity:.22,depthWrite:false})); sh.rotation.x=-Math.PI/2; sh.position.y=.05; g.add(sh);
+  g.userData.h=H; const sh=new THREE.Mesh(new THREE.CircleGeometry(shadowR,20),new THREE.MeshBasicMaterial({color:0,transparent:true,opacity:.22,depthWrite:false})); sh.rotation.x=-Math.PI/2; sh.position.y=.05; g.add(sh); g.userData.sh=sh; try{ MOBSHADE.soften(sh,shadowR); }catch(e){}
   g.scale.set(scale,scale,scale); shadowify(g); if(typeof outlined==="function") outlined(g,1.06); return g; }
 
 /* ================= 라벨 ================= */
@@ -1242,7 +1242,7 @@ const MOB_GL={"서리 거인":{body:"FrostGolem",scale:1.5},"트롤":{body:"OrcB
   "네피림의 왕":{body:"Monstrosity",scale:1.9,tint:0xe8d8b0},"서리거인 흐림":{body:"FrostGolem",scale:2.3},"미노타우로스":{body:"OrcBrute",scale:1.9,tint:0x8a6a4a,weapon:"axe_2handed"},"루시퍼":{body:"Vampire",scale:2.4,tint:0x8060c0,weapon:"sword_2handed"},"펜리르":{body:"Werewolf_Wolf",scale:2.6,tint:0x8a8a9a},"마히샤수라":{body:"Monstrosity",scale:2.4,tint:0x806040,weapon:"axe_2handed"}};
 function mobGL(name,scale){ const sk=SKEL_OF[name]; if(sk){ if(!MODELS.chars[sk]) return null; const g=makeCharGL(sk,{scale:2.0*scale}); if(g){ g.userData.h=4.2*scale; g.userData.glMob=name; } return g; }
   const d=MOB_GL[name]; if(!d) return null; const s={body:d.body,head:d.body,hat:null,cape:null,weapon:d.weapon||null,offhand:null,tint:d.tint||null,wings:false}; const need=specNeeds(s); if(!ensure(need.names,need.weapons)||!MODELS.animsReady) return null;
-  const g=composeChar(s,{scale:2.1*(d.scale||1)*scale,keepExtras:true}); if(!g) return null; g.userData.h=4.3*(d.scale||1)*scale; g.userData.glMob=name; const sh=new THREE.Mesh(new THREE.CircleGeometry(1*(d.scale||1),20),new THREE.MeshBasicMaterial({color:0,transparent:true,opacity:.22,depthWrite:false})); sh.rotation.x=-Math.PI/2; sh.position.y=.05; g.add(sh); return g; }
+  const g=composeChar(s,{scale:2.1*(d.scale||1)*scale,keepExtras:true}); if(!g) return null; g.userData.h=4.3*(d.scale||1)*scale; g.userData.glMob=name; const sh=new THREE.Mesh(new THREE.CircleGeometry(1*(d.scale||1),20),new THREE.MeshBasicMaterial({color:0,transparent:true,opacity:.22,depthWrite:false})); sh.rotation.x=-Math.PI/2; sh.position.y=.05; g.add(sh); g.userData.sh=sh; try{ MOBSHADE.soften(sh); }catch(e){} return g; }
 
 /* ---- 플레이어/친구/NPC 아바타 ---- */
 function avatarGL(realm,rank,look,scale,eq){ const s=lookSpec(realm,rank,look,eq); const need=specNeeds(s); if(!ensure(need.names,need.weapons)||!MODELS.animsReady) return null;
@@ -2043,6 +2043,25 @@ const PICKFLY=(()=>{ let live=0; const V=new THREE.Vector3();
 })();
 </script>
 <script>
+/* v79 괴물 발밑 그림자: 가장자리가 부드럽게 번지는 동그란 그림자. 몸이 떠오르면(유령·날개·맞고 튕김·통통 걸음) 그림자는 땅에 그대로 붙어 있고, 높이 뜰수록 작고 흐려짐. 모습만 */
+const MOBSHADE=(function(){
+  let tex=null;
+  function T(){ if(tex) return tex; const c=document.createElement("canvas"); c.width=c.height=64; const x=c.getContext("2d"); const g=x.createRadialGradient(32,32,0,32,32,32);
+    g.addColorStop(0,"rgba(0,0,0,1)"); g.addColorStop(.45,"rgba(0,0,0,.85)"); g.addColorStop(.75,"rgba(0,0,0,.35)"); g.addColorStop(1,"rgba(0,0,0,0)");
+    x.fillStyle=g; x.fillRect(0,0,64,64); tex=new THREE.CanvasTexture(c); return tex; }
+  function soften(sh,R){ try{ sh.material.map=T(); sh.material.color.set(0xffffff); sh.material.opacity=.42; sh.material.needsUpdate=true; sh.scale.setScalar(1.3); sh.userData.base=1.3; sh.renderOrder=-1; }catch(e){} return sh; }
+  function apply(m,d){
+    const g=m.mesh; if(!g||m.hp<=0||d>70) return; const sh=g.userData.sh; if(!sh) return;
+    const lift=Math.max(0,g.position.y-hAt(m.x,m.z)), sy=g.scale.y||1, sx=g.scale.x||1, sz=g.scale.z||1, avg=(sx+sz)/2;
+    const k=1/(1+lift*.45), b=sh.userData.base||1;
+    sh.position.y=(.06-lift)/sy;                                   // 땅에 딱 붙임
+    sh.scale.set(b*k*avg/sx,b*k*avg/sz,1);                         // 숨쉬기로 몸이 늘어도 그림자는 동그랗게
+    sh.material.opacity=.42*(.35+.65*k);
+  }
+  return {soften,apply};
+})();
+</script>
+<script>
 /* ================= 플레이어 ================= */
 const P={x:0,z:0,y:0,vy:0,rot:0,hp:1,walk:0,moving:false,atkCd:0,sklCd:[0,0,0],rage:0,haste:0,combat:0,dashT:0,atkAnim:0,slow:0,weak:0,shadow:0,dizzy:0,heat:0,dead:false,deadT:0,orbitT:0,orbitTick:0,capProg:0,capRg:-1,bag:null,trial:null,invul:0,hitFlash:0};
 let player=null, weaponMesh=null, orbitMesh=null;
@@ -2084,7 +2103,7 @@ function tickMobs(dt){
     const tnow=performance.now(); m.mesh.position.set(m.x,hAt(m.x,m.z)+(m.mesh.userData.float?Math.sin(tnow/400+m.x)*.3+.2:0)+(m.mesh.userData.lunge>0?.4:0)+(m.state==="chase"?Math.abs(Math.sin(tnow/90+m.x))*.25:0),m.z); if(m.mesh.userData.lunge>0) m.mesh.userData.lunge-=dt; m.mesh.rotation.x=m.state==="chase"&&!m.mesh.userData.float?Math.sin(tnow/90+m.x)*.08:0; if(m.aura){ m.aura.rotation.z+=dt*2; m.aura.scale.setScalar(1+Math.sin(tnow/250)*.12); }
     if(m._lk){ m.mesh.rotation.y-=m._lk; m._ryp-=m._lk; m._lk=0; } let dr=m.rot-m.mesh.rotation.y; while(dr>Math.PI) dr-=Math.PI*2; while(dr<-Math.PI) dr+=Math.PI*2; m.mesh.rotation.y+=dr*Math.min(1,dt*8);
     if(m.mesh.userData.gl){ animState(m.mesh,m.hit>0&&m.hp>0?"hit":m.state==="chase"?(d>(m.boss?3.4:2.3)?"run":"idle"):m.state==="wander"?"walk":"idle"); if(m.mesh.userData.lunge>.2) animState(m.mesh,"attack"); m.mesh.rotation.x=0; }
-    hitTint(m.mesh,m.hit/.15); const sc=m.scale*(m.hit>0?1.12:1); m.mesh.scale.set(sc*(1+Math.sin(tnow/600+m.x)*.02),sc*(1+Math.sin(tnow/600+m.x+1)*.03),sc); try{ MOBANIM.apply(m,dt,tnow,d); }catch(e){} HITF.apply(m,dt); WARN.tick(m,aggro&&d<=(m.boss?3.4:2.3),dt);
+    hitTint(m.mesh,m.hit/.15); const sc=m.scale*(m.hit>0?1.12:1); m.mesh.scale.set(sc*(1+Math.sin(tnow/600+m.x)*.02),sc*(1+Math.sin(tnow/600+m.x+1)*.03),sc); try{ MOBANIM.apply(m,dt,tnow,d); }catch(e){} HITF.apply(m,dt); try{ MOBSHADE.apply(m,d); }catch(e){} WARN.tick(m,aggro&&d<=(m.boss?3.4:2.3),dt);
     if(d<48){ const h=m.mesh.userData.h||4; placeLabel(m.lbl,m.x,h*m.scale,m.z,`${m.boss?"👑 ":m.elite?"<em style=\"color:#ffd24a\">★정예</em> ":""}${m.n} <b>Lv.${m.lv}${m.power?" · 파워 "+m.power:""}</b><span class="hp mob"><s></s><i></i></span>`); hpBar(m.lbl,m.hp/m.mhp); } else m.lbl.style.display="none";
   }
   WARN.end();
@@ -6833,7 +6852,7 @@ window.__gw={PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoard,showPlay,p
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="b9b366c5";
+(function(){ var CUR="ebf79caa";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
