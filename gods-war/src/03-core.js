@@ -17,7 +17,7 @@ function tone(f,d,type,delay,vol){ if(!soundOn||!actx) return; audioWake(); cons
 function jingle(arr){ arr.forEach((f,k)=>tone(f,.14,"triangle",k*.08)); }
 function thud(){ tone(110,.12,"square",0,.12); tone(70,.18,"sawtooth",.02,.08); }
 function buzz(ms){ try{ if(navigator.vibrate) navigator.vibrate(ms||30); }catch(e){} }
-let toastT=0; function toast(msg,sub,dur){ const t=$("toast"); t.innerHTML=msg+(sub?`<small>${sub}</small>`:""); t.style.opacity=1; toastT=dur||1.8; }
+let toastT=0; function toast(msg,sub,dur){ const t=$("toast"), h=msg+(sub?`<small>${sub}</small>`:""); /* v78: 새 글씨일 때만 톡 튀고 위쪽 띠로(같은 글씨 반복이면 시간만 늘림) */ if(h!==t.innerHTML||toastT<=0){ t.innerHTML=h; t.classList.remove("tb"); void t.offsetWidth; t.classList.add("tb"); } t.style.opacity=1; toastT=dur||1.8; }
 function lockLand(){ try{ if(screen.orientation&&screen.orientation.lock) screen.orientation.lock("landscape").catch(()=>{}); }catch(e){} }
 /* v19.3: 게임을 끄거나 홈으로 나가면 가로 고정을 풀고 전체 화면도 나감 → 폰이 가로로 남아 엉키지 않게.
    다시 돌아오면 첫 터치 때 다시 가로 고정(전체 화면이었으면 전체 화면도). */

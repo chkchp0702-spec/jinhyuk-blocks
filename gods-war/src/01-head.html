@@ -223,7 +223,7 @@ html,body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;t
   #bossbar{top:calc(max(6px,env(safe-area-inset-top)) + 124px)}
   #guide{top:calc(max(6px,env(safe-area-inset-top)) + 54px)}
   #chat{left:calc(max(10px,env(safe-area-inset-left)) + 210px);transform:none;bottom:calc(max(8px,env(safe-area-inset-bottom)) + 52px);width:min(34vw,300px);align-items:flex-start}
-  #toast{top:42%;font-size:clamp(20px,4.2vw,30px);max-width:60vw;white-space:normal;line-height:1.3} #toast small{margin-top:6px;line-height:1.3} #lvup{top:44%}
+  #toast{top:42%;--up:27vh;font-size:clamp(20px,4.2vw,30px);max-width:60vw;white-space:normal;line-height:1.3} #toast small{margin-top:6px;line-height:1.3} #lvup{top:44%}
   .card{max-width:620px;max-height:92%!important;padding:14px 16px} .layer{padding:8px 14px}
   .titlebox{max-width:760px;gap:8px} .logo{font-size:min(9vw,52px)!important} .realms{grid-template-columns:repeat(4,1fr)} .realm{padding:8px 10px!important} .realm i{font-size:11px!important} .realm b{font-size:18px!important} .titlebox .help{font-size:13px;margin:0} #title .titlebox .logo{font-size:40px!important;margin-top:0} #title .titlebox{gap:6px} #title .inp{padding:6px 12px;font-size:18px} #title .go{padding:8px 26px;font-size:20px} .logo span{font-size:12px!important}
 }
@@ -242,7 +242,17 @@ html,body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;t
   background:linear-gradient(90deg,transparent,rgba(22,12,44,.62) 18%,rgba(22,12,44,.62) 82%,transparent);
   border-top:2px solid color-mix(in srgb,var(--lc) 80%,transparent);border-bottom:2px solid color-mix(in srgb,var(--lc) 80%,transparent);
   -webkit-mask:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent);mask:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent)}
-#toast.lvdn{top:66%!important;font-size:clamp(16px,3.6vw,22px)}
+#toast.lvdn{top:66%!important;font-size:clamp(16px,3.6vw,22px);animation:none!important}
+/* v78: 안내 글씨(축제·이야기·날씨…)가 가운데서 톡 튄 뒤 0.7초 만에 작아지며 화면 위쪽 띠로 올라감 → 싸우는 가운데를 오래 가리지 않음 */
+#toast{--up:20vh;transition:opacity .3s}
+#toast.tb{animation:toastBand 1.15s cubic-bezier(.3,.7,.3,1) forwards}
+#toast.tb::before{content:"";position:absolute;left:-16%;right:-16%;top:-6px;bottom:-6px;z-index:-1;pointer-events:none;opacity:0;animation:toastRib 1.15s forwards;
+  background:linear-gradient(90deg,transparent,rgba(22,12,44,.66) 18%,rgba(22,12,44,.66) 82%,transparent);
+  border-top:2px solid rgba(255,215,106,.75);border-bottom:2px solid rgba(255,215,106,.75);
+  -webkit-mask:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent);mask:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent)}
+@keyframes toastBand{0%{transform:translate(-50%,-50%) scale(.55)}17%{transform:translate(-50%,-50%) scale(1.08)}27%{transform:translate(-50%,-50%) scale(1)}60%{transform:translate(-50%,-50%) scale(1)}100%{transform:translate(-50%,calc(-50% - var(--up))) scale(.6)}}
+@keyframes toastRib{0%,62%{opacity:0}100%{opacity:1}}
+@media (prefers-reduced-motion: reduce){#toast.tb{animation:none;transform:translate(-50%,calc(-50% - var(--up))) scale(.6)}#toast.tb::before{animation:none;opacity:1}}
 #lvglow{display:none;position:fixed;inset:0;z-index:7;pointer-events:none;opacity:0;--lc:#ffd76a;background:radial-gradient(ellipse at 50% 60%,transparent 35%,color-mix(in srgb,var(--lc) 70%,transparent) 100%)}
 @media (orientation:portrait){#lvup{top:28%}#lvup .big{font-size:clamp(40px,14vw,64px)}}
 /* v22 낚시·신전·축제 */

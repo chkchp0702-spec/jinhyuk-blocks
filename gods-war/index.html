@@ -223,7 +223,7 @@ html,body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;t
   #bossbar{top:calc(max(6px,env(safe-area-inset-top)) + 124px)}
   #guide{top:calc(max(6px,env(safe-area-inset-top)) + 54px)}
   #chat{left:calc(max(10px,env(safe-area-inset-left)) + 210px);transform:none;bottom:calc(max(8px,env(safe-area-inset-bottom)) + 52px);width:min(34vw,300px);align-items:flex-start}
-  #toast{top:42%;font-size:clamp(20px,4.2vw,30px);max-width:60vw;white-space:normal;line-height:1.3} #toast small{margin-top:6px;line-height:1.3} #lvup{top:44%}
+  #toast{top:42%;--up:27vh;font-size:clamp(20px,4.2vw,30px);max-width:60vw;white-space:normal;line-height:1.3} #toast small{margin-top:6px;line-height:1.3} #lvup{top:44%}
   .card{max-width:620px;max-height:92%!important;padding:14px 16px} .layer{padding:8px 14px}
   .titlebox{max-width:760px;gap:8px} .logo{font-size:min(9vw,52px)!important} .realms{grid-template-columns:repeat(4,1fr)} .realm{padding:8px 10px!important} .realm i{font-size:11px!important} .realm b{font-size:18px!important} .titlebox .help{font-size:13px;margin:0} #title .titlebox .logo{font-size:40px!important;margin-top:0} #title .titlebox{gap:6px} #title .inp{padding:6px 12px;font-size:18px} #title .go{padding:8px 26px;font-size:20px} .logo span{font-size:12px!important}
 }
@@ -242,7 +242,17 @@ html,body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;t
   background:linear-gradient(90deg,transparent,rgba(22,12,44,.62) 18%,rgba(22,12,44,.62) 82%,transparent);
   border-top:2px solid color-mix(in srgb,var(--lc) 80%,transparent);border-bottom:2px solid color-mix(in srgb,var(--lc) 80%,transparent);
   -webkit-mask:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent);mask:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent)}
-#toast.lvdn{top:66%!important;font-size:clamp(16px,3.6vw,22px)}
+#toast.lvdn{top:66%!important;font-size:clamp(16px,3.6vw,22px);animation:none!important}
+/* v78: 안내 글씨(축제·이야기·날씨…)가 가운데서 톡 튄 뒤 0.7초 만에 작아지며 화면 위쪽 띠로 올라감 → 싸우는 가운데를 오래 가리지 않음 */
+#toast{--up:20vh;transition:opacity .3s}
+#toast.tb{animation:toastBand 1.15s cubic-bezier(.3,.7,.3,1) forwards}
+#toast.tb::before{content:"";position:absolute;left:-16%;right:-16%;top:-6px;bottom:-6px;z-index:-1;pointer-events:none;opacity:0;animation:toastRib 1.15s forwards;
+  background:linear-gradient(90deg,transparent,rgba(22,12,44,.66) 18%,rgba(22,12,44,.66) 82%,transparent);
+  border-top:2px solid rgba(255,215,106,.75);border-bottom:2px solid rgba(255,215,106,.75);
+  -webkit-mask:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent);mask:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent)}
+@keyframes toastBand{0%{transform:translate(-50%,-50%) scale(.55)}17%{transform:translate(-50%,-50%) scale(1.08)}27%{transform:translate(-50%,-50%) scale(1)}60%{transform:translate(-50%,-50%) scale(1)}100%{transform:translate(-50%,calc(-50% - var(--up))) scale(.6)}}
+@keyframes toastRib{0%,62%{opacity:0}100%{opacity:1}}
+@media (prefers-reduced-motion: reduce){#toast.tb{animation:none;transform:translate(-50%,calc(-50% - var(--up))) scale(.6)}#toast.tb::before{animation:none;opacity:1}}
 #lvglow{display:none;position:fixed;inset:0;z-index:7;pointer-events:none;opacity:0;--lc:#ffd76a;background:radial-gradient(ellipse at 50% 60%,transparent 35%,color-mix(in srgb,var(--lc) 70%,transparent) 100%)}
 @media (orientation:portrait){#lvup{top:28%}#lvup .big{font-size:clamp(40px,14vw,64px)}}
 /* v22 낚시·신전·축제 */
@@ -501,7 +511,7 @@ body.eco #bossbar[data-ph="2"] .bpo{animation:none}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v77";
+const VER="v78";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -606,7 +616,7 @@ function tone(f,d,type,delay,vol){ if(!soundOn||!actx) return; audioWake(); cons
 function jingle(arr){ arr.forEach((f,k)=>tone(f,.14,"triangle",k*.08)); }
 function thud(){ tone(110,.12,"square",0,.12); tone(70,.18,"sawtooth",.02,.08); }
 function buzz(ms){ try{ if(navigator.vibrate) navigator.vibrate(ms||30); }catch(e){} }
-let toastT=0; function toast(msg,sub,dur){ const t=$("toast"); t.innerHTML=msg+(sub?`<small>${sub}</small>`:""); t.style.opacity=1; toastT=dur||1.8; }
+let toastT=0; function toast(msg,sub,dur){ const t=$("toast"), h=msg+(sub?`<small>${sub}</small>`:""); /* v78: 새 글씨일 때만 톡 튀고 위쪽 띠로(같은 글씨 반복이면 시간만 늘림) */ if(h!==t.innerHTML||toastT<=0){ t.innerHTML=h; t.classList.remove("tb"); void t.offsetWidth; t.classList.add("tb"); } t.style.opacity=1; toastT=dur||1.8; }
 function lockLand(){ try{ if(screen.orientation&&screen.orientation.lock) screen.orientation.lock("landscape").catch(()=>{}); }catch(e){} }
 /* v19.3: 게임을 끄거나 홈으로 나가면 가로 고정을 풀고 전체 화면도 나감 → 폰이 가로로 남아 엉키지 않게.
    다시 돌아오면 첫 터치 때 다시 가로 고정(전체 화면이었으면 전체 화면도). */
@@ -6823,7 +6833,7 @@ window.__gw={PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoard,showPlay,p
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="6104f6bf";
+(function(){ var CUR="b9b366c5";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
