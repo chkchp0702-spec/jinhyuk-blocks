@@ -1,6 +1,6 @@
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v80";
+const VER="v81";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
