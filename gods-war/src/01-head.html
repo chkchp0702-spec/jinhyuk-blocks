@@ -519,6 +519,18 @@ body.eco #bossbar[data-ph="2"] .bpo{animation:none}
 .lbl .mtrib::before{left:-9px;clip-path:polygon(0 0,100% 0,100% 100%,0 100%,40% 50%)}
 .lbl .mtrib::after{right:-9px;clip-path:polygon(0 0,100% 0,60% 50%,100% 100%,0 100%)}
 .lbl .mtag.boss .mtpw{margin-top:2px}
+/* v91 공격 버튼 길게 누르기: 기 모으는 금빛 고리 → 꽉 차면 불꽃빛 두근 → 떼면 빛 펑 */
+.act.atk{--chg:0}
+.act.atk::before{content:"";position:absolute;inset:-11px;border-radius:50%;pointer-events:none;z-index:3;opacity:0;background:conic-gradient(from -90deg,#fff6c0 0deg,#ffd24a calc(var(--chg)*300deg),#ff8a1e calc(var(--chg)*360deg),rgba(20,8,30,.55) calc(var(--chg)*360deg));-webkit-mask:radial-gradient(closest-side,transparent calc(100% - 7px),#000 calc(100% - 6px));mask:radial-gradient(closest-side,transparent calc(100% - 7px),#000 calc(100% - 6px));transition:opacity .15s}
+.act.atk.chg::before{opacity:1;filter:drop-shadow(0 0 calc(2px + var(--chg)*7px) rgba(255,190,60,.95))}
+.act.atk.chg{box-shadow:0 5px 0 rgba(0,0,0,.4),0 0 calc(6px + var(--chg)*26px) calc(var(--chg)*6px) rgba(255,150,40,.85)}
+.act.atk.full{animation:atkFull .5s ease-in-out infinite;background:radial-gradient(circle at 35% 30%,#ffd28a,#ff5a1e 55%,#c81e2a 80%)}
+.act.atk.full::before{background:conic-gradient(from calc(var(--sp,0)*1deg),#fff8d0,#ffb02a,#ff5a1e,#ffe066,#fff8d0);animation:atkSpin .9s linear infinite}
+@keyframes atkFull{0%,100%{box-shadow:0 5px 0 rgba(0,0,0,.4),0 0 18px 4px rgba(255,150,40,.8)}50%{box-shadow:0 5px 0 rgba(0,0,0,.4),0 0 30px 9px rgba(255,200,60,.95)}}
+@keyframes atkSpin{to{transform:rotate(360deg)}}
+.act.atk.rel{animation:atkRel .42s ease-out}
+@keyframes atkRel{0%{box-shadow:0 5px 0 rgba(0,0,0,.4),0 0 0 0 rgba(255,220,120,.95)}60%{box-shadow:0 5px 0 rgba(0,0,0,.4),0 0 0 26px rgba(255,180,60,.25)}100%{box-shadow:0 5px 0 rgba(0,0,0,.4),0 0 0 34px rgba(255,180,60,0)}}
+body.eco .act.atk.full,body.eco .act.atk.full::before{animation:none}
 </style>
 </head>
 <body>

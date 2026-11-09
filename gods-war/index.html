@@ -519,6 +519,18 @@ body.eco #bossbar[data-ph="2"] .bpo{animation:none}
 .lbl .mtrib::before{left:-9px;clip-path:polygon(0 0,100% 0,100% 100%,0 100%,40% 50%)}
 .lbl .mtrib::after{right:-9px;clip-path:polygon(0 0,100% 0,60% 50%,100% 100%,0 100%)}
 .lbl .mtag.boss .mtpw{margin-top:2px}
+/* v91 공격 버튼 길게 누르기: 기 모으는 금빛 고리 → 꽉 차면 불꽃빛 두근 → 떼면 빛 펑 */
+.act.atk{--chg:0}
+.act.atk::before{content:"";position:absolute;inset:-11px;border-radius:50%;pointer-events:none;z-index:3;opacity:0;background:conic-gradient(from -90deg,#fff6c0 0deg,#ffd24a calc(var(--chg)*300deg),#ff8a1e calc(var(--chg)*360deg),rgba(20,8,30,.55) calc(var(--chg)*360deg));-webkit-mask:radial-gradient(closest-side,transparent calc(100% - 7px),#000 calc(100% - 6px));mask:radial-gradient(closest-side,transparent calc(100% - 7px),#000 calc(100% - 6px));transition:opacity .15s}
+.act.atk.chg::before{opacity:1;filter:drop-shadow(0 0 calc(2px + var(--chg)*7px) rgba(255,190,60,.95))}
+.act.atk.chg{box-shadow:0 5px 0 rgba(0,0,0,.4),0 0 calc(6px + var(--chg)*26px) calc(var(--chg)*6px) rgba(255,150,40,.85)}
+.act.atk.full{animation:atkFull .5s ease-in-out infinite;background:radial-gradient(circle at 35% 30%,#ffd28a,#ff5a1e 55%,#c81e2a 80%)}
+.act.atk.full::before{background:conic-gradient(from calc(var(--sp,0)*1deg),#fff8d0,#ffb02a,#ff5a1e,#ffe066,#fff8d0);animation:atkSpin .9s linear infinite}
+@keyframes atkFull{0%,100%{box-shadow:0 5px 0 rgba(0,0,0,.4),0 0 18px 4px rgba(255,150,40,.8)}50%{box-shadow:0 5px 0 rgba(0,0,0,.4),0 0 30px 9px rgba(255,200,60,.95)}}
+@keyframes atkSpin{to{transform:rotate(360deg)}}
+.act.atk.rel{animation:atkRel .42s ease-out}
+@keyframes atkRel{0%{box-shadow:0 5px 0 rgba(0,0,0,.4),0 0 0 0 rgba(255,220,120,.95)}60%{box-shadow:0 5px 0 rgba(0,0,0,.4),0 0 0 26px rgba(255,180,60,.25)}100%{box-shadow:0 5px 0 rgba(0,0,0,.4),0 0 0 34px rgba(255,180,60,0)}}
+body.eco .act.atk.full,body.eco .act.atk.full::before{animation:none}
 </style>
 </head>
 <body>
@@ -576,7 +588,7 @@ body.eco #bossbar[data-ph="2"] .bpo{animation:none}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v90";
+const VER="v91";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -7617,6 +7629,19 @@ TITLES.push({id:"gitop",n:"거인 정복자",t:2,h:"산 거인 머리 꼭대기�
 #giBar[hidden]{display:none} #giBar b{font-size:14px;color:#e4ffc0;text-shadow:0 2px 0 #000} #giBar span{font-size:12px;opacity:.92}
 </style>
 <script>
+/* v91 공격 버튼 길게 누르기 손맛(모습만 — 공격 규칙·속도 그대로): 누르고 있으면 버튼 둘레에 기 모으는 금빛 고리가 1.2초 동안 시계 방향으로 차오르고,
+   꽉 차면 「기 가득」 불꽃빛으로 두근두근. 손을 떼면 꽉 찼을 때만 빛이 펑 퍼짐. DOM 추가 없음(::before/::after 와 CSS 변수만). */
+const ATKCHG=(()=>{
+  const b=document.getElementById("bAtk"); if(!b) return {};
+  let t0=0, raf=0, full=false;
+  const step=()=>{ if(!t0) return; const k=Math.min(1,(performance.now()-t0)/1200); b.style.setProperty("--chg",k.toFixed(3)); if(k>=1&&!full){ full=true; b.classList.add("full"); try{ if(navigator.vibrate&&!ECO()) navigator.vibrate(12); }catch(e){} } raf=requestAnimationFrame(step); };
+  b.addEventListener("pointerdown",()=>{ t0=performance.now(); full=false; b.classList.remove("rel","full"); b.classList.add("chg"); b.style.setProperty("--chg","0"); cancelAnimationFrame(raf); raf=requestAnimationFrame(step); });
+  const stop=()=>{ if(!t0) return; t0=0; cancelAnimationFrame(raf); b.classList.remove("chg"); if(full){ b.classList.remove("full"); void b.offsetWidth; b.classList.add("rel"); setTimeout(()=>b.classList.remove("rel"),420); } full=false; b.style.setProperty("--chg","0"); };
+  ["pointerup","pointercancel","pointerleave"].forEach(ev=>b.addEventListener(ev,stop));
+  return {stop};
+})();
+</script>
+<script>
 /* ================= 아주 작은 MQTT 클라이언트 (웹소켓) — 외부 라이브러리 없이 ================= */
 function MiniMQTT(url,opt){
   const self={url,ok:false,ws:null,buf:new Uint8Array(0),pid:1,pingT:null,retry:null,closed:false,subs:[],opt};
@@ -7928,7 +7953,7 @@ window.__gw={regionBanner,PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoa
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="f897bd07";
+(function(){ var CUR="ad41393e";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
