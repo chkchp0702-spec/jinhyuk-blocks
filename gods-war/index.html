@@ -500,6 +500,25 @@ body.eco .lbl .hp.low i,body.eco #bossbar .bar.hp.low i{animation:none}
 body.eco #bossbar[data-ph="2"] .bpo{animation:none}
 @media (orientation:portrait){ #bossbar .bpo{width:42px;height:42px} #bossbar .bpo b{font-size:23px} }
 @media (orientation:landscape) and (max-height:540px){ #bossbar{top:max(6px,env(safe-area-inset-top))!important;width:min(35vw,288px)!important} body:has(#warbar:not([hidden])) #bossbar{top:calc(max(6px,env(safe-area-inset-top)) + 50px)!important} #bossbar .bpo{width:44px;height:44px} #bossbar .bpo b{font-size:24px} #bossbar .nm{font-size:13px!important} }
+
+/* v90: 괴물 이름표 — 레벨 색 배지 · 정예 별 배지 · 보스 금테 리본 */
+.lbl .mtag{display:inline-flex;align-items:center;gap:4px;font-size:14px;font-weight:900;letter-spacing:-.2px}
+.lbl .mtlv{display:inline-flex;align-items:center;justify-content:center;min-width:21px;height:19px;padding:0 4px;box-sizing:border-box;border-radius:6px;font-style:normal;font-size:11.5px;font-weight:900;line-height:1;text-shadow:0 1px 0 rgba(0,0,0,.55);border:1.5px solid rgba(255,255,255,.85);box-shadow:0 2px 0 rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.45)}
+.lbl .mtlv.gy{background:linear-gradient(180deg,#a9a9b4,#64646f);color:#f2f2f6}
+.lbl .mtlv.gn{background:linear-gradient(180deg,#7fe07a,#2e9a3a);color:#fff}
+.lbl .mtlv.wh{background:linear-gradient(180deg,#fff6d8,#e2c98a);color:#3a2a08;text-shadow:none}
+.lbl .mtlv.or{background:linear-gradient(180deg,#ffb54a,#e06a10);color:#fff}
+.lbl .mtlv.rd{background:linear-gradient(180deg,#ff6a6a,#b8101e);color:#fff;animation:mtDanger 1.1s ease-in-out infinite}
+@keyframes mtDanger{50%{box-shadow:0 2px 0 rgba(0,0,0,.35),0 0 8px 2px rgba(255,60,60,.85)}}
+.lbl .mtel{font-style:normal;font-size:11px;font-weight:900;color:#4a2a00;padding:1px 5px;border-radius:7px;background:linear-gradient(180deg,#fff2b0,#ffc23a);border:1px solid #fff8d8;text-shadow:none;box-shadow:0 1px 0 rgba(0,0,0,.35)}
+.lbl .mtag.elite .mtn{color:#ffe27a}
+.lbl .mtpw{display:block;text-decoration:none;font-size:10.5px;font-weight:900;color:#ffd98a;margin-top:1px;opacity:.95}
+.lbl .mtag.boss{display:flex;flex-direction:column;align-items:center;gap:0}
+.lbl .mtrib{position:relative;display:inline-flex;align-items:center;gap:5px;padding:2px 14px 2px 5px;font-size:16px;color:#fff3c4;border-radius:4px;background:linear-gradient(180deg,#8a1a22,#4a0810);border:1.5px solid #ffd35a;box-shadow:0 0 0 1px #5a3200,0 3px 6px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,220,150,.45)}
+.lbl .mtrib::before,.lbl .mtrib::after{content:"";position:absolute;top:4px;width:10px;height:calc(100% - 4px);background:#6a0c16;border:1.5px solid #ffd35a;z-index:-1}
+.lbl .mtrib::before{left:-9px;clip-path:polygon(0 0,100% 0,100% 100%,0 100%,40% 50%)}
+.lbl .mtrib::after{right:-9px;clip-path:polygon(0 0,100% 0,60% 50%,100% 100%,0 100%)}
+.lbl .mtag.boss .mtpw{margin-top:2px}
 </style>
 </head>
 <body>
@@ -557,7 +576,7 @@ body.eco #bossbar[data-ph="2"] .bpo{animation:none}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v89";
+const VER="v90";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -2161,6 +2180,16 @@ const HURTFX=(()=>{ let el=null, chk=0, lvl=0; const _v=new THREE.Vector3();
 })();
 </script>
 <script>
+/* v90: 괴물 이름표 디자인 — 레벨 색 배지(나보다 약하면 회색·초록, 비슷하면 흰색, 세면 주황·빨강) · 정예는 금빛 별 배지 · 보스는 금테 리본 */
+function mobLvCls(lv){ const d=(lv||1)-(G.lv||1); return d<=-6?"gy":d<=-3?"gn":d<=2?"wh":d<=5?"or":"rd"; }
+function mobTag(m){
+  const c=mobLvCls(m.lv);
+  const pw=m.power?`<u class="mtpw">파워 ${m.power}</u>`:"";
+  if(m.boss) return `<span class="mtag boss"><span class="mtrib"><i class="mtlv ${c}">${m.lv}</i><span class="mtn">👑 ${m.n}</span></span>${pw}</span><span class="hp mob"><s></s><i></i></span>`;
+  return `<span class="mtag${m.elite?" elite":""}"><i class="mtlv ${c}">${m.lv}</i>${m.elite?'<em class="mtel">★정예</em>':""}<span class="mtn">${m.n}</span></span>${pw}<span class="hp mob"><s></s><i></i></span>`;
+}
+</script>
+<script>
 /* ================= 플레이어 ================= */
 const P={x:0,z:0,y:0,vy:0,rot:0,hp:1,walk:0,moving:false,atkCd:0,sklCd:[0,0,0],rage:0,haste:0,combat:0,dashT:0,atkAnim:0,slow:0,weak:0,shadow:0,dizzy:0,heat:0,dead:false,deadT:0,orbitT:0,orbitTick:0,capProg:0,capRg:-1,bag:null,trial:null,invul:0,hitFlash:0};
 let player=null, weaponMesh=null, orbitMesh=null;
@@ -2203,7 +2232,7 @@ function tickMobs(dt){
     if(m._lk){ m.mesh.rotation.y-=m._lk; m._ryp-=m._lk; m._lk=0; } let dr=m.rot-m.mesh.rotation.y; while(dr>Math.PI) dr-=Math.PI*2; while(dr<-Math.PI) dr+=Math.PI*2; m.mesh.rotation.y+=dr*Math.min(1,dt*8);
     if(m.mesh.userData.gl){ animState(m.mesh,m.hit>0&&m.hp>0?"hit":m.state==="chase"?(d>(m.boss?3.4:2.3)?"run":"idle"):m.state==="wander"?"walk":"idle"); if(m.mesh.userData.lunge>.2) animState(m.mesh,"attack"); m.mesh.rotation.x=0; }
     hitTint(m.mesh,m.hit/.15); const sc=m.scale*(m.hit>0?1.12:1); m.mesh.scale.set(sc*(1+Math.sin(tnow/600+m.x)*.02),sc*(1+Math.sin(tnow/600+m.x+1)*.03),sc); try{ MOBANIM.apply(m,dt,tnow,d); }catch(e){} HITF.apply(m,dt); try{ MOBSHADE.apply(m,d); }catch(e){} WARN.tick(m,aggro&&d<=(m.boss?3.4:2.3),dt);
-    if(d<48){ const h=m.mesh.userData.h||4; placeLabel(m.lbl,m.x,h*m.scale,m.z,`${m.boss?"👑 ":m.elite?"<em style=\"color:#ffd24a\">★정예</em> ":""}${m.n} <b>Lv.${m.lv}${m.power?" · 파워 "+m.power:""}</b><span class="hp mob"><s></s><i></i></span>`); hpBar(m.lbl,m.hp/m.mhp); } else m.lbl.style.display="none";
+    if(d<48){ const h=m.mesh.userData.h||4; placeLabel(m.lbl,m.x,h*m.scale,m.z,mobTag(m)); hpBar(m.lbl,m.hp/m.mhp); } else m.lbl.style.display="none";
   }
   WARN.end();
   const near=mobs.find(m=>m.boss&&m.hp>0&&Math.hypot(m.x-P.x,m.z-P.z)<40); BOSSBAR.update(near||null);
@@ -7898,5 +7927,19 @@ function regionBanner(name,sub,realm){ const el=$("rgban"); if(!el){ toast(name,
 window.__gw={regionBanner,PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoard,showPlay,pgNow,pgTileAt,STY,STORY,styData,styStart,styAdvance,styStep,styOpenN,styNextDays,showStory,styComic,styTarget,CQ,CQO,cqMis,cqTotal,cqAdd,showTeam,frTeleport,frFollow,SKS,skSlots,showSkills,showPatch,PATCH_NOTES,GT,GTO,DS,gtTotal,gtStage,gtDonate,gtGive,gtData,showGate,dsEnter,dsExit,dsSpawn,DS_MOBS,OR,orQuiz,orAnswer,orToday,showOracle,MT,mtGraduate,mtRole,showMentor,mtShowStar,NETX,NETR,PETS,showShop,bfOn,bfAdd,BUFFS,shopDeal,GD,GDO,gdCreate,gdJoin,gdLeave,gdClaim,gdAdd,gdMembers,gdWeekPts,gdLv,gdRanking,showGuild,gdMine,FG,showForge,fgStart,fgHit,fgDone,fgGive,fgLv,fgMul,RC,RCO,rcStart,rcEnd,rcBoard,showRace,rdSet,rdCan,WD,WDO,wdDonate,wdTotal,wdStage,wdGive,showWonder,wdData,HM,HOMES,DECO,hmEnter,hmExit,hmGift,hmAdd,hmBlessMsg,hmMsg,showHome,hmSlotCard,hmCollect,FS,startFish,fishPull,fishCaught,trapSet,trapClaim,showFish,nearWater,fishSpots,ssData,ssTasks,ssClaim,showSeason,ssMsg,ssNo,ssAdd,ssWinner,SSO,CTX,DG,dgEnter,dgFloor,dgFinish,dgPlan,showDungeon,showTitles,TITLES,showExp,expStart,expClaim,EXPO,DGR,TB,titanHit,titanDefeated,showTitan,titanGo,showPets,hatchEgg,petOnKill,comboFire,comboRecv,showCombos,PETMESH,idleSim,grantIdle,showIdleReport,ROSTER,autoFace,buildPlayer,GHOSTS,mmoProfile,showRoster,G,P,mobs,W,net,PEERS,WAR,forceWar,resolveWar,joinWar,begin,update,spawnMob,spawnAtHome,REGIONS,attack,useSkill,startTrial,die,respawn};
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
+<!--auto-update--><script>
+(function(){ var CUR="f897bd07";
+  function check(){ if(!/^https?:/.test(location.protocol)) return;
+    fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
+      if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
+      var go=function(){ location.replace(location.pathname.replace(/index\.html$/,"")+"?v="+j.v); };
+      try{ var p=[]; if(navigator.serviceWorker&&navigator.serviceWorker.getRegistrations) p.push(navigator.serviceWorker.getRegistrations().then(function(rs){ return Promise.all(rs.filter(function(r){return location.href.indexOf(r.scope)===0;}).map(function(r){return r.unregister();})); }));
+        if(window.caches) p.push(caches.keys().then(function(ks){ return Promise.all(ks.map(function(c){return caches.delete(c);})); }));
+        Promise.all(p).then(go,go); }catch(e){ go(); }
+    }).catch(function(){});
+  }
+  check(); document.addEventListener("visibilitychange",function(){ if(!document.hidden) check(); });
+})();
+</script><!--/auto-update-->
 </body>
 </html>
