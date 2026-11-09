@@ -55,12 +55,17 @@
 | 47 | 공격 버튼 길게 누르면 버튼 둘레 기 모으는 빛(모습만, 공격 규칙 그대로) | 04zo-atkcharge.js ATKCHG · 01-head.html .act.atk.chg/.full/.rel | ✅ v91 |
 | 48 | 괴물 이름표 디자인(레벨 색 배지·보스는 금테 리본) | 03x-mobtag.js mobTag · 04-game.js tickMobs · 01-head.html .mtag | ✅ v90 |
 | 49 | 내가 맞을 때 화면 가장자리 붉은 번쩍 + 체력 낮으면 심장 박동 비네트 | 03w-hurtfx.js HURTFX · 01-head.html #hurtdir·#lowhp · 04-game.js hurtPlayer | ✅ v87 |
-| 50 | 상점·가방 창 열고 닫을 때 쓱 미끄러지며 커지는 등장 애니메이션 | 01-head.html #layers .card · 06-ui.js card | ⏳ |
+| 50 | 상점·가방 창 열고 닫을 때 쓱 미끄러지며 커지는 등장 애니메이션 | 01-head.html .layer/.card cardIn·cardOut · 06-ui.js card·closeLayer·cardStagger | ✅ v93 |
 | 51 | 수도 건물 창문 밤에 노란 불빛(재질 발광, 그리기 호출 그대로) | 03b-visual.js 밤낮 · 03c-models.js | ⏳ |
 | 52 | 경험치 바 차오를 때 빛 알갱이가 흐르고 꽉 차기 직전 반짝 | 01-head.html .xp · 06-ui.js HUD | ⏳ |
 | 53 | 죽었을 때 화면 흑백 + 천천히 쓰러지는 카메라 · 부활 때 빛기둥 | 06-ui.js 죽음 · 03d-celebrate.js | ⏳ |
 
 ## 기록
+
+### 11/9 20시 v93 — 창 열고 닫을 때 쓱 올라오며 커지는 애니메이션
+- 무엇을: 가방·상점 같은 창이 아래에서 쓱 올라오며 통통 커지고, 안의 줄(탭·장비 목록)이 위에서부터 차례로 나타남, 열릴 때 금빛 광택이 한 번 훑고 지나감. 닫으면 0.2초 동안 작아지며 사라지고 뒤 어둠도 부드럽게 걷힘. 탭 바꿀 땐 다시 튀지 않음(깜빡임 없이 바로 바뀜).
+- 어디를: 06-ui.js card(swap 표시)·closeLayer(닫는 애니)·새 cardStagger(Web Animations, 기존 줄 애니와 안 겹침) · 01-head.html 맨 끝 CSS(layerIn·cardIn·sheetIn·cardGloss·layerOut·cardOut).
+- 확인: 844×390에서 열리는 중간(줄이 차례로 나타남)·다 열림 스크린샷, 탭 바꾸면 swap, 닫는 중엔 터치 통과·0.2초 뒤 제거, 연달아 닫기·다시 열기 정상, 오류 0.
 
 ### 11/9 14시 v91 — 공격 버튼 길게 누르면 기 모으는 빛 고리
 - 무엇을: 공격 버튼을 꾹 누르고 있으면 둘레에 금빛 고리가 1.2초 동안 시계 방향으로 차오르고 버튼 주위가 점점 밝게 빛남. 꽉 차면 버튼이 불꽃 주황으로 두근두근·고리가 빙글빙글, 손을 떼면 빛이 펑 퍼짐(공격 속도·규칙은 그대로, 모습만). 절약 모드에선 두근 애니 끔.

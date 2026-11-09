@@ -35,8 +35,9 @@ function hud(){ hudT-=1; if(hudT>0) return; hudT=ECO()?3:1; const st=stat(); hT(
 
 /* ================= 화면(창) ================= */
 const layers=$("layers"); let layerOpen=false;
-function closeLayer(){ layers.innerHTML=""; layerOpen=false; }
-function card(html,id){ layers.innerHTML=`<div class="layer" id="${id||"bg"}"><div class="card">${html}<button class="close" id="cls" type="button">닫기</button></div></div>`; layerOpen=true; rowRar(); $("cls").onclick=closeLayer; const bg=$(id||"bg"); bg.onclick=e=>{ if(e.target===bg) closeLayer(); }; }
+function closeLayer(){ const L=layers.firstElementChild; layerOpen=false; if(L&&layers.children.length===1&&L.classList.contains("layer")&&!L.classList.contains("out")){ L.classList.add("out"); L.removeAttribute("id"); setTimeout(()=>{ if(L.parentNode===layers) L.remove(); },200); return; } if(!(L&&L.classList.contains("out"))) layers.innerHTML=""; }
+function cardStagger(){ try{ const c=layers.querySelector(".layer .card"); if(!c||!c.animate) return; let i=0; for(const el of c.children){ if(i>11) break; if(el.id==="cls") continue; el.animate([{opacity:0,transform:"translateY(10px)"},{opacity:1,transform:"none"}],{duration:260,delay:70+i*32,easing:"cubic-bezier(.2,1,.4,1)",fill:"backwards"}); i++; } }catch(e){} }
+function card(html,id){ const swap=layerOpen&&!!layers.querySelector(".layer:not(.out) .card"); layers.innerHTML=`<div class="layer${swap?" swap":""}" id="${id||"bg"}"><div class="card">${html}<button class="close" id="cls" type="button">닫기</button></div></div>`; layerOpen=true; rowRar(); if(!swap) cardStagger(); $("cls").onclick=closeLayer; const bg=$(id||"bg"); bg.onclick=e=>{ if(e.target===bg) closeLayer(); }; }
 function rarTag(t){ return `<span class="rar" data-r="${t}" style="background-color:${RAR[t].c}">${RAR[t].n}</span>`; }
 // v43 등급 있는 줄에 등급 색 테두리·아이콘 칸(첫 번째 등급표 기준)
 function rowRar(){ layers.querySelectorAll(".row").forEach(r=>{ const t=r.querySelector(".t .rar[data-r]"); if(!t) return; const k=+t.dataset.r; if(!RAR[k]) return; r.classList.add("rr","rr"+k); r.style.setProperty("--rc",RAR[k].c); }); }
