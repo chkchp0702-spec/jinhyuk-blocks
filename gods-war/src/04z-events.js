@@ -19,7 +19,7 @@ function evGear(up,x,z){ const t=evTier(up), s=pick(["w","a","r"]); G.bag.push({
 
 /* ---------- ★ 정예 괴물 ---------- */
 function makeElite(m){ if(!m||m.elite||m.boss) return m; m.elite=true; m.mhp=m.hp=Math.round(m.mhp*2.6); m.atk*=1.45; m.xp=Math.round(m.xp*3); m.gold=Math.round(m.gold*3); m.scale*=1.25; try{ const a=new THREE.Mesh(new THREE.RingGeometry(1.1,1.5,32),glowMat(0xffc83a,.75)); a.rotation.x=-Math.PI/2; a.position.y=.12; m.mesh.add(a); m.aura=a; }catch(e){} return m; }
-(function(){ const _sp=spawnMob; spawnMob=function(rg,boss,world){ const m=_sp(rg,boss,world); if(m&&!boss&&!EV.noElite&&!rg.cap&&Math.random()<.12) makeElite(m); return m; };
+(function(){ const _sp=spawnMob; spawnMob=function(rg,boss,world){ const m=_sp(rg,boss,world); if(m&&!boss&&!EV.noElite&&!rg.cap&&Math.random()<.15) makeElite(m); return m; };
   const _km=killMob; killMob=function(m){ const el=m.elite, ev=m.evId, x=m.x, z=m.z; _km(m);
     if(el){ G.eliteN=(G.eliteN||0)+1; const o=2+Math.floor(Math.random()*3); G.ore=(G.ore||0)+o; floatDmg(x,5,z,`★ 정예 · ⛓ +${o}`,"gain"); if(Math.random()<.3){ const nm=evGear(.15,x,z); toast("★ 정예의 전리품!",nm,2); jingle([659,784,1046]); } }
     if(ev&&EV.cur&&EV.cur.id===ev&&EV.cur.onKill) EV.cur.onKill(m); }; })();
@@ -30,7 +30,7 @@ function evAlive(){ return EV.cur?mobs.filter(m=>m.evId===EV.cur.id&&m.hp>0):[];
 
 /* ---------- 이벤트 화면 띠 ---------- */
 function evBar(){ if(!EV.bar){ const b=document.createElement("div"); b.id="evbar"; b.hidden=true; document.body.appendChild(b); EV.bar=b; } return EV.bar; }
-function evHud(){ const b=evBar(), c=EV.cur; if(!c){ if(!b.hidden) b.hidden=true; return; } b.hidden=false; const wb=$("warbar"); let top=""; if(wb&&!wb.hidden){ const r=wb.getBoundingClientRect(); if(r.height>0) top=Math.round(r.bottom+6)+"px"; } if(b._t!==top){ b._t=top; b.style.top=top; } const left=Math.max(0,Math.ceil(c.end-performance.now()/1000)); const p=Math.max(0,Math.min(1,c.prog()));
+function evHud(){ const b=evBar(), c=EV.cur; if(!c){ if(!b.hidden) b.hidden=true; return; } b.hidden=false; let top="", bot=0; ["warbar","bossbar"].forEach(id=>{ const el=$(id); if(el&&!el.hidden){ const r=el.getBoundingClientRect(); if(r.height>0) bot=Math.max(bot,r.bottom); } }); if(bot>0) top=Math.round(bot+6)+"px";   /* v88: 보스 체력판과 겹치지 않게 */ if(b._t!==top){ b._t=top; b.style.top=top; } const left=Math.max(0,Math.ceil(c.end-performance.now()/1000)); const p=Math.max(0,Math.min(1,c.prog()));
   const h=`<b>${c.ic} ${c.n}</b><span>${c.goal()} · ⏱ ${left}초</span><i><s style="width:${Math.round(p*100)}%"></s></i>`; if(b._h!==h){ b._h=h; b.innerHTML=h; } }
 function evReward(c,mul){ const L=G.lv, need=xpNeed(L); const xp=Math.round(need*c.xp*(mul||1)), gold=Math.round((40+L*14)*c.gold*(mul||1)); gainXp(xp); G.gold+=gold; const got=[`경험치 +${fmt(xp)}`,`금화 +${fmt(gold)}`];
   if(c.ore){ G.ore=(G.ore||0)+c.ore; got.push(`⛓ +${c.ore}`); } if(c.rune){ G.rune=(G.rune||0)+c.rune; got.push(`✨ +${c.rune}`); } if(c.pots){ G.pots+=c.pots; got.push(`🧪 +${c.pots}`); }

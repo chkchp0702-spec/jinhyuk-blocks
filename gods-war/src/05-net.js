@@ -82,6 +82,6 @@ const net=(function(){
       if(Math.hypot(o.x-P.x,o.z-P.z)<60&&!o.dead){ const foe=o.realm!==G.realm; o.lbl.className="lbl "+(foe?"foe":"ally"); placeLabel(o.lbl,o.x,4.6,o.z,`${o.bubbleT>0?`<span class="bub">${o.bubble}</span>`:""}${o.tt&&typeof titleHtml==="function"?titleHtml(o.tt):""}${o.gd&&typeof gdTagHtml==="function"?gdTagHtml(o.gd):""}${typeof mtPeerTag==="function"?mtPeerTag(o):""}${o.name} <b>${REALMS[o.realm].n} · ${REALMS[o.realm].ranks[o.rank]} Lv.${o.lv}</b><span class="hp"><i style="width:${Math.round(o.hp/o.mhp*100)}%;background:${foe?"#ff5a5f":"#3fd27a"}"></i></span>`); } else o.lbl.style.display="none"; }
     if(N.up>0){ N.sendT-=dt; if(N.sendT<=0){ N.sendT=(P.moving||P.combat>0||P.y>0||P.dashT>0)?(ECO()?.3:.2):(ECO()?2:.5); send({t:"st",n:G.name,x:+P.x.toFixed(1),z:+P.z.toFixed(1),f:+P.rot.toFixed(2),m:P.moving?1:0,h:Math.round(P.hp),H:stat().mhp,l:G.lv,k:G.rank,r:G.realm,w:G.eq.w,D:P.dead?1:0,rd:P.ride?1:0}); }
       N.hiT-=dt; if(N.hiT<=0){ N.hiT=ECO()?12:6; hello(); } N.worldT-=dt; if(N.worldT<=0){ N.worldT=45; pushWorld(); } N.profT=(N.profT||20)-dt; if(N.profT<=0){ N.profT=60; pushProfile(1); } } }
-  return {start,send,tick,pushWorld,pushProfile,pushTitan,pushRet,chat,rebuild,hello,get up(){ return N.up; }};
+  return {start,send,tick,pushWorld,pushProfile,pushTitan,pushRet,chat,rebuild,hello,recv,get up(){ return N.up; }};
 })();
 </script>

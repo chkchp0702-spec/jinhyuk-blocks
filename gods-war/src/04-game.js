@@ -10,7 +10,7 @@ function setRealmTheme(){ const R=RM(); document.documentElement.style.setProper
 
 /* ================= 괴물 ================= */
 const mobs=[]; const REG_STATE=REGIONS.map(()=>({bossT:rnd(20,60),boss:null}));
-function mobStats(lv,boss){ const m=boss?10:1; return {mhp:Math.round((60+lv*34)*m),atk:(8+lv*4.2)*(boss?1.6:1),xp:Math.round((10+lv*7)*(boss?12:1)),gold:Math.round((4+lv*2)*(boss?15:1))}; }
+function mobStats(lv,boss){ const m=boss?10:1; return {mhp:Math.round((66+lv*37)*m),atk:(8.5+lv*4.5)*(boss?1.6:1),xp:Math.round((10+lv*7)*(boss?12:1)),gold:Math.round((4+lv*2)*(boss?15:1))}; }
 function spawnMob(rg,boss,world){
   const R=rg.realm>=0?REALMS[rg.realm]:REALMS[Math.floor(Date.now()/60000)%4];
   const def=boss?(world?R.worldBoss:R.boss):pick(R.mobs);
