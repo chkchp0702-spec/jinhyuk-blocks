@@ -117,6 +117,18 @@ button{font:inherit;-webkit-tap-highlight-color:transparent}
 body:has(#title) #joy{display:none}
 #knob{position:absolute;left:50%;top:50%;width:56px;height:56px;margin:-28px 0 0 -28px;border-radius:50%;background:radial-gradient(circle at 40% 35%,rgba(255,255,255,.95),rgba(205,195,235,.8));box-shadow:0 3px 6px rgba(0,0,0,.35),inset 0 -3px 0 rgba(0,0,0,.12)}
 #vignette{position:fixed;inset:0;pointer-events:none;z-index:2;background:radial-gradient(ellipse at 50% 45%,rgba(0,0,0,0) 55%,rgba(5,0,20,.45) 100%)}
+#hurtdir{position:fixed;inset:0;pointer-events:none;z-index:3;opacity:0}
+#hurtdir.on{animation:hdir .7s ease-out}
+@keyframes hdir{0%{opacity:1}25%{opacity:.85}100%{opacity:0}}
+#lowhp{position:fixed;inset:0;pointer-events:none;z-index:2;opacity:0;background:radial-gradient(ellipse at 50% 50%,rgba(120,0,0,0) 48%,rgba(150,0,10,.55) 82%,rgba(90,0,0,.85) 100%);transition:opacity .4s}
+body.lowhp #lowhp{opacity:.45;animation:hbeat 1.05s infinite}
+body.lowhp2 #lowhp{animation-duration:.72s}
+body.lowhpEco #lowhp{animation:none;opacity:.45}
+@keyframes hbeat{0%{opacity:.3}10%{opacity:.95}20%{opacity:.45}30%{opacity:.85}55%{opacity:.35}100%{opacity:.3}}
+body.lowhp #hpBar{animation:hpblink 1.05s infinite}
+body.lowhp2 #hpBar{animation-duration:.72s}
+body.lowhpEco #hpBar{animation:none}
+@keyframes hpblink{0%,55%,100%{filter:none}10%,30%{filter:brightness(1.6) saturate(1.4) drop-shadow(0 0 4px #ff3030)}}
 #hurt{position:fixed;inset:0;pointer-events:none;z-index:3;background:radial-gradient(ellipse at 50% 50%,rgba(255,0,0,0) 50%,rgba(255,20,30,.55) 100%);opacity:0;transition:opacity .25s}
 #toast{position:fixed;left:50%;top:34%;transform:translate(-50%,-50%);z-index:8;pointer-events:none;text-align:center;font-size:clamp(22px,6.5vw,34px);color:#fff;white-space:nowrap;text-shadow:0 3px 0 rgba(0,0,0,.5),0 0 16px rgba(0,0,0,.4);font-family:var(--title);letter-spacing:1px}
 #toast small{display:block;font-size:.55em;color:var(--c1);margin-top:4px;font-family:var(--font);letter-spacing:0}
@@ -493,7 +505,7 @@ body.eco #bossbar[data-ph="2"] .bpo{animation:none}
 <body>
 <canvas id="view"></canvas>
 <div id="labels"></div>
-<div id="vignette"></div><div id="hurt"></div>
+<div id="vignette"></div><div id="hurt"></div><div id="lowhp"></div><div id="hurtdir"></div>
 
 <div class="hud tl">
   <div id="status">
