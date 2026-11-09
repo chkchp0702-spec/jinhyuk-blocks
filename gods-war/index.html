@@ -545,7 +545,7 @@ body.eco #bossbar[data-ph="2"] .bpo{animation:none}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v85";
+const VER="v86";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -2094,6 +2094,40 @@ const MOBSHADE=(function(){
     sh.material.opacity=.42*(.35+.65*k);
   }
   return {soften,apply};
+})();
+</script>
+<script>
+/* v86 내 캐릭터 발밑 고리: 은은한 금빛 원(눈금이 천천히 돎) + 내가 보는 쪽을 가리키는 작은 금빛 화살표.
+   괴물·친구 무리 속에서도 "나"를 바로 찾게. 눈밭(밝은 땅)에서도 보이게 금빛 선 아래 옅은 갈색 그림자 띠.
+   그림 2장(미리 만든 판 2개, 그리기 호출 +2), PointLight 없음, 배터리 절약 모드는 돌지 않고 숨쉬기만 */
+const MYRING=(()=>{ let ring=null, arrow=null, t=0, glow=0;
+  function cv(draw){ const c=document.createElement("canvas"); c.width=c.height=128; draw(c.getContext("2d"),128); const tx=new THREE.CanvasTexture(c); tx.anisotropy=2; return tx; }
+  function ringTex(){ return cv((g,s)=>{ const C=s/2;
+    g.lineWidth=14; g.strokeStyle="rgba(70,40,0,.38)"; g.beginPath(); g.arc(C,C,C-12,0,7); g.stroke();          // 밝은 땅에서도 보이는 그림자 띠
+    g.lineWidth=6; g.strokeStyle="rgba(255,214,90,1)"; g.shadowColor="rgba(255,200,60,.9)"; g.shadowBlur=6; g.beginPath(); g.arc(C,C,C-12,0,7); g.stroke();
+    g.lineWidth=1.6; g.strokeStyle="rgba(255,240,180,.75)"; g.beginPath(); g.arc(C,C,C-21,0,7); g.stroke();
+    g.shadowBlur=4; g.fillStyle="rgba(255,226,120,.95)";
+    for(let i=0;i<12;i++){ const a=i/12*Math.PI*2, big=i%3===0, r1=C-12, r2=C-(big?27:21); g.save(); g.translate(C,C); g.rotate(a); g.beginPath(); g.moveTo(-(big?3:1.6),-r1); g.lineTo(big?3:1.6,-r1); g.lineTo(0,-r2); g.closePath(); g.fill(); g.restore(); }
+    const rg=g.createRadialGradient(C,C,0,C,C,C-14); rg.addColorStop(0,"rgba(255,220,120,.16)"); rg.addColorStop(.8,"rgba(255,210,90,.05)"); rg.addColorStop(1,"rgba(255,210,90,0)"); g.shadowBlur=0; g.fillStyle=rg; g.beginPath(); g.arc(C,C,C-14,0,7); g.fill(); }); }
+  function arrowTex(){ return cv((g,s)=>{ const C=s/2; g.shadowColor="rgba(255,190,50,.9)"; g.shadowBlur=8;
+    g.fillStyle="rgba(70,40,0,.35)"; g.beginPath(); g.moveTo(C,6); g.lineTo(C+20,34); g.lineTo(C,26); g.lineTo(C-20,34); g.closePath(); g.fill();
+    g.fillStyle="rgba(255,222,110,1)"; g.beginPath(); g.moveTo(C,9); g.lineTo(C+15,30); g.lineTo(C,23); g.lineTo(C-15,30); g.closePath(); g.fill(); }); }
+  function mk(tex,ro){ const m=new THREE.Mesh(new THREE.PlaneGeometry(1,1),new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,opacity:0,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3})); m.rotation.order="YXZ"; m.rotation.x=-Math.PI/2; m.userData.noOutline=true; m.renderOrder=ro; m.frustumCulled=false; scene.add(m); return m; }
+  function init(){ ring=mk(ringTex(),3); arrow=mk(arrowTex(),3); }
+  function hit(){ glow=1; }
+  function tick(dt){ if(!ring){ try{ init(); }catch(e){ return; } }
+    t+=dt; glow=Math.max(0,glow-dt*2.5);
+    const hide=P.dead||!player||!player.visible&&!(P.invul>0)||(typeof PG!=="undefined"&&PG.fall);
+    const gy=(P.gy!=null?P.gy:hAt(P.x,P.z)), up=P.y||0, k=1/(1+up*.35);
+    const sz=(P.ride?4.6:3.6)*(1+glow*.12)*k, breathe=ECO()?.5+.5*Math.sin(t*2):.5+.5*Math.sin(t*2.4);
+    let op=hide?0:(.72+.2*breathe+glow*.3)*(P.combat>0?1:.85)*(.35+.65*k);
+    ring.visible=arrow.visible=op>.01; if(!ring.visible) return;
+    ring.position.set(P.x,gy+.15,P.z); ring.scale.set(sz,sz,1); ring.material.opacity=Math.min(1,op);
+    if(!ECO()) ring.rotation.y+=dt*.6;
+    const a=player.rotation.y, d=sz*.5+.55;
+    arrow.position.set(P.x+Math.sin(a)*d,gy+.16,P.z+Math.cos(a)*d); arrow.rotation.y=a+Math.PI; const as=1.25*k*(P.ride?1.3:1); arrow.scale.set(as,as,1); arrow.material.opacity=Math.min(1,op*(P.moving?1:.75));
+  }
+  return {tick,hit};
 })();
 </script>
 <script>
@@ -7233,7 +7267,7 @@ function update(dt){
   if(P.dashT>0){ P.dashT-=dt; P.x+=P.dashX*dt; P.z+=P.dashZ*dt; } if(!(DG.on&&dgClampP())&&!(HM.on&&hmClampP())&&!(DS.on&&dsClampP())&&!(PG.on&&pgClampP())&&!((()=>{ const xz=typeof xzOn==='function'&&xzOn(); return xz&&xz.clamp(); })())){ P.x=clamp(P.x,-WORLD_HALF+2,WORLD_HALF-2); P.z=clamp(P.z,-WORLD_HALF+2,WORLD_HALF-2); }
   P.vy-=28*dt; P.y=Math.max(0,P.y+P.vy*dt); if(P.y===0&&P.vy<0){ P.vy=0; P.air=0; }
   P.gy=hAt(P.x,P.z); player.position.set(P.x,P.gy+P.y+(P.ride?RIDE_H:0),P.z); let dr=P.rot-player.rotation.y; while(dr>Math.PI) dr-=Math.PI*2; while(dr<-Math.PI) dr+=Math.PI*2; player.rotation.y+=dr*Math.min(1,dt*14); if(P.twirl>0){ P.twirl-=dt; player.rotation.y=P.rot+(1-Math.max(0,P.twirl)/.45)*Math.PI*2; }
-  const u=player.userData, sw=P.moving?Math.sin(P.walk)*.75:0; if(u.gl){ animState(player,P.dead?"dead":P.ride?"idle":P.y>0.05?"jump":P.moving?"run":"idle"); } else { u.legL.rotation.x=sw; u.legR.rotation.x=-sw; u.armL.rotation.x=-sw; u.armR.rotation.x=P.atkAnim>0?-2.4+(0.25-P.atkAnim)*5:sw; } if(u.crown){ u.crown.rotation.y+=dt*2; u.crown.position.y=4.6+Math.sin(performance.now()/300)*.15; } if(P.rage>0&&Math.random()<dt*20) fxSpark(P.x+rnd(-.5,.5),2.5,P.z,0xff6a3d,3); if(u.body) u.body.position.y=P.moving?Math.abs(Math.sin(P.walk))*.12:0; player.visible=!P.dead&&!(P.invul>0&&Math.floor(performance.now()/100)%2); if(u.aura) u.aura.rotation.z+=dt; if(u.wings) u.wings.forEach(w=>{ w.rotation.y=w.userData.s*(P.moving?.35+Math.sin(P.walk*.8)*.3:Math.sin(performance.now()/500)*.12); }); if(u.cape){ u.cape.rotation.x=.1+(P.moving?.45+Math.sin(P.walk)*.12:Math.sin(performance.now()/700)*.05); } try{ STEP.tick(dt); }catch(e){ console.warn(e); }
+  const u=player.userData, sw=P.moving?Math.sin(P.walk)*.75:0; if(u.gl){ animState(player,P.dead?"dead":P.ride?"idle":P.y>0.05?"jump":P.moving?"run":"idle"); } else { u.legL.rotation.x=sw; u.legR.rotation.x=-sw; u.armL.rotation.x=-sw; u.armR.rotation.x=P.atkAnim>0?-2.4+(0.25-P.atkAnim)*5:sw; } if(u.crown){ u.crown.rotation.y+=dt*2; u.crown.position.y=4.6+Math.sin(performance.now()/300)*.15; } if(P.rage>0&&Math.random()<dt*20) fxSpark(P.x+rnd(-.5,.5),2.5,P.z,0xff6a3d,3); if(u.body) u.body.position.y=P.moving?Math.abs(Math.sin(P.walk))*.12:0; player.visible=!P.dead&&!(P.invul>0&&Math.floor(performance.now()/100)%2); if(u.aura) u.aura.rotation.z+=dt; if(u.wings) u.wings.forEach(w=>{ w.rotation.y=w.userData.s*(P.moving?.35+Math.sin(P.walk*.8)*.3:Math.sin(performance.now()/500)*.12); }); if(u.cape){ u.cape.rotation.x=.1+(P.moving?.45+Math.sin(P.walk)*.12:Math.sin(performance.now()/700)*.05); } try{ STEP.tick(dt); }catch(e){ console.warn(e); } try{ MYRING.tick(dt); }catch(e){}
   if(P.orbitT>0){ P.orbitT-=dt; P.orbitTick-=dt; const S=RM().skills[0]; orbitMesh.visible=true; orbitMesh.rotation.y+=dt*9; orbitMesh.rotation.x=.4; orbitMesh.position.set(P.x,2+(P.gy||0),P.z); orbitMesh.scale.setScalar(S.r*.6); if(P.orbitTick<=0){ P.orbitTick=.4; mobs.forEach(m=>{ if(Math.hypot(m.x-P.x,m.z-P.z)<S.r) damageMob(m,st.atk*S.mult,false); }); for(const id in PEERS){ const o=PEERS[id]; if(o.realm!==G.realm&&!o.dead&&!inCapital(o.x,o.z)&&!inCapital(P.x,P.z)&&Math.hypot(o.x-P.x,o.z-P.z)<S.r){ net.send({t:"hit",to:id,d:Math.round(st.atk*S.mult*.55)}); } } } } else if(orbitMesh) orbitMesh.visible=false;
   // 수도 안: 서서히 회복 · 성전/제단 안내
   const cap=inCapital(P.x,P.z); if(cap&&cap.realm===G.realm&&!P.dead){ P.hp=Math.min(st.mhp,P.hp+st.mhp*.03*dt); const a=ALTARS[cap.id]; if(a&&Math.hypot(P.x-a.trial.x,P.z-a.trial.z)<5&&!layerOpen&&!P.trial){ if(!P.nearTemple){ P.nearTemple=true; toast("성전에 도착","여기서 승급 시험·상점을 열 수 있어요 (가방 옆 '성전' 버튼)",2); $("bQuest").textContent="성전"; } } else if(P.nearTemple&&(!a||Math.hypot(P.x-a.trial.x,P.z-a.trial.z)>6)){ P.nearTemple=false; $("bQuest").textContent="임무"; } } else if(P.nearTemple){ P.nearTemple=false; $("bQuest").textContent="임무"; }
@@ -7285,7 +7319,7 @@ window.__gw={regionBanner,PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoa
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="865fe3b7";
+(function(){ var CUR="d71f9ef2";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
