@@ -545,7 +545,7 @@ body.eco #bossbar[data-ph="2"] .bpo{animation:none}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v83";
+const VER="v84";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -4853,10 +4853,12 @@ TITLES.push({id:"sk9",n:"기술의 달인",t:2,h:"기술 9개를 모두 배우�
    새 버전으로 처음 켜면 한 번, 무엇이 바뀌었는지 쉬운 말로 보여 줌(G.seenVer). 메뉴 → 업데이트 소식에서 다시 볼 수 있음.
    ※ 버전을 올릴 때마다 맨 앞에 한 줄 묶음을 더해요(오래된 것은 8개까지만 남김). */
 const PATCH_NOTES=[
+ {v:"v84",d:"11/9",t:"⚖ 공평 맞추기는 이번 한 번만",items:[
+   "⚖ 공평 맞추기는 이번 한 번만 해요. 캐릭터마다 한 번 가장 높은 친구에게 맞춰지면 그다음부터는 각자 자기 힘으로 키워요.",
+   "아직 안 맞춰진 친구는 11월 11일까지 게임을 켜면 맞춰져요."]},
  {v:"v83",d:"11/9",t:"⚖ 공평 맞추기",items:[
-   "⚖ 같은 방 친구 중 가장 높은 사람에게 모두가 저절로 맞춰져요! 게임을 켜면(또는 친구가 접속하면) 몇 초 안에 맞춰져요.",
+   "⚖ 같은 방 친구 중 가장 높은 사람에게 모두가 저절로 맞춰져요! 게임을 켜면 몇 초 안에 맞춰져요.",
    "맞춰지는 것: 레벨·경험치 · 계급(승급) · 장비 등급(무기·갑옷·유물 칸마다) · 대장간 강화 · 신수(없는 신수도 받고, 레벨도 같아져요).",
-   "누가 레벨을 올리거나 좋은 장비를 얻으면 다른 친구들도 곧 같이 올라가요.",
    "금화·재료·꾸미기·칭호는 각자 모은 그대로예요."]},
  {v:"v76",d:"11/6",t:"🎁 선물 도착",items:["「잼민이진혁겜해요」 님에게 금화 100,000 선물! 게임을 켜면 바로 들어와요."]},
  {v:"v75",d:"11/6",t:"📈 레벨 60 넘어서 계속!",items:[
@@ -6596,13 +6598,13 @@ TITLES.push({id:"ar1",n:"결투장의 새내기",t:0,h:"발할라 결투장에�
    맞추는 것: 레벨·경험치 · 계급(승급) · 장비 등급(무기·갑옷·유물 칸마다 가장 높은 것) · 대장간 강화(+단계·박자 점수) · 신수(종류마다 가장 높은 레벨, 없는 신수는 받음)
    맞추지 않는 것: 금화·재료(쓰면 다시 채워지는 문제) · 꾸미기 · 칭호 · 기록
    정보는 ① 지금 접속한 친구(PEERS) ② 모험가 명부(ROSTER, 30일 안에 들어온 사람)에서 읽음. 5초마다 확인. */
-const FAIR={t:3,last:""};
+const FAIR={t:20,last:"",end:Date.parse("2026-11-12T00:00:00+09:00")};   /* v84: 이번 한 번만 — 캐릭터마다 한 번 맞추면 끝(G.fairDone), 11/12 0시 이후엔 아예 안 함. 접속 20초 뒤(친구 정보가 다 도착한 뒤) 확인 */
 (function(){ const _mp=myProfile; myProfile=function(on){ const p=_mp(on); try{ const ps={}; const D=G.pets||{}; for(const r in D){ if(D[r]&&D[r].lv) ps[r]=D[r].lv; } p.fa={fg:G.fg||0,fq:G.fgQ||0,ps}; }catch(e){} return p; }; })();
 function fairPool(){ const L=[]; const now=Date.now();
   for(const id in ROSTER){ const p=ROSTER[id]; if(!p||p.i===G.id||now-(p.t||0)>30*86400000) continue; L.push({n:p.n,l:p.l|0,x:p.x||0,k:p.k|0,e:p.e||[-1,-1,-1],fg:p.fa?p.fa.fg|0:0,fq:p.fa?p.fa.fq|0:0,ps:p.fa?p.fa.ps||{}:(p.pt?{[p.pt[0]]:p.pt[1]}:{})}); }
   for(const id in PEERS){ const o=PEERS[id]; if(!o||o.lv==null) continue; const e=(o.e||"-1,-1,-1").split(",").map(Number); L.push({n:o.name,l:o.lv|0,x:0,k:o.rank|0,e,fg:o.fg|0,fq:0,ps:o.pt?{[o.pt[0]]:o.pt[1]}:{}}); }
   return L; }
-function fairSync(quiet){ if(!started||G.realm<0||P.trial) return; const L=fairPool(); if(!L.length) return; const ch=[]; let who="";
+function fairSync(quiet){ if(!started||G.realm<0||P.trial||G.fairDone||Date.now()>FAIR.end) return; const L=fairPool(); if(!L.length) return; const ch=[]; let who="";
   const top=L.reduce((a,b)=>(b.l>a.l||(b.l===a.l&&b.x>a.x))?b:a);
   if(top.l>G.lv||(top.l===G.lv&&top.x>G.xp+1)){ const up=top.l>G.lv; G.lv=Math.min(LVMAX,top.l); G.xp=Math.max(G.xp,Math.min(top.x,xpNeed(G.lv)-1)); if(up){ ch.push("레벨 "+G.lv); who=top.n; } }
   const kMax=Math.min(RANK_LV.length-1,Math.max(...L.map(p=>p.k))); let look=false;
@@ -6612,9 +6614,10 @@ function fairSync(quiet){ if(!started||G.realm<0||P.trial) return; const L=fairP
   const fq=Math.max(...L.map(p=>p.fq)); if(fq>(G.fgQ||0)) G.fgQ=fq;
   let pets=false; try{ petData(); L.forEach(p=>{ for(const r in p.ps){ const lv=Math.min(PET_MAX,p.ps[r]|0); if(!PETS[r]||lv<1) continue; const cur=G.pets[r]; if(!cur){ G.pets[r]={lv,xp:0,t:Date.now()}; ch.push(`신수 ${PETS[r].n} Lv.${lv}`); pets=true; } else if(cur.lv<lv){ cur.lv=lv; cur.xp=0; ch.push(`${PETS[r].n} Lv.${lv}`); pets=true; } } }); if(pets&&(G.pet==null||G.pet<0)) G.pet=+Object.keys(G.pets)[0]; }catch(e){}
   if(!ch.length) return;
+  G.fairDone=1;
   P.hp=stat().mhp; saveGame(); if(look) try{ buildPlayer(); }catch(e){} if(pets) try{ rebuildMyPet(); }catch(e){} try{ skNames(); }catch(e){} hudT=0; try{ hud(); }catch(e){} try{ net.hello(); net.pushProfile(1); }catch(e){}
   const key=ch.join("|"); if(quiet||key===FAIR.last) return; FAIR.last=key;
-  try{ lvBanner("⚖ 공평 맞추기",who?who+" 님에게 맞췄어요":"친구들에게 맞췄어요",ch.slice(0,4).join(" · ")+(ch.length>4?` 외 ${ch.length-4}개`:""),"#9fe0ff"); }catch(e){ toast("⚖ 공평 맞추기",ch.join(" · "),3); }
+  try{ lvBanner("⚖ 공평 맞추기",who?who+" 님에게 맞췄어요":"친구들에게 맞췄어요",ch.slice(0,4).join(" · ")+(ch.length>4?` 외 ${ch.length-4}개`:"")+" · 이번 한 번만","#9fe0ff"); }catch(e){ toast("⚖ 공평 맞추기",ch.join(" · "),3); }
   try{ fxPillar(0x9fe0ff,1,HIGH()?30:16,1.4,.45); }catch(e){} jingle([523,659,784,1046]); }
 XTICK.push(dt=>{ FAIR.t-=dt; if(FAIR.t>0) return; FAIR.t=5; try{ fairSync(); }catch(e){ console.warn(e); } });
 </script>
@@ -6930,7 +6933,7 @@ window.__gw={regionBanner,PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoa
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="a3de4559";
+(function(){ var CUR="7b6f7782";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
