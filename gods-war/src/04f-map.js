@@ -4,6 +4,7 @@
    - 매번 그리는 것: 영토(옅은 색 + 점선 경계), 제단, 지명(흰 테두리 글씨), 수도 빨간 핀, 전쟁·거대 보스 핀, 친구, 길 안내 파란 경로, 내 위치(파란 점 + 바라보는 방향 빛), 나침반·축척. */
 const MAPB=WORLD_HALF+12, MAPN=1024;
 let MAPBASE=null;
+const MAP_X=[];   // v85: 다른 기능이 지도에 표시를 더함 (ctx,tx,tz,big,u)=>{}
 const MAPCOL={ land:[[0xe8,0xf1,0xdc],[0xee,0xf2,0xf6],[0xf4,0xea,0xd6],[0xe4,0xef,0xdc]], center:[0xec,0xe8,0xf2], rock:[0xd9,0xd5,0xca], snow:[0xfb,0xfc,0xfd], sea:[0xaa,0xda,0xff] };
 function buildMapBase(){ const N=MAPN, c=document.createElement("canvas"); c.width=c.height=N; const ctx=c.getContext("2d"); const img=ctx.createImageData(N,N), D=img.data;
   const GN=257, hg=new Float32Array(GN*GN); const w2g=v=>(v+MAPB)/(2*MAPB)*(GN-1);
@@ -57,7 +58,7 @@ function drawMinimap(ctxIn,size){ const big=!!ctxIn; const ctx=ctxIn||mctx; cons
   // 길 안내: 파란 경로
   if(P.guide&&P.guide.x!=null){ const gx=tx(P.guide.x), gz=tz(P.guide.z); ctx.lineCap="round"; ctx.lineWidth=6*u; ctx.strokeStyle="#1557b0"; ctx.beginPath(); ctx.moveTo(tx(P.x),tz(P.z)); ctx.lineTo(gx,gz); ctx.stroke(); ctx.lineWidth=4*u; ctx.strokeStyle="#4285f4"; ctx.stroke(); }
   // 몬스터(가까운 것만 작게) · 보스
-  mobs.forEach(m=>{ if(m.war||m.titan) return; if(!big&&Math.hypot(m.x-P.x,m.z-P.z)>70) return; if(m.boss){ mapPin(ctx,tx(m.x),tz(m.z),(big?4.2:5.2)*u,"#f29900","👑"); } else { dot(ctx,tx(m.x),tz(m.z),(big?1.3:1.8)*u,"rgba(217,48,37,.85)","#fff",.6*u); } });
+  mobs.forEach(m=>{ if(m.war||m.titan||(m.bty!=null&&!m.mesh.visible)) return; if(!big&&Math.hypot(m.x-P.x,m.z-P.z)>70) return; if(m.boss){ mapPin(ctx,tx(m.x),tz(m.z),(big?4.2:5.2)*u,"#f29900","👑"); } else { dot(ctx,tx(m.x),tz(m.z),(big?1.3:1.8)*u,"rgba(217,48,37,.85)","#fff",.6*u); } });
   if(typeof warActive==="function"&&warActive()){ WAR.units.forEach(un=>{ if(un.dead||(un.hidden&&!(WAR.joined&&un.side===WAR.side))) return; dot(ctx,tx(un.x),tz(un.z),1.5*u,WAR.joined?(un.side===WAR.side?"#1e8e3e":"#d93025"):(un.side==="att"?"#f29900":"#4285f4"),"#fff",.5*u); });
     const g=TERR_RINGS[WAR.cur.rg].position; const pul=1+.3*Math.sin(performance.now()/180); ctx.beginPath(); ctx.arc(tx(g.x),tz(g.z),9*u*pul,0,6.2832); ctx.fillStyle="rgba(217,48,37,.18)"; ctx.fill(); mapPin(ctx,tx(g.x),tz(g.z),(big?5:6.5)*u,"#d93025","⚔"); }
   if(typeof DG!=="undefined"&&DG.doors) DG.doors.forEach(d=>mapPin(ctx,tx(d.x),tz(d.z),(big?4.5:5)*u,"#7a4ae8","🌀"));
@@ -68,6 +69,7 @@ function drawMinimap(ctxIn,size){ const big=!!ctxIn; const ctx=ctxIn||mctx; cons
   REGIONS.forEach(rg=>{ const X=tx(rg.x), Z=tz(rg.z); if(!big&&Math.hypot(X-S/2,Z-S/2)>S*.47) return; if(rg.cap){ const R=REALMS[rg.realm]; mapPin(ctx,X,Z,(big?5.2:6.4)*u,"#ea4335",R.icon); mapText(ctx,rg.n,X,Z+(big?6:7.5)*u,(big?6.6:10)*u,"#202124",700); }
     else mapText(ctx,rg.n,X,Z+(rg.center?(big?-4:-6)*u:0),(big?5.8:9)*u,rg.center?"#5f3dc4":"#3c4043",600); });
   if(big){ REALMS.forEach((R,i)=>{ const sx=(i===0||i===2)?1:-1, sz=(i>=2)?1:-1; mapText(ctx,R.n,tx(sx*100),tz(sz*100),8*u,"rgba(95,99,104,.42)",800,"rgba(255,255,255,.35)"); }); }
+  try{ MAP_X.forEach(f=>{ try{ f(ctx,tx,tz,big,u); }catch(e){} }); }catch(e){}
   // 친구
   for(const id in PEERS){ const o=PEERS[id]; const X=tx(o.x), Z=tz(o.z); const mate=typeof gdMate==="function"&&gdMate(o); if(mate) dot(ctx,X,Z,5.6*u,"rgba(255,207,74,.35)","#f4b400",1.6*u); dot(ctx,X,Z,3.4*u,o.realm===G.realm?"#1e8e3e":"#d93025","#fff",1.6*u); if(big||Math.hypot(o.x-P.x,o.z-P.z)<70) mapText(ctx,(mate?"🛡️":"")+o.name,X,Z-6*u,(big?5.5:8)*u,"#202124",700); }
   // 내 위치: 파란 점 + 바라보는 방향 빛
