@@ -588,7 +588,7 @@ body.eco .act.atk.full,body.eco .act.atk.full::before{animation:none}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v91";
+const VER="v92";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -4960,6 +4960,10 @@ TITLES.push({id:"sk9",n:"기술의 달인",t:2,h:"기술 9개를 모두 배우�
    새 버전으로 처음 켜면 한 번, 무엇이 바뀌었는지 쉬운 말로 보여 줌(G.seenVer). 메뉴 → 업데이트 소식에서 다시 볼 수 있음.
    ※ 버전을 올릴 때마다 맨 앞에 한 줄 묶음을 더해요(오래된 것은 8개까지만 남김). */
 const PATCH_NOTES=[
+ {v:"v92",d:"11/9",t:"🕹️ 임무 카드가 방향키를 가리던 문제 고침",items:[
+   "왼쪽 위 임무 카드가 많아지면 아래로 길게 늘어나 조이스틱(방향키)을 덮어서 움직일 수 없던 문제를 고쳤어요.",
+   "이제 임무 카드는 조이스틱 위에서 딱 멈춰요. 자리가 모자라면 🤝 만남 임무 → 👥 함께 임무 → 위쪽 임무 순서로 보이고, 나머지는 「📜 임무 N개 더」 칩으로 접혀요(누르면 임무 창).",
+   "폰 화면 크기가 달라도, 임무가 더 늘어나도 자동으로 맞춰요."]},
  {v:"v89",d:"11/9",t:"🪽 날개 신발 · 🪧 돌 표지판 · 🏔️ 걸어 다니는 산 거인",items:[
    "🪽 헤르메스의 날개 신발: 점프 → 공중에서 점프 → 한 번 더 누르면 발목에 금빛 날개가 펴져요! 바라보는 쪽으로 천천히 날아가고, 조이스틱으로 방향을 바꿔요. 날다가 괴물 옆에 내려앉으면 「쿵!」 착지 공격.",
    "🌀 사냥터와 세계의 중심에 하얀 바람 기둥 12개(지도에 하늘색 동그라미). 들어가면 바람이 위로 붕 올려 줘요 → 높이 올라가서 날개를 펴면 아주 멀리 날아가요.",
@@ -7642,6 +7646,70 @@ const ATKCHG=(()=>{
 })();
 </script>
 <script>
+/* v92 임무 카드가 조이스틱(방향키)을 덮지 않게: 왼쪽 위 칸(임무 목록·함께 임무·만남 임무)이 조이스틱 쉬는 자리 위에서 멈춤.
+   자리가 모자라면 만남 임무 → 함께 임무 → 위쪽 임무 순서로 먼저 보여 주고, 나머지는 「📜 임무 N개 더」 칩 하나로 접음(누르면 임무 창).
+   임무가 몇 개로 늘어나도, 폰 화면 높이가 달라도 자동으로 맞춤. 게임 규칙은 그대로. */
+const HUDFIT=(()=>{
+  const st=document.createElement("style");
+  st.textContent=`.hfx{display:none!important}
+#qMore{pointer-events:auto;align-self:flex-start;margin-top:2px;padding:3px 10px;border-radius:10px;font-size:12px;font-weight:800;color:#fff3c4;background:rgba(40,26,70,.82);border:1.5px solid rgba(255,210,90,.75);box-shadow:0 2px 0 rgba(0,0,0,.45);text-shadow:0 1px 0 rgba(0,0,0,.65);cursor:pointer;white-space:nowrap}
+#qMore[hidden]{display:none}
+@media (orientation:landscape) and (max-height:540px){ #meetq,#coop{padding:3px 9px 5px!important;margin-top:3px!important;font-size:11.5px!important;line-height:1.25!important} #meetq b,#coop b{font-size:11px!important} #qMore{padding:2px 9px;font-size:11.5px} }`;
+  document.head.appendChild(st);
+  const GAP=4, PAD=8;
+  let more=null, busy=false, pend=false, joyTop=0;
+  function chip(){ if(more&&more.isConnected) return more; more=document.createElement("div"); more.id="qMore"; more.hidden=true;
+    more.addEventListener("pointerdown",e=>e.stopPropagation());
+    more.onclick=()=>{ try{ if(!layerOpen) showQuests(); }catch(e){} };
+    return more; }
+  // 조이스틱이 쉬고 있을 때의 맨 윗줄(움직이는 중이면 마지막으로 잰 값)
+  function limit(){ const j=document.getElementById("joy");
+    if(j&&j.classList.contains("rest")&&getComputedStyle(j).display!=="none"){ const r=j.getBoundingClientRect(); if(r.height>0) joyTop=r.top; }
+    if(!joyTop) joyTop=innerHeight-185;
+    return joyTop-PAD; }
+  function fit(){ pend=false; if(busy) return; busy=true;
+    try{
+      const q=document.getElementById("quest"); if(!q){ busy=false; return; }
+      const coop=document.getElementById("coop"), meet=document.getElementById("meetq");
+      const qs=[...q.querySelectorAll(":scope > .q")];
+      const all=[...qs,coop,meet].filter(Boolean);
+      all.forEach(e=>e.classList.remove("hfx"));
+      const m=chip(); const host=(meet&&meet.parentNode)||(coop&&coop.parentNode)||q.parentNode;
+      if(host&&m.parentNode!==host) host.appendChild(m);
+      m.hidden=true;
+      if(q.style.visibility==="hidden"||getComputedStyle(q).visibility==="hidden"){ busy=false; return; }
+      const vis=e=>e&&!e.hidden&&getComputedStyle(e).display!=="none";
+      const items=all.filter(vis);
+      if(!items.length){ busy=false; return; }
+      const top=Math.min(...items.map(e=>e.getBoundingClientRect().top));
+      const avail=limit()-top;
+      const h=new Map(items.map(e=>[e,e.getBoundingClientRect().height+GAP]));
+      const lim=limit(); if(Math.max(...items.map(e=>e.getBoundingClientRect().bottom))<=lim){ busy=false; return; }
+      // 자리가 모자람 → 만남 임무·함께 임무 먼저, 그다음 위쪽 임무부터
+      m.hidden=false; m.textContent="📜 임무 9개 더"; const chipH=m.getBoundingClientRect().height+GAP+3;
+      let left=avail-chipH; const keep=[];
+      const order=[meet,coop,...qs].filter(e=>items.includes(e));
+      for(const e of order){ const eh=h.get(e); if(eh<=left){ keep.push(e); left-=eh; } }
+      const apply=()=>{ let hid=0; items.forEach(e=>{ const k=keep.includes(e); e.classList.toggle("hfx",!k); if(!k) hid++; }); m.textContent=`📜 임무 ${hid}개 더`; };
+      apply();
+      // 실제로 재 보고, 칩이 조이스틱에 닿으면 가장 덜 중요한 카드부터 하나씩 더 접음
+      let guard=12; while(guard-->0&&keep.length&&m.getBoundingClientRect().bottom>lim){ keep.pop(); apply(); }
+      if(m.getBoundingClientRect().bottom>lim) m.hidden=true;
+    }catch(e){ console.warn(e); }
+    busy=false; }
+  function sched(){ if(pend) return; pend=true; requestAnimationFrame(fit); }
+  const mo=new MutationObserver(rs=>{ if(rs.some(r=>!(more&&(r.target===more||more.contains(r.target))))) sched(); });
+  function watch(){ const q=document.getElementById("quest"); const host=q&&q.parentNode;
+    if(host) mo.observe(host,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:["hidden"]}); }
+  watch();
+  addEventListener("resize",()=>{ joyTop=0; setTimeout(sched,120); });
+  addEventListener("orientationchange",()=>{ joyTop=0; setTimeout(sched,300); });
+  setInterval(sched,1000); // 혹시 놓친 변화(글자 크기 등)도 1초마다 맞춤
+  sched();
+  return {fit,sched};
+})();
+</script>
+<script>
 /* ================= 아주 작은 MQTT 클라이언트 (웹소켓) — 외부 라이브러리 없이 ================= */
 function MiniMQTT(url,opt){
   const self={url,ok:false,ws:null,buf:new Uint8Array(0),pid:1,pingT:null,retry:null,closed:false,subs:[],opt};
@@ -7953,7 +8021,7 @@ window.__gw={regionBanner,PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoa
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="ad41393e";
+(function(){ var CUR="76bf37a7";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
