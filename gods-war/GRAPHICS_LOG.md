@@ -58,9 +58,16 @@
 | 50 | 상점·가방 창 열고 닫을 때 쓱 미끄러지며 커지는 등장 애니메이션 | 01-head.html .layer/.card cardIn·cardOut · 06-ui.js card·closeLayer·cardStagger | ✅ v93 |
 | 51 | 수도 건물 창문 밤에 노란 불빛(재질 발광, 그리기 호출 그대로) | 03y-winglow.js winGlowMat·dayNight 감싸기 · 03c-models.js onHexReady | ✅ v94 |
 | 52 | 경험치 바 차오를 때 빛 알갱이가 흐르고 꽉 차기 직전 반짝 | 03z-xpbar.js XPBAR · 01-head.html .bar.xp gain/near/lvup·.xpsp | ✅ v96 |
-| 53 | 죽었을 때 화면 흑백 + 천천히 쓰러지는 카메라 · 부활 때 빛기둥 | 06-ui.js 죽음 · 03d-celebrate.js | ⏳ |
+| 53 | 죽었을 때 화면 흑백 + 천천히 쓰러지는 카메라 · 부활 때 빛기둥 | 03za-deathfx.js DEATHFX · 06-ui.js 카메라·showDeath · 04-game.js respawn · 01-head.html body.dying | ✅ v97 |
+| 54 | 기술 버튼 아이콘을 글씨 대신 그림(무료 이모지/CSS 문양)+글씨 작게 | 06-ui.js 기술 버튼 · 01-head.html .acts | ⏳ |
+| 55 | 괴물 처치 때 경험치 구슬이 몸에서 나와 내 쪽으로 빨려듦 | 03r-coinfly.js 비슷하게 · 04-game.js killMob | ⏳ |
 
 ## 기록
+
+### 11/9 23시 v97 — 쓰러지면 세상이 흑백·카메라가 천천히 올라가며 빙 돌기, 부활 땐 빛기둥
+- 무엇을: 쓰러지면 화면이 1초에 걸쳐 흑백으로 바래고, 버튼·창이 사라진 채 카메라가 쓰러진 내 캐릭터 둘레를 천천히 돌며 위로 올라감(캐릭터가 바닥에 누운 모습이 보임). 「쓰러졌다」 글씨는 흐릿하게 크게 나타났다가 또렷해짐. 부활하면 하얀 번쩍 + 세계 색 빛기둥 + 반짝이와 함께 색이 돌아옴.
+- 어디를: 새 03za-deathfx.js(DEATHFX start/stop/cam) · 06-ui.js 카메라 한 갈래·죽어도 캐릭터 보이기·showDeath · 04-game.js respawn 한 줄 · 01-head.html body.dying·.layer.death CSS. 부활 시간·벌칙 그대로.
+- 확인: 844×390 아스가르드·올림푸스에서 쓰러짐(흑백·HUD 숨김·캐릭터 보임)·부활(빛기둥·색 돌아옴) 스크린샷, 오류 0.
 
 ### 11/9 23시 v96 — 경험치 바에 흐르는 빛·오를 때 반짝·꽉 차기 직전 금빛 두근
 - 무엇을: 경험치 바 안에 빛 줄무늬가 계속 흘러가고 끝에 하얀 반짝 끝점. 경험치가 오르면 바가 번쩍하며 끝에서 빛 알갱이가 톡톡 튀어 오름. 85% 넘으면 끝이 금빛으로 바뀌고 테두리가 두근두근, 레벨업 순간엔 바 전체가 하얗게 번쩍. 절약 모드에선 움직임 끔.

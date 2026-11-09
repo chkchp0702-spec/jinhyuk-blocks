@@ -104,7 +104,7 @@ function die(by){ if(by&&typeof by==="object") by=by.n||String(by); const R=RM()
   showDeath(by,lost); saveGame(); }
 function respawn(){ const R=RM(); P.dead=false; closeLayer(); spawnAtHome(); P.hp=Math.round(stat().mhp*.6); P.invul=3;
   if(R.respawn.slow) P.slow=R.respawn.slow; if(R.respawn.weak){ P.weak=R.respawn.weak; P.heat=20; } if(R.respawn.shadow) P.shadow=R.respawn.shadow; if(R.respawn.xp) P.dizzy=30;
-  fxRing(P.x,P.z,R.c1,8,.8); jingle([392,523,659]); toast(`${R.respawn.n}에서 부활`,R.respawn.pen,3.2); }
+  fxRing(P.x,P.z,R.c1,8,.8); try{ DEATHFX.stop(true); }catch(e){} jingle([392,523,659]); toast(`${R.respawn.n}에서 부활`,R.respawn.pen,3.2); }
 
 /* ================= 승급 시험 ================= */
 function canTrial(){ return G.rank<6&&G.lv>=RANK_LV[G.rank+1]&&G.gold>=RANK_GOLD[G.rank+1]; }

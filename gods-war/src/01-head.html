@@ -568,6 +568,20 @@ body.eco .act.atk.full,body.eco .act.atk.full::before{animation:none}
 @keyframes xpSp{0%{opacity:1;transform:translate(0,0) scale(1.2)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.3)}}
 body.eco .bar.xp i::before,body.eco .bar.xp.near{animation:none}
 @media (prefers-reduced-motion:reduce){.bar.xp i::before{animation:none}}
+/* v97 쓰러짐: 흑백 세상·가벼운 어둠·부활 하얀 번쩍 */
+#view{transition:filter 1.2s ease}
+body.dying #view{filter:grayscale(.92) brightness(.78) contrast(1.08)}
+body.eco.dying #view{filter:grayscale(1) brightness(.8)}
+body.dying>*:not(#layers):not(#view):not(.revfl):not(script){opacity:0!important;pointer-events:none}
+.layer.death .help{font-size:13px;line-height:1.4}
+.layer.death{background:radial-gradient(ellipse at 50% 42%,rgba(110,0,20,.08),rgba(40,0,10,.45) 55%,rgba(0,0,0,.82));backdrop-filter:none;-webkit-backdrop-filter:none;align-items:flex-end;padding-bottom:5vh;animation:deathIn 1.4s ease-out}
+.layer.death .titlebox{background:linear-gradient(180deg,rgba(0,0,0,0),rgba(10,0,4,.55) 30%,rgba(10,0,4,.55));border-radius:18px;padding:6px 18px 10px}
+.layer.death .logo{color:#e8e0e0;text-shadow:0 0 18px rgba(200,20,40,.85),0 3px 0 #300;letter-spacing:.12em;animation:deathTx 1.6s ease-out}
+@keyframes deathIn{0%{background-color:rgba(160,0,20,.55)}100%{background-color:transparent}}
+@keyframes deathTx{0%{opacity:0;transform:scale(1.35);letter-spacing:.5em;filter:blur(6px)}100%{opacity:1;transform:none;letter-spacing:.12em;filter:none}}
+.revfl{position:fixed;inset:0;z-index:30;pointer-events:none;background:radial-gradient(circle at 50% 55%,rgba(255,255,240,.95),rgba(255,240,190,.5) 40%,rgba(255,255,255,0) 75%);animation:revFl .9s ease-out forwards}
+@keyframes revFl{0%{opacity:1}100%{opacity:0}}
+@media (orientation:landscape) and (max-height:500px){.layer.death .logo{font-size:38px!important} .layer.death .help{font-size:12px;line-height:1.35;margin:4px 0 6px}}
 </style>
 </head>
 <body>
