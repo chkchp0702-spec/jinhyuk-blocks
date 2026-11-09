@@ -605,7 +605,7 @@ body.eco .act.atk.full,body.eco .act.atk.full::before{animation:none}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v93";
+const VER="v94";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -1374,7 +1374,7 @@ function onHexReady(){ try{ PLACED.forEach(p=>{ if(p.obj){ scene.remove(p.obj); 
     _p.set(p.x,hAt(p.x,p.z)-.05,p.z); _q.setFromEuler(_e.set(0,p.rot||0,0)); _s.setScalar(h.scale); const root=new THREE.Matrix4().compose(_p,_q,_s);
     src.traverse(o=>{ if(!o.isMesh) return; const key=h.name+"|"+(mi++)+"|"+cx+"|"+cz; let g=groups[key]; if(!g){ g=groups[key]={geo:o.geometry,mat:o.material,mats:[],cx,cz,minx:1e9,maxx:-1e9,minz:1e9,maxz:-1e9,r:0}; } g.mats.push(_m.multiplyMatrices(root,o.matrixWorld).clone());
       const rr=(o.geometry.boundingSphere?o.geometry.boundingSphere.radius:3)*h.scale; g.r=Math.max(g.r,rr); g.minx=Math.min(g.minx,p.x); g.maxx=Math.max(g.maxx,p.x); g.minz=Math.min(g.minz,p.z); g.maxz=Math.max(g.maxz,p.z); }); });
-  for(const k in groups){ const g=groups[k]; const im=new THREE.InstancedMesh(g.geo,(HIGH()&&/^trees?_/.test(k))?treeSwayMat(g.mat):g.mat,g.mats.length); g.mats.forEach((m,i)=>im.setMatrixAt(i,m)); im.instanceMatrix.needsUpdate=true; im.castShadow=HIGH(); im.receiveShadow=HIGH()&&!ECO(); im.frustumCulled=false; im.userData.noOutline=true; im.userData.cullR=-1;
+  for(const k in groups){ const g=groups[k]; const im=new THREE.InstancedMesh(g.geo,(HIGH()&&/^trees?_/.test(k))?treeSwayMat(g.mat):(/^building_(home|tavern|blacksmith|church|tower|market|windmill)/.test(k)&&typeof winGlowMat==="function")?winGlowMat(g.mat):g.mat,g.mats.length); g.mats.forEach((m,i)=>im.setMatrixAt(i,m)); im.instanceMatrix.needsUpdate=true; im.castShadow=HIGH(); im.receiveShadow=HIGH()&&!ECO(); im.frustumCulled=false; im.userData.noOutline=true; im.userData.cullR=-1;
     im.userData.hx={minx:g.minx-g.r,maxx:g.maxx+g.r,minz:g.minz-g.r,maxz:g.maxz+g.r}; scene.add(im); HEXI.list.push(im); } HEXI.x=1e9; hexTick(1); }catch(e){ console.warn(e); } }
 function hexTick(dt){ HEXI.t-=dt; if(HEXI.t>0||!HEXI.list.length) return; HEXI.t=.3; if(Math.hypot(P.x-HEXI.x,P.z-HEXI.z)<4&&HEXI.zoom===ZOOM) return; HEXI.x=P.x; HEXI.z=P.z; HEXI.zoom=ZOOM;
   const far=170*Math.max(1,ZOOM*.85)+20, back=P.z+16+14*ZOOM;
@@ -2217,6 +2217,20 @@ function mobTag(m){
   if(m.boss) return `<span class="mtag boss"><span class="mtrib"><i class="mtlv ${c}">${m.lv}</i><span class="mtn">👑 ${m.n}</span></span>${pw}</span><span class="hp mob"><s></s><i></i></span>`;
   return `<span class="mtag${m.elite?" elite":""}"><i class="mtlv ${c}">${m.lv}</i>${m.elite?'<em class="mtel">★정예</em>':""}<span class="mtn">${m.n}</span></span>${pw}<span class="hp mob"><s></s><i></i></span>`;
 }
+</script>
+<script>
+/* v94 밤이 되면 마을 건물 창문에 노란 불빛 — KayKit 건물 아틀라스의 창유리 칸(8x4 중 7번째 열·2번째 줄)만 발광. 그리기 호출 그대로 */
+const WINGLOW={u:{value:0},cache:new Map()};
+function winGlowMat(m){ if(!m||Array.isArray(m)||!m.map) return m; let c=WINGLOW.cache.get(m); if(c) return c; c=m.clone(); const prev=m.onBeforeCompile;
+  c.onBeforeCompile=(sh,r)=>{ if(prev) try{ prev(sh,r); }catch(e){} sh.uniforms.uWin=WINGLOW.u; sh.uniforms.uTime=(typeof TIME!=="undefined")?TIME:{value:0};
+    sh.vertexShader="varying float vWinH;\n"+sh.vertexShader.replace("#include <begin_vertex>","#include <begin_vertex>\n#ifdef USE_INSTANCING\nvWinH=fract(sin(dot(instanceMatrix[3].xz,vec2(12.9898,78.233)))*43758.5453);\n#else\nvWinH=.5;\n#endif");
+    sh.fragmentShader="uniform float uWin; uniform float uTime; varying float vWinH;\n"+sh.fragmentShader.replace("#include <emissivemap_fragment>",`#include <emissivemap_fragment>
+#ifdef USE_MAP
+{ float _wm=step(.752,vUv.x)*step(vUv.x,.873)*step(.252,vUv.y)*step(vUv.y,.498); float _on=step(.18,vWinH); float _fl=.86+.14*sin(uTime*(1.3+vWinH*2.)+vWinH*40.);
+  float _k=clamp(uWin,0.,1.)*_wm*_on; diffuseColor.rgb*=1.-.8*_k; totalEmissiveRadiance+=_k*_fl*mix(vec3(1.,.3,.04),vec3(1.,.62,.2),clamp(vUv.y*4.-1.,0.,1.))*1.25; }
+#endif`); };
+  c.customProgramCacheKey=()=>"winglow"+(m.customProgramCacheKey?m.customProgramCacheKey():""); WINGLOW.cache.set(m,c); return c; }
+(function(){ if(typeof dayNight!=="function") return; const _dn=dayNight; dayNight=function(dt,center,theme){ const r=_dn.apply(this,arguments); try{ const d=(typeof DAY!=="undefined"&&DAY.d!=null)?DAY.d:1; const inDg=(typeof DG!=="undefined"&&DG&&DG.on); const n=inDg?0:clamp((.78-d)/.34,0,1); WINGLOW.u.value+=(n-WINGLOW.u.value)*Math.min(1,(dt||.016)*2); }catch(e){} return r; }; })();
 </script>
 <script>
 /* ================= 플레이어 ================= */
@@ -8039,7 +8053,7 @@ window.__gw={regionBanner,PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoa
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="b9ec7d3f";
+(function(){ var CUR="c1e2717e";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
