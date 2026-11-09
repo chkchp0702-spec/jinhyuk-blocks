@@ -557,7 +557,7 @@ body.eco #bossbar[data-ph="2"] .bpo{animation:none}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v88";
+const VER="v89";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -4919,6 +4919,12 @@ TITLES.push({id:"sk9",n:"기술의 달인",t:2,h:"기술 9개를 모두 배우�
    새 버전으로 처음 켜면 한 번, 무엇이 바뀌었는지 쉬운 말로 보여 줌(G.seenVer). 메뉴 → 업데이트 소식에서 다시 볼 수 있음.
    ※ 버전을 올릴 때마다 맨 앞에 한 줄 묶음을 더해요(오래된 것은 8개까지만 남김). */
 const PATCH_NOTES=[
+ {v:"v89",d:"11/9",t:"🪽 날개 신발 · 🪧 돌 표지판 · 🏔️ 걸어 다니는 산 거인",items:[
+   "🪽 헤르메스의 날개 신발: 점프 → 공중에서 점프 → 한 번 더 누르면 발목에 금빛 날개가 펴져요! 바라보는 쪽으로 천천히 날아가고, 조이스틱으로 방향을 바꿔요. 날다가 괴물 옆에 내려앉으면 「쿵!」 착지 공격.",
+   "🌀 사냥터와 세계의 중심에 하얀 바람 기둥 12개(지도에 하늘색 동그라미). 들어가면 바람이 위로 붕 올려 줘요 → 높이 올라가서 날개를 펴면 아주 멀리 날아가요.",
+   "🪧 길 위의 돌 표지판: 메뉴에서 「여기 보물!」·「조심, 센 괴물!」 같은 말과 그림말을 골라 하루 3개까지 세워요(글자는 안 쳐요). 지나가는 사람이 👍 고마워요를 누르면 게임을 꺼 둬도 금화가 쌓여요. 👍 5개면 금빛 표지판!",
+   "🏔️ 걸어 다니는 산 거인: 토·일 하루 종일 + 평일 저녁 7시~7시 40분. 졸린 얼굴의 이끼 돌 거인 등 뒤 덩굴 발판을 점프로 올라가서 룬 돌 5개를 부숴요. 흔들 때는 ✊ 꽉 붙잡기! 다 부수면 거인이 잠들고 함께한 사람 모두 보물 상자.",
+   "🏅 새 칭호 8개(바람을 타는 자 · 헤르메스의 제자 · 길의 친구 · 고마움을 아는 여행자 · 모두의 길잡이 표지판 · 거인 정복자 · 거인의 친구 · 룬 부수는 망치)."]},
  {v:"v88",d:"11/9",t:"🤝 만남 임무 · 🎪 함께 이벤트 · 🎲 돌발 이벤트 3개 더 · ⚠ 조금 더 어려워짐",items:[
    "🤝 친구를 실제로 만나면(가까이 가면) 「만남!」 인사와 함께 만남 임무가 생겨요. 친구마다 하루 처음 만나면 작은 선물도 있어요.",
    "🤝 만남 임무는 3단계로 이어져요 — ① 🙌 하이파이브 · 🦘 다 같이 점프 · 📍 비밀 장소 찾기 ② ⚔ 함께 사냥 · ✨ 기술 함께 쓰기 · ★ 정예 함께 잡기 ③ 🛡 등 맞대고 버티기 · ⚔ 대사냥. 3단계를 모두 마치면 완주 보너스 상자!",
@@ -4948,57 +4954,6 @@ const PATCH_NOTES=[
    "체력·공격력이 레벨 60에 맞게 크게 올라요. 모아 둔 장비·금화·신수는 그대로예요.",
    "계급(승급)은 그대로라서, 승급 시험을 차례로 깨면 더 높은 계급과 새 기술을 얻을 수 있어요.",
    "선물은 캐릭터마다 한 번만 받아요."]},
- {v:"v69",d:"11/6",t:"🔎 숨은 아기 신상 · 🥚 신수 둥지 · ⚔️ 발할라 결투장",items:[
-   "🔎 숨은 아기 신상 56개: 덤불·바위 더미·속 빈 통나무·큰 버섯·부러진 기둥·꽃밭 속에 손바닥만 한 신상이 숨어 있어요. 가까이 가면 「딸랑♪」이 점점 빨라져요!",
-   "🔎 🗿 지혜의 석상이 하루 한 번 힌트를 줘요. ✨ 이번 주의 황금 신상은 모두가 같은 곳을 찾고, 먼저 찾은 10명이 명부에 올라요. 찾은 신상 앞에서 「📣 여기 숨은 신상!」",
-   "🥚 신수 둥지: Lv10 넘은 신수를 수도의 둥지에 맡기고 다른 사람 신수와 짝을 지으면, 8시간 뒤 두 사람 모두 섞인 알! (꺼 둬도 시간이 흘러요)",
-   "🥚 새 섞인 신수 6종(히포그리프·태양 독수리·하늘 사자·불꽃 갈기 말·구름 말·무지개 새) + 아주 가끔 ✨ 별빛 신수(5%). 신수 정보에 부모 이름이 남아요. 아무도 없으면 🦚 둥지 지기 공작이 짝이 되어 줘요.",
-   "⚔️ 발할라 결투장: 수도의 결투장 문 → 결투 석판에서 비슷한 힘의 상대 3명 중 골라 ⚔ 1:1 또는 🤝 2:2(친구의 수비 영웅이 내 편)!",
-   "⚔️ 내 수비 영웅이 결투장을 지켜요 — 내가 꺼 둬도 다른 사람이 도전하면 내 영웅이 대신 싸우고, 다음에 켜면 보고서가 와요. 결투장 안에서는 힘을 맞춰 줘서 처음 온 사람도 이길 수 있어요. 지면 무릎만 꿇어요.",
-   "⚔️ 결투 점수로 🥉 청동 → 🥈 은 → 🥇 금 → 💎 신화 방패, 매주 월요일 정산 상자, 시즌 1~10등은 결투장 둘레에 금빛 석상!",
-   "🏅 새 칭호 13개 · 🏡 새 신전 장식 «아기 신상 정원»."]},
- {v:"v56",d:"11/5",t:"🪜 하늘 탑 · 🌳 소원 나무 · 🌌 라그나로크의 밤",items:[
-   "🪜 신들의 하늘 탑: 수도의 「하늘 탑 문」으로 들어가 점프로 30층을 올라요! 레벨·장비 상관없이 모두 같은 점프 — 디딤돌·좁은 다리·움직이는 발판·🌀 빙글 막대·🍄 튕기는 버섯·☁ 사라지는 구름.",
-   "🪜 5층마다 🚩 깃발(떨어지면 거기서 다시). 꼭대기 종을 치면 「땡!」 — 오늘 오른 사람 명부에 이름과 시간이 올라가요. 날마다 3개 층 모양이 바뀌어요.",
-   "🌳 소원 나무: 수도의 큰 나무에 하루 한 장 소원 쪽지(물건과 개수만 골라요)를 걸면, 처음 보는 사람도 남는 재료로 들어줄 수 있어요. 게임을 꺼 둬도 선물이 도착해요.",
-   "🌳 들어주면 🌸 친절 꽃잎, 받으면 🙏 고마워 버튼. 8시간 동안 아무도 없으면 🧚 나무의 정령이 대신 들어줘요.",
-   "🌌 라그나로크의 밤: 매주 금요일 저녁 9시! 첫 회는 11/6(금). 모든 사람이 바다 결투장에 모여 ① 비늘 깨기 ② 혼돈 괴물 막기 ③ 신들의 힘 모으기로 거대한 뱀을 물리쳐요.",
-   "🌌 끝나면 세계가 바뀌어요 — 뱀이 쓰러진 자리에 🏝 뱀의 섬이 솟아 언제든 갈 수 있는 사냥터가 돼요. 함께하면 칭호 «그날 그곳에 있었다», 못 와도 작은 상자와 「그날의 기록」.",
-   "🏅 새 칭호 10개 · 🏡 새 신전 장식 3개(하늘 탑의 종 · 작은 소원 나무 · 세계 뱀의 비늘)."]},
- {v:"v54~55",d:"11/5",t:"🎨 그래픽",items:["치명타 숫자 별빛 터짐 · 연타 숫자 쌓기 · 나무가 바람에 살랑살랑."]},
- {v:"v53",d:"11/5",t:"🎲 돌발 이벤트 · 🍀 길에서 줍기 · ★ 정예 · 더 어려워짐",items:[
-   "🎲 사냥터에 있으면 2~3분마다 돌발 이벤트! ⚔ 습격대(3파도) · 💰 황금 도깨비 도둑 잡기 · 👹 떠돌이 정예(빨간 고리 내려찍기) · ⭐ 떨어진 별 조각 7개 모으기 · 🔮 저주받은 제단 정화(고리 안에서 20초 버티기).",
-   "🎲 성공하면 큰 경험치(한 레벨의 12~20%)·금화·재료·장비! 화면 위 금색 띠에 할 일과 남은 시간이 보여요.",
-   "🍀 사냥터를 걸으면 길 앞쪽에 ✨가 생겨요. 금화·경험의 구슬·물약·쇳조각·룬 가루·두루마리·장비·🗺 보물 지도까지! 그런데 가끔 📦 미믹이나 🍄 독버섯 함정도 있어요.",
-   "🗺 보물 지도: 보물 자리를 길 안내해요. 지킴이 정예 2마리를 쓰러뜨리면 보물 상자!",
-   "★ 정예 괴물: 괴물 중 가끔 금빛 고리를 두른 ★정예가 나와요. 훨씬 세지만 경험치·금화 3배, 쇳조각, 가끔 장비.",
-   "⚠ 더 어려워졌어요: 괴물 체력 약 1.3배·공격 약 1.3배, 더 빠르고 더 멀리서 알아차리고 더 자주 때려요. 레벨 올리기도 조금 더 오래 걸려요.",
-   "🏅 새 칭호 6개: 줍기 대장 · 반짝이 수집가 · 돌발 사냥꾼 · 모험의 해결사 · 정예 사냥꾼 · 보물 사냥꾼."]},
- {v:"v52",d:"11/5",t:"✨ 기술 버튼 6칸",items:[
-   "화면 오른쪽 아래 기술 버튼이 3칸 → 6칸이 됐어요! 배운 기술을 한 번에 6개까지 바로 쓸 수 있어요.",
-   "버튼 왼쪽 위 작은 숫자가 칸 번호예요. 📖 기술 책에서 칸을 누르고 원하는 기술을 「끼우기」하면 바뀌어요.",
-   "예전에 끼워 둔 3칸은 그대로 두고, 남은 3칸에는 배운 기술이 저절로 들어가요.",
-   "키보드: K · U · I (1~3번 칸) · Y · H · N (4~6번 칸)."]},
- {v:"v51",d:"11/5",t:"⚔ 전쟁이 달라졌어요 — 전술 · 전투 종류",items:[
-   "전쟁마다 종류가 달라요: ⚔ 정면 대결 · 🏰 공성전(나무 성벽·성문·망루 vs 공성추) · 🚩 깃발 쟁탈전 · 🌫 안개 속 매복전.",
-   "공격대가 분대마다 작전을 바꿔요: 양옆 포위 · 궁수 일제 사격 후 전진 · 방패 진형 · 거짓 후퇴 + 숨은 기병 · 기병 측면 돌파. 화면에 「적의 작전」이 떠요.",
-   "새 병사: 🛡 방패병(앞에서 오는 화살을 막아요) · 🐎 기병(궁수에 강하고 창병에 약해요) · ✚ 치유사(다친 편을 고쳐요).",
-   "사기: 대장이 쓰러지거나 성문·깃발을 잃으면 병사들이 겁먹고(😨) 물러나요.",
-   "참전하면 지휘 버튼으로 우리 편 병사에게 명령해요: 📯 돌격 · 🛡 방어진 · 🏹 일제 사격 · 🚩 따라와."]},
- {v:"v49",d:"11/5",t:"🏟️ 놀이 마당 · 📜 신들의 이야기",items:[
-   "🏟️ 올림피아 놀이 마당: 수도의 월계관 아치로 들어가면 처음 만난 사람과 미니게임 3판! 사람이 모자라면 청동 로봇 탈로스가 채워요.",
-   "🪨 굴러오는 바위 피하기 · 🍎 황금 사과 줍기 · ☁ 무너지는 구름 발판 — 레벨·장비 상관없이 모두 같은 힘이라 누구나 1등을 할 수 있어요.",
-   "🌿 1~3등은 월계관 점수, 꼴찌도 참가 상자. 이번 주 월계관 순위도 있어요.",
-   "📜 신들의 이야기: 만화처럼 펼쳐지는 이야기! 수도의 이야기 전령에게 말을 걸면 1장 「검은 안개가 피어나다」가 시작돼요.",
-   "📜 장마다 할 일 3~4개와 보스, 끝나면 그림 카드·칭호·상자. 월요일마다 새 장이 모두에게 같은 날 열려요(1부 6장)."]},
- {v:"v47",d:"11/5",t:"👥 친구 위치 · 🤝 함께 임무 · ✨ 기술 9개",items:[
-   "접속한 친구가 화면 밖에 있으면 가장자리에 이름·거리가 떠요. 누르면 그 친구에게 가는 길을 계속 알려 줘요.",
-   "👥 버튼: 친구가 어디 있는지(장소·방향·거리) 보고, 길 안내나 🌀 곁으로 가기(1분에 한 번)를 할 수 있어요.",
-   "🤝 함께 임무: 2명 이상 접속하면 15분마다 새 공동 임무! 다 같이 채우면 보탠 사람 모두 상자를 받아요.",
-   "✨ 세계마다 기술이 3개 → 9개! 방패·화살비·함께 회복·얼리기·끌어당기기·정령 부르기·떨어지는 큰 폭발·궁극기.",
-   "📖 기술 책: 화면 기술 버튼 3칸에 원하는 기술을 골라 끼워요. 쿨타임은 기술마다 따로예요.",
-   "🛠 이제 업데이트할 때마다 이 소식 창이 한 번 떠요."]},
- {v:"v43~46",d:"11/5",t:"🎨 그래픽",items:["메뉴 창 디자인 · 발자국과 발먼지 · 괴물 체력바 금테 · 세계마다 색감과 밤 분위기."]},
 ];
 function patchNew(){ const seen=G.seenVer; if(!seen) return PATCH_NOTES.slice(0,1); const i=PATCH_NOTES.findIndex(p=>p.v===seen); return i<0?PATCH_NOTES.slice(0,1):PATCH_NOTES.slice(0,i); }
 function showPatch(all){ const L=all?PATCH_NOTES:patchNew(); G.seenVer=PATCH_NOTES[0].v; saveGame();
@@ -7296,6 +7251,343 @@ function ev2Lamp(x,z){ const g=new THREE.Group(); const y=hAt(x,z); const post=n
   const beam=new THREE.Mesh(new THREE.CylinderGeometry(.4,.7,18,8,1,true),glowMat(0xff9ad8,.22)); beam.position.set(x,y+9,z); g.add(beam); const ring=new THREE.Mesh(new THREE.RingGeometry(3,3.4,40),glowMat(0xff9ad8,.6)); ring.rotation.x=-Math.PI/2; ring.position.set(x,y+.14,z); g.add(ring); g.userData={beam,noOutline:true}; scene.add(g); return g; }
 </script>
 <script>
+/* ================= v89-1: 🪽 헤르메스의 날개 신발 — 하늘을 미끄러져 나는 활강 (IDEAS G11/9-4) =================
+   점프 → 공중에서 한 번 더(2단 점프) → 한 번 더 누르면 발목에 금빛 날개가 펴지며 천천히 미끄러져 내려감(활강).
+   활강 중에는 바라보는 쪽으로 저절로 앞으로 나아가고, 조이스틱으로 방향을 바꿈. 점프를 또 누르면 날개를 접음(9초 지나면 저절로 접힘).
+   🌀 바람 기둥: 사냥터·세계의 중심 곳곳(12곳). 들어가면 바람이 위로 붕 올려 줌(최대 약 14m) → 높이 올라가서 멀리 활강.
+   💥 착지 공격: 1초 넘게 날다가 땅에 내려앉으면 「쿵!」 — 둘레 괴물에게 큰 피해.
+   다른 사람 화면에도: 활강 중이면 t:"gl" 로 높이를 보내서, 친구 화면에서도 내가 날개를 펴고 공중에 떠 있음.
+   미궁·신전 섬·하늘 탑·놀이 마당·사막·생방송 섬 같은 따로 된 곳, 신수를 탄 동안(신수는 원래 활공함)에는 안 펴짐.
+   저장: G.glDist(활강한 거리 m) · G.glStomp(착지 공격 수) · G.glTip(처음 안내 봄). 칭호 2개. */
+const GL={on:false,t:0,cd:0,send:0,trail:0,wing:null,ups:[],upBuilt:false,tipT:0,lbl:null,peerW:{},upHint:0};
+function glAway(){ return (typeof DG!=="undefined"&&DG.on)||(typeof HM!=="undefined"&&HM.on)||(typeof PG!=="undefined"&&PG.on)||(typeof DS!=="undefined"&&DS.on)||(typeof TW!=="undefined"&&TW.on)||(typeof LV!=="undefined"&&LV.on)||(typeof AR!=="undefined"&&AR.on)||(typeof RC!=="undefined"&&RC.on)||(typeof xzOn==="function"&&!!xzOn()); }
+function glCan(){ return started&&G.realm>=0&&!P.dead&&!layerOpen&&!P.ride&&!glAway()&&GL.cd<=0; }
+/* ---------- 날개 모양 (발목에 한 쌍씩) ---------- */
+function glWingPair(col){ const g=new THREE.Group(); const m1=new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.95}), m2=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.95});
+  [-1,1].forEach(s=>{ const w=new THREE.Group(); for(let i=0;i<4;i++){ const f=new THREE.Mesh(GEO.box,i===0?m2:m1); f.scale.set(.62-i*.1,.06,.24); f.position.set(s*(.26+(.62-i*.1)/2),.02+i*.07,-.06-i*.11); f.rotation.y=s*(.15+i*.22); w.add(f); } w.userData.s=s; g.add(w); });
+  return g; }
+function glMakeWings(col){ const g=new THREE.Group(); const a=glWingPair(col), b=glWingPair(col); a.position.set(-.28,.32,0); a.scale.setScalar(1.1); b.position.set(.28,.32,0); b.scale.setScalar(1.1); g.add(a,b);
+  const big=glWingPair(col); big.position.set(0,2.2,-.45); big.scale.setScalar(2.9); g.add(big); g.userData.parts=[a,b,big]; g.visible=false; g.userData.noOutline=true; return g; }
+function glFlap(g,tn,on){ if(!g) return; g.visible=on; if(!on) return; const k=Math.sin(tn/85)*.35; g.userData.parts.forEach((p,i)=>p.children.forEach(w=>{ w.rotation.z=w.userData.s*(i===2?.25+k*.6:.5+k); })); }
+function glMyWing(){ const c=0xffb020; if(!GL.wing||GL.wing.userData.col!==c){ if(GL.wing&&GL.wing.parent) GL.wing.parent.remove(GL.wing); GL.wing=glMakeWings(c); GL.wing.userData.col=c; } if(player&&GL.wing.parent!==player) player.add(GL.wing); return GL.wing; }
+/* ---------- 펴기 · 접기 · 내려앉기 ---------- */
+function glStart(){ GL.on=true; GL.t=0; P.vy=Math.max(P.vy,5.5); P.twirl=0; glMyWing(); tone(660,.12,"sine"); tone(990,.16,"triangle",.06); tone(1320,.1,"sine",.12); fxSpark(P.x,P.y+1,P.z,0xfff2a0,14); buzz(15);
+  if(!G.glTip){ G.glTip=1; saveGame(); toast("🪽 헤르메스의 날개 신발!","바라보는 쪽으로 날아가요 · 조이스틱으로 방향 · 점프 한 번 더 = 날개 접기",3.2); } }
+function glEnd(why){ if(!GL.on) return; GL.on=false; GL.cd=.35; if(why==="fold"){ tone(520,.08,"triangle"); tone(390,.1,"triangle",.05); } try{ net.send({t:"gl",y:0}); }catch(e){} }
+function glLand(){ const flew=GL.t; glEnd(); fxRing(P.x,P.z,0xfff2a0,3.5,.4);
+  if(flew>1){ const st=stat(), r=4.8; let n=0; mobs.forEach(m=>{ if(m.hp>0&&Math.hypot(m.x-P.x,m.z-P.z)<r+(m.scale||1)*.5){ damageMob(m,st.atk*2.4,true); n++; } });
+    try{ SFX.shock(P.x,P.z,0xffd24a,r,.55); }catch(e){ fxRing(P.x,P.z,0xffd24a,r*1.6,.5); } P.shake=Math.max(P.shake||0,.45); thud(); buzz(35);
+    if(n){ G.glStomp=(G.glStomp||0)+1; floatDmg(P.x,4.5,P.z,"🪽 착지 공격!","crit"); saveGame(); } } }
+/* 점프 버튼·스페이스: 06-ui.js 의 jump() 보다 먼저 들음 → 2단 점프 뒤 한 번 더 누르면 날개 펴기, 날 때 누르면 접기 */
+function glPress(){ if(GL.on){ glEnd("fold"); return; } if(P.air===2&&P.y>.6&&glCan()) glStart(); }
+(function(){ const b=$("bJump"); if(b) b.addEventListener("pointerdown",()=>{ if(!layerOpen) glPress(); }); addEventListener("keydown",e=>{ if(e.key===" "&&!e.repeat&&!layerOpen) glPress(); }); })();
+/* ---------- 🌀 바람 기둥 ---------- */
+function glUpSpots(){ const L=[]; const r=dgRng(8901); for(let realm=0;realm<4;realm++){ [1,2].forEach(k=>{ const rg=REGIONS[realm*3+k]; const a=r()*6.283, d=rg.r*(.3+r()*.25); L.push({x:rg.x+Math.cos(a)*d,z:rg.z+Math.sin(a)*d,realm}); }); }
+  for(let i=0;i<4;i++){ const a=i/4*6.283+.6; L.push({x:Math.cos(a)*34,z:Math.sin(a)*34,realm:-1}); } return L; }
+function glUpBuild(){ GL.upBuilt=true; const pole=new THREE.CylinderGeometry(2.6,2.6,16,20,1,true);
+  glUpSpots().forEach(s=>{ const col=s.realm>=0?new THREE.Color(REALMS[s.realm].c1).getHex():0xbfe8ff; const g=new THREE.Group(); const c=new THREE.Mesh(pole,glowMat(0xd8f4ff,.13)); c.position.y=8; g.add(c);
+    const rings=[]; for(let i=0;i<3;i++){ const t=new THREE.Mesh(GEO.ring,glowMat(i===1?col:0xffffff,.55)); t.rotation.x=-Math.PI/2; t.scale.setScalar(2.4); t.position.y=1+i*5; t.userData.p=i/3; g.add(t); rings.push(t); }
+    const base=new THREE.Mesh(GEO.ring,glowMat(col,.7)); base.rotation.x=-Math.PI/2; base.scale.setScalar(3); base.position.y=.15; g.add(base);
+    g.position.set(s.x,hAt(s.x,s.z),s.z); g.userData.noOutline=true; scene.add(g); GL.ups.push(Object.assign({g,rings,base},s)); }); }
+function glUpTick(dt,tn){ if(!GL.upBuilt){ if(started&&G.realm>=0) try{ glUpBuild(); }catch(e){ console.warn(e); GL.upBuilt=true; } return; }
+  const away=glAway(); let inUp=null;
+  GL.ups.forEach(u=>{ const d=Math.hypot(P.x-u.x,P.z-u.z); const vis=!away&&d<150; if(u.g.visible!==vis) u.g.visible=vis; if(!vis) return;
+    u.rings.forEach(t=>{ t.userData.p=(t.userData.p+dt*.35)%1; t.position.y=.5+t.userData.p*15; t.material.opacity=.6*Math.sin(t.userData.p*Math.PI); t.rotation.z+=dt*2; }); u.base.rotation.z-=dt;
+    if(d<45&&Math.random()<dt*(ECO()?2:5)) fxSpark(u.x+rnd(-1.5,1.5),rnd(.5,6),u.z+rnd(-1.5,1.5),0xffffff,2);
+    if(d<2.9) inUp=u; });
+  if(inUp&&!P.dead&&!P.ride){ const gy=(typeof GI!=="undefined"&&GI.gy)||0; if(P.y+gy<14){ if(P.y<=.01){ P.vy=12; P.air=1; P.y=.02; tone(300,.1,"sine"); tone(600,.12,"sine",.06); }
+      else P.vy=Math.max(P.vy,GL.on?11:9); if(Math.random()<dt*12) fxSpark(P.x,P.y,P.z,0xffffff,3); }
+    if(!GL.on&&P.air<2&&GL.upHint<=0&&P.y>3){ GL.upHint=20; toast("🌀 바람 기둥!","점프를 두 번 더 누르면 날개가 펴져요 🪽",2.2); } }
+  GL.upHint=Math.max(0,GL.upHint-dt); }
+/* ---------- 매 프레임 ---------- */
+function glTick(dt){ if(!started) return; const tn=performance.now(); GL.cd=Math.max(0,GL.cd-dt);
+  glUpTick(dt,tn);
+  if(GL.on){ if(P.dead||P.ride||glAway()){ glEnd(); } else if(P.y<=.001){ glLand(); } else {
+      GL.t+=dt; if(P.vy<-1.6) P.vy=-1.6;
+      const fx=Math.sin(P.rot), fz=Math.cos(P.rot), sp=7.5; const ox=P.x, oz=P.z; P.x=clamp(P.x+fx*sp*dt,-WORLD_HALF+2,WORLD_HALF-2); P.z=clamp(P.z+fz*sp*dt,-WORLD_HALF+2,WORLD_HALF-2);
+      const step=Math.hypot(P.x-ox,P.z-oz)+(P.moving?10.5*dt:0); G.glDist=(G.glDist||0)+step; player.position.x=P.x; player.position.z=P.z;
+      GL.trail-=dt; if(GL.trail<=0){ GL.trail=ECO()?.14:.07; fxSpark(P.x-fx*.6,P.y+((typeof GI!=="undefined"&&GI.gy)||0)+.4,P.z-fz*.6,0xfff2a0,2); }
+      if(GL.t>9){ glEnd("fold"); toast("🪽 날개가 지쳤어요","바람 기둥에서 다시 날아올라요",1.6); }
+      GL.send-=dt; if(GL.send<=0){ GL.send=ECO()?.4:.25; try{ net.send({t:"gl",y:+(P.y+((typeof GI!=="undefined"&&GI.gy)||0)).toFixed(1)}); }catch(e){} } } }
+  glFlap(GL.wing,tn,GL.on);
+  { const tg=GL.on||P.y>2.5?P.y*.6:0; GL.camY=(GL.camY||0)+(tg-(GL.camY||0))*Math.min(1,dt*3); if(GL.camY>.03&&!(typeof GI!=="undefined"&&GI.gy>0)) P.gy=(P.gy||0)+GL.camY; }   // 높이 날면 카메라도 살짝 따라 올라감
+  if(GL.on&&player&&player.userData.gl) try{ animState(player,"jump"); }catch(e){}
+  // 다른 사람의 날개
+  for(const id in PEERS){ const o=PEERS[id]; const fly=o.glY>0&&tn-(o.glT||0)<1200&&!o.dead; o.glS=(o.glS||0)+((fly?o.glY:0)-(o.glS||0))*Math.min(1,dt*6); if(o.glS>.05&&o.mesh) o.mesh.position.y+=o.glS;
+    let w=GL.peerW[id]; if(fly&&!w){ w=GL.peerW[id]=glMakeWings(0xffb020); } if(w){ if(o.mesh&&w.parent!==o.mesh) o.mesh.add(w); glFlap(w,tn,fly); } }
+  for(const id in GL.peerW){ if(!PEERS[id]){ const w=GL.peerW[id]; if(w.parent) w.parent.remove(w); delete GL.peerW[id]; } }
+  if(!G.glTip2&&GL.ups.length&&tn>9000&&!layerOpen){ G.glTip2=1; saveGame(); toast("🪽 새 기능: 헤르메스의 날개 신발","점프를 세 번 누르면 날개가 펴져요! 🌀 바람 기둥에 들어가면 높이 올라가요",4); } }
+XTICK.push(glTick);
+NETR.gl=(o,d)=>{ o.glY=+d.y||0; o.glT=performance.now(); };
+/* 활강 중 높이 0.8 넘으면 땅 공격은 원래처럼 피함(hurtPlayer) */
+MAP_X.push((ctx,tx,tz,big,u)=>{ if(glAway()) return; GL.ups.forEach(s=>{ const X=tx(s.x), Z=tz(s.z); ctx.beginPath(); ctx.arc(X,Z,(big?3.2:4)*u,0,6.2832); ctx.fillStyle="rgba(200,240,255,.85)"; ctx.fill(); ctx.strokeStyle="#4aa8d8"; ctx.lineWidth=1.2*u; ctx.stroke(); }); });
+function showGlide(){ card(`<h2>🪽 헤르메스의 날개 신발</h2><p><b>점프 → 공중에서 점프(2단) → 한 번 더 점프</b>하면 발목에 금빛 날개가 펴져요. 바라보는 쪽으로 천천히 날아가고, 조이스틱으로 방향을 바꿔요. 날 때 점프를 또 누르면 날개를 접어요.</p>
+  <h3>🌀 바람 기둥</h3><p>사냥터와 세계의 중심에 하얀 바람 기둥이 12개 있어요(지도에 하늘색 동그라미). 들어가면 바람이 위로 붕 올려 줘요 → 높이 올라가서 날개를 펴면 아주 멀리 날아가요!</p>
+  <h3>💥 착지 공격</h3><p>1초 넘게 날다가 괴물 옆에 내려앉으면 「쿵!」 — 둘레 괴물에게 큰 피해를 줘요.</p>
+  <div class="idlegrid"><div><b>${fmt(Math.round(G.glDist||0))}m</b><span>날아간 거리</span></div><div><b>${G.glStomp||0}</b><span>착지 공격</span></div></div>
+  <p style="font-size:12px">미궁·신전 섬·하늘 탑·놀이 마당 같은 따로 된 곳, 신수를 타고 있을 때는 날개가 안 펴져요(신수는 원래 천천히 내려와요). 날 때 높이 0.8m 넘으면 땅 공격을 피해요.</p>`); }
+MENU_X.push({ic:"🪽",n:"날개 신발 · 바람 기둥",id:"glBtn",sub:()=>`날아간 거리 ${fmt(Math.round(G.glDist||0))}m`,f:showGlide});
+TITLES.push({id:"gl1k",n:"바람을 타는 자",t:1,h:"날개 신발로 1,000m 날기",g:()=>[Math.round(G.glDist||0),1000]},{id:"gls30",n:"헤르메스의 제자",t:2,h:"착지 공격 30번",g:()=>[G.glStomp||0,30]});
+</script>
+<script>
+/* ================= v89-2: 🪧 길 위의 돌 표지판 — 모르는 사람에게 남기는 도움말 (IDEAS G11/9-5) =================
+   하루 3개까지 아무 데나 표지판을 세움. 글자는 안 치고 정해진 말 하나 + 그림말(이모티콘) 하나만 고름 → 나쁜 말 걱정 없음.
+   표지판은 보관 메시지(sg/<내 아이디>/<칸>)로 남아서, 나중에 지나가는 다른 사람 모두에게 보임(게임을 꺼 둬도).
+   다른 사람이 누르면 「👍 고마워요」(보관 sgl/<표지판>/<누른 사람>) → 꺼 둬도 쌓이고, 다음에 들어오면 "표지판이 N명을 도왔어요!" + 금화.
+   👍 5개 넘으면 금빛 표지판(7일 동안), 보통은 3일 뒤 사라짐. 내 표지판 칸은 12개를 돌려 씀(가장 오래된 것부터 바뀜).
+   저장: G.sgDay={d,n}(오늘 세운 수) · G.sgSeq · G.sgL{표지판:보상 받은 👍 수} · G.sgHelp(도운 사람 수) · G.sgThx(내가 누른 👍 수). 칭호 3개. */
+const SG_SAY=["여기 보물!","조심, 센 괴물!","점프해 봐!","쉬어 가요","멋진 경치!","이쪽으로 가요 ➜","바람 기둥 있어요","같이 사냥해요!","힘내요!","비밀 장소!"];
+const SG_EMO=["😀","😮","💪","⭐","❤️","🔥","🐉","🌈"];
+const SG_DAY=3, SG_SLOTS=12, SG_GOLDN=5, SG_MAXN=3;
+const SG={list:{},likes:{},near:null,lbls:[],pend:0,pendT:0,t:0,maxShow:60};
+function sgKey(s){ return s.i+"_"+s.k+"_"+s.ts; }
+function sgLikes(key){ const L=SG.likes[key]; return L?L.size:0; }
+function sgAlive(s){ if(!s||!s.ts) return false; const age=Date.now()-s.ts; return age<SG_DAY*86400000||(age<7*86400000&&sgLikes(sgKey(s))>=SG_GOLDN); }
+function sgToday(){ const d=kday(); if(!G.sgDay||G.sgDay.d!==d) G.sgDay={d,n:0}; return G.sgDay; }
+/* ---------- 보관 메시지 받기 ---------- */
+NETX.push({sub:"sg/+/+",pre:"sg/",f:(d,topic)=>{ const a=String(topic).split("/"); const id=a[1], k=+a[2]; const slot=id+"/"+k; const old=SG.list[slot];
+  if(!d||!d.ts||d.m==null){ if(old) sgDrop(slot); return; } if(old&&old.ts===d.ts) return; if(old) sgDrop(slot);
+  const s={i:id,k,ts:+d.ts,x:+d.x,z:+d.z,m:Math.max(0,Math.min(SG_SAY.length-1,d.m|0)),e:Math.max(0,Math.min(SG_EMO.length-1,d.e|0)),n:String(d.n||"?").slice(0,8),r:d.r|0,mesh:null,gold:false};
+  if(!isFinite(s.x)||!isFinite(s.z)) return; SG.list[slot]=s; }});
+NETX.push({sub:"sgl/+/+",pre:"sgl/",f:(d,topic)=>{ const a=String(topic).split("/"); const key=a[1], who=a[2]; if(!key||!who||!d) return; let L=SG.likes[key]; if(!L) L=SG.likes[key]=new Set(); if(L.has(who)) return; L.add(who);
+  if(key.indexOf(G.id+"_")===0&&who!==G.id){ G.sgL=G.sgL||{}; const got=G.sgL[key]||0; const n=L.size-(L.has(G.id)?1:0); if(n>got){ G.sgL[key]=n; SG.pend+=n-got; SG.pendT=1.6; } } }});
+function sgPay(){ const n=SG.pend; SG.pend=0; if(n<=0) return; const g=(30+G.lv*3)*n; G.gold+=g; G.sgHelp=(G.sgHelp||0)+n; saveGame();
+  try{ COINFLY.burst(P.x,1.6,P.z,Math.min(10,3+n)); }catch(e){} jingle([659,784,988,1318]); buzz([20,30,20]);
+  try{ lvBanner("🪧 고마워요!",`표지판이 ${n}명을 도왔어요`,`금화 +${fmt(g)} · 지금까지 도운 사람 ${fmt(G.sgHelp)}명`,"#9dffb8"); }catch(e){ toast(`🪧 표지판이 ${n}명을 도왔어요!`,`금화 +${fmt(g)}`,3); } }
+/* ---------- 모양 ---------- */
+function sgModel(gold){ const g=new THREE.Group(); const stone=mat({color:0x8d8a84,roughness:1}), wood=mat({color:0x8a5a34,roughness:.9}), dark=mat({color:0x5a3820,roughness:.95});
+  const board=gold?mat({color:0xffd24a,roughness:.35,metalness:.5,emissive:0x6a4a00}):mat({color:0xd9b98a,roughness:.9});
+  g.add(cyl(.55,.7,.4,stone,0,.2,0,9)); g.add(cyl(.09,.11,2.2,dark,0,1.3,0,7)); g.add(box(1.5,.8,.12,board,0,2.15,0)); g.add(box(1.62,.12,.16,wood,0,2.58,0)); g.add(box(1.62,.12,.16,wood,0,1.72,0));
+  if(gold){ const r=new THREE.Mesh(GEO.ring,glowMat(0xffd24a,.6)); r.rotation.x=-Math.PI/2; r.scale.setScalar(1.6); r.position.y=.12; r.userData.noOutline=true; g.add(r); g.userData.ring=r; }
+  return shadowify(g); }
+function sgDrop(slot){ const s=SG.list[slot]; if(s&&s.mesh){ scene.remove(s.mesh); s.mesh=null; } delete SG.list[slot]; }
+/* ---------- 세우기 ---------- */
+function sgWhereOk(){ if(!started||G.realm<0||P.dead) return "지금은 세울 수 없어요"; if(typeof glAway==="function"&&glAway()) return "따로 된 곳(미궁·섬·탑 등)에서는 못 세워요"; if(!evOver()) return "여기서는 못 세워요";
+  if(typeof GI!=="undefined"&&GI.gy>0.5) return "땅 위에서만 세울 수 있어요"; for(const k in SG.list){ const s=SG.list[k]; if(sgAlive(s)&&Math.hypot(s.x-P.x,s.z-P.z)<5) return "가까이에 다른 표지판이 있어요 — 조금 떨어져서 세워요"; } return ""; }
+function sgPlace(m,e){ const T=sgToday(); if(T.n>=SG_MAXN){ toast("오늘은 표지판을 다 세웠어요","내일 또 3개를 세울 수 있어요",2); return; } const why=sgWhereOk(); if(why){ toast("🪧 "+why,null,2); return; }
+  const k=(G.sgSeq=(G.sgSeq||0)+1)%SG_SLOTS; T.n++; const d={x:+P.x.toFixed(1),z:+P.z.toFixed(1),m,e,n:G.name,r:G.realm,ts:Date.now()};
+  try{ net.pushRet("sg/"+G.id+"/"+k,d); }catch(e){} const slot=G.id+"/"+k; if(SG.list[slot]) sgDrop(slot); SG.list[slot]={i:G.id,k,ts:d.ts,x:d.x,z:d.z,m,e,n:G.name,r:G.realm,mesh:null,gold:false};
+  saveGame(); closeLayer(); fxRing(P.x,P.z,0xffe08a,4,.5); fxSpark(P.x,2,P.z,0xffe08a,16); jingle([523,659,784]); toast(`🪧 표지판을 세웠어요 — ${SG_SAY[m]} ${SG_EMO[e]}`,`지나가는 사람이 👍 누르면 꺼 둬도 금화가 쌓여요 · 오늘 ${T.n}/${SG_MAXN}`,3); }
+function sgLike(s){ const key=sgKey(s); let L=SG.likes[key]; if(!L) L=SG.likes[key]=new Set(); if(L.has(G.id)||s.i===G.id) return; L.add(G.id);
+  try{ net.pushRet("sgl/"+key+"/"+G.id,{ts:Date.now()}); }catch(e){} G.sgThx=(G.sgThx||0)+1; const xp=Math.round(xpNeed(G.lv)*.004)+5; gainXp(xp); saveGame();
+  const y=2.6; fxSpark(s.x,y,s.z,0x9dffb8,14); floatDmg(s.x,3.4,s.z,"👍 고마워요!","gain"); jingle([784,988]); buzz(15); toast(`👍 ${s.n}님의 표지판에 고마워요!`,`${s.n}님에게 금화가 가요 · 나도 경험치 +${fmt(xp)}`,2); }
+/* ---------- 매 프레임 ---------- */
+function sgTick(dt){ if(!started||G.realm<0) return; if(!SG.pruned){ SG.pruned=1; const L=G.sgL||{}; for(const k in L){ const ts=+String(k).split("_").pop(); if(!(Date.now()-ts<8*86400000)) delete L[k]; } } if(SG.pendT>0){ SG.pendT-=dt; if(SG.pendT<=0&&!layerOpen&&!P.dead) sgPay(); else if(SG.pendT<=0) SG.pendT=1; }
+  SG.t-=dt; const away=(typeof glAway==="function"&&glAway())||!evOver();
+  if(SG.t<=0){ SG.t=.5; const arr=[]; for(const slot in SG.list){ const s=SG.list[slot]; if(!sgAlive(s)){ sgDrop(slot); continue; } s.d=Math.hypot(s.x-P.x,s.z-P.z); arr.push(s); }
+    arr.sort((a,b)=>a.d-b.d); arr.forEach((s,i)=>{ const want=!away&&i<SG.maxShow&&s.d<130; const gold=sgLikes(sgKey(s))>=SG_GOLDN;
+      if(want&&(!s.mesh||s.gold!==gold)){ if(s.mesh) scene.remove(s.mesh); s.gold=gold; s.mesh=sgModel(gold); s.mesh.position.set(s.x,hAt(s.x,s.z),s.z); s.mesh.rotation.y=((s.ts%628)/100); scene.add(s.mesh); }
+      else if(!want&&s.mesh){ scene.remove(s.mesh); s.mesh=null; } });
+    SG.near=null; if(!away&&!P.dead){ const n=arr.find(s=>s.d<4.5&&s.i!==G.id&&!(SG.likes[sgKey(s)]&&SG.likes[sgKey(s)].has(G.id))); SG.near=n||null; }
+    SG.vis=arr.filter(s=>s.mesh&&s.d<24).slice(0,4); }
+  for(const slot in SG.list){ const s=SG.list[slot]; if(s.mesh&&s.mesh.userData.ring){ s.mesh.userData.ring.rotation.z+=dt; } }
+  const vis=away||layerOpen?[]:(SG.vis||[]); while(SG.lbls.length<4) SG.lbls.push(makeLabel("ally"));
+  SG.lbls.forEach((l,i)=>{ const s=vis[i]; if(!s){ l.style.display="none"; return; } const n=sgLikes(sgKey(s)); const mine=s.i===G.id;
+    placeLabel(l,s.x,3.3,s.z,`${s.gold?"✨":""}🪧 <b>${SG_SAY[s.m]} ${SG_EMO[s.e]}</b><span style="font-size:11px;opacity:.85"> ${mine?"내 표지판":s.n}${n?` · 👍${n}`:""}</span>`); }); }
+XTICK.push(sgTick);
+CTX_EXTRA.push(()=>SG.near?{t:`👍 고마워요 · ${SG_SAY[SG.near.m]}`,f:()=>{ const s=SG.near; SG.near=null; if(s) sgLike(s); }}:null);
+MAP_X.push((ctx,tx,tz,big,u)=>{ if(!evOver()) return; for(const slot in SG.list){ const s=SG.list[slot]; if(!sgAlive(s)) continue; const X=tx(s.x), Z=tz(s.z); const gold=sgLikes(sgKey(s))>=SG_GOLDN, mine=s.i===G.id;
+  if(gold||mine) mapPin(ctx,X,Z,(big?3.6:4.6)*u,gold?"#e0a020":"#4a9a5a","🪧"); else { ctx.beginPath(); ctx.arc(X,Z,1.8*u,0,6.2832); ctx.fillStyle="#c8a070"; ctx.fill(); } } });
+/* ---------- 창 ---------- */
+function showSigns(){ const T=sgToday(); let pick={m:0,e:0}; const mine=Object.values(SG.list).filter(s=>s.i===G.id&&sgAlive(s)).sort((a,b)=>b.ts-a.ts);
+  const why=sgWhereOk(); const left=SG_MAXN-T.n;
+  card(`<h2>🪧 길 위의 돌 표지판</h2><p>지금 서 있는 자리에 표지판을 세워요. 글자는 안 치고 <b>말 하나 + 그림말 하나</b>만 골라요. 지나가는 다른 사람이 <b>👍 고마워요</b>를 누르면, 게임을 꺼 둬도 금화가 쌓여요!</p>
+   <h3>💬 말 고르기</h3><div class="exgrid" id="sgM">${SG_SAY.map((s,i)=>`<button class="buy${i?" alt":""}" data-m="${i}">${s}</button>`).join("")}</div>
+   <h3>😀 그림말 고르기</h3><div class="exgrid" id="sgE">${SG_EMO.map((s,i)=>`<button class="buy${i?" alt":""}" data-e="${i}" style="font-size:20px">${s}</button>`).join("")}</div>
+   <p id="sgPrev" style="text-align:center;font-size:15px"></p>
+   <button class="buy" id="sgGo" style="align-self:center" ${left<=0||why?"disabled":""}>🪧 여기에 세우기 (오늘 ${left}/${SG_MAXN}개 남음)</button>
+   ${why&&left>0?`<p style="font-size:12px;color:#ffb0a0;text-align:center">${why}</p>`:""}
+   <div class="idlegrid"><div><b>👍 ${fmt(G.sgHelp||0)}</b><span>내 표지판이 도운 사람</span></div><div><b>${mine.length}</b><span>세워 둔 표지판</span></div><div><b>${G.sgThx||0}</b><span>내가 누른 👍</span></div></div>
+   ${mine.length?`<h3>📍 내 표지판</h3><div class="diary">${mine.slice(0,6).map(s=>{ const rg=regionAt(s.x,s.z); return `<p>${sgLikes(sgKey(s))>=SG_GOLDN?"✨":"🪧"} ${SG_SAY[s.m]} ${SG_EMO[s.e]} · ${rg?rg.n:"들판"} · ${fmtAgo(s.ts)} · 👍${sgLikes(sgKey(s))}</p>`; }).join("")}</div>`:""}
+   <p style="font-size:12px">하루 3개까지 · 보통 3일, 👍 ${SG_GOLDN}개 넘으면 금빛 표지판이 되어 7일 동안 남아요. 표지판 앞에 가면 「👍 고마워요」 버튼이 떠요(내 것·이미 누른 것은 빼고).</p>`);
+  const prev=()=>{ const p=$("sgPrev"); if(p) p.innerHTML=`미리 보기: 🪧 <b>${SG_SAY[pick.m]} ${SG_EMO[pick.e]}</b>`; }; prev();
+  layers.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{ pick.m=+b.dataset.m; layers.querySelectorAll("[data-m]").forEach(x=>x.classList.toggle("alt",x!==b)); prev(); tone(660,.05); });
+  layers.querySelectorAll("[data-e]").forEach(b=>b.onclick=()=>{ pick.e=+b.dataset.e; layers.querySelectorAll("[data-e]").forEach(x=>x.classList.toggle("alt",x!==b)); prev(); tone(760,.05); });
+  if($("sgGo")) $("sgGo").onclick=()=>sgPlace(pick.m,pick.e); }
+MENU_X.push({ic:"🪧",n:"길 위의 돌 표지판",id:"sgBtn",sub:()=>`오늘 ${sgToday().n}/${SG_MAXN} · 도운 사람 ${fmt(G.sgHelp||0)}명`,f:showSigns});
+TITLES.push({id:"sg10",n:"길의 친구",t:1,h:"내 표지판이 10명 돕기(👍 10개)",g:()=>[G.sgHelp||0,10]},{id:"sgt20",n:"고마움을 아는 여행자",t:1,h:"다른 사람 표지판에 👍 20번",g:()=>[G.sgThx||0,20]},{id:"sg100",n:"모두의 길잡이 표지판",t:3,h:"내 표지판이 100명 돕기",g:()=>[G.sgHelp||0,100]});
+</script>
+<script>
+/* ================= v89-3: 🏔️ 걸어 다니는 산 거인 — 등에 올라타는 대모험 (IDEAS G11/9-6) =================
+   언제: 토요일·일요일 하루 종일 + 평일 저녁 7시~7시 40분(한국 시간) 짧은 「저녁 산책」.
+   이끼 낀 둥근 돌 거인(키 약 28m, 졸린 얼굴 — 우리 게임만의 모습)이 세계의 중심 둘레를 아주 천천히 한 바퀴씩 걸어 다님.
+   위치는 시계로 정함 → 모든 폰에서 같은 자리. 땅에서 때리는 게 아니라 등에 매달린 덩굴 사다리 발판을 점프로 타고 올라가서
+   등·양 어깨·머리 꼭대기의 반짝이는 룬 돌 5개를 부숨(룬마다 10번 — 같은 방 모두의 타격을 합침, t:"gih").
+   거인이 24초마다 몸을 흔들 때(2초 전 경고) 「✊ 꽉 붙잡기!」를 안 누르면 떨어짐(날개 신발로 다시 붙을 수도).
+   발을 쿵 내디딜 때 발 근처 땅에 있으면 살짝 다침(점프하면 피함).
+   룬 5개를 다 부수면 거인이 「하암~」 하고 앉아서 5분 동안 잠듦 → 그 판에 룬을 때렸거나 거인 위에 있었던 사람 모두 보물 상자.
+   머리 꼭대기에 처음 오른 판마다 「정상!」 보너스. 판 번호·잠 = 보관 gis/<날>, 부순 룬 = 보관 gib/<날>/<판>/<룬>.
+   높이: 게임의 높이 계산(hAt)은 땅 하나뿐이라, 하늘 탑처럼 내 발 높이 = 땅 + GI.gy(발판) + P.y 로 직접 셈. 서 있으면 거인과 함께 실려 감.
+   저장: G.giN(보물 받은 판) · G.giTop(정상 오른 판) · G.giRune(마지막 한 방으로 부순 룬). 칭호 3개. */
+const GI_R=105, GI_SPD=1.7, GI_HP=10, GI_SLEEP=300000, GI_SHAKE=24000, GI_STEP=6;
+const GI={built:false,g:null,P:null,x:0,z:0,yaw:0,base:0,lift:0,px:null,pz:0,pyaw:0,gy:0,on:false,onLedge:null,camY:0,prevAbs:0,lpx:0,lpz:0,onT:0,
+  day:-1,r:0,allB:{},hits:[0,0,0,0,0],sleep:null,myHit:{},paid:{},topR:{},shCyc:-1,held:false,warnShown:-1,stepN:-1,lbl:null,bar:null,sendT:0,annDay:-1,wasActive:false,chests:[],vis:false};
+/* 발판(거인 기준 좌표: 앞 = +z, 등 = -z). top = 발판 윗면 높이 */
+const GI_LEDGES=[
+ {x:-2.6,y:2.4,z:-4.2,r:1.5},{x:-3.6,y:4.8,z:-4.4,r:1.4},{x:-1.6,y:7.2,z:-4.6,r:1.4},{x:.8,y:9.6,z:-4.6,r:1.6},
+ {x:3.2,y:12.0,z:-4.4,r:1.4},{x:1.2,y:14.4,z:-4.4,r:1.4},{x:-1.4,y:16.8,z:-4.4,r:1.4},{x:-3.6,y:19.2,z:-4.0,r:1.5},
+ {x:-2.9,y:22.6,z:-2.3,r:1.15},{x:0,y:25.2,z:-3.5,r:1.2},{x:0,y:27.6,z:.4,r:2.0,top:1}];
+const GI_TORSO={hw:5.6,hd:3.3,y:20};
+const GI_RUNES=[{x:.8,y:10.9,z:-5.0},{x:-1.4,y:17.9,z:-4.9},{x:-4.6,y:21.1,z:0},{x:4.6,y:21.1,z:0},{x:0,y:28.7,z:.4}];
+const GI_RUNE_N=["허리 룬","등 룬","왼쪽 어깨 룬","오른쪽 어깨 룬","머리 꼭대기 룬"];
+/* ---------- 언제 · 어디 ---------- */
+function giKst(t){ return new Date((t||Date.now())+9*3600000); }
+function giActive(t){ const d=giKst(t); const w=d.getUTCDay(); if(w===0||w===6) return true; return d.getUTCHours()===19&&d.getUTCMinutes()<40; }
+function giNextTxt(){ const d=giKst(); const w=d.getUTCDay(); const h=d.getUTCHours(); if(w>=1&&w<=5&&h<19) return "오늘 저녁 7시에 산책을 나와요"; if(w===5) return "내일(토요일) 하루 종일 걸어 다녀요"; return "내일 저녁 7시에 산책을 나와요"; }
+function giPath(t){ const s=(t==null?Date.now():t)/1000; const th=s*GI_SPD/GI_R; const R=GI_R+10*Math.sin(th*3); return {x:Math.cos(th)*R,z:Math.sin(th)*R}; }
+function giPose(t){ const now=t==null?Date.now():t; const a=giPath(now), b=giPath(now+1000); return {x:a.x,z:a.z,yaw:Math.atan2(b.x-a.x,b.z-a.z)}; }
+function giSleeping(){ return !!(GI.sleep&&Date.now()-GI.sleep.ts<GI_SLEEP); }
+function giL2W(lx,lz){ const c=Math.cos(GI.yaw), s=Math.sin(GI.yaw); return {x:GI.x+lx*c+lz*s,z:GI.z-lx*s+lz*c}; }
+function giW2L(x,z,gx,gz,yaw){ const dx=x-gx, dz=z-gz; const c=Math.cos(yaw), s=Math.sin(yaw); return {x:dx*c-dz*s,z:dx*s+dz*c}; }
+/* ---------- 모양 ---------- */
+function giModel(){ const g=new THREE.Group(); const stone=mat({color:0x7f7668,roughness:1}), stone2=mat({color:0x5f584e,roughness:1}), moss=mat({color:0x4f8a3a,roughness:1}), moss2=mat({color:0x6aa848,roughness:1}),
+   wood=mat({color:0x8a5a34,roughness:.9}), vine=mat({color:0x3f7a35,roughness:1}), dark=mat({color:0x2a2a30,roughness:1}), pink=mat({color:0xf2a0a0,roughness:1}), white=mat({color:0xf4f0e6,roughness:1});
+  const legs=[], arms=[];
+  [-1,1].forEach(s=>{ const L=new THREE.Group(); L.position.set(s*3.2,10,0); L.add(cyl(2.0,2.3,10,stone,0,-5,0,12)); L.add(box(3.4,1.5,4.6,stone2,0,-9.3,.7)); L.add(box(2.6,.6,1.8,moss,0,-3.5,-1.9)); g.add(L); legs.push(L);
+    const A=new THREE.Group(); A.position.set(s*6.6,19,0); A.add(sph(1.9,stone,0,0,0)); A.add(cyl(1.4,1.7,8,stone,0,-4.6,0,10)); A.add(sph(1.9,stone2,0,-9,0)); A.add(box(1.6,.5,1.2,moss2,0,-2,-1.3)); g.add(A); arms.push(A); });
+  g.add(box(11,10,6.5,stone,0,15,0)); g.add(sph(5.2,stone,0,13.5,.6)); g.add(box(11.4,.9,6.9,wood,0,10.4,0));
+  g.add(box(11.2,.4,6.6,moss,0,GI_TORSO.y-.2,0)); [[-3.5,17,-3.3],[2.5,13,-3.3],[4,18,1],[-4.5,12,2.5]].forEach(p=>g.add(box(2.6,1.8,.5,moss2,p[0],p[1],p[2]+(p[2]<0?-.05:.05))));
+  // 머리
+  g.add(sph(3.6,stone,0,24,.4)); g.add(sph(3.0,moss,0,26.3,.1)); g.add(sph(1.1,moss2,-1.6,27.2,1.2)); g.add(sph(.9,moss2,1.8,27,0));
+  const eyes=[], lids=[]; [-1,1].forEach(s=>{ const e=box(1.1,.32,.2,dark,s*1.35,24.5,3.85); g.add(e); eyes.push(e); const l=box(1.3,.5,.22,stone2,s*1.35,24.85,3.82); g.add(l); lids.push(l); g.add(sph(.45,pink,s*2.2,23.5,3.4)); });
+  const mouth=box(.9,.18,.2,dark,0,22.7,3.9); g.add(mouth); g.add(box(.5,.35,.2,white,0,22.95,3.92));
+  // 덩굴 사다리 발판
+  GI_LEDGES.forEach((L,i)=>{ if(L.top){ const p=new THREE.Mesh(new THREE.CylinderGeometry(L.r,L.r,.35,16),moss2); p.position.set(L.x,L.y-.17,L.z); g.add(p); return; }
+    g.add(box(L.r*2,.35,L.r*1.5,wood,L.x,L.y-.17,L.z)); g.add(box(L.r*1.8,.18,L.r*1.2,moss,L.x,L.y+.02,L.z));
+    const nx=GI_LEDGES[i+1]; if(nx&&!nx.top){ const mx=(L.x+nx.x)/2, my=(L.y+nx.y)/2, mz=(L.z+nx.z)/2; const len=Math.hypot(nx.x-L.x,nx.y-L.y,nx.z-L.z); const v=cyl(.12,.12,len,vine,mx,my,mz,5); v.lookAt(new THREE.Vector3(nx.x,nx.y,nx.z)); v.rotateX(Math.PI/2); g.add(v); } });
+  [-1,1].forEach(s=>g.add(cyl(.12,.12,8,vine,-2.6+s*1.1,6.2,-4.3,5)));
+  // 룬 돌
+  const runes=GI_RUNES.map(R=>{ const o=new THREE.Group(); o.position.set(R.x,R.y,R.z); const gem=new THREE.Mesh(new THREE.OctahedronGeometry(.85),glowMat(0x9fd0ff,.95)); o.add(gem); const core=new THREE.Mesh(new THREE.OctahedronGeometry(.5),mat({color:0x3a5aa8,emissive:0x2a4aff})); o.add(core);
+    const ring=new THREE.Mesh(GEO.ring,glowMat(0xd8b0ff,.6)); ring.scale.setScalar(1.3); o.add(ring); const crack=box(.9,.5,.9,stone2,0,-.4,0); crack.visible=false; o.add(crack); g.add(o); o.userData={gem,core,ring,crack}; return o; });
+  g.userData.noOutline=true; shadowify(g); return {g,legs,arms,eyes,lids,mouth,runes}; }
+/* ---------- 판 · 룬 (함께) ---------- */
+function giDaySync(){ const d=kday(); if(GI.day===d) return; GI.day=d; GI.r=0; GI.allB={}; GI.hits=[0,0,0,0,0]; GI.sleep=null; GI.myHit={}; GI.paid={}; GI.topR={}; }
+function giBroken(){ return GI.allB[GI.r]||(GI.allB[GI.r]={}); }
+function giBrokenN(){ return Object.keys(giBroken()).length; }
+NETX.push({sub:()=>"gis/"+kday(),pre:"gis/",f:(d,topic)=>{ const a=String(topic).split("/"); if(+a[1]!==kday()||!d) return; giDaySync(); if((d.r|0)>GI.r) giAdopt(d); }});
+NETX.push({sub:()=>"gib/"+kday()+"/+/+",pre:"gib/",f:(d,topic)=>{ const a=String(topic).split("/"); if(+a[1]!==kday()) return; giDaySync(); const r=+a[2], k=+a[3]; if(!(k>=0&&k<5)) return; const B=GI.allB[r]||(GI.allB[r]={}); if(B[k]) return; B[k]=1;
+  if(r===GI.r){ giRuneFx(k,true); if(giBrokenN()>=5) giSleepStart(false); } }});
+NETR.gih=(o,d)=>{ giDaySync(); if(d.d!==kday()||d.r!==GI.r) return; const k=d.k|0; if(giBroken()[k]) return; GI.hits[k]=(GI.hits[k]||0)+1; if(GI.hits[k]>=GI_HP) giBreak(k,false,o.name); };
+NETR.gitp=(o,d)=>{ if(!layerOpen&&GI.vis) toast(`🏔️ ${o.name}님이 거인 머리 꼭대기에 올랐어요!`,null,2); };
+NETR.giy=(o,d)=>{ o.giY=+d.y||0; o.giT=performance.now(); };
+function giRuneFx(k,quiet){ if(!GI.P) return; const R=GI_RUNES[k]; const p=giL2W(R.x,R.z); const y=GI.base+GI.lift+R.y-hAt(p.x,p.z); fxSpark(p.x,y,p.z,0x9fd0ff,quiet?10:26); if(!quiet){ fxFlash(p.x,y,p.z,0xd8b0ff,3,.4); } }
+function giBreak(k,mine,who){ const B=giBroken(); if(B[k]) return; B[k]=1; giRuneFx(k,false); jingle([784,988,1175]);
+  if(mine){ G.giRune=(G.giRune||0)+1; saveGame(); try{ net.pushRet("gib/"+kday()+"/"+GI.r+"/"+k,{ts:Date.now(),n:G.name}); }catch(e){} }
+  const n=giBrokenN(); if(GI.vis&&!layerOpen) toast(`💎 ${GI_RUNE_N[k]}이(가) 부서졌어요! (${n}/5)`,mine?"마지막 한 방!":`${who||"친구"}님이 마지막 한 방`,2);
+  if(n>=5) giSleepStart(true); }
+function giSleepStart(mine){ const st={r:GI.r+1,ts:Date.now(),x:+GI.x.toFixed(1),z:+GI.z.toFixed(1),yaw:+GI.yaw.toFixed(3)};
+  if(mine){ try{ net.pushRet("gis/"+kday(),st); }catch(e){} } giAdopt(st); }
+function giAdopt(st){ const prev=(st.r|0)-1; const was=GI.r; GI.r=st.r|0; GI.hits=[0,0,0,0,0]; GI.allB[GI.r]=GI.allB[GI.r]||{};
+  if(Date.now()-st.ts<GI_SLEEP){ GI.sleep={r:GI.r,ts:+st.ts,x:+st.x,z:+st.z,yaw:+st.yaw}; giChests(true); if(GI.vis&&!layerOpen){ toast("🏔️ 하암~ 거인이 앉아서 잠들었어요 💤","5분 뒤 다시 산책을 떠나요",2.6); } tone(220,.5,"sine"); tone(165,.7,"sine",.3); }
+  if(prev>=was&&(GI.myHit[prev]||Date.now()-GI.onT<120000)&&!GI.paid[prev]){ GI.paid[prev]=1; giPay(); } }
+function giPay(){ const L=G.lv; const gold=Math.round(600+L*45), xp=Math.round(xpNeed(L)*.12), ore=4+Math.floor(Math.random()*3), rune=2; G.gold+=gold; gainXp(xp); G.ore=(G.ore||0)+ore; G.rune=(G.rune||0)+rune; G.giN=(G.giN||0)+1;
+  const got=[`금화 +${fmt(gold)}`,`경험치 +${fmt(xp)}`,`⛓ +${ore}`,`✨ +${rune}`]; if(Math.random()<.5){ try{ got.push("🎁 "+evGear(.3)); }catch(e){} } saveGame();
+  try{ COINFLY.burst(P.x,1.6,P.z,12); }catch(e){} jingle([523,659,784,1046,1318]); buzz([30,20,60]);
+  try{ lvBanner("🏔️ 산 거인을 멈췄어요!","보물 언덕 상자",got.join(" · "),"#b8e07a"); }catch(e){ toast("🏔️ 보물 상자!",got.join(" · "),3); } }
+function giChests(on){ GI.chests.forEach(c=>scene.remove(c)); GI.chests=[]; if(!on||!GI.sleep) return; const gold=mat({color:0xffc83a,metalness:.5,roughness:.35,emissive:0x4a3000}), wood=mat({color:0x8a5a34});
+  for(let i=0;i<7;i++){ const a=GI.sleep.yaw+Math.PI*.15+i/7*Math.PI*1.7, d=11+(i%2)*3; const x=GI.sleep.x+Math.sin(a)*d, z=GI.sleep.z+Math.cos(a)*d; const c=new THREE.Group(); c.add(box(1.4,.9,1,wood,0,.45,0)); c.add(box(1.5,.35,1.1,gold,0,1.05,0)); c.add(sph(.25,gold,0,1.3,.5)); c.position.set(x,hAt(x,z),z); c.rotation.y=a+Math.PI; scene.add(c); GI.chests.push(c); } }
+/* ---------- 거인 위 높이 (하늘 탑과 같은 방식) ---------- */
+function giSupport(px,pz,refAbsB){ const l=giW2L(px,pz,GI.x,GI.z,GI.yaw); let best=-1, led=null; const lift=GI.lift;
+  for(const L of GI_LEDGES){ const top=L.y+lift; if(top<=.3) continue; if(Math.hypot(l.x-L.x,l.z-L.z)<L.r&&top<=refAbsB+.35&&top>best){ best=top; led=L; } }
+  const tt=GI_TORSO.y+lift; if(Math.abs(l.x)<GI_TORSO.hw&&Math.abs(l.z)<GI_TORSO.hd&&tt<=refAbsB+.35&&tt>best){ best=tt; led=GI_TORSO; }
+  return {top:best,led,l}; }
+function giDrop(){ if(GI.gy>0){ P.y=Math.max(0,P.y+GI.gy); } GI.gy=0; GI.on=false; GI.onLedge=null; GI.camY=0; }
+function giPhys(dt){ if(P.dead||(typeof glAway==="function"&&glAway())){ giDrop(); return; }
+  if(GI.gy>0&&Math.hypot(P.x-GI.lpx,P.z-GI.lpz)>15){ giDrop(); }   // 순간 이동했으면 내려놓음
+  // 거인과 함께 실려 가기
+  if(GI.px!=null&&GI.vis){ const l=giW2L(P.x,P.z,GI.px,GI.pz,GI.pyaw); const over=Math.abs(l.x)<8.5&&Math.abs(l.z)<8&&GI.gy+P.y>1; if(GI.on||GI.gy>0||over){ const w=giL2W(l.x,l.z); P.x=w.x; P.z=w.z; if(GI.on) P.rot+=GI.yaw-GI.pyaw; } }   // 발판 위·거인 몸 둘레 공중에서는 거인과 함께 움직임(점프해도 발판이 도망가지 않게)
+  const near=GI.vis&&Math.hypot(P.x-GI.x,P.z-GI.z)<16;
+  if(!near&&GI.gy<=0){ GI.on=false; GI.onLedge=null; GI.prevAbs=P.y; GI.lpx=P.x; GI.lpz=P.z; return; }
+  const th=hAt(P.x,P.z); let abs=GI.gy+P.y; const ref=Math.max(GI.prevAbs,abs); const S=near?giSupport(P.x,P.z,th+ref-GI.base):{top:-1,led:null};
+  const g=S.top>0?Math.max(0,GI.base+S.top-th):0; const was=GI.on;
+  // 머리에 부딪치면 밀어냄
+  if(near&&S.l){ const hl=S.l; const hy=GI.base+GI.lift+24-th; if(abs>hy-4&&abs<hy+3.2){ const dx=hl.x, dz=hl.z-.4, d=Math.hypot(dx,dz); if(d<3.2&&d>.01){ const w=giL2W(dx/d*3.2,.4+dz/d*3.2); P.x=w.x; P.z=w.z; } } }
+  if(S.top>0&&abs<=g+(was?.35:.001)&&P.vy<=0){ P.y=0; P.vy=0; P.air=0; GI.gy=g; abs=g; GI.on=true; GI.onLedge=S.led; GI.onT=Date.now(); if(!was){ fxRing(P.x,P.z,0x9dffb8,2.4,.3); } }
+  else { if(was&&P.y<=.01&&P.vy<=0&&P.air===0) P.air=1; GI.on=false; GI.onLedge=null; GI.gy=g; P.y=Math.max(0,abs-g); if(abs<g){ GI.gy=g; P.y=0; } }
+  GI.prevAbs=GI.gy+P.y; GI.lpx=P.x; GI.lpz=P.z;
+  const tot=GI.gy+P.y; player.position.set(P.x,th+tot+(P.ride?RIDE_H:0),P.z);
+  const ct=GI.on?GI.gy:Math.min(GI.gy+P.y,Math.max(GI.camY,GI.gy)); GI.camY+=(ct-GI.camY)*Math.min(1,dt*(ct<GI.camY-3?8:4)); if(GI.camY<.02&&GI.gy<=0) GI.camY=0; P.gy=th+GI.camY;
+  // 정상!
+  if(GI.on&&GI.onLedge&&GI.onLedge.top&&!giSleeping()&&!GI.topR[GI.r]){ GI.topR[GI.r]=1; G.giTop=(G.giTop||0)+1; const gold=Math.round(150+G.lv*15); G.gold+=gold; saveGame(); try{ net.send({t:"gitp"}); }catch(e){}
+    fxSpark(P.x,tot+1,P.z,0xffe08a,30); jingle([659,880,1175,1568]); buzz([20,20,40]); try{ lvBanner("🏔️ 정상!","거인 머리 꼭대기",`금화 +${fmt(gold)} · 머리 꼭대기 룬을 부숴요!`,"#ffe08a"); }catch(e){ toast("🏔️ 정상!",`금화 +${fmt(gold)}`,2.4); } } }
+/* 거인 위(3m 넘게)에 있을 때는 땅의 괴물·친구 공격이 닿지 않음 — 거인이 주는 피해만 */
+(function(){ const _h=hurtPlayer; hurtPlayer=function(dmg,from){ if(GI.gy>3&&!(from&&typeof from==="object"&&from.gi)) return; return _h(dmg,from); }; })();
+/* 룬 때리기: 공격 버튼이 나갔을 때(쿨이 다시 걸렸을 때) 가까운 룬을 맞힘 */
+(function(){ const _a=attack; attack=function(){ const c0=P.atkCd; const r=_a.apply(this,arguments); if(P.atkCd>c0+.01) try{ giTryHit(); }catch(e){ console.warn(e); } return r; }; })();
+function giTryHit(){ if(!GI.vis||giSleeping()||!giActive()) return; const B=giBroken(); const wk=(typeof myWeaponKind==="function")?myWeaponKind():"sword"; const reach=wk==="bow"||wk==="magic"?14:4.6;
+  const my=hAt(P.x,P.z)+GI.gy+P.y+1.2; let best=-1, bd=1e9;
+  GI_RUNES.forEach((R,k)=>{ if(B[k]) return; const p=giL2W(R.x,R.z); const d=Math.hypot(p.x-P.x,p.z-P.z,GI.base+GI.lift+R.y-my); if(d<reach&&d<bd){ bd=d; best=k; } });
+  if(best<0) return; const k=best; GI.hits[k]=(GI.hits[k]||0)+1; GI.myHit[GI.r]=1; try{ net.send({t:"gih",d:kday(),r:GI.r,k}); }catch(e){}
+  const R=GI_RUNES[k], p=giL2W(R.x,R.z); const y=GI.base+GI.lift+R.y-hAt(p.x,p.z); fxSpark(p.x,y,p.z,0xd8b0ff,8); floatDmg(p.x,y+1,p.z,`💎 ${Math.min(GI_HP,GI.hits[k])}/${GI_HP}`,"crit"); tone(1200,.06,"triangle"); tone(900,.08,"square",.03,.05);
+  const rm=GI.P&&GI.P.runes[k]; if(rm) rm.userData.hit=.15;
+  if(GI.hits[k]>=GI_HP) giBreak(k,true); }
+/* ---------- 흔들기 · 발 구르기 ---------- */
+function giShakeTick(dt){ const now=Date.now(); const cyc=Math.floor(now/GI_SHAKE), ph=now%GI_SHAKE; const walking=!giSleeping();
+  if(cyc!==GI.shCyc){ GI.shCyc=cyc; GI.held=false; }
+  const warn=walking&&ph>GI_SHAKE-3500&&ph<GI_SHAKE-1500; GI.warn=warn;
+  if(warn&&GI.on&&GI.warnShown!==cyc){ GI.warnShown=cyc; toast("🏔️ 거인이 몸을 흔들려고 해요!","✊ 꽉 붙잡기 버튼을 눌러요!",1.8); tone(140,.4,"sawtooth",0,.08); buzz([40,40,40]); }
+  if(walking&&ph>=GI_SHAKE-1500&&GI.shDone!==cyc){ GI.shDone=cyc; const d=Math.hypot(P.x-GI.x,P.z-GI.z); if(d<70){ P.shake=Math.max(P.shake||0,d<20?1:.5); thud(); }
+    if(GI.P){ GI.shT=1.2; }
+    if(GI.on||(GI.gy>0&&P.y<1.5)){ if(GI.held){ toast("✊ 꽉 붙잡고 버텼어요!",null,1.4); jingle([659,880]); fxSpark(P.x,GI.gy+1,P.z,0xffffff,10); }
+      else { const dx=P.x-GI.x, dz=P.z-GI.z, dd=Math.hypot(dx,dz)||1; P.dashT=.35; P.dashX=dx/dd*26; P.dashZ=dz/dd*26; P.vy=7; P.y=Math.max(P.y,.05); P.air=1; GI.on=false; toast("😵 거인이 흔들어서 떨어졌어요!","날개 신발(점프 3번)로 다시 붙어 봐요",2); buzz(60); } } } }
+CTX_EXTRA.unshift(()=>GI.warn&&(GI.on||GI.gy>0)&&!GI.held?{t:"✊ 꽉 붙잡기!",f:()=>{ GI.held=true; tone(500,.08,"square"); buzz(20); toast("✊ 꽉 붙잡았어요!",null,.8); }}:null);
+function giStep(){ if(giSleeping()) return; const dist=Date.now()/1000*GI_SPD; const n=Math.floor(dist/GI_STEP); if(n===GI.stepN) return; const first=GI.stepN<0; GI.stepN=n; if(first) return;
+  const s=n%2?1:-1; const f=giL2W(s*3.2,.8); const d=Math.hypot(P.x-f.x,P.z-f.z); const far=Math.hypot(P.x-GI.x,P.z-GI.z);
+  if(far<90){ const v=Math.max(.02,.14*(1-far/90)); tone(60,.3,"sine",0,v); tone(45,.4,"sine",.04,v); if(far<40){ P.shake=Math.max(P.shake||0,.35*(1-far/40)); } fxRing(f.x,f.z,0xd8cfb8,6,.6); if(far<60) for(let i=0;i<(ECO()?3:7);i++) fxSpark(f.x+rnd(-2,2),.4,f.z+rnd(-2,2),0xd8cfb8,2); }
+  if(d<4.2&&GI.gy<=0&&P.y<.8&&!P.dead){ hurtPlayer(stat().mhp*.07,{n:"산 거인의 발",gi:1}); const dd=d||1; P.dashT=.25; P.dashX=(P.x-f.x)/dd*20; P.dashZ=(P.z-f.z)/dd*20; P.vy=6; } }
+/* ---------- 매 프레임 ---------- */
+function giTick(dt){ if(!started||G.realm<0) return; giDaySync(); const act=giActive(); const away=(typeof glAway==="function"&&glAway());
+  if(act&&!GI.wasActive&&GI.annDay!==kday()+(giKst().getUTCHours()>=19?.5:0)){ GI.annDay=kday()+(giKst().getUTCHours()>=19?.5:0); setTimeout(()=>{ if(!layerOpen){ toast("🏔️ 산 거인이 산책을 나왔어요!","메뉴 → 걸어 다니는 산 거인 · 등에 올라타서 룬 5개를 부숴요",3.4); jingle([392,523,659]); } },2500); }
+  GI.wasActive=act;
+  if(!act){ if(GI.g&&GI.g.visible){ GI.g.visible=false; } GI.vis=false; if(GI.gy>0) giDrop(); giChests(false); giBar(); return; }
+  if(!GI.built){ GI.built=true; try{ GI.P=giModel(); GI.g=GI.P.g; scene.add(GI.g); }catch(e){ console.warn(e); GI.g=null; } }
+  if(!GI.g) return;
+  GI.px=GI.x; GI.pz=GI.z; GI.pyaw=GI.yaw; const sl=giSleeping();
+  if(GI.sleep&&!sl&&GI.wokeR!==GI.sleep.r){ GI.wokeR=GI.sleep.r; fxSpark(GI.sleep.x,2,GI.sleep.z,0xd8cfb8,40); giChests(false); const pp=giPose(); fxSpark(pp.x,2,pp.z,0xd8cfb8,40); GI.px=null; if(GI.gy>0) giDrop(); if(Math.hypot(P.x-GI.x,P.z-GI.z)<120&&!layerOpen) toast("🏔️ 거인이 일어나서 다시 산책을 떠났어요!","새 룬 5개가 반짝여요",2.4); }
+  if(sl){ GI.x=GI.sleep.x; GI.z=GI.sleep.z; GI.yaw=GI.sleep.yaw; } else { const p=giPose(); GI.x=p.x; GI.z=p.z; GI.yaw=p.yaw; }
+  const tgtLift=sl?-5.5:0; GI.lift+=(tgtLift-GI.lift)*Math.min(1,dt*1.5); if(Math.abs(GI.lift-tgtLift)<.02) GI.lift=tgtLift;
+  GI.base=hAt(GI.x,GI.z);
+  const dist=Math.hypot(P.x-GI.x,P.z-GI.z); GI.vis=!away&&dist<230; GI.g.visible=GI.vis;
+  if(GI.vis){ const Pm=GI.P, tn=performance.now(); GI.g.position.set(GI.x,GI.base+GI.lift,GI.z); GI.g.rotation.y=GI.yaw;
+    const ph=Date.now()/1000*GI_SPD/GI_STEP*Math.PI; let sw=sl?0:Math.sin(ph)*.32; GI.shT=Math.max(0,(GI.shT||0)-dt); const sh=GI.shT>0?Math.sin(tn/40)*.06*GI.shT:0;
+    Pm.legs[0].rotation.x=sl?-1.45:sw; Pm.legs[1].rotation.x=sl?-1.45:-sw; Pm.legs.forEach(L=>L.position.y=10); Pm.arms[0].rotation.x=sl?-.2:-sw*.8; Pm.arms[1].rotation.x=sl?-.2:sw*.8; Pm.arms[0].rotation.z=sl?-.5:-.08; Pm.arms[1].rotation.z=sl?.5:.08;
+    GI.g.rotation.z=sh; GI.g.rotation.x=sl?0:Math.abs(Math.sin(ph))*.015;
+    const blink=(tn%4200)<160; Pm.lids.forEach(l=>{ l.position.y=sl||blink?24.55:24.85; }); Pm.eyes.forEach(e=>e.visible=!sl&&!blink);
+    const B=giBroken(); Pm.runes.forEach((o,k)=>{ const u=o.userData; const br=!!B[k]; u.gem.visible=!br; u.core.visible=!br; u.ring.visible=!br; u.crack.visible=br; if(!br){ u.gem.rotation.y+=dt*1.5; u.ring.rotation.z+=dt*2; u.ring.rotation.x=Math.PI/2; const pul=1+Math.sin(tn/300+k)*.12+(u.hit>0?.35:0); u.gem.scale.setScalar(pul); u.hit=Math.max(0,(u.hit||0)-dt); } });
+    if(sl&&Math.random()<dt*1.5){ const p=giL2W(0,4); fxSpark(p.x,GI.base+GI.lift+27-hAt(p.x,p.z),p.z,0xffffff,3); }
+    if(!sl) giStep(); giShakeTick(dt); }
+  else GI.warn=false;
+  giPhys(dt);
+  // 다른 사람이 거인 위에 있으면 높이 올려서 보임
+  GI.sendT-=dt; const myTop=GI.gy+P.y; if(GI.sendT<=0&&(myTop>.5||GI.sentUp)){ GI.sendT=ECO()?.45:.3; GI.sentUp=myTop>.5; if(!(typeof GL!=="undefined"&&GL.on)) try{ net.send({t:"giy",y:+(GI.gy).toFixed(1)}); }catch(e){} }
+  const tn=performance.now(); for(const id in PEERS){ const o=PEERS[id]; const up=o.giY>0&&tn-(o.giT||0)<1200; o.giS=(o.giS||0)+((up?o.giY:0)-(o.giS||0))*Math.min(1,dt*6); const add=Math.max(0,o.giS-(o.glS||0)); if(add>.05&&o.mesh) o.mesh.position.y+=add; }
+  giLabel(dist); giBar(dist); }
+XTICK.push(giTick);
+function giLabel(dist){ if(!GI.lbl) GI.lbl=makeLabel("boss"); if(!GI.vis||layerOpen||dist>120||dist<20){ GI.lbl.style.display="none"; return; } const sl=giSleeping(); const n=giBrokenN();
+  placeLabel(GI.lbl,GI.x,GI.base+GI.lift+32-hAt(GI.x,GI.z),GI.z,`<em style="color:#b8e07a">🏔️ 걸어 다니는 산 거인</em> <b>${sl?"💤 쿨쿨…":`💎 룬 ${n}/5`}</b>`); }
+function giBar(dist){ if(!GI.bar){ const b=document.createElement("div"); b.id="giBar"; b.hidden=true; document.body.appendChild(b); GI.bar=b; } const b=GI.bar;
+  const show=GI.vis&&dist!=null&&dist<70&&!layerOpen&&started; if(!show){ if(!b.hidden) b.hidden=true; return; } b.hidden=false; let bot=0; ["warbar","bossbar","evbar"].forEach(id=>{ const el=$(id); if(el&&!el.hidden){ const r=el.getBoundingClientRect(); if(r.height>0) bot=Math.max(bot,r.bottom); } }); const top=bot>0?Math.round(bot+6)+"px":""; if(b._t!==top){ b._t=top; b.style.top=top; } const B=giBroken(), sl=giSleeping();
+  const h=sl?`<b>🏔️ 산 거인 💤</b><span>${Math.max(1,Math.ceil((GI.sleep.ts+GI_SLEEP-Date.now())/60000))}분 뒤 일어나요 · 오늘 멈춘 횟수 ${GI.r}</span>`:`<b>🏔️ 산 거인 · 💎 ${GI_RUNES.map((r,k)=>B[k]?"✅":"💎").join("")}</b><span>${GI.on||GI.gy>0?`높이 ${Math.round(GI.gy+P.y)}m · 등의 덩굴 발판으로 올라가요`:"등 뒤 덩굴 사다리를 점프로 타고 올라가요"}</span>`;
+  if(b._h!==h){ b._h=h; b.innerHTML=h; } }
+/* ---------- 지도 · 길 안내 · 창 ---------- */
+MAP_X.push((ctx,tx,tz,big,u)=>{ if(!giActive()||(typeof glAway==="function"&&glAway())) return; const X=tx(GI.x), Z=tz(GI.z); ctx.beginPath(); ctx.arc(X,Z,9*u,0,6.2832); ctx.fillStyle="rgba(120,200,90,.25)"; ctx.fill(); mapPin(ctx,X,Z,(big?6:7.5)*u,"#6a8a4a","🏔️"); });
+function giGuide(){ if(!giActive()){ toast("🏔️ 산 거인은 지금 쉬는 중",giNextTxt(),2.4); return; } const label="🏔️ 산 거인"; if(P.guide&&P.guide.label===label){ setGuide(null); return; } setGuide({x:GI.x,z:GI.z,label}); if(P.guide) P.guide.gi=1; }
+XTICK.push(()=>{ const g=P.guide; if(!g||!g.gi) return; if(!giActive()){ P.guide=null; $("guide").hidden=true; return; } g.x=GI.x; g.z=GI.z; if(Math.hypot(P.x-GI.x,P.z-GI.z)<14){ P.guide=null; $("guide").hidden=true; toast("🏔️ 거인 발밑에 왔어요!","등 뒤의 덩굴 사다리를 점프로 올라가요",2.2); } });
+function showGiant(){ giDaySync(); const act=giActive(), sl=giSleeping(), n=giBrokenN();
+  card(`<h2>🏔️ 걸어 다니는 산 거인</h2><p>이끼 낀 둥근 돌 거인이 세계의 중심 둘레를 아주 천천히 걸어 다녀요. 땅에서 때리는 게 아니라, <b>등 뒤 덩굴 사다리 발판</b>을 점프로 타고 올라가 <b>반짝이는 룬 돌 5개</b>(허리·등·양 어깨·머리 꼭대기)를 부숴요. 친구가 때린 만큼 함께 깎여요!</p>
+   <div class="idlegrid"><div><b>${act?(sl?"💤 잠자는 중":"🚶 걷는 중"):"🌙 쉬는 중"}</b><span>${act?(sl?`${Math.max(1,Math.ceil((GI.sleep.ts+GI_SLEEP-Date.now())/60000))}분 뒤 일어나요`:`룬 ${n}/5 부숨`):giNextTxt()}</span></div><div><b>${GI.r}</b><span>오늘 멈춘 횟수</span></div><div><b>${G.giN||0}</b><span>받은 보물 상자</span></div><div><b>${G.giTop||0}</b><span>정상에 오른 판</span></div></div>
+   <h3>🎮 이렇게 놀아요</h3><div class="diary"><p>🪜 등 뒤 덩굴 발판을 점프로 하나씩 올라가요. 서 있으면 거인과 함께 실려 가요.</p><p>✊ 24초마다 거인이 몸을 흔들어요. 경고가 뜨면 「꽉 붙잡기!」를 눌러요 — 안 누르면 떨어져요(날개 신발로 다시 붙을 수도!).</p><p>🦶 발을 쿵 내디딜 때 발 옆에 있으면 아파요 — 점프하면 피해요.</p><p>💤 룬 5개를 다 부수면 거인이 앉아서 5분 동안 잠들고, 그 판에 함께한 사람 모두 <b>보물 상자</b>! 머리 꼭대기에 오르면 <b>정상 보너스</b>도 있어요.</p></div>
+   <p style="font-size:12px">언제: 토요일·일요일 하루 종일 + 평일 저녁 7시~7시 40분(한국 시간). 거인 위(3m 넘게)에 있으면 땅의 괴물 공격이 닿지 않아요.</p>
+   <button class="buy" id="giGo" style="align-self:center" ${act?"":"disabled"}>🧭 거인에게 길 안내</button>`);
+  if($("giGo")) $("giGo").onclick=()=>{ closeLayer(); giGuide(); }; }
+MENU_X.push({ic:"🏔️",n:"걸어 다니는 산 거인",id:"giBtn",sub:()=>{ giDaySync(); if(!giActive()) return "🌙 "+giNextTxt(); return giSleeping()?"💤 잠자는 중":`🚶 지금 걷는 중 · 룬 ${giBrokenN()}/5`; },f:showGiant});
+TITLES.push({id:"gitop",n:"거인 정복자",t:2,h:"산 거인 머리 꼭대기에 오르기",g:()=>[G.giTop||0,1]},{id:"gin3",n:"거인의 친구",t:2,h:"산 거인을 멈추고 보물 상자 3번",g:()=>[G.giN||0,3]},{id:"gir10",n:"룬 부수는 망치",t:3,h:"룬 돌 마지막 한 방 10번",g:()=>[G.giRune||0,10]});
+</script>
+<style>
+#giBar{position:fixed;left:50%;top:calc(max(8px,env(safe-area-inset-top)) + 54px);transform:translateX(-50%);z-index:5;pointer-events:none;min-width:240px;max-width:min(52vw,440px);padding:5px 14px 7px;border-radius:14px;background:linear-gradient(180deg,rgba(26,40,18,.88),rgba(18,26,30,.88));border:2px solid #b8e07a;box-shadow:0 0 0 2px rgba(0,0,0,.45),0 0 14px rgba(160,220,100,.4);color:#fff;text-align:center;display:flex;flex-direction:column;gap:1px}
+#giBar[hidden]{display:none} #giBar b{font-size:14px;color:#e4ffc0;text-shadow:0 2px 0 #000} #giBar span{font-size:12px;opacity:.92}
+</style>
+<script>
 /* ================= 아주 작은 MQTT 클라이언트 (웹소켓) — 외부 라이브러리 없이 ================= */
 function MiniMQTT(url,opt){
   const self={url,ok:false,ws:null,buf:new Uint8Array(0),pid:1,pingT:null,retry:null,closed:false,subs:[],opt};
@@ -7606,19 +7898,5 @@ function regionBanner(name,sub,realm){ const el=$("rgban"); if(!el){ toast(name,
 window.__gw={regionBanner,PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoard,showPlay,pgNow,pgTileAt,STY,STORY,styData,styStart,styAdvance,styStep,styOpenN,styNextDays,showStory,styComic,styTarget,CQ,CQO,cqMis,cqTotal,cqAdd,showTeam,frTeleport,frFollow,SKS,skSlots,showSkills,showPatch,PATCH_NOTES,GT,GTO,DS,gtTotal,gtStage,gtDonate,gtGive,gtData,showGate,dsEnter,dsExit,dsSpawn,DS_MOBS,OR,orQuiz,orAnswer,orToday,showOracle,MT,mtGraduate,mtRole,showMentor,mtShowStar,NETX,NETR,PETS,showShop,bfOn,bfAdd,BUFFS,shopDeal,GD,GDO,gdCreate,gdJoin,gdLeave,gdClaim,gdAdd,gdMembers,gdWeekPts,gdLv,gdRanking,showGuild,gdMine,FG,showForge,fgStart,fgHit,fgDone,fgGive,fgLv,fgMul,RC,RCO,rcStart,rcEnd,rcBoard,showRace,rdSet,rdCan,WD,WDO,wdDonate,wdTotal,wdStage,wdGive,showWonder,wdData,HM,HOMES,DECO,hmEnter,hmExit,hmGift,hmAdd,hmBlessMsg,hmMsg,showHome,hmSlotCard,hmCollect,FS,startFish,fishPull,fishCaught,trapSet,trapClaim,showFish,nearWater,fishSpots,ssData,ssTasks,ssClaim,showSeason,ssMsg,ssNo,ssAdd,ssWinner,SSO,CTX,DG,dgEnter,dgFloor,dgFinish,dgPlan,showDungeon,showTitles,TITLES,showExp,expStart,expClaim,EXPO,DGR,TB,titanHit,titanDefeated,showTitan,titanGo,showPets,hatchEgg,petOnKill,comboFire,comboRecv,showCombos,PETMESH,idleSim,grantIdle,showIdleReport,ROSTER,autoFace,buildPlayer,GHOSTS,mmoProfile,showRoster,G,P,mobs,W,net,PEERS,WAR,forceWar,resolveWar,joinWar,begin,update,spawnMob,spawnAtHome,REGIONS,attack,useSkill,startTrial,die,respawn};
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
-<!--auto-update--><script>
-(function(){ var CUR="48663337";
-  function check(){ if(!/^https?:/.test(location.protocol)) return;
-    fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
-      if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
-      var go=function(){ location.replace(location.pathname.replace(/index\.html$/,"")+"?v="+j.v); };
-      try{ var p=[]; if(navigator.serviceWorker&&navigator.serviceWorker.getRegistrations) p.push(navigator.serviceWorker.getRegistrations().then(function(rs){ return Promise.all(rs.filter(function(r){return location.href.indexOf(r.scope)===0;}).map(function(r){return r.unregister();})); }));
-        if(window.caches) p.push(caches.keys().then(function(ks){ return Promise.all(ks.map(function(c){return caches.delete(c);})); }));
-        Promise.all(p).then(go,go); }catch(e){ go(); }
-    }).catch(function(){});
-  }
-  check(); document.addEventListener("visibilitychange",function(){ if(!document.hidden) check(); });
-})();
-</script><!--/auto-update-->
 </body>
 </html>
