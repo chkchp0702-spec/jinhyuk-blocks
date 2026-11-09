@@ -605,7 +605,7 @@ body.eco .act.atk.full,body.eco .act.atk.full::before{animation:none}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v94";
+const VER="v95";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -4991,6 +4991,14 @@ TITLES.push({id:"sk9",n:"기술의 달인",t:2,h:"기술 9개를 모두 배우�
    새 버전으로 처음 켜면 한 번, 무엇이 바뀌었는지 쉬운 말로 보여 줌(G.seenVer). 메뉴 → 업데이트 소식에서 다시 볼 수 있음.
    ※ 버전을 올릴 때마다 맨 앞에 한 줄 묶음을 더해요(오래된 것은 8개까지만 남김). */
 const PATCH_NOTES=[
+ {v:"v95",d:"11/9",t:"🎵 신들의 악기 · 🐏 황금 양 몰이 · 🌑 라후의 일식 축제",items:[
+   "🎵 신들의 악기: 메뉴 → 신들의 악기에서 황금 나팔 · 뿔피리 · 시타르 · 리라 중 하나를 골라 「연주하기」! 화면 아래 색깔 버튼 5개(도·레·미·솔·라)로 연주하면 근처 사람에게도 들려요.",
+   "📜 악보 4곡(에덴의 아침 · 무지개 다리 · 연꽃 자장가 · 올림포스 행진)을 맞게 치면 🌸 꽃비와 금화! 근처 사람과 10초 안에 같은 노래를 치면 🌟 합주 보너스. 시끄러우면 「근처 연주 소리 끄기」.",
+   "🐏 황금 양 몰이: 올림포스 올리브 언덕에 황금 양 12마리! 우리 앞 표지판에서 시작하면 2분 동안 양을 우리에 넣어요. 혼자 쫓으면 양이 옆으로 흩어지니까 여럿이 빙 둘러싸요. 사람이 적으면 쉬는 친구 영웅의 그림자가 도와줘요.",
+   "🧶 넣은 양 수만큼 황금 양털·금화·경험치! 양털 3개는 ⛓ 쇳조각 4 + ✨ 룬 가루 1로 바꿀 수 있어요.",
+   "🌑 배고픈 라후의 일식 축제: 2주에 한 번 수요일 저녁 8시(첫 회 11/11)! 먹보 라후가 해를 한입 물면 30분 동안 괴물을 잡고 수도에서 떡을 찧어 🍡 꿀떡을 모아 던져요. 전 세계 360개면 해를 퉤! → 감사 상자와 🌈 무지개 다리.",
+   "💤 게임을 꺼 둬도 내 영웅이 30분마다 꿀떡을 구워 뒀다가 일식 때 보내요. 가장 많이 던진 세계 수도에는 「해를 돌려준 세계」 깃발이 일주일!",
+   "🏅 새 칭호 9개."]},
  {v:"v92",d:"11/9",t:"🕹️ 임무 카드가 방향키를 가리던 문제 고침",items:[
    "왼쪽 위 임무 카드가 많아지면 아래로 길게 늘어나 조이스틱(방향키)을 덮어서 움직일 수 없던 문제를 고쳤어요.",
    "이제 임무 카드는 조이스틱 위에서 딱 멈춰요. 자리가 모자라면 🤝 만남 임무 → 👥 함께 임무 → 위쪽 임무 순서로 보이고, 나머지는 「📜 임무 N개 더」 칩으로 접혀요(누르면 임무 창).",
@@ -5021,15 +5029,6 @@ const PATCH_NOTES=[
    "맞춰지는 것: 레벨·경험치 · 계급(승급) · 장비 등급(무기·갑옷·유물 칸마다) · 대장간 강화 · 신수(없는 신수도 받고, 레벨도 같아져요).",
    "금화·재료·꾸미기·칭호는 각자 모은 그대로예요."]},
  {v:"v76",d:"11/6",t:"🎁 선물 도착",items:["「잼민이진혁겜해요」 님에게 금화 100,000 선물! 게임을 켜면 바로 들어와요."]},
- {v:"v75",d:"11/6",t:"📈 레벨 60 넘어서 계속!",items:[
-   "레벨이 60에서 멈추지 않아요! 이제 레벨 300까지 계속 올라가요.",
-   "레벨이 오를수록 체력·공격력도 계속 커져요.",
-   "미궁·태양의 사막·이야기 보스·돌발 이벤트 괴물도 내 레벨에 맞춰 더 강해져요."]},
- {v:"v74",d:"11/6",t:"🎁 모두 레벨 60!",items:[
-   "🎁 특별 선물: 이번 업데이트 후 게임을 켜면 모든 캐릭터가 레벨 60이 돼요.",
-   "체력·공격력이 레벨 60에 맞게 크게 올라요. 모아 둔 장비·금화·신수는 그대로예요.",
-   "계급(승급)은 그대로라서, 승급 시험을 차례로 깨면 더 높은 계급과 새 기술을 얻을 수 있어요.",
-   "선물은 캐릭터마다 한 번만 받아요."]},
 ];
 function patchNew(){ const seen=G.seenVer; if(!seen) return PATCH_NOTES.slice(0,1); const i=PATCH_NOTES.findIndex(p=>p.v===seen); return i<0?PATCH_NOTES.slice(0,1):PATCH_NOTES.slice(0,i); }
 function showPatch(all){ const L=all?PATCH_NOTES:patchNew(); G.seenVer=PATCH_NOTES[0].v; saveGame();
@@ -7741,6 +7740,355 @@ const HUDFIT=(()=>{
 })();
 </script>
 <script>
+/* ================= v95-1: 🎵 신들의 악기 — 어디서나 꺼내 부는 리라·뿔피리 (IDEAS G11/9-7) =================
+   메뉴 → 신들의 악기 → 악기 고르고 「🎶 연주하기」 → 화면 아래에 색깔 음 버튼 5개(도·레·미·솔·라 — 아무렇게 쳐도 예쁜 5음).
+   소리는 WebAudio 로 그 자리에서 만듦(소리 파일 없음). 누르면 머리 위로 ♪ 가 퐁퐁, 근처(40m) 사람에게도 들림(t:"mu").
+   악보 4곡: 창에 색 동그라미로 그려져 있고, 맞게 치면 🌸 꽃비 + 하루 한 번 금화. 근처 사람이 10초 안에 같은 노래를 치면 「🌟 합주!」(t:"mus").
+   아무나 시끄럽게 못 하게: 정해진 5음만, 1초에 8음까지, 「근처 연주 소리 끄기」(G.muMute).
+   저장: G.muIns(고른 악기) · G.muDay/G.muDone(오늘 친 노래) · G.muKnown(한 번이라도 친 노래들) · G.muSongs(친 횟수) · G.muDuet(합주 횟수). 칭호 3개. */
+const MU_NOTE=[523.25,587.33,659.25,783.99,880];
+const MU_KEY=[{n:"도",c:"#ff5b5b"},{n:"레",c:"#ff9f3a"},{n:"미",c:"#ffd93a"},{n:"솔",c:"#4fd16a"},{n:"라",c:"#46a6ff"}];
+const MU_INS=[
+ {n:"황금 나팔",ic:"🎺",r:0,type:"square",oct:1,d:.32,v:.05},
+ {n:"뿔피리",ic:"📯",r:1,type:"sawtooth",oct:.5,d:.5,v:.06},
+ {n:"시타르",ic:"🪕",r:2,type:"square",oct:1,d:.55,v:.04,det:1},
+ {n:"리라",ic:"🎼",r:3,type:"triangle",oct:1,d:.7,v:.12}];
+const MU_SONGS=[
+ {n:"에덴의 아침",ic:"🌅",s:[0,2,4,3,2,1,0]},
+ {n:"무지개 다리",ic:"🌈",s:[2,2,3,4,4,3,2]},
+ {n:"연꽃 자장가",ic:"🪷",s:[4,3,2,3,4,4]},
+ {n:"올림포스 행진",ic:"🏛️",s:[0,0,3,3,4,4,3]}];
+const MU={on:false,bar:null,buf:[],last:0,rate:[],done:{},peerSong:{},floatT:0};
+function muIns(){ const i=G.muIns; return MU_INS[i>=0&&i<4?i:Math.max(0,G.realm)]||MU_INS[0]; }
+function muSound(k,ins,vol,delay){ const f=MU_NOTE[k]*ins.oct; tone(f,ins.d,ins.type,delay||0,(vol==null?1:vol)*ins.v); if(ins.det) tone(f*1.006,ins.d*.8,"sawtooth",(delay||0)+.01,(vol==null?1:vol)*ins.v*.5); if(ins.r===3) tone(f*2,ins.d*.4,"sine",(delay||0),(vol==null?1:vol)*ins.v*.25); }
+function muDayReset(){ const d=kday(); if(G.muDay!==d){ G.muDay=d; G.muDone={}; } }
+function muPlay(k){ if(P.dead) return; const now=performance.now(); MU.rate=MU.rate.filter(t=>now-t<1000); if(MU.rate.length>=8) return; MU.rate.push(now);
+  const ins=muIns(); muSound(k,ins,1); floatDmg(P.x+rnd(-.4,.4),(P.gy?P.gy-hAt(P.x,P.z):0)+3.6,P.z,"♪","gain"); try{ net.send({t:"mu",k,s:G.muIns>=0?G.muIns:Math.max(0,G.realm)}); }catch(e){}
+  const b=MU.bar&&MU.bar.querySelector(`[data-k="${k}"]`); if(b){ b.classList.remove("hit"); void b.offsetWidth; b.classList.add("hit"); }
+  if(now-MU.last>2500) MU.buf=[]; MU.last=now; MU.buf.push(k); if(MU.buf.length>12) MU.buf.shift();
+  MU_SONGS.forEach((S,i)=>{ const n=S.s.length; if(MU.buf.length<n) return; for(let j=0;j<n;j++) if(MU.buf[MU.buf.length-n+j]!==S.s[j]) return; muSongDone(i); MU.buf=[]; }); }
+function muSongDone(i){ const S=MU_SONGS[i]; muDayReset(); G.muSongs=(G.muSongs||0)+1; G.muKnown=G.muKnown||{}; G.muKnown[i]=1; MU.done[i]=Date.now();
+  for(let j=0;j<5;j++) setTimeout(()=>fxSpark(P.x+rnd(-3,3),3.5,P.z+rnd(-3,3),[0xffa8d0,0xfff0a0,0xc8a8ff,0xffffff][j%4],10),j*120);
+  jingle([784,988,1175,1568]); buzz([20,20,20]);
+  let sub="🌸 꽃비가 내려요!"; if(!G.muDone[i]){ G.muDone[i]=1; const gold=Math.round(80+G.lv*6); G.gold+=gold; sub=`🌸 꽃비! 오늘 처음 · 금화 +${fmt(gold)}`; }
+  toast(`${S.ic} 「${S.n}」 연주 성공!`,sub,2.4); try{ net.send({t:"mus",s:i}); }catch(e){}
+  const pd=MU.peerSong[i]; if(pd&&Date.now()-pd.t<10000) muDuet(i,pd.n); saveGame(); }
+function muDuet(i,who){ const k="d"+i; if(MU[k]&&Date.now()-MU[k]<12000) return; MU[k]=Date.now(); G.muDuet=(G.muDuet||0)+1; const gold=Math.round(120+G.lv*8); G.gold+=gold; saveGame();
+  for(let j=0;j<8;j++) setTimeout(()=>fxSpark(P.x+rnd(-5,5),5,P.z+rnd(-5,5),0xffe08a,12),j*90);
+  jingle([523,659,784,1046,1318,1568]); try{ lvBanner("🌟 합주!",`「${MU_SONGS[i].n}」`,`${who}님과 함께 · 금화 +${fmt(gold)}`,"#ffe08a"); }catch(e){ toast("🌟 합주!",`${who}님과 함께 · 금화 +${fmt(gold)}`,2.6); } }
+NETR.mu=(o,d)=>{ if(G.muMute||o.dead) return; const dist=Math.hypot(o.x-P.x,o.z-P.z); if(dist>40) return; const k=d.k|0; if(k<0||k>4) return; const ins=MU_INS[d.s|0]||MU_INS[0];
+  muSound(k,ins,Math.max(.15,.7*(1-dist/40))); o.muT=(o.muT||0); const now=performance.now(); if(now-o.muT>180){ o.muT=now; floatDmg(o.x+rnd(-.4,.4),3.6,o.z,"♪","gain"); } };
+NETR.mus=(o,d)=>{ const i=d.s|0; if(!MU_SONGS[i]) return; if(Math.hypot(o.x-P.x,o.z-P.z)>40) return; MU.peerSong[i]={t:Date.now(),n:o.name};
+  if(!layerOpen) toast(`🎵 ${o.name}님이 「${MU_SONGS[i].n}」을(를) 연주했어요`,MU.done[i]&&Date.now()-MU.done[i]<10000?null:"10초 안에 같은 노래를 치면 🌟 합주!",2);
+  if(MU.done[i]&&Date.now()-MU.done[i]<10000) muDuet(i,o.name); };
+/* ---------- 연주 띠 ---------- */
+function muBarEl(){ if(MU.bar) return MU.bar; const b=document.createElement("div"); b.id="muBar"; b.hidden=true;
+  b.innerHTML=`<button type="button" class="mux" data-x="ins"></button>`+MU_KEY.map((K,k)=>`<button type="button" class="muk" data-k="${k}" style="--c:${K.c}"><b>${K.n}</b></button>`).join("")+`<button type="button" class="mux" data-x="off">✖</button>`;
+  b.addEventListener("pointerdown",e=>{ const t=e.target.closest("button"); if(!t) return; e.stopPropagation(); e.preventDefault(); audioWake&&audioWake();
+    if(t.dataset.k!=null) muPlay(+t.dataset.k); else if(t.dataset.x==="off") muStop(); else if(t.dataset.x==="ins"){ G.muIns=((G.muIns>=0?G.muIns:Math.max(0,G.realm))+1)%4; saveGame(); const I=muIns(); toast(`${I.ic} ${I.n}(으)로 바꿨어요`,null,1.2); muSound(2,I,1); muBarSync(); } });
+  document.body.appendChild(b); MU.bar=b; muBarSync(); return b; }
+function muBarSync(){ if(!MU.bar) return; const I=muIns(); MU.bar.querySelector('[data-x="ins"]').textContent=I.ic; }
+function muStart(){ MU.on=true; muBarEl(); muBarSync(); toast(`${muIns().ic} ${muIns().n}을(를) 꺼냈어요!`,"색깔 버튼을 눌러 연주해요 · ✖ 로 넣기",2); }
+function muStop(){ MU.on=false; if(MU.bar) MU.bar.hidden=true; }
+XTICK.push(()=>{ if(!MU.bar) return; const show=MU.on&&started&&!layerOpen&&!P.dead; if(MU.bar.hidden===show){ MU.bar.hidden=!show; document.body.classList.toggle("muOn",show); } });
+document.addEventListener("keydown",e=>{ if(!MU.on||layerOpen||e.repeat) return; const tg=e.target&&e.target.tagName; if(tg==="INPUT"||tg==="TEXTAREA") return; const k="12345".indexOf(e.key); if(k>=0){ muPlay(k); e.preventDefault(); } });
+/* ---------- 창 ---------- */
+function muDots(s){ return s.map(k=>`<i class="mud" style="background:${MU_KEY[k].c}">${MU_KEY[k].n}</i>`).join(""); }
+function muListen(i){ const I=muIns(); MU_SONGS[i].s.forEach((k,j)=>muSound(k,I,1,j*.38)); }
+function showMusic(){ muDayReset(); const I=muIns(); const kn=Object.keys(G.muKnown||{}).length;
+  card(`<h2>🎵 신들의 악기</h2><p>어디서나 악기를 꺼내 연주해요! 색깔 버튼 5개만 있어서 아무렇게 쳐도 예쁜 소리가 나요. <b>근처 사람에게도 들려요.</b> 아래 악보대로 치면 🌸 꽃비가 내리고, 근처 사람과 10초 안에 같은 노래를 치면 <b>🌟 합주!</b></p>
+   <div class="idlegrid"><div><b>${I.ic}</b><span>${I.n}</span></div><div><b>${kn}/4</b><span>아는 노래</span></div><div><b>${G.muSongs||0}</b><span>연주한 노래</span></div><div><b>${G.muDuet||0}</b><span>합주</span></div></div>
+   <h3>🎺 악기 고르기</h3><div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center">${MU_INS.map((x,i)=>`<button type="button" class="buy" data-mi="${i}" style="${x===I?"outline:3px solid #ffe08a":""}">${x.ic} ${x.n}<small style="display:block;font-size:11px;opacity:.8">${REALMS[x.r].n}</small></button>`).join("")}</div>
+   <h3>📜 악보</h3><div class="diary">${MU_SONGS.map((S,i)=>`<p style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><b>${S.ic} ${S.n}</b> ${(G.muDone||{})[i]?"✅":""} <span style="display:inline-flex;gap:2px">${muDots(S.s)}</span> <button type="button" class="buy" data-ml="${i}" style="padding:3px 8px;font-size:12px">👂 듣기</button></p>`).join("")}</div>
+   <p style="font-size:12px">하루에 노래마다 처음 성공하면 금화! 키보드는 1~5. <label><input type="checkbox" id="muMute" ${G.muMute?"checked":""}> 근처 사람 연주 소리 끄기</label></p>
+   <button class="go" id="muGo" type="button" style="align-self:center">${MU.on?"🎶 계속 연주하기":"🎶 연주하기"}</button>`);
+  layers.querySelectorAll("[data-mi]").forEach(b=>b.onclick=()=>{ G.muIns=+b.dataset.mi; saveGame(); muSound(2,muIns(),1); muBarSync(); showMusic(); });
+  layers.querySelectorAll("[data-ml]").forEach(b=>b.onclick=()=>muListen(+b.dataset.ml));
+  $("muMute").onchange=e=>{ G.muMute=!!e.target.checked; saveGame(); };
+  $("muGo").onclick=()=>{ closeLayer(); muStart(); }; }
+MENU_X.push({ic:"🎵",n:"신들의 악기",id:"muBtn",sub:()=>`${muIns().ic} ${muIns().n} · 아는 노래 ${Object.keys(G.muKnown||{}).length}/4`,f:showMusic});
+TITLES.push({id:"mu3",n:"떠돌이 악사",t:1,h:"악보대로 노래 3번 연주",g:()=>[G.muSongs||0,3]},{id:"mu4",n:"모든 노래를 아는 자",t:2,h:"악보 4곡 모두 연주",g:()=>[Object.keys(G.muKnown||{}).length,4]},{id:"mud1",n:"신들의 합창단",t:2,h:"근처 사람과 🌟 합주",g:()=>[G.muDuet||0,1]});
+</script>
+<style>
+#muBar{position:fixed;left:50%;bottom:calc(max(10px,env(safe-area-inset-bottom)) + 52px);transform:translateX(-50%);z-index:6;display:flex;gap:5px;align-items:center;padding:6px 8px;border-radius:18px;background:rgba(20,16,40,.82);border:2px solid #ffe08a;box-shadow:0 0 0 2px rgba(0,0,0,.45);touch-action:none}
+#muBar[hidden]{display:none}
+body.muOn #bCtx{bottom:calc(max(10px,env(safe-area-inset-bottom)) + 124px)}
+#muBar .muk{width:46px;height:46px;border-radius:50%;border:3px solid #fff;background:var(--c);color:#fff;font-weight:900;font-size:15px;text-shadow:0 1px 0 #000;box-shadow:0 3px 0 rgba(0,0,0,.4);padding:0}
+#muBar .muk.hit{animation:muHit .25s ease-out}
+#muBar .mux{width:38px;height:38px;border-radius:12px;border:2px solid #ffe08a;background:#2b2250;color:#fff;font-size:18px;padding:0}
+@keyframes muHit{0%{transform:scale(.82);filter:brightness(1.6)}100%{transform:scale(1);filter:none}}
+.mud{display:inline-block;min-width:20px;height:20px;line-height:20px;border-radius:50%;color:#fff;font-style:normal;font-size:10px;font-weight:900;text-align:center;text-shadow:0 1px 0 #000}
+@media (max-height:420px){ #muBar .muk{width:40px;height:40px;font-size:13px} #muBar .mux{width:32px;height:32px} }
+</style>
+<script>
+/* ================= v95-2: 🐏 헬리오스의 황금 양 몰이 — 여럿이 둘러싸야 잡히는 양 떼 (IDEAS G11/9-8) =================
+   올림포스 「올리브 언덕」에 황금 양 12마리가 풀을 뜯음. 양은 사람이 8m 안에 오면 반대쪽으로 도망치는데,
+   한 사람만 쫓으면 옆으로 흩어지고(양마다 흩어지는 쪽이 다름), 여럿이 빙 둘러싸면 가운데로 모여 똑바로 밀림.
+   울타리 우리(앞쪽 입구 하나)에 들어간 양은 다시 안 나옴.
+   판: 우리 앞 표지판에서 「🐏 양 몰이 시작」 → 2분. 시작한 사람 폰(방장)이 양을 계산해서 0.2초마다 보냄(t:"shp"),
+   다른 폰은 그대로 그림. 시작 t:"shs"(먼저 시작한 쪽이 이김), 끝 t:"she". 방장 소식이 4초 넘게 없으면 그 판은 멈춤.
+   사람이 3명보다 적으면 쉬고 있는 친구 영웅(모험가 명부의 💤 친구, 없으면 「올림포스 양치기」) 그림자 한 명이 반대쪽에서 도와줌.
+   끝났을 때 언덕(70m 안)에 있던 사람 모두: 넣은 양 수만큼 🧶 황금 양털 · 금화 · 경험치. 양털 3개 → ⛓ 쇳조각 4 + ✨ 룬 가루 1(대장간 재료).
+   저장: G.fleece · G.shFleeceT · G.shN · G.shBest · G.shPerfect. 칭호 3개. */
+const SH_C={x:-150,z:46}, SH_R=40, SH_PEN={x:-150,z:82,hx:5.2,hz:4}, SH_GATE=3, SH_N=12, SH_T=120000, SH_FLEE=9;
+const SH={built:false,sheep:[],round:null,host:false,lastMsg:0,sendT:0,helper:null,hMesh:null,hLbl:null,bar:null,lbl:null,cool:0,endT:0,fence:null,vis:false,sync:{}};
+function shRand(seed){ let s=seed>>>0||1; return ()=>{ s=(s*1664525+1013904223)>>>0; return s/4294967296; }; }
+/* ---------- 모양 ---------- */
+function shModel(){ const g=new THREE.Group(); const wool=mat({color:0xffd24a,metalness:.35,roughness:.45,emissive:0x3a2600}), face=mat({color:0x5a4030,roughness:1}), leg=mat({color:0x3a2a20});
+  const body=sph(.8,wool,0,1.05,0); body.scale.set(1.5,1.25,1.9); g.add(body); [[-.35,.3],[.35,.3],[0,-.4]].forEach(p=>g.add(sph(.45,wool,p[0],1.55,p[1])));
+  const head=new THREE.Group(); head.position.set(0,1.25,1.05); head.add(box(.55,.55,.7,face,0,0,.15)); head.add(sph(.32,wool,0,.32,0)); [-1,1].forEach(s=>{ head.add(box(.35,.12,.18,face,s*.38,.1,0)); head.add(sph(.07,mat({color:0x000000}),s*.17,.08,.5)); }); g.add(head);
+  const legs=[]; [[-.38,.5],[.38,.5],[-.38,-.5],[.38,-.5]].forEach(p=>{ const l=box(.18,.6,.18,leg,p[0],.3,p[1]); g.add(l); legs.push(l); });
+  g.userData={head,legs}; g.userData.noOutline=true; shadowify(g); return g; }
+function shFence(){ const g=new THREE.Group(); const wood=mat({color:0x9a6a3a,roughness:.9}), gold=mat({color:0xffc83a,metalness:.5,roughness:.35,emissive:0x3a2600}); const P0=SH_PEN;
+  const y=x=>hAt(x[0],x[1]); const post=(x,z)=>{ const p=box(.3,1.6,.3,wood,x,y([x,z])+.8,z); g.add(p); };
+  const rail=(x1,z1,x2,z2)=>{ const len=Math.hypot(x2-x1,z2-z1), mx=(x1+x2)/2, mz=(z1+z2)/2, yy=y([mx,mz]); [.6,1.2].forEach(h=>{ const r=box(len,.14,.12,wood,mx,yy+h,mz); r.rotation.y=-Math.atan2(z2-z1,x2-x1); g.add(r); }); };
+  const L=P0.x-P0.hx, R=P0.x+P0.hx, F=P0.z-P0.hz, B=P0.z+P0.hz;
+  [[L,F],[L,B],[R,B],[R,F],[P0.x-SH_GATE,F],[P0.x+SH_GATE,F],[L,P0.z],[R,P0.z],[P0.x,B]].forEach(p=>post(p[0],p[1]));
+  rail(L,F,L,B); rail(L,B,R,B); rail(R,B,R,F); rail(L,F,P0.x-SH_GATE,F); rail(P0.x+SH_GATE,F,R,F);
+  // 입구 금빛 아치 + 표지판
+  [-1,1].forEach(s=>g.add(box(.35,3.2,.35,gold,P0.x+s*SH_GATE,y([P0.x,F])+1.6,F))); g.add(box(SH_GATE*2+.4,.35,.35,gold,P0.x,y([P0.x,F])+3.2,F));
+  const sx=P0.x+SH_GATE+2.5, sz=F-2; g.add(box(.2,1.4,.2,wood,sx,y([sx,sz])+.7,sz)); const sg=box(1.6,.9,.12,mat({color:0xf3e2b8}),sx,y([sx,sz])+1.5,sz); g.add(sg);
+  // 풀밭 바닥 (우리 안)
+  const fl=new THREE.Mesh(new THREE.PlaneGeometry(P0.hx*2,P0.hz*2),mat({color:0xc9e07a,roughness:1})); fl.rotation.x=-Math.PI/2; fl.position.set(P0.x,y([P0.x,P0.z])+.06,P0.z); g.add(fl);
+  g.userData.noOutline=true; shadowify(g); return g; }
+function shBuild(){ if(SH.built) return; SH.built=true; try{ SH.fence=shFence(); scene.add(SH.fence); for(let i=0;i<SH_N;i++){ const m=shModel(); scene.add(m); SH.sheep.push({m,x:0,z:0,tx:0,tz:0,h:0,pen:0,sc:1,scT:0,wT:0,wh:Math.random()*6.28,mv:0,ph:Math.random()*6}); } shScatter(1); }catch(e){ console.warn(e); } }
+function shScatter(seed){ const r=shRand(seed||Math.floor(Math.random()*1e9)); SH.sheep.forEach((s,i)=>{ const a=r()*6.283, d=6+r()*22; s.x=s.tx=SH_C.x+Math.cos(a)*d; s.z=s.tz=SH_C.z-4+Math.sin(a)*d*.8; s.pen=0; s.sc=r()<.5?-1:1; s.h=r()*6.28; }); }
+/* ---------- 방장 계산 ---------- */
+function shPushers(){ const L=[[P.x,P.z]]; for(const id in PEERS){ const o=PEERS[id]; if(!o.dead&&Math.hypot(o.tx-SH_C.x,o.tz-SH_C.z)<70) L.push([o.tx,o.tz]); } if(SH.helper) L.push([SH.helper.x,SH.helper.z]); return L; }
+function shInPen(x,z,m){ return Math.abs(x-SH_PEN.x)<SH_PEN.hx-(m||0)&&Math.abs(z-SH_PEN.z)<SH_PEN.hz-(m||0); }
+function shSim(dt){ const pu=shPushers(); const free=SH.sheep.filter(s=>!s.pen); let cx=0,cz=0; free.forEach(s=>{ cx+=s.x; cz+=s.z; }); if(free.length){ cx/=free.length; cz/=free.length; }
+  const FV=SH.sheep.map(s=>{ if(s.pen) return null; let fx=0,fz=0; pu.forEach(p=>{ const dx=s.x-p[0], dz=s.z-p[1], d=Math.hypot(dx,dz); if(d<SH_FLEE&&d>.01){ const w=(SH_FLEE-d)/SH_FLEE; fx+=dx/d*w; fz+=dz/d*w; } }); return Math.hypot(fx,fz)>.02?[fx,fz]:null; });
+  SH.sheep.forEach((s,i)=>{ let vx=0,vz=0,sp=0;
+    if(s.pen){ s.wT-=dt; if(s.wT<=0){ s.wT=rnd(1,3); s.wh=Math.random()*6.28; } vx=Math.cos(s.wh)*.5; vz=Math.sin(s.wh)*.5; }
+    else { let fx=0,fz=0,near=0; pu.forEach(p=>{ const dx=s.x-p[0], dz=s.z-p[1], d=Math.hypot(dx,dz); if(d<SH_FLEE&&d>.01){ const w=(SH_FLEE-d)/SH_FLEE; fx+=dx/d*w; fz+=dz/d*w; near++; } });
+      const f=Math.hypot(fx,fz); s.scT-=dt; if(s.scT<=0){ s.scT=rnd(1.2,2.6); if(Math.random()<.4) s.sc=-s.sc; }
+      if(f>.02){ const nx=fx/f, nz=fz/f; const scat=near===1?.6:near===2?.3:.1;   // 한 사람만 쫓으면 옆으로 흩어짐
+        vx=nx+(-nz)*s.sc*scat; vz=nz+nx*s.sc*scat; const vv=Math.hypot(vx,vz)||1; sp=1.8+Math.min(1,f)*4.6; vx=vx/vv*sp; vz=vz/vv*sp;
+        if(free.length>1){ vx+=(cx-s.x)*.12; vz+=(cz-s.z)*.12; }
+        const gdx=SH_PEN.x-s.x, gdz=SH_PEN.z-s.z, gd=Math.hypot(gdx,gdz); if(gd<12&&s.z<SH_PEN.z-SH_PEN.hz+.5){ vx+=gdx/gd*2.6; vz+=gdz/gd*2.6; } }   // 우리 입구 가까이 오면 열린 우리 안으로 쏙 들어가고 싶어함
+      else { let ax=0,az=0,an=0; SH.sheep.forEach((o,j)=>{ const F=FV[j]; if(!F||j===i) return; if(Math.hypot(o.x-s.x,o.z-s.z)<5.5){ const l=Math.hypot(F[0],F[1]); ax+=F[0]/l; az+=F[1]/l; an++; } });   // 옆 양이 놀라 뛰면 같이 뜀(양 떼)
+        if(an){ const l=Math.hypot(ax,az)||1; vx=ax/l*3.2; vz=az/l*3.2; s.graze=false; }
+        else { s.wT-=dt; if(s.wT<=0){ s.wT=rnd(1.5,4); s.wh=Math.random()*6.28; s.graze=Math.random()<.5; } if(!s.graze){ vx=Math.cos(s.wh)*.7; vz=Math.sin(s.wh)*.7; } const dcx=cx-s.x, dcz=cz-s.z, dd=Math.hypot(dcx,dcz); if(dd>9&&free.length>2){ vx+=dcx/dd*1.4; vz+=dcz/dd*1.4; } } }
+      SH.sheep.forEach((o,j)=>{ if(j===i||o.pen) return; const dx=s.x-o.x, dz=s.z-o.z, d=Math.hypot(dx,dz); if(d<1.6&&d>.01){ vx+=dx/d*(1.6-d)*3; vz+=dz/d*(1.6-d)*3; } });
+      const dc=Math.hypot(s.x-SH_C.x,s.z-SH_C.z); if(dc>SH_R-4){ const k=(dc-(SH_R-4))*1.2; vx-=(s.x-SH_C.x)/dc*k; vz-=(s.z-SH_C.z)/dc*k; } }
+    let nx=s.x+vx*dt, nz=s.z+vz*dt;
+    if(s.pen){ nx=clamp(nx,SH_PEN.x-SH_PEN.hx+.9,SH_PEN.x+SH_PEN.hx-.9); nz=clamp(nz,SH_PEN.z-SH_PEN.hz+.9,SH_PEN.z+SH_PEN.hz-.9); }
+    else { const inO=Math.abs(nx-SH_PEN.x)<SH_PEN.hx+.6&&Math.abs(nz-SH_PEN.z)<SH_PEN.hz+.6;
+      if(inO){ const front=s.z<SH_PEN.z-SH_PEN.hz+.2&&Math.abs(s.x-SH_PEN.x)<SH_GATE-.5; if(SH.round&&(front||shInPen(s.x,s.z,0))){ if(shInPen(nx,nz,.8)) shPenned(i,true); } else { const ox=Math.abs(nx-SH_PEN.x)<SH_PEN.hx+.6&&Math.abs(s.z-SH_PEN.z)<SH_PEN.hz+.6; if(!ox) nz=s.z; else if(!(Math.abs(s.x-SH_PEN.x)<SH_PEN.hx+.6&&Math.abs(nz-SH_PEN.z)<SH_PEN.hz+.6)) nx=s.x; else { nx=s.x; nz=s.z; } } } }
+    s.mv=Math.hypot(nx-s.x,nz-s.z)/Math.max(dt,.001); if(s.mv>.1) s.h=Math.atan2(nx-s.x,nz-s.z); s.x=nx; s.z=nz; s.tx=nx; s.tz=nz; });
+  // 그림자 도우미: 우리 반대쪽에서 양 떼를 밀어 줌
+  const h=SH.helper; if(h&&free.length){ const gx=SH_PEN.x, gz=SH_PEN.z-SH_PEN.hz; let ax=cx-gx, az=cz-gz; const al=Math.hypot(ax,az)||1; ax/=al; az/=al; let mx=-1e9, lo=1e9, hi=-1e9;
+    free.forEach(q=>{ const pr=(q.x-gx)*ax+(q.z-gz)*az, lt=-(q.x-gx)*az+(q.z-gz)*ax; if(pr>mx) mx=pr; lo=Math.min(lo,lt); hi=Math.max(hi,lt); });
+    const lt=(lo+hi)/2+Math.sin(Date.now()/1600)*Math.max(2,(hi-lo)/2), pr=mx+3.5; const tx=gx+ax*pr-az*lt, tz=gz+az*pr+ax*lt;
+    const dx=tx-h.x, dz=tz-h.z, d=Math.hypot(dx,dz); const v=Math.min(d,7*dt); if(d>.05){ h.x+=dx/d*v; h.z+=dz/d*v; h.f=Math.atan2(dx,dz); h.mv=1; } else h.mv=0; } }
+function shPenned(i,mine){ const s=SH.sheep[i]; if(!s||s.pen) return; s.pen=1; if(SH.round) SH.round.n=SH.sheep.filter(q=>q.pen).length; fxSpark(s.x,1.5,s.z,0xffe08a,16); fxRing(s.x,s.z,0xffe08a,3,.4); tone(880,.1,"triangle"); tone(1175,.12,"triangle",.08);
+  if(SH.vis&&!layerOpen) floatDmg(s.x,2.6,s.z,`🐏 ${SH.round?SH.round.n:""}/${SH_N}`,"gain");
+  if(SH.host&&SH.round&&SH.round.n>=SH_N) shEnd(); }
+/* ---------- 판 ---------- */
+function shCanStart(){ return !SH.round&&Date.now()>SH.cool&&Math.hypot(P.x-(SH_PEN.x+SH_GATE+2.5),P.z-(SH_PEN.z-SH_PEN.hz-2))<9; }
+function shPickHelper(){ const L=[]; try{ for(const id in ROSTER){ const p=ROSTER[id]; if(p&&p.n&&isAway(p)) L.push(p); } }catch(e){} const p=L.length?L[Math.floor(Math.random()*L.length)]:null;
+  return p?{n:p.n,r:p.r,k:p.k||0,lk:p.lk}:{n:"올림포스 양치기",r:3,k:0,lk:null}; }
+function shStart(){ if(!shCanStart()) return; const seed=Math.floor(Math.random()*1e9), t0=Date.now(); const ppl=1+Object.values(PEERS).filter(o=>Math.hypot(o.tx-SH_C.x,o.tz-SH_C.z)<70).length;
+  const hp=ppl<3?shPickHelper():null; shBegin({h:G.id,t0,seed,hp},true); try{ net.send({t:"shs",t0,seed,hp}); }catch(e){} }
+function shBegin(d,mine){ SH.round={h:d.h,t0:d.t0,n:0,seed:d.seed}; SH.host=!!mine; SH.lastMsg=Date.now(); shBuild(); shScatter(d.seed); shHelper(d.hp);
+  if(Math.hypot(P.x-SH_C.x,P.z-SH_C.z)<120&&!layerOpen){ toast("🐏 황금 양 몰이 시작!","여럿이 빙 둘러싸고 천천히 밀어서 우리에 넣어요 · 2분",3); jingle([392,523,659,784]); } }
+function shHelper(hp){ if(SH.hMesh){ scene.remove(SH.hMesh); SH.hMesh=null; } SH.helper=null; if(!hp) return;
+  const a=Math.random()*6.28; SH.helper={x:SH_C.x+Math.cos(a)*18,z:SH_C.z+Math.sin(a)*18,f:0,mv:0,n:hp.n};
+  try{ SH.hMesh=makeAvatar(hp.r|0,hp.k|0,false,typeof ghostLook==="function"?ghostLook(hp.lk):{}); SH.hMesh.traverse(o=>{ if(o.material&&!o.material._shc){ o.material=o.material.clone(); o.material._shc=1; o.material.transparent=true; o.material.opacity=.6; } }); scene.add(SH.hMesh); }catch(e){ console.warn(e); SH.hMesh=null; } }
+function shEnd(){ if(!SH.round) return; const n=SH.sheep.filter(q=>q.pen).length; if(SH.host) try{ net.send({t:"she",t0:SH.round.t0,n}); }catch(e){} shFinish(n); }
+function shFinish(n){ SH.round=null; SH.host=false; SH.cool=Date.now()+15000; SH.endT=Date.now(); if(SH.hMesh){ scene.remove(SH.hMesh); SH.hMesh=null; } SH.helper=null;
+  if(Math.hypot(P.x-SH_C.x,P.z-SH_C.z)<70) shPay(n); setTimeout(()=>{ if(!SH.round){ SH.sheep.forEach(s=>{ if(s.pen) fxSpark(s.x,1.5,s.z,0xffffff,8); }); shScatter(); } },6000); }
+function shPay(n){ G.shN=(G.shN||0)+1; G.shBest=Math.max(G.shBest||0,n); if(n>=SH_N) G.shPerfect=(G.shPerfect||0)+1;
+  if(n<=0){ saveGame(); toast("🐏 양이 한 마리도 안 들어갔어요","다음엔 여럿이 빙 둘러싸 봐요!",2.6); return; }
+  const L=G.lv, gold=Math.round(n*(30+L*4)), xp=Math.round(xpNeed(L)*.012*n); G.fleece=(G.fleece||0)+n; G.shFleeceT=(G.shFleeceT||0)+n; G.gold+=gold; gainXp(xp); saveGame();
+  try{ COINFLY.burst(P.x,1.6,P.z,8); }catch(e){} jingle([523,659,784,1046]); buzz([20,20,40]);
+  const top=n>=SH_N?"🐏 완벽한 양 떼!":"🐏 양 몰이 끝!"; const sub=`🧶 황금 양털 +${n} · 금화 +${fmt(gold)} · 경험치 +${fmt(xp)}`;
+  try{ lvBanner(top,`우리에 ${n}/${SH_N}마리`,sub,"#ffd24a"); }catch(e){ toast(top,sub,3); } }
+NETR.shs=(o,d)=>{ if(SH.round&&(SH.round.t0<d.t0||(SH.round.t0===d.t0&&SH.round.h<o.id))) return; shBegin({h:o.id,t0:d.t0,seed:d.seed,hp:d.hp},false); };
+NETR.shp=(o,d)=>{ if(!SH.round||SH.round.h!==o.id||SH.host) { if(!SH.round&&Array.isArray(d.p)&&Math.hypot(P.x-SH_C.x,P.z-SH_C.z)<120){ shBegin({h:o.id,t0:d.t0,seed:1,hp:null},false); } else return; }
+  SH.lastMsg=Date.now(); const p=d.p||[]; SH.sheep.forEach((s,i)=>{ if(p[i*3]==null) return; s.tx=p[i*3]/10; s.tz=p[i*3+1]/10; if(p[i*3+2]&&!s.pen) shPenned(i,false); });
+  if(d.hx!=null){ if(!SH.helper){ shHelper({n:d.hn||"그림자 친구",r:d.hr|0,k:0,lk:null}); } if(SH.helper){ SH.helper.tx=d.hx/10; SH.helper.tz=d.hz/10; } } };
+NETR.she=(o,d)=>{ if(!SH.round||SH.round.h!==o.id) return; shFinish(d.n|0); };
+/* ---------- 매 프레임 ---------- */
+function shTick(dt){ if(!started||G.realm<0) return; const dist=Math.hypot(P.x-SH_C.x,P.z-SH_C.z); SH.vis=dist<150;
+  if(!SH.vis&&!SH.round){ if(SH.built) SH.sheep.forEach(s=>s.m.visible=false); if(SH.fence) SH.fence.visible=false; shUi(dist); return; }
+  shBuild(); if(SH.fence) SH.fence.visible=SH.vis;
+  const R=SH.round; if(R){ const left=SH_T-(Date.now()-R.t0);
+    if(SH.host){ shSim(dt); if(left<=0) shEnd(); else { SH.sendT-=dt; if(SH.sendT<=0){ SH.sendT=.2; const p=[]; SH.sheep.forEach(s=>p.push(Math.round(s.x*10),Math.round(s.z*10),s.pen?1:0)); const m={t:"shp",t0:R.t0,p}; if(SH.helper){ m.hx=Math.round(SH.helper.x*10); m.hz=Math.round(SH.helper.z*10); m.hn=SH.helper.n; } try{ net.send(m); }catch(e){} } } }
+    else { if(Date.now()-SH.lastMsg>4000){ SH.round=null; SH.cool=Date.now()+3000; if(SH.hMesh){ scene.remove(SH.hMesh); SH.hMesh=null; } SH.helper=null; if(SH.vis&&!layerOpen) toast("🐏 양 몰이가 멈췄어요","시작한 사람이 떠났어요 · 표지판에서 다시 시작해요",2.4); }
+      SH.sheep.forEach(s=>{ const dx=s.tx-s.x, dz=s.tz-s.z; const d=Math.hypot(dx,dz); if(d>12){ s.x=s.tx; s.z=s.tz; } else { s.x+=dx*Math.min(1,dt*8); s.z+=dz*Math.min(1,dt*8); } s.mv=d*6; if(d>.03) s.h=Math.atan2(dx,dz); });
+      if(SH.helper&&SH.helper.tx!=null){ const h=SH.helper, dx=h.tx-h.x, dz=h.tz-h.z, d=Math.hypot(dx,dz); h.x+=dx*Math.min(1,dt*8); h.z+=dz*Math.min(1,dt*8); h.mv=d>.05?1:0; if(d>.05) h.f=Math.atan2(dx,dz); } } }
+  else shSim(dt);   // 판이 없을 때는 각자 폰에서 풀 뜯으며 도망 다님
+  const tn=performance.now()/1000;
+  SH.sheep.forEach(s=>{ const m=s.m; m.visible=SH.vis; if(!SH.vis) return; const mv=Math.min(1,s.mv/3); s.ph+=SH.vis?(.04+mv*.5):0; m.position.set(s.x,hAt(s.x,s.z)+Math.abs(Math.sin(s.ph))*.18*mv,s.z);
+    let dr=s.h-m.rotation.y; while(dr>Math.PI) dr-=6.283; while(dr<-Math.PI) dr+=6.283; m.rotation.y+=dr*Math.min(1,dt*8);
+    const u=m.userData; u.head.rotation.x=mv<.1&&!s.pen?.5+Math.sin(tn*3+s.ph)*.15:0; u.legs.forEach((l,k)=>l.rotation.x=Math.sin(s.ph*2+(k%2?Math.PI:0)+(k>1?Math.PI:0))*.7*mv); });
+  if(SH.hMesh&&SH.helper){ const h=SH.helper; SH.hMesh.position.set(h.x,hAt(h.x,h.z),h.z); SH.hMesh.rotation.y=h.f||0; const u=SH.hMesh.userData; if(u&&u.legL){ const sw=h.mv?Math.sin(tn*9)*.7:0; u.legL.rotation.x=sw; u.legR.rotation.x=-sw; } }
+  shUi(dist); }
+XTICK.push(shTick);
+CTX_EXTRA.push(()=>shCanStart()?{t:"🐏 양 몰이 시작",f:shStart}:null);
+function shUi(dist){ if(!SH.lbl) SH.lbl=makeLabel(""); if(!SH.hLbl) SH.hLbl=makeLabel("ally");
+  const sx=SH_PEN.x+SH_GATE+2.5, sz=SH_PEN.z-SH_PEN.hz-2;
+  if(SH.vis&&!layerOpen&&dist<60&&!SH.round) placeLabel(SH.lbl,sx,2.8,sz,`<em style="color:#ffd24a">🐏 황금 양 우리</em> <b>${Date.now()<SH.cool?"잠깐 쉬는 중":"표지판 앞에서 시작!"}</b>`); else SH.lbl.style.display="none";
+  if(SH.helper&&SH.vis&&!layerOpen) placeLabel(SH.hLbl,SH.helper.x,3.4,SH.helper.z,`💤 ${SH.helper.n}의 그림자`); else SH.hLbl.style.display="none";
+  if(!SH.bar){ const b=document.createElement("div"); b.id="shBar"; b.hidden=true; document.body.appendChild(b); SH.bar=b; } const b=SH.bar;
+  const show=!!SH.round&&dist<90&&!layerOpen&&started; if(!show){ if(!b.hidden) b.hidden=true; return; } b.hidden=false;
+  let bot=0; ["warbar","bossbar","evbar","giBar"].forEach(id=>{ const el=$(id); if(el&&!el.hidden){ const r=el.getBoundingClientRect(); if(r.height>0) bot=Math.max(bot,r.bottom); } }); const top=bot>0?Math.round(bot+6)+"px":""; if(b._t!==top){ b._t=top; b.style.top=top; }
+  const n=SH.sheep.filter(q=>q.pen).length, left=Math.max(0,Math.ceil((SH_T-(Date.now()-SH.round.t0))/1000));
+  const h=`<b>🐏 황금 양 몰이 · 우리 ${n}/${SH_N}</b><span>⏱ ${Math.floor(left/60)}:${String(left%60).padStart(2,"0")} · 혼자 쫓으면 흩어져요 — 빙 둘러싸요!</span>`; if(b._h!==h){ b._h=h; b.innerHTML=h; } }
+/* ---------- 지도 · 창 ---------- */
+MAP_X.push((ctx,tx,tz,big,u)=>{ mapPin(ctx,tx(SH_PEN.x),tz(SH_PEN.z),(big?6:7.5)*u,"#c8a030","🐏"); });
+function showSheep(){ const can=(G.fleece||0)>=3;
+  card(`<h2>🐏 헬리오스의 황금 양 몰이</h2><p>올림포스 <b>올리브 언덕</b>에 황금 양 12마리가 살아요. 양은 사람이 다가오면 반대쪽으로 도망치고, <b>한 사람만 쫓으면 옆으로 흩어져요.</b> 여럿이 빙 둘러싸고 천천히 밀어서 2분 안에 우리에 넣어요!</p>
+   <div class="idlegrid"><div><b>${SH.round?`${SH.sheep.filter(q=>q.pen).length}/${SH_N}`:"🌿"}</b><span>${SH.round?"지금 몰이 중":"풀 뜯는 중"}</span></div><div><b>${G.fleece||0}</b><span>🧶 황금 양털</span></div><div><b>${G.shBest||0}</b><span>최고 기록</span></div><div><b>${G.shN||0}</b><span>참여한 판</span></div></div>
+   <h3>🎮 이렇게 놀아요</h3><div class="diary"><p>🪧 우리 앞 표지판에서 「🐏 양 몰이 시작」을 눌러요(근처 사람 모두 함께).</p><p>👥 양 떼 뒤쪽(우리 반대편)에서 여럿이 반달 모양으로 서서 천천히 밀어요.</p><p>💤 사람이 3명보다 적으면 쉬고 있는 친구 영웅의 그림자가 도와줘요.</p><p>🧶 넣은 양 수만큼 끝날 때 언덕에 있던 사람 모두 황금 양털 · 금화 · 경험치!</p></div>
+   <h3>🔨 양털 바꾸기</h3><p style="font-size:13px">🧶 황금 양털 3개 → ⛓ 쇳조각 4 + ✨ 룬 가루 1 (대장간 재료)</p>
+   <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><button class="buy" id="shEx" type="button" ${can?"":"disabled"}>🧶×3 바꾸기</button><button class="go" id="shGo" type="button">🧭 양 우리로 길 안내</button></div>`);
+  $("shEx").onclick=()=>{ if((G.fleece||0)<3) return; G.fleece-=3; G.ore=(G.ore||0)+4; G.rune=(G.rune||0)+1; saveGame(); jingle([659,880]); toast("🔨 바꿨어요!","⛓ +4 · ✨ +1",1.6); showSheep(); };
+  $("shGo").onclick=()=>{ closeLayer(); setGuide({x:SH_PEN.x+SH_GATE+2.5,z:SH_PEN.z-SH_PEN.hz-4,label:"🐏 황금 양 우리"}); }; }
+MENU_X.push({ic:"🐏",n:"황금 양 몰이",id:"shBtn",sub:()=>SH.round?`🐏 지금 몰이 중 ${SH.sheep.filter(q=>q.pen).length}/${SH_N}`:`올리브 언덕 · 🧶 ${G.fleece||0}`,f:showSheep});
+TITLES.push({id:"sh6",n:"양치기",t:1,h:"양 몰이 한 판에 6마리 넣기",g:()=>[G.shBest||0,6]},{id:"sh12",n:"완벽한 양 떼",t:3,h:"12마리 모두 우리에 넣기",g:()=>[G.shPerfect||0,1]},{id:"shf30",n:"황금 양털 수집가",t:2,h:"황금 양털 30개 모으기",g:()=>[G.shFleeceT||0,30]});
+</script>
+<style>
+#shBar{position:fixed;left:50%;top:calc(max(8px,env(safe-area-inset-top)) + 54px);transform:translateX(-50%);z-index:5;pointer-events:none;min-width:240px;max-width:min(56vw,460px);padding:5px 14px 7px;border-radius:14px;background:linear-gradient(180deg,rgba(60,44,10,.88),rgba(30,24,14,.88));border:2px solid #ffd24a;box-shadow:0 0 0 2px rgba(0,0,0,.45),0 0 14px rgba(255,210,80,.4);color:#fff;text-align:center;display:flex;flex-direction:column;gap:1px}
+#shBar[hidden]{display:none} #shBar b{font-size:14px;color:#fff1b0;text-shadow:0 2px 0 #000} #shBar span{font-size:12px;opacity:.92}
+</style>
+<script>
+/* ================= v95-3: 🌑 배고픈 라후의 일식 축제 — 해를 한입 문 라후에게 꿀떡 던지기 (IDEAS G11/9-9) =================
+   언제: 2주에 한 번 수요일 저녁 8시~8시 30분(한국 시간). 첫 회 11/11(수).
+   하늘에 둥근 보랏빛 거인 머리 「라후」(인도 신화 — 우리 게임만의 귀여운 먹보 얼굴)가 해를 한입 앙! → 30분 동안 세상이 노을빛으로 어둑.
+   🍡 꿀떡 모으기: 괴물 처치 +1(★정예 +3, 보스 +10) · 수도에서 「🔨 떡 찧기」(3번 찧으면 +1, 한 판 30개까지).
+   화면 위 띠의 「🍡 던지기」로 하늘의 라후 입에 휙! 전 세계 합계(보관 ek/<회>/<id>: 세계·던진 수·구운 수)가 목표 360개를 넘으면
+   배부른 라후가 해를 「퉤!」 → 하늘이 밝아지고 세계의 중심에 🌈 무지개 다리가 하루 동안. 함께한 사람 모두 보물 상자.
+   쉬는 동안 성장: 내 영웅이 30분마다 꿀떡 1개를 구워 둠(최대 40개) → 다음 일식 때 저절로 라후에게 감(게임을 꺼 둬도 보관 메시지로 더해짐).
+   🐘 가네샤 할아버지도 8초마다 1개씩 던져 줌(모든 폰이 시계로 같은 수).
+   끝나면 세계별 합(던진 + 구운)이 가장 많은 세계 수도 위에 「☀️ 해를 돌려준 세계」 깃발 일주일.
+   저장: G.ekK(대상 회) · G.ekBT(굽기 시작 시각) · G.ekS(이번 회 던진 수) · G.ekHave(가진 꿀떡) · G.ekMor(찧어서 얻은 수) · G.ekPaid{회} · G.ekTot · G.ekWin. 칭호 3개. */
+const EK_START=Date.UTC(2026,10,11,11,0,0), EK_P=14*86400000, EK_DUR=30*60000, EK_GOAL=360, EK_BAKE=30*60000, EK_BAKEMAX=40, EK_GANE=8000, EK_MORMAX=30;
+const EK={rec:{},dark:0,built:false,g:null,P:null,bar:null,rb:null,flag:null,flagR:-1,pubT:0,dirty:false,ann:{},okShown:{},pound:0,fly:[],winShown:-1};
+function ekStartOf(k){ return EK_START+k*EK_P; }
+function ekNextK(t){ t=t||Date.now(); return Math.max(0,Math.ceil((t-EK_START-EK_DUR)/EK_P)); }   // 지금 하는 중이거나 다음 회
+function ekActive(t){ t=t||Date.now(); const k=ekNextK(t), s=ekStartOf(k); return t>=s&&t<s+EK_DUR; }
+function ekKst(t){ return new Date(t+9*3600000); }
+function ekWhen(k){ const d=ekKst(ekStartOf(k)); return `${d.getUTCMonth()+1}/${d.getUTCDate()}(${"일월화수목금토"[d.getUTCDay()]}) 저녁 8시`; }
+function ekGane(k,t){ t=t||Date.now(); const s=ekStartOf(k); return Math.max(0,Math.floor((Math.min(t,s+EK_DUR)-s)/EK_GANE)); }
+function ekSums(k){ const R=EK.rec[k]||{}; const by=[0,0,0,0]; let thrown=0; for(const id in R){ const o=R[id]; const v=(o.s|0)+Math.min(EK_BAKEMAX,o.b|0); if(o.r>=0&&o.r<4) by[o.r]+=v; thrown+=v; }
+  const me=G.ekK===k?(G.ekS|0)+ekBaked(k):0; const mine=R[G.id]; if(G.realm>=0&&me>((mine?(mine.s|0)+Math.min(EK_BAKEMAX,mine.b|0):0))){ const add=me-(mine?(mine.s|0)+Math.min(EK_BAKEMAX,mine.b|0):0); by[G.realm]+=add; thrown+=add; }
+  const gane=ekGane(k); return {by,players:thrown,gane,total:thrown+gane}; }
+function ekWinner(k){ const b=ekSums(k).by; let w=-1,m=0; b.forEach((v,i)=>{ if(v>m){ m=v; w=i; } }); return w; }
+function ekBaked(k){ if(G.ekK!==k||!G.ekBT) return 0; const until=Math.min(Date.now(),ekStartOf(k)); return Math.max(0,Math.min(EK_BAKEMAX,Math.floor((until-G.ekBT)/EK_BAKE))); }
+function ekRecv(d,topic){ const a=String(topic).split("/"); const k=+a[1], id=a[2]; if(!(k>=0)||!id||!d) return; (EK.rec[k]||(EK.rec[k]={}))[id]={r:d.r|0,s:d.s|0,b:d.b|0,n:d.n||"?"}; }
+NETX.push({sub:()=>"ek/"+ekNextK()+"/+",pre:"ek/",f:ekRecv});
+NETX.push({sub:()=>"ek/"+Math.max(0,ekNextK()-1)+"/+",pre:"ek/",f:ekRecv});
+function ekPub(){ if(G.realm<0||G.ekK==null) return; const k=G.ekK, rec={i:G.id,n:G.name,r:G.realm,s:G.ekS|0,b:ekBaked(k),t:Date.now()}; (EK.rec[k]||(EK.rec[k]={}))[G.id]={r:rec.r,s:rec.s,b:rec.b,n:rec.n}; try{ net.pushRet("ek/"+k+"/"+G.id,rec); EK.dirty=false; }catch(e){} }
+/* 회가 바뀌면 굽기 다시 시작 */
+function ekRoll(){ const k=ekNextK(); if(G.ekK===k) return; const prevK=G.ekK; if(prevK!=null&&prevK<k){ G.ekBT=Math.max(G.ekBT||0,ekStartOf(k-1)+EK_DUR); } if(!G.ekBT) G.ekBT=Date.now()-4*3600000;   // 처음엔 8개 구워 둔 채로 시작
+  G.ekK=k; G.ekS=0; G.ekHave=0; G.ekMor=0; saveGame(); EK.dirty=true; }
+/* ---------- 라후 · 해 (하늘에 붙어 있음) ---------- */
+function ekModel(){ const g=new THREE.Group(); const B=o=>{ const m=new THREE.MeshBasicMaterial(Object.assign({fog:false},o)); return m; };
+  const sun=new THREE.Group(); const disc=new THREE.Mesh(new THREE.CircleGeometry(24,40),B({color:0xffd64a})); sun.add(disc); const halo=new THREE.Mesh(new THREE.RingGeometry(24,40,40),B({color:0xffb030,transparent:true,opacity:.35,depthWrite:false,blending:THREE.AdditiveBlending})); sun.add(halo); g.add(sun);
+  const head=new THREE.Group(); const skin=B({color:0x6a5ad0}), dark=B({color:0x1a1030}), white=B({color:0xffffff}), pink=B({color:0xff8ab8}), gold=B({color:0xffc83a});
+  head.add(new THREE.Mesh(new THREE.CircleGeometry(21,40),skin)); const hair=new THREE.Mesh(new THREE.RingGeometry(19,23,40,1,0,Math.PI),B({color:0x3a2a8a})); hair.position.z=.1; head.add(hair);
+  const eyes=[]; [-1,1].forEach(s=>{ const e=new THREE.Group(); e.position.set(s*7,5,.3); const w=new THREE.Mesh(new THREE.CircleGeometry(4.6,24),white); e.add(w); const p=new THREE.Mesh(new THREE.CircleGeometry(2.4,20),dark); p.position.set(0,-.6,.1); e.add(p); const sh=new THREE.Mesh(new THREE.CircleGeometry(.8,10),white); sh.position.set(.9,.4,.2); e.add(sh); head.add(e); eyes.push(e);
+    const ch=new THREE.Mesh(new THREE.CircleGeometry(3,20),B({color:0xff8ab8,transparent:true,opacity:.7})); ch.position.set(s*11,-3,.2); head.add(ch); });
+  const mouth=new THREE.Mesh(new THREE.CircleGeometry(7,28,Math.PI,Math.PI),dark); mouth.position.set(0,-6,.3); head.add(mouth); const tongue=new THREE.Mesh(new THREE.CircleGeometry(3.6,20,Math.PI,Math.PI),pink); tongue.position.set(0,-9.5,.4); head.add(tongue);
+  const crown=new THREE.Group(); crown.position.set(0,20,.2); crown.add(new THREE.Mesh(new THREE.PlaneGeometry(16,3),gold)); [-6,-2,2,6].forEach(x=>{ const t=new THREE.Mesh(new THREE.CircleGeometry(2,3),gold); t.position.set(x,2,0); t.rotation.z=Math.PI/2; crown.add(t); }); head.add(crown);
+  g.add(head); let ro=60; g.traverse(o=>{ o.frustumCulled=false; o.renderOrder=ro++; if(o.material){ o.material.depthTest=false; o.material.depthWrite=false; o.material.transparent=true; } }); /* 땅·건물에 가리지 않게 하늘 스티커처럼 맨 위에 */ g.userData.noOutline=true; g.userData.cullR=-1; return {g,sun,head,eyes,mouth,tongue,halo}; }
+const _ekV=new THREE.Vector3(), _ekD=new THREE.Vector3();
+/* 화면 오른쪽 위 하늘 자리(달처럼 나를 따라다님) — 카메라가 내려다봐도 보이게 화면 기준 */
+function ekSkyPos(out){ _ekD.set(.34,.14,.5).unproject(camera).sub(camera.position).normalize(); return out.copy(camera.position).addScaledVector(_ekD,230); }
+/* ---------- 하늘 어둡게 (dayNight 뒤에 덧칠) ---------- */
+(function(){ if(typeof dayNight!=="function") return; const _dn=dayNight; const cTop=new THREE.Color(0x3a1d5a), cBot=new THREE.Color(0xc06a7a);
+  dayNight=function(dt){ const r=_dn.apply(this,arguments); const e=EK.dark; if(e>.01){ sun.intensity*=1-.55*e; hemi.intensity*=1-.35*e; fill.intensity*=1-.3*e; const k=Math.min(1,dt*2)*e; SKY.top.lerp(cTop,k); SKY.bot.lerp(cBot,k*.8); scene.fog.color.copy(SKY.bot); renderer.toneMappingExposure*=1-.18*e; } return r; }; })();
+/* ---------- 꿀떡 모으기 · 던지기 ---------- */
+(function(){ const _k=killMob; killMob=function(m){ const r=_k.apply(this,arguments); try{ if(ekActive()&&!m.war){ ekRoll(); const n=m.boss?10:m.elite?3:1; G.ekHave=(G.ekHave||0)+n; floatDmg(m.x,3,m.z,`+🍡${n}`,"gain"); } }catch(e){} return r; }; })();
+function ekPound(){ if(!ekActive()) return; ekRoll(); if((G.ekMor|0)>=EK_MORMAX){ toast("🔨 방앗간 떡은 이번 판에 다 찧었어요","괴물을 잡아서 꿀떡을 더 모아요!",1.8); return; }
+  EK.pound++; P.shake=Math.max(P.shake||0,.15); fxSpark(P.x,1,P.z,0xffffff,6); tone(140,.12,"sine",0,.15); tone(90,.15,"sine",.03,.12); buzz(15);
+  if(EK.pound%3===0){ G.ekMor=(G.ekMor|0)+1; G.ekHave=(G.ekHave|0)+1; floatDmg(P.x,3,P.z,"+🍡1","gain"); tone(880,.08,"triangle",.05); }
+  else floatDmg(P.x,2.6,P.z,"쿵!",""); }
+CTX_EXTRA.push(()=>ekActive()&&inCapital(P.x,P.z)?{t:`🔨 떡 찧기${(G.ekMor|0)>=EK_MORMAX?" (다 찧음)":""}`,f:ekPound}:null);
+function ekThrow(){ if(!ekActive()||P.dead) return; ekRoll(); const n=G.ekHave|0; if(n<=0){ toast("🍡 꿀떡이 없어요","괴물을 잡거나 수도에서 떡을 찧어요",1.6); return; }
+  const before=ekSums(G.ekK).total; G.ekS=(G.ekS|0)+n; G.ekHave=0; G.ekTot=(G.ekTot||0)+n; saveGame(); EK.dirty=true; EK.pubT=Math.min(EK.pubT,.5);
+  ekFly(P.x,P.z,Math.min(8,n)); try{ net.send({t:"ekt",n}); }catch(e){} jingle([523,659,784]); buzz([15,15]);
+  setTimeout(()=>{ tone(200,.15,"square",0,.06); tone(160,.2,"square",.1,.06); toast(`😋 냠냠! 라후가 꿀떡 ${n}개를 먹었어요`,`전 세계 ${ekSums(G.ekK).total}/${EK_GOAL}`,1.8); if(EK.P) EK.chomp=.6; },900);
+  if(before<EK_GOAL&&ekSums(G.ekK).total>=EK_GOAL) setTimeout(ekCheckOk,1200); }
+NETR.ekt=(o,d)=>{ if(!ekActive()) return; if(Math.hypot(o.x-P.x,o.z-P.z)<60) ekFly(o.x,o.z,Math.min(6,d.n|0)); };
+function ekFly(x,z,n){ const m1=mat({color:0xffe9f0}), m2=mat({color:0x9ad86a}), m3=mat({color:0xffd27a}); const ms=[m1,m2,m3];
+  for(let i=0;i<n;i++){ const o=sph(.35,ms[i%3],0,0,0); o.position.set(x+rnd(-.6,.6),hAt(x,z)+2,z+rnd(-.6,.6)); scene.add(o); EK.fly.push({o,t:-i*.08,s:o.position.clone()}); } }
+function ekFlyTick(dt){ if(!EK.fly.length) return; ekSkyPos(_ekV); for(let i=EK.fly.length-1;i>=0;i--){ const f=EK.fly[i]; f.t+=dt; if(f.t<0) continue; const k=Math.min(1,f.t/1);
+  const tx=f.s.x+(_ekV.x-f.s.x)*.25, ty=f.s.y+40, tz=f.s.z+(_ekV.z-f.s.z)*.25; f.o.position.set(f.s.x+(tx-f.s.x)*k,f.s.y+(ty-f.s.y)*k+Math.sin(k*Math.PI)*6,f.s.z+(tz-f.s.z)*k); f.o.scale.setScalar(.7*(1-k*.7)); f.o.rotation.x+=dt*8;
+  if(k>=1){ scene.remove(f.o); EK.fly.splice(i,1); } } }
+/* ---------- 성공 · 보상 ---------- */
+function ekCheckOk(){ const k=G.ekK; if(k==null) return; const S=ekSums(k); if(S.total<EK_GOAL||EK.okShown[k]) return; EK.okShown[k]=1;
+  if(ekActive()&&!layerOpen){ toast("☀️ 퉤! 배부른 라후가 해를 뱉었어요!","세계의 중심에 🌈 무지개 다리가 생겼어요",3.4); jingle([523,659,784,1046,1318,1568]); for(let j=0;j<6;j++) setTimeout(()=>fxSpark(P.x+rnd(-6,6),6,P.z+rnd(-6,6),[0xffe08a,0xff8ab8,0x8ad8ff][j%3],14),j*150); }
+  ekPay(k); }
+function ekPay(k){ G.ekPaid=G.ekPaid||{}; if(G.ekPaid[k]) return; const mine=(G.ekK===k?(G.ekS|0)+ekBaked(k):0)||(((EK.rec[k]||{})[G.id]||{}).s|0)+(((EK.rec[k]||{})[G.id]||{}).b|0); if(mine<=0) return;
+  G.ekPaid[k]=1; G.ekWin=(G.ekWin||0)+1; const L=G.lv, gold=Math.round(500+L*40+Math.min(200,mine)*3), xp=Math.round(xpNeed(L)*.1), ore=3+Math.floor(Math.random()*3); G.gold+=gold; gainXp(xp); G.ore=(G.ore||0)+ore;
+  const got=[`금화 +${fmt(gold)}`,`경험치 +${fmt(xp)}`,`⛓ +${ore}`]; if(Math.random()<.5){ try{ got.push("🎁 "+evGear(.3)); }catch(e){} } saveGame();
+  setTimeout(()=>{ try{ COINFLY.burst(P.x,1.6,P.z,12); }catch(e){} try{ lvBanner("☀️ 해를 돌려줬어요!",`라후의 감사 상자 · 내 꿀떡 ${mine}개`,got.join(" · "),"#ffd64a"); }catch(e){ toast("☀️ 라후의 감사 상자!",got.join(" · "),3); } },ekActive()?2200:3500); }
+/* 지난 회 결과 (꺼 둔 동안 끝난 일식도) */
+function ekPastCheck(){ const k=ekNextK()-1; if(k<0||ekActive()) return; const end=ekStartOf(k)+EK_DUR; if(Date.now()-end>EK_P) return; if(!EK.rec[k]) return;
+  const S=ekSums(k); if(S.total>=EK_GOAL) ekPay(k); const w=ekWinner(k); if(w>=0&&EK.winShown!==k&&Date.now()-end<7*86400000&&!layerOpen){ EK.winShown=k; G.ekSeenW=G.ekSeenW||{}; if(!G.ekSeenW[k]){ G.ekSeenW[k]=1; saveGame(); toast(`☀️ 지난 일식 1등: ${REALMS[w].icon} ${REALMS[w].n}!`,`${REALMS[w].n} 수도 위에 「해를 돌려준 세계」 깃발이 일주일 동안 펄럭여요`,3.2); } } }
+/* ---------- 무지개 다리 · 깃발 ---------- */
+function ekRainbow(on){ if(!on){ if(EK.rb) EK.rb.visible=false; return; } if(!EK.rb){ const g=new THREE.Group(); [0xff4a4a,0xff9a3a,0xffe03a,0x4ad06a,0x3aa0ff,0x8a5aff].forEach((c,i)=>{ const t=new THREE.Mesh(new THREE.TorusGeometry(46-i*1.4,.7,6,48,Math.PI),new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:.55,depthWrite:false})); g.add(t); });
+  g.position.set(0,hAt(0,0)-2,-8); g.userData.noOutline=true; g.userData.cullR=-1; g.traverse(o=>o.frustumCulled=false); scene.add(g); EK.rb=g; } EK.rb.visible=true; }
+function ekFlag(r){ if(EK.flagR===r) return; EK.flagR=r; if(EK.flag){ scene.remove(EK.flag); EK.flag=null; } if(r<0) return; const cap=REGIONS[r*3]; const g=new THREE.Group(); const gold=mat({color:0xffc83a,metalness:.5,roughness:.35,emissive:0x4a3000});
+  g.add(cyl(.25,.25,10,gold,0,5,0,8)); const cl=new THREE.Mesh(new THREE.PlaneGeometry(5,3),new THREE.MeshBasicMaterial({color:new THREE.Color(REALMS[r].c1),side:THREE.DoubleSide})); cl.position.set(2.6,8.4,0); g.add(cl);
+  const sunM=new THREE.Mesh(new THREE.CircleGeometry(1,20),new THREE.MeshBasicMaterial({color:0xff9a1a,side:THREE.DoubleSide})); sunM.position.set(2.6,8.4,.02); g.add(sunM); g.add(sph(.45,gold,0,10.2,0));
+  g.position.set(cap.x,hAt(cap.x,cap.z)+14,cap.z); g.userData.cloth=cl; g.userData.noOutline=true; scene.add(g); EK.flag=g; }
+/* ---------- 매 프레임 ---------- */
+function ekTick(dt){ if(!started||G.realm<0) return; ekRoll(); const now=Date.now(), act=ekActive(), k=G.ekK, S=act?ekSums(k):null; const ok=act&&S.total>=EK_GOAL;
+  // 알림
+  const st=ekStartOf(ekNextK()); const pre=st-now; if(pre>0&&pre<10*60000&&!EK.ann["p"+st]){ EK.ann["p"+st]=1; if(!layerOpen) toast("🌑 10분 뒤에 배고픈 라후가 와요!","저녁 8시 · 꿀떡을 던져서 해를 돌려받아요",3); }
+  if(act&&!EK.ann["s"+st]){ EK.ann["s"+st]=1; setTimeout(()=>{ if(!layerOpen){ toast("🌑 라후가 해를 한입 앙! 물었어요!","괴물을 잡고 수도에서 떡을 찧어 꿀떡을 모아 던져요 · 내 영웅이 구운 꿀떡도 보냈어요",3.6); jingle([392,330,262]); } },1500); EK.dirty=true; }
+  if(ok) ekCheckOk();
+  EK.dark+=(((act&&!ok)?1:0)-EK.dark)*Math.min(1,dt*.6);
+  // 하늘의 라후
+  if(act){ if(!EK.built){ EK.built=true; try{ EK.P=ekModel(); EK.g=EK.P.g; scene.add(EK.g); }catch(e){ console.warn(e); } } }
+  if(EK.g){ EK.g.visible=act&&!(typeof DG!=="undefined"&&DG.on)&&!(typeof HM!=="undefined"&&HM.on); if(EK.g.visible){ const Pm=EK.P; ekSkyPos(_ekV); EK.g.position.copy(_ekV); EK.g.lookAt(camera.position);
+    const prog=Math.min(1,S.total/EK_GOAL); const tn=performance.now()/1000; EK.ho=(EK.ho==null?0:EK.ho); const tgt=ok?62:(1-prog)*6+prog*26; EK.ho+=(tgt-EK.ho)*Math.min(1,dt*1.5);
+    Pm.head.position.set(EK.ho-4,-2+Math.sin(tn*1.2)*1.2,1); Pm.head.rotation.z=Math.sin(tn*.8)*.06; EK.chomp=Math.max(0,(EK.chomp||0)-dt); const mo=ok?.4:(EK.chomp>0?.4+Math.abs(Math.sin(EK.chomp*14))*.9:1);
+    Pm.mouth.scale.set(1,mo,1); Pm.tongue.visible=mo>.6; const bl=(tn%3.5)<.12; Pm.eyes.forEach(e=>e.scale.y=bl?.1:1);
+    Pm.halo.material.opacity=ok?.6:.12+prog*.2; Pm.sun.scale.setScalar(ok?1+Math.sin(tn*2)*.03:1); } }
+  ekFlyTick(dt);
+  // 무지개: 성공한 회가 끝나고 하루 동안 (또는 성공 직후)
+  const pk=ekNextK()-1; let rbOn=ok; if(!act&&pk>=0&&EK.rec[pk]){ const end=ekStartOf(pk)+EK_DUR; if(now-end<86400000&&ekSums(pk).total>=EK_GOAL) rbOn=true; }
+  ekRainbow(rbOn&&Math.hypot(P.x,P.z)<300);
+  // 깃발: 지난 회 1등 세계 일주일
+  let fr=-1; if(!act&&pk>=0&&EK.rec[pk]&&now-(ekStartOf(pk)+EK_DUR)<7*86400000) fr=ekWinner(pk); ekFlag(fr); if(EK.flag){ const c=EK.flag.userData.cloth; c.rotation.y=Math.sin(performance.now()/500)*.25; }
+  // 보관 메시지
+  EK.pubT-=dt; if(EK.pubT<=0){ EK.pubT=act?2:180; if(EK.dirty||!act){ const b=ekBaked(G.ekK); if(EK.dirty||b!==EK.lastB){ EK.lastB=b; ekPub(); } } }
+  EK.pastT=(EK.pastT||3)-dt; if(EK.pastT<=0){ EK.pastT=5; ekPastCheck(); }
+  ekBarUi(act,S); }
+XTICK.push(ekTick);
+function ekBarUi(act,S){ if(!EK.bar){ const b=document.createElement("div"); b.id="ekBar"; b.hidden=true; b.innerHTML='<div class="ekt"></div><button type="button" id="ekThrow">🍡 던지기</button>'; document.body.appendChild(b); EK.bar=b;
+    b.querySelector("#ekThrow").addEventListener("pointerdown",e=>{ e.stopPropagation(); e.preventDefault(); ekThrow(); }); }
+  const b=EK.bar; const show=act&&!layerOpen&&started&&!(typeof DG!=="undefined"&&DG.on); if(!show){ if(!b.hidden) b.hidden=true; return; } b.hidden=false;
+  let bot=0; ["warbar","bossbar","evbar","giBar","shBar"].forEach(id=>{ const el=$(id); if(el&&!el.hidden){ const r=el.getBoundingClientRect(); if(r.height>0) bot=Math.max(bot,r.bottom); } }); const top=bot>0?Math.round(bot+6)+"px":""; if(b._t!==top){ b._t=top; b.style.top=top; }
+  const left=Math.max(0,Math.ceil((ekStartOf(G.ekK)+EK_DUR-Date.now())/60000)); const ok=S.total>=EK_GOAL; const pct=Math.min(100,Math.round(S.total/EK_GOAL*100));
+  const h=`<b>${ok?"☀️ 해를 돌려받았어요! 축제 시간":"🌑 배고픈 라후의 일식"} · 🍡 ${S.total}/${EK_GOAL}</b><i style="--p:${pct}%"></i><span>남은 ${left}분 · ${ok?"더 던지면 우리 세계 깃발!":"꿀떡을 모아 라후 입에 던져요"}</span>`;
+  const t=b.querySelector(".ekt"); if(t._h!==h){ t._h=h; t.innerHTML=h; } const btn=b.querySelector("#ekThrow"), bt=`🍡 던지기 ${G.ekHave|0}`; if(btn._t!==bt){ btn._t=bt; btn.textContent=bt; btn.disabled=!(G.ekHave>0); } }
+/* ---------- 창 · 지도 ---------- */
+MAP_X.push((ctx,tx,tz,big,u)=>{ if(!EK.rb||!EK.rb.visible) return; mapPin(ctx,tx(0),tz(-8),(big?6:7.5)*u,"#8a5aff","🌈"); });
+function showEclipse(){ ekRoll(); const act=ekActive(), k=G.ekK, S=ekSums(k); const pk=k-1;
+  const rows=[0,1,2,3].map(i=>`<div><b>${REALMS[i].icon} ${S.by[i]}</b><span>${REALMS[i].n}</span></div>`).join("");
+  let past=""; if(pk>=0&&EK.rec[pk]){ const P2=ekSums(pk), w=ekWinner(pk); past=`<p style="font-size:13px">지난 일식(${ekWhen(pk)}): 🍡 ${P2.total}/${EK_GOAL} ${P2.total>=EK_GOAL?"☀️ 성공!":"— 아쉽게 모자랐어요"}${w>=0?` · 1등 ${REALMS[w].icon} ${REALMS[w].n}`:""}</p>`; }
+  card(`<h2>🌑 배고픈 라후의 일식 축제</h2><p>2주에 한 번 저녁, 먹보 거인 머리 <b>라후</b>가 하늘에 나타나 해를 한입 앙! 물어요. 세상이 30분 동안 노을빛으로 어둑해지면, 모두 함께 <b>🍡 꿀떡</b>을 모아 라후 입에 던져요. 전 세계 합계가 <b>${EK_GOAL}개</b>가 되면 배부른 라후가 해를 「퉤!」 뱉어요.</p>
+   <div class="idlegrid"><div><b>${act?"🌑 지금!":"🗓"}</b><span>${act?`남은 ${Math.max(0,Math.ceil((ekStartOf(k)+EK_DUR-Date.now())/60000))}분`:ekWhen(k)}</span></div><div><b>🍡 ${S.total}/${EK_GOAL}</b><span>${act?"전 세계 꿀떡":"이번 회 모인 꿀떡"}</span></div><div><b>${ekBaked(k)}/${EK_BAKEMAX}</b><span>내 영웅이 구운 꿀떡</span></div><div><b>${G.ekWin||0}</b><span>해를 돌려준 횟수</span></div></div>
+   <h3>🏆 세계별 꿀떡</h3><div class="idlegrid">${rows}</div>${past}
+   <h3>🎮 이렇게 놀아요</h3><div class="diary"><p>⚔ 일식 동안 괴물을 잡으면 🍡 +1 (★정예 +3, 보스 +10).</p><p>🔨 수도에서 「떡 찧기」 버튼을 3번 누르면 🍡 +1 (한 번에 30개까지).</p><p>🍡 화면 위 띠의 「던지기」로 하늘의 라후에게 휙!</p><p>💤 게임을 꺼 둬도 내 영웅이 30분마다 꿀떡을 1개씩 구워 둬요(최대 ${EK_BAKEMAX}개) — 일식 때 저절로 보내져요.</p><p>🐘 가네샤 할아버지도 8초마다 하나씩 도와줘요.</p><p>☀️ 성공하면 함께한 사람 모두 감사 상자 + 세계의 중심에 🌈 무지개 다리(하루). 가장 많이 던진 세계 수도에는 「해를 돌려준 세계」 깃발이 일주일!</p></div>`); }
+MENU_X.push({ic:"🌑",n:"라후의 일식 축제",id:"ekBtn",sub:()=>{ if(ekActive()){ const S=ekSums(G.ekK); return `🌑 지금! 🍡 ${S.total}/${EK_GOAL}`; } return `다음: ${ekWhen(ekNextK())} · 구운 꿀떡 ${ekBaked(G.ekK)}`; },f:showEclipse});
+TITLES.push({id:"ek1",n:"해를 돌려준 자",t:2,h:"라후의 일식 성공 함께하기",g:()=>[G.ekWin||0,1]},{id:"ek100",n:"꿀떡 장인",t:2,h:"꿀떡 100개 던지기",g:()=>[G.ekTot||0,100]},{id:"ek3",n:"라후의 단짝",t:3,h:"일식 성공 3번",g:()=>[G.ekWin||0,3]});
+</script>
+<style>
+#ekBar{position:fixed;left:50%;top:calc(max(8px,env(safe-area-inset-top)) + 54px);transform:translateX(-50%);z-index:6;display:flex;align-items:center;gap:8px;min-width:260px;max-width:min(62vw,500px);padding:5px 8px 6px 14px;border-radius:14px;background:linear-gradient(180deg,rgba(50,22,70,.9),rgba(30,14,40,.9));border:2px solid #ffb04a;box-shadow:0 0 0 2px rgba(0,0,0,.45),0 0 14px rgba(255,160,60,.45);color:#fff}
+#ekBar[hidden]{display:none} #ekBar .ekt{flex:1;display:flex;flex-direction:column;gap:2px;text-align:center;pointer-events:none}
+#ekBar b{font-size:14px;color:#ffe6b0;text-shadow:0 2px 0 #000} #ekBar span{font-size:12px;opacity:.92}
+#ekBar i{display:block;height:7px;border-radius:4px;background:linear-gradient(90deg,#ffd64a var(--p),rgba(255,255,255,.15) var(--p))}
+#ekThrow{pointer-events:auto;flex:none;font-size:15px;font-weight:900;padding:8px 10px;border-radius:12px;border:2px solid #fff;background:linear-gradient(180deg,#ff9ac0,#e0508a);color:#fff;text-shadow:0 1px 0 #000;box-shadow:0 3px 0 rgba(0,0,0,.4)}
+#ekThrow:disabled{filter:grayscale(.7);opacity:.7}
+</style>
+<script>
 /* ================= 아주 작은 MQTT 클라이언트 (웹소켓) — 외부 라이브러리 없이 ================= */
 function MiniMQTT(url,opt){
   const self={url,ok:false,ws:null,buf:new Uint8Array(0),pid:1,pingT:null,retry:null,closed:false,subs:[],opt};
@@ -8053,7 +8401,7 @@ window.__gw={regionBanner,PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoa
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="c1e2717e";
+(function(){ var CUR="fb7ba0b0";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
