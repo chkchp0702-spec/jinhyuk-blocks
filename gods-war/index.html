@@ -548,6 +548,26 @@ body.eco .act.atk.full,body.eco .act.atk.full::before{animation:none}
 .layer.out .card{animation:cardOut .2s ease-in forwards}
 @keyframes cardOut{to{transform:translateY(16px) scale(.93);opacity:0}}
 .layer.out .card::after{display:none}
+/* v96 경험치 바: 흐르는 빛·끝 반짝·오를 때 번쩍·꽉 차기 직전 금빛 두근 */
+#status{position:relative}
+.bar.xp{overflow:hidden}
+.bar.xp i{background:linear-gradient(90deg,rgba(255,255,255,0) calc(100% - 7px),rgba(255,255,255,.95)),linear-gradient(90deg,#2f7dff,#4aa3ff 45%,#9be7ff);box-shadow:0 0 6px rgba(120,200,255,.7)}
+.bar.xp i::before{content:"";position:absolute;top:0;bottom:0;left:0;width:200%;background:repeating-linear-gradient(105deg,rgba(255,255,255,0) 0 14px,rgba(255,255,255,.38) 17px,rgba(255,255,255,0) 21px 34px);animation:xpFlow 1.6s linear infinite;mix-blend-mode:screen}
+@keyframes xpFlow{from{transform:translateX(-34px)}to{transform:translateX(0)}}
+.bar.xp.gain i{animation:xpGain .5s ease-out}
+@keyframes xpGain{0%{filter:brightness(2.1) saturate(.6)}100%{filter:none}}
+.bar.xp.near{animation:xpNear 1s ease-in-out infinite}
+.bar.xp.near i{background:linear-gradient(90deg,rgba(255,255,255,0) calc(100% - 8px),#fff),linear-gradient(90deg,#4aa3ff,#9be7ff 55%,#ffe58a)}
+@keyframes xpNear{0%,100%{box-shadow:inset 0 1px 2px rgba(0,0,0,.7),0 0 0 1px rgba(255,214,120,.45),0 0 3px rgba(255,214,120,.3)}50%{box-shadow:inset 0 1px 2px rgba(0,0,0,.7),0 0 0 1px rgba(255,230,140,.95),0 0 10px 2px rgba(255,210,90,.75)}}
+.bar.xp.lvup{animation:xpLv .9s ease-out}
+.bar.xp.lvup::before{content:"";position:absolute;inset:0;z-index:3;background:linear-gradient(90deg,#fff,#ffe58a,#fff);animation:xpLvF .9s ease-out forwards;pointer-events:none}
+@keyframes xpLv{0%{box-shadow:0 0 0 1px #fff,0 0 16px 5px rgba(255,230,140,.95)}100%{box-shadow:inset 0 1px 2px rgba(0,0,0,.7),0 0 0 1px rgba(255,214,120,.28)}}
+@keyframes xpLvF{0%{opacity:1}100%{opacity:0}}
+.xpsp{position:absolute;width:4px;height:4px;border-radius:50%;background:#fff;box-shadow:0 0 5px 2px #9be7ff,0 0 2px #fff;pointer-events:none;z-index:4;opacity:0;animation:xpSp .8s ease-out forwards}
+.bar.xp.near~.xpsp,#status .xpsp.g{box-shadow:0 0 5px 2px #ffd86a}
+@keyframes xpSp{0%{opacity:1;transform:translate(0,0) scale(1.2)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.3)}}
+body.eco .bar.xp i::before,body.eco .bar.xp.near{animation:none}
+@media (prefers-reduced-motion:reduce){.bar.xp i::before{animation:none}}
 </style>
 </head>
 <body>
@@ -605,7 +625,7 @@ body.eco .act.atk.full,body.eco .act.atk.full::before{animation:none}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v95";
+const VER="v96";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -2231,6 +2251,16 @@ function winGlowMat(m){ if(!m||Array.isArray(m)||!m.map) return m; let c=WINGLOW
 #endif`); };
   c.customProgramCacheKey=()=>"winglow"+(m.customProgramCacheKey?m.customProgramCacheKey():""); WINGLOW.cache.set(m,c); return c; }
 (function(){ if(typeof dayNight!=="function") return; const _dn=dayNight; dayNight=function(dt,center,theme){ const r=_dn.apply(this,arguments); try{ const d=(typeof DAY!=="undefined"&&DAY.d!=null)?DAY.d:1; const inDg=(typeof DG!=="undefined"&&DG&&DG.on); const n=inDg?0:clamp((.78-d)/.34,0,1); WINGLOW.u.value+=(n-WINGLOW.u.value)*Math.min(1,(dt||.016)*2); }catch(e){} return r; }; })();
+</script>
+<script>
+/* v96 경험치 바 — 빛 알갱이가 흐르고, 오를 때 반짝·꽉 차기 직전 금빛 두근, 레벨업 땐 하얗게 번쩍. 모습만(경험치 계산 그대로) */
+const XPBAR={p:-1,lv:-1,t:0};
+(function(){ function sp(bar,pct,n){ const host=bar.parentNode; if(!host||host.querySelectorAll(".xpsp").length>6) return; const br=bar.getBoundingClientRect(), hr=host.getBoundingClientRect(); for(let i=0;i<n;i++){ const s=document.createElement("i"); s.className="xpsp"; s.style.left=(br.left-hr.left+br.width*pct/100-2+Math.random()*4)+"px"; s.style.top=(br.top-hr.top+br.height/2-2)+"px"; s.style.setProperty("--dx",(Math.random()*16-8).toFixed(1)+"px"); s.style.setProperty("--dy",(-8-Math.random()*12).toFixed(1)+"px"); s.style.animationDelay=(i*.07)+"s"; host.appendChild(s); setTimeout(()=>s.remove(),900); } }
+  function kick(el,c,ms){ el.classList.remove(c); void el.offsetWidth; el.classList.add(c); clearTimeout(el["_"+c]); el["_"+c]=setTimeout(()=>el.classList.remove(c),ms); }
+  setInterval(()=>{ try{ if(typeof started==="undefined"||!started||typeof G==="undefined"||!G||!$("xpBar")) return; const bar=$("xpBar").parentNode; const need=xpNeed(G.lv)||1; const pct=clamp(G.xp/need*100,0,100);
+    if(XPBAR.lv>=0&&G.lv>XPBAR.lv){ kick(bar,"lvup",900); if(!ECO()) sp(bar,100,5); }
+    else if(XPBAR.p>=0&&pct>XPBAR.p+.05){ kick(bar,"gain",520); if(!ECO()&&!document.hidden) sp(bar,pct,pct-XPBAR.p>4?3:1); }
+    bar.classList.toggle("near",pct>=85&&G.lv<(typeof LVMAX!=="undefined"?LVMAX:1e9)); XPBAR.p=pct; XPBAR.lv=G.lv; }catch(e){} },220); })();
 </script>
 <script>
 /* ================= 플레이어 ================= */
@@ -8401,7 +8431,7 @@ window.__gw={regionBanner,PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoa
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="fb7ba0b0";
+(function(){ var CUR="a18fa56d";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
