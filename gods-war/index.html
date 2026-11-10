@@ -563,6 +563,8 @@ body.eco .act.atk.full,body.eco .act.atk.full::before{animation:none}
 .bar.xp.lvup::before{content:"";position:absolute;inset:0;z-index:3;background:linear-gradient(90deg,#fff,#ffe58a,#fff);animation:xpLvF .9s ease-out forwards;pointer-events:none}
 @keyframes xpLv{0%{box-shadow:0 0 0 1px #fff,0 0 16px 5px rgba(255,230,140,.95)}100%{box-shadow:inset 0 1px 2px rgba(0,0,0,.7),0 0 0 1px rgba(255,214,120,.28)}}
 @keyframes xpLvF{0%{opacity:1}100%{opacity:0}}
+/* v98 경험치 구슬 */ .xpfly{position:fixed;left:-7px;top:-7px;width:14px;height:14px;border-radius:50%;z-index:30;pointer-events:none;background:radial-gradient(circle at 40% 38%,#fff 0 22%,#bff4ff 40%,#4fc3ff 70%,rgba(40,120,255,0) 100%);box-shadow:0 0 0 1.5px rgba(20,70,190,.6),0 0 8px 3px rgba(110,200,255,.9),0 0 16px 5px rgba(60,120,255,.45);will-change:transform} .xpfly::after{content:"";position:absolute;left:50%;top:50%;width:4px;height:4px;margin:-2px;border-radius:50%;background:#fff;box-shadow:-5px 3px 0 -1px rgba(190,240,255,.7),-9px 6px 0 -1.5px rgba(150,210,255,.45),-12px 9px 0 -2px rgba(120,180,255,.25)} .xpfly.v{background:radial-gradient(circle at 40% 38%,#fff 0 22%,#e6d4ff 40%,#a87bff 70%,rgba(120,60,255,0) 100%);box-shadow:0 0 0 1.5px rgba(90,30,190,.6),0 0 8px 3px rgba(190,150,255,.85),0 0 16px 5px rgba(140,90,255,.4)} body.eco .xpfly{box-shadow:0 0 0 1.5px rgba(20,70,190,.6),0 0 5px 2px rgba(110,200,255,.8)}
+.bar.xp.xphit::after{content:"";position:absolute;top:-3px;bottom:-3px;right:0;width:100%;pointer-events:none;z-index:3;background:radial-gradient(ellipse 18px 9px at var(--xpe,100%) 50%,rgba(255,255,255,.95),rgba(170,230,255,.6) 45%,rgba(120,200,255,0) 100%);animation:xpHit .38s ease-out forwards} @keyframes xpHit{0%{opacity:1}100%{opacity:0}}
 .xpsp{position:absolute;width:4px;height:4px;border-radius:50%;background:#fff;box-shadow:0 0 5px 2px #9be7ff,0 0 2px #fff;pointer-events:none;z-index:4;opacity:0;animation:xpSp .8s ease-out forwards}
 .bar.xp.near~.xpsp,#status .xpsp.g{box-shadow:0 0 5px 2px #ffd86a}
 @keyframes xpSp{0%{opacity:1;transform:translate(0,0) scale(1.2)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.3)}}
@@ -639,7 +641,7 @@ body.dying>*:not(#layers):not(#view):not(.revfl):not(script){opacity:0!important
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v97";
+const VER="v98";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -2292,6 +2294,36 @@ DEATHFX.cam=function(dt,gy){ if(!P.dead){ if(DEATHFX.on) DEATHFX.stop(false); re
   camera.lookAt(P.x+(camera.position.x-P.x)*.12,gy-.2-e*.9,P.z+(camera.position.z-P.z)*.12); /* 쓰러진 나는 화면 위쪽(글씨에 안 가리게) */ return true; };
 </script>
 <script>
+/* ================= 경험치 구슬이 경험치 바로 빨려듦 (v98) =================
+   괴물을 쓰러뜨리면 몸에서 파란 빛 구슬(꼬리 달린 반딧불 모양)이 몇 개 피어올라 빙글 한 번 맴돈 뒤 → 화면 위 경험치 바 끝으로 휘익 빨려 들어감.
+   들어가면 바 끝이 하얗게 톡 번쩍(.xphit)하고 맑은 "딩" 소리. 보스는 구슬 9개, 정예 5개, 보통 3개.
+   화면 위 작은 DOM 이라 그리기 호출 0, 한 번에 최대 16개, 배터리 절약 모드는 2개. 경험치 양·계산은 그대로(바는 지금처럼 바로 오름). */
+const XPFLY=(()=>{ let live=0; const V=new THREE.Vector3();
+  function target(){ const el=document.getElementById("xpBar"); if(!el) return null; const bar=el.parentNode, r=bar.getBoundingClientRect(), f=el.getBoundingClientRect(); if(!r.width||r.bottom<0) return null;
+    return {x:Math.max(r.left+6,Math.min(r.right-4,f.right)),y:r.top+r.height/2,bar}; }
+  function hit(bar){ try{ const r=bar.getBoundingClientRect(), f=bar.firstElementChild.getBoundingClientRect(); bar.style.setProperty("--xpe",Math.max(3,Math.min(100,(f.right-r.left)/r.width*100)).toFixed(1)+"%"); }catch(e){} bar.classList.remove("xphit"); void bar.offsetWidth; bar.classList.add("xphit"); clearTimeout(bar._xh); bar._xh=setTimeout(()=>bar.classList.remove("xphit"),380); }
+  function burst(x,y,z,n){ try{ if(document.hidden||typeof camera==="undefined") return; const T=target(); if(!T) return; V.set(x,y+hAt(x,z),z).project(camera); if(V.z>1) return;
+      const sx=(V.x+1)/2*innerWidth, sy=(1-V.y)/2*innerHeight; if(sx<-40||sx>innerWidth+40||sy<-40||sy>innerHeight+40) return;
+      n=Math.min(n||3,(typeof ECO==="function"&&ECO())?2:9,16-live); for(let i=0;i<n;i++) one(sx,sy,T,i,n); }catch(e){} }
+  function one(sx,sy,T,i,n){ const c=document.createElement("div"); c.className="xpfly"+(i%3===2?" v":""); document.body.appendChild(c); live++;
+    const a=Math.PI*2*i/n+Math.random()*.6, r=22+Math.random()*20;
+    const p1x=sx+Math.cos(a)*r, p1y=sy-20+Math.sin(a)*r*.6-Math.random()*16;          // 피어오름
+    const p2x=sx+Math.cos(a+1.9)*r*1.15, p2y=sy-34+Math.sin(a+1.9)*r*.5;               // 한 바퀴 맴돌기
+    const mx=(p2x+T.x)/2+(Math.random()-.5)*80, my=Math.min(p2y,T.y)+(sy>T.y?-10:30)-Math.random()*30; // 휘어 날아감
+    const dur=900+i*60, delay=120+i*70; let anim=null;
+    if(c.animate){ anim=c.animate([
+        {transform:`translate(${sx}px,${sy}px) scale(.2)`,opacity:0},
+        {transform:`translate(${p1x}px,${p1y}px) scale(1.25)`,opacity:1,offset:.24,easing:"ease-out"},
+        {transform:`translate(${p2x}px,${p2y}px) scale(1)`,opacity:1,offset:.46,easing:"ease-in-out"},
+        {transform:`translate(${mx}px,${my}px) scale(.85)`,opacity:1,offset:.74,easing:"ease-in"},
+        {transform:`translate(${T.x}px,${T.y}px) scale(.45)`,opacity:.9}],{duration:dur,delay,fill:"both"}); }
+    const done=()=>{ if(!c.parentNode) return; c.remove(); live--; hit(T.bar); try{ if(i===0||i===n-1) tone(1975+i*60,.06,"sine",0,.035); }catch(e){} };
+    if(anim) anim.onfinish=done; else { c.style.transform=`translate(${T.x}px,${T.y}px)`; setTimeout(done,dur); }
+    setTimeout(()=>{ if(c.parentNode){ c.remove(); live--; } },dur+delay+600); }
+  return {burst};
+})();
+</script>
+<script>
 /* ================= 플레이어 ================= */
 const P={x:0,z:0,y:0,vy:0,rot:0,hp:1,walk:0,moving:false,atkCd:0,sklCd:[0,0,0],rage:0,haste:0,combat:0,dashT:0,atkAnim:0,slow:0,weak:0,shadow:0,dizzy:0,heat:0,dead:false,deadT:0,orbitT:0,orbitTick:0,capProg:0,capRg:-1,bag:null,trial:null,invul:0,hitFlash:0};
 let player=null, weaponMesh=null, orbitMesh=null;
@@ -2342,7 +2374,7 @@ function tickMobs(dt){
 function damageMob(m,dmg,crit){ if(m.titan){ titanHit(m,dmg,crit); return; } if(m.hp<=0) return; dmg=Math.round(dmg); m.hp-=dmg; m.hit=.15; P.combat=4; try{ HITF.knock(m,dmg,crit); }catch(e){} floatDmg(m.x,3.5*m.scale,m.z,"-"+fmt(dmg),crit?"crit":""); fxSpark(m.x,1.8*m.scale,m.z,crit?0xffe08a:0xffffff,crit?16:8); tone(crit?660:440,.06,"square",0,.08);
   if(m.hp<=0){ killMob(m); } }
 function killMob(m){ if(m.war&&typeof warOnKill==="function") warOnKill(m); const st=stat(); G.kills++; G.mk=G.mk||{}; G.mk[m.n]=(G.mk[m.n]||0)+1; const gap=lvGap(m.lv||G.lv); gainXp(Math.round(m.xp*gap)); G.gold+=Math.round(m.gold*(gap<1?.5+gap*.5:1)*((typeof ssWinner==="function"&&ssWinner()===G.realm)?1.1:1)); try{ petOnKill(m); }catch(e){ console.warn(e); } try{ hmOnKill(m); }catch(e){} fxFlash(m.x,2,m.z,0xffe08a,m.boss?6:2.2,.45); fxRing(m.x,m.z,0xffffff,m.boss?10:3);
-  floatDmg(m.x,4,m.z,`+${m.gold} 금화`,""); if(typeof COINFLY!=="undefined") COINFLY.burst(m.x,1.6*m.scale,m.z,m.boss?8:m.elite?5:3);
+  floatDmg(m.x,4,m.z,`+${m.gold} 금화`,""); if(typeof COINFLY!=="undefined") COINFLY.burst(m.x,1.6*m.scale,m.z,m.boss?8:m.elite?5:3); try{ XPFLY.burst(m.x,1.8*m.scale,m.z,m.boss?9:m.elite?5:3); }catch(e){}
   // 드랍
   const rg=REGIONS[m.rg]; const roll=Math.random(); let tier=-1; if(m.boss){ tier=m.world?3:Math.min(3,Math.floor(rg.lv[1]/10)+1); if(Math.random()<.35) tier=Math.min(3,tier+1); } else if(roll<.06){ tier=Math.min(3,Math.floor(rg.lv[0]/8)); if(Math.random()<.15) tier=Math.min(3,tier+1); }
   if(tier>=0){ const s=pick(["w","a","r"]); G.bag.push({s,t:tier}); try{ LOOT.drop(m.x,m.z,tier); }catch(e){} toast(`${RAR[tier].n} 아이템!`,itemName(s,tier),2.2); jingle([659,784,1046]); }
@@ -8460,7 +8492,7 @@ window.__gw={regionBanner,PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoa
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="7b67214e";
+(function(){ var CUR="ee09e5b4";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
