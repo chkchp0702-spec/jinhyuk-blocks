@@ -18,7 +18,7 @@ const GDO={};                            // 코드 → {id: 기록}
 const GD={t:0,pubT:5,dirty:false,seen:false,board:[],lbl:null,brdKey:"",bnKey:""};
 const GD_CODECH="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 function gdName(gn){ return gn?`${GD_A[gn[0]]||""} ${GD_B[gn[1]]||""} ${GD_C[gn[2]]||""}`:""; }
-function gdWeek(){ return titanWeek(); }
+function gdWeek(){ return Math.floor((Date.now()+9*3600000-4*86400000)/(7*86400000)); }   // v101: 거대 보스가 3일 주기가 되어 기사단 주는 따로 계산(값은 예전과 같음)
 function gdMine(){ const g=G.gd; if(!g) return null; const w=gdWeek(); if(g.w!==w){ g.w=w; g.p=0; g.cl=0; } return g; }
 function gdAlive(d){ return d&&!d.left&&Date.now()-(d.t||0)<21*86400000; }
 function gdMembers(code){ const L=[]; const o=GDO[code]||{}; for(const id in o){ if(id!==G.id&&gdAlive(o[id])) L.push(o[id]); } const g=gdMine(); if(g&&g.c===code) L.push(gdRec()); return L; }

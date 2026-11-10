@@ -121,7 +121,7 @@ function showMenu(){ card(`<h2>신들의 전쟁</h2><p>${G.name} · ${RM().n} ${
   ${typeof menuXRows==="function"?menuXRows():""}
   <div class="row"><div class="ic">🗿</div><div class="t"><div>지혜의 석상 수수께끼</div><span>${orNeedRows()>0?`오늘의 문제 ${3-orNeedRows()}/3 · 다 맞히면 경험치 +15%`:`오늘 ${orOk()}/3 정답`} · 연속 ${G.orcLast===kday()||G.orcLast===kday()-1?(G.orcSt||0):0}일</span></div><button class="buy" id="orBtn">열기</button></div>
   <div class="row"><div class="ic">🌱</div><div class="t"><div>새싹과 길잡이</div><span>${mtRole()==="sprout"?"나는 🌱 새싹 · 길잡이와 함께 다니면 경험치 +20%":mtRole()==="guide"?`나는 🧭 길잡이 · 별 ${mtStars()}개 · 새싹을 도와요`:"처음 온 사람을 도와 길잡이 별 모으기"}</span></div><button class="buy" id="mtBtn">열기</button></div>
-  <div class="row"><div class="ic">🌋</div><div class="t"><div>이번 주 거대 보스</div><span>모두 함께 체력 깎기 · 용사 뽑기</span></div><button class="buy" id="titanBtn">열기</button></div>
+  <div class="row"><div class="ic">🌋</div><div class="t"><div>거대 보스 (3일마다)</div><span>모두 함께 체력 깎기 · 용사 뽑기</span></div><button class="buy" id="titanBtn">열기</button></div>
   <div class="row"><div class="t"><div>꾸미기</div><span>얼굴·옷·머리·망토·무기·빛깔</span></div><button class="buy alt" id="lookBtn">열기</button></div>
   <div class="row"><div class="t"><div>집(수도)으로 순간이동</div><span>전투 중엔 안 돼요${DG.on?" · 미궁에서 나가요":""}${HM.on?" · 신전 섬에서 내려가요":""}${DS.on?" · 사막에서 나가요":""}${PG.on?" · 놀이 마당에서 나가요":""}</span></div><button class="buy" id="goHome">가기</button></div>
   <div class="row"><div class="t"><div>전체 화면</div><span>아이폰은 공유 → "홈 화면에 추가"로 앱처럼 설치하면 전체 화면</span></div><button class="buy alt" id="full">켜기</button></div>

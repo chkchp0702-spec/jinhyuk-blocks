@@ -658,7 +658,7 @@ body.eco .mbtn.newdot,body.eco .mbtn.newdot::before{animation:none!important}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v100";
+const VER="v101";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -795,7 +795,7 @@ document.addEventListener("visibilitychange",()=>{ if(document.hidden) saveGame(
 const RM=()=>REALMS[G.realm]||REALMS[0];
 
 /* ================= 능력치 ================= */
-function xpNeed(lv){ return Math.round(95*Math.pow(lv,1.95)); }   // v53 패치: 더 어렵게 (Lv10 약 1.3배, Lv30 약 1.4배)
+function xpNeed(lv){ return Math.round(64*Math.pow(lv,1.95)); }   // v101 요청: 경험치 1.5배 빨리(95→64)   // v53 패치: 더 어렵게 (Lv10 약 1.3배, Lv30 약 1.4배)
 //   // v28 패치: 더 어렵게 (Lv10 약 1.9배, Lv30 약 2.3배)   // v17 패치: 예전 36·lv^1.45 → 레벨이 너무 빨리 올라서 약 3~4배 느리게
 function lvGap(mlv){ const d=G.lv-mlv; return d<=5?1:Math.max(.1,1-(d-5)*.15); }   // 나보다 6레벨 넘게 낮은 괴물은 경험치 줄어듦
 function terrBonus(){ let n=0; for(let i=0;i<REGIONS.length;i++) if(!REGIONS[i].cap && W.o[i]===G.realm) n++; return n; }
@@ -2466,9 +2466,9 @@ function tickTerritory(dt){ const rg=regionAt(P.x,P.z); $("region").innerHTML=rg
   if(typeof warActive==="function"&&warActive()&&WAR.cur.rg===rg.id){ P.capProg=0; P.capRg=-1; return; }
   const g=TERR_RINGS[rg.id]; const d=Math.hypot(P.x-g.position.x,P.z-g.position.z);
   if(d<8&&W.o[rg.id]!==G.realm){ let blocked=false; for(const id in PEERS){ const o=PEERS[id]; if(o.realm===W.o[rg.id]&&!o.dead&&Math.hypot(o.x-g.position.x,o.z-g.position.z)<16) blocked=true; }
-    if(blocked){ toast("상대 세계 플레이어가 제단을 지키고 있어요",null,.6); return; }
-    if(P.capRg!==rg.id){ P.capRg=rg.id; P.capProg=0; } P.capProg+=dt/12; g.userData.orb.scale.setScalar(1.3+Math.sin(performance.now()/120)*.3);
-    toast(`${rg.n} 점령 중… ${Math.round(P.capProg*100)}%`,null,.3);
+    /* v101 요청: 지키고 있어도 점령 가능(대신 절반 속도) */
+    if(P.capRg!==rg.id){ P.capRg=rg.id; P.capProg=0; } P.capProg+=dt/(blocked?24:12); g.userData.orb.scale.setScalar(1.3+Math.sin(performance.now()/120)*.3);
+    toast(`${rg.n} 점령 중… ${Math.round(P.capProg*100)}%`,blocked?"상대가 지키고 있어서 느려요 — 쫓아내면 빨라져요":null,.3);
     if(P.capProg>=1){ W.o[rg.id]=G.realm; W.ts[rg.id]=Date.now(); G.capt++; saveWorld(); paintTerritory(); net.send({t:"cap",o:W.o,ts:W.ts}); net.pushWorld(); toast(`${rg.n}을(를) ${RM().n} 영토로!`,`영토 ${terrBonus()}곳 · 공격 +${terrBonus()*3}%`,3); jingle([523,659,784,1046]); fxRing(g.position.x,g.position.z,RM().c1,16,1.2); G.gold+=60; gainXp(80+G.lv*10); questEvent("cap",rg); P.capProg=0; P.capRg=-1; saveGame(); } }
   else { P.capProg=0; P.capRg=-1; g.userData.orb.scale.setScalar(1.3); } }
 
@@ -3150,9 +3150,9 @@ function showCombos(){ const R=RM(); G.combos=G.combos||{}; const keys=["0-0","1
   card(`<h2>🤝 합체 기술 도감</h2><p>${R.n} 합체 기술 ${got}/6</p><p style="font-size:13px">같은 세계 친구와 <b>8걸음 안</b>에 서서, <b>3초 안에</b> 둘이 기술을 하나씩 쓰면 합체 기술이 터져요! 데미지 6배 · 체력 회복 · 처음 성공하면 금화와 경험치 보너스.<br>"하나, 둘, 셋!" 하고 맞춰 보세요.</p>${rows}`); }
 
 /* ---------- 3. 주간 거대 보스 ---------- */
-const TITAN_HP=2000000, TITAN_POS={x:0,z:-24}, WEEK_MS=7*86400000;
-function titanWeek(){ return Math.floor((Date.now()+9*3600000-4*86400000)/WEEK_MS); }   // 한국 시간 월요일 0시에 바뀜
-function titanWeekStart(w){ return w*WEEK_MS+4*86400000-9*3600000; }
+const TITAN_HP=1200000, TITAN_POS={x:0,z:-24}, WEEK_MS=3*86400000;   // v101: 3일마다 새 보스(체력 200만→120만)
+function titanWeek(){ return Math.floor((Date.now()+9*3600000)/WEEK_MS); }   // v101: 한국 시간 0시 기준 3일마다 바뀜(이름은 예전 그대로 Week)
+function titanWeekStart(w){ return w*WEEK_MS-9*3600000; }
 function titanDef(w){ const R=REALMS[((w%4)+4)%4]; return {n:R.worldBoss.n,shape:R.worldBoss.shape,c:R.worldBoss.c,realm:REALMS.indexOf(R)}; }
 const TB=(function(){ let s=null; try{ s=JSON.parse(load("gw-titan-"+ROOM)||"null"); }catch(e){} if(!s||s.w!==titanWeek()) s={w:titanWeek(),mine:0,others:{},claimed:false}; return s; })();
 function titanSave(){ save("gw-titan-"+ROOM,JSON.stringify(TB)); }
@@ -3178,7 +3178,7 @@ function titanDefeated(){ if(TB.claimed) return; TB.claimed=true; titanSave(); t
   let gold=helped?300+G.lv*25:Math.round((300+G.lv*25)*.4), xp=helped?250+G.lv*35:Math.round((250+G.lv*35)*.4); if(meHero){ gold*=2; xp*=2; G.hero=TB.w; }
   G.titanWins=(G.titanWins||0)+1; const t=Math.min(3,Math.max(G.rank,1)); const s=pick(["w","a","r"]); G.bag.push({s,t}); G.gold+=gold; gainXp(xp); G.pots+=3; saveGame();
   card(`<h2>🏆 거대 ${D.n} 쓰러뜨림!</h2><p>모두 함께 힘을 합쳐 이겼어요!</p><div class="idlegrid"><div><b>+${fmt(gold)}</b><span>금화</span></div><div><b>+${fmt(xp)}</b><span>경험치</span></div><div><b>${rarTag(t)}</b><span>${itemName(s,t)}</span></div><div><b>+3</b><span>${RM().potion}</span></div></div>
-   <p>${hero?`이번 주 <b style="color:var(--gold)">🏅 용사: ${hero.n}</b> (${fmt(hero.d)} 데미지)`:""}${meHero?"<br>내가 용사예요! 보상 2배 · 다음 주까지 이름 옆에 🏅":""}${helped?"":"<br>(이번엔 직접 때리지 않아서 보상이 조금 작아요)"}</p><button class="buy" id="tOk" style="align-self:center">만세!</button>`);
+   <p>${hero?`이번 <b style="color:var(--gold)">🏅 용사: ${hero.n}</b> (${fmt(hero.d)} 데미지)`:""}${meHero?"<br>내가 용사예요! 보상 2배 · 다음 보스까지 이름 옆에 🏅":""}${helped?"":"<br>(이번엔 직접 때리지 않아서 보상이 조금 작아요)"}</p><button class="buy" id="tOk" style="align-self:center">만세!</button>`);
   $("tOk").onclick=closeLayer; jingle([523,659,784,1046,1318,1568,2093]); buzz([80,40,80,40,120]); }
 function titanIdle(r){ titanRoll(); if(TB.claimed||titanLeft()<=0||!r||!r.kills) return null; const now=Date.now(), ws=titanWeekStart(TB.w); const away=r.away||1; const frac=clamp((now-Math.max(now-away,ws))/away,0,1); const d=Math.round(r.kills*frac*(40+r.lv*20)); if(d<=0) return null; TB.mine+=d; TB.dirty=true; titanSave(); if(titanLeft()<=0) setTimeout(()=>{ if(!layerOpen) titanDefeated(); else TB.pending=1; },4000); return {d,n:"거대 "+titanDef(TB.w).n}; }
 /* v29 거대 보스 등장: 땅이 갈라지며 붉은 빛 → 쿵쿵 흔들리며 솟아오름 → 흙먼지·충격파 → 큰 이름 */
@@ -3189,7 +3189,7 @@ function titanSink(m,dt){ const H=(m.mesh.userData.h||4)*m.scale; if(m.rise<0) r
   return H*1.05*(1-e)+Math.sin(m.rise*60)*.08*(1-m.rise); }
 function titanIntro(m){ m.rise=0; const X=TITAN_POS.x,Z=TITAN_POS.z; const D=titanDef(TB.w); const c=(REALMS[D.realm]&&REALMS[D.realm].c1)||0xff6a3d;
   fxRing(X,Z,0xff3a1a,30,2.4); fxRing(X,Z,0xffa040,14,1.6); fxFlash(X,1,Z,0xff5a20,10,1.4); drama(0xff4a20,.45,2.6); tone(48,1.6,"sawtooth",0,.14); tone(36,2,"triangle",.2,.12);
-  if(!layerOpen&&!TITAN.intro){ TITAN.intro=1; setTimeout(()=>{ if(TITAN.m===m&&!layerOpen) lvBanner("⚠ 이번 주 거대 보스",m.n,"모두의 힘으로 쓰러뜨려요 · <b>빨간 고리</b>가 보이면 멀리 피해요","#ff6a3d"); },900); } }
+  if(!layerOpen&&!TITAN.intro){ TITAN.intro=1; setTimeout(()=>{ if(TITAN.m===m&&!layerOpen) lvBanner("⚠ 거대 보스 등장",m.n,"모두의 힘으로 쓰러뜨려요 · <b>빨간 고리</b>가 보이면 멀리 피해요","#ff6a3d"); },900); } }
 function tickTitan(dt){ if(!started) return; titanRoll(); const dead=titanLeft()<=0; if(dead&&!TB.claimed&&!layerOpen) titanDefeated();
   const near=Math.hypot(P.x-TITAN_POS.x,P.z-TITAN_POS.z);
   if(!dead&&!TB.claimed&&near<120&&!TITAN.m) titanSpawn(); if((dead||near>140)&&TITAN.m) titanRemove();
@@ -3207,12 +3207,12 @@ function tickTitan(dt){ if(!started) return; titanRoll(); const dead=titanLeft()
       if(TITAN.warnT>0){ TITAN.warnT-=dt; if(TITAN.warnT<=0){ TITAN.stompT=rnd(3.5,5); fxRing(TITAN_POS.x,TITAN_POS.z,0xffb070,30,.6); fxSpark(TITAN_POS.x,1,TITAN_POS.z,0xcfc4ac,40); P.shake=Math.max(P.shake||0,.8); thud();
         if(Math.hypot(P.x-TITAN_POS.x,P.z-TITAN_POS.z)<13) hurtPlayer(mobStats(G.lv,false).atk*1.6*(1-dmgReduce(stat().def)),m.n); } } }
     if(d<70) placeLabel(m.lbl,TITAN_POS.x,(m.mesh.userData.h||4)*m.scale*.5,TITAN_POS.z,`🌋 ${m.n} <b>모두의 거대 보스 · 남은 체력 ${fmt(titanLeft())}</b><span class="hp mob"><s></s><i></i></span>`), hpBar(m.lbl,titanLeft()/TITAN_HP); else m.lbl.style.display="none"; }
-  const pill=$("titanPill"); if(pill){ const pct=Math.round(titanLeft()/TITAN_HP*100); const txt=TB.claimed||dead?"🌋 🏆 이번 주 승리":`🌋 ${titanDef(TB.w).n} ${pct}%`; if(pill._t!==txt){ pill._t=txt; pill.textContent=txt; } } }
+  const pill=$("titanPill"); if(pill){ const pct=Math.round(titanLeft()/TITAN_HP*100); const txt=TB.claimed||dead?"🌋 🏆 승리":`🌋 ${titanDef(TB.w).n} ${pct}%`; if(pill._t!==txt){ pill._t=txt; pill.textContent=txt; } } }
 function titanGo(){ if(mobs.some(m=>!m.titan&&m.state==="chase"&&Math.hypot(m.x-P.x,m.z-P.z)<16)){ toast("전투 중에는 안 돼요"); return; } P.x=TITAN_POS.x+rnd(-3,3); P.z=TITAN_POS.z+30; P.invul=2; closeLayer(); toast("거대 보스 앞에 왔어요!","빨간 고리가 보이면 멀리 피해요",2.6); }
 function showTitan(){ titanRoll(); const D=titanDef(TB.w); const left=titanLeft(), pct=Math.round(left/TITAN_HP*100); const end=titanWeekStart(TB.w+1); const hrs=Math.max(0,(end-Date.now())/3600000);
   const rank=titanRank().map((x,k)=>`<div class="row"><div class="ic" style="color:${REALMS[x.r]?REALMS[x.r].c1:"#fff"}">${k===0&&x.d>0?"🏅":k+1}</div><div class="t"><div>${x.n}${x.me?" (나)":""}</div><span>${fmt(Math.round(x.d))} 데미지</span></div></div>`).join("");
   const done=TB.claimed||left<=0;
-  card(`<h2>🌋 이번 주 거대 보스</h2><p><b style="color:var(--gold)">거대 ${D.n}</b> · ${done?"쓰러뜨렸어요! 다음 주 월요일에 새 보스가 깨어나요":`남은 체력 ${fmt(left)} / ${fmt(TITAN_HP)} (${pct}%) · 남은 시간 ${hrs>=24?Math.floor(hrs/24)+"일 ":""}${Math.floor(hrs%24)}시간`}</p>
+  card(`<h2>🌋 거대 보스 (3일마다)</h2><p><b style="color:var(--gold)">거대 ${D.n}</b> · ${done?`쓰러뜨렸어요! ${Math.floor(hrs/24)?Math.floor(hrs/24)+"일 ":""}${Math.floor(hrs%24)}시간 뒤 새 보스가 깨어나요`:`남은 체력 ${fmt(left)} / ${fmt(TITAN_HP)} (${pct}%) · 남은 시간 ${hrs>=24?Math.floor(hrs/24)+"일 ":""}${Math.floor(hrs%24)}시간`}</p>
    <div class="bar" style="height:14px;border:2px solid #ffcf4a;border-radius:8px;overflow:hidden;background:#000"><i style="display:block;height:100%;width:${pct}%;background:linear-gradient(90deg,#b01030,#ff3d4a)"></i></div>
    <p style="font-size:13px">세계의 중심에 사는 아주 큰 보스예요. 체력은 <b>모든 친구가 함께</b> 깎아요. 게임을 꺼 둔 동안 수련한 것도 데미지로 보태져요.<br>쓰러뜨리면 모두에게 신화 상자(금화·경험치·장비·물약), 가장 많이 때린 사람은 <b>🏅 용사</b>(보상 2배).</p>
    <h3>데미지 순위</h3>${rank}${done?"":`<button class="go" id="tGo" style="align-self:center;font-size:18px;padding:10px 22px">보스에게 가기</button>`}`);
@@ -4326,7 +4326,7 @@ const GDO={};                            // 코드 → {id: 기록}
 const GD={t:0,pubT:5,dirty:false,seen:false,board:[],lbl:null,brdKey:"",bnKey:""};
 const GD_CODECH="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 function gdName(gn){ return gn?`${GD_A[gn[0]]||""} ${GD_B[gn[1]]||""} ${GD_C[gn[2]]||""}`:""; }
-function gdWeek(){ return titanWeek(); }
+function gdWeek(){ return Math.floor((Date.now()+9*3600000-4*86400000)/(7*86400000)); }   // v101: 거대 보스가 3일 주기가 되어 기사단 주는 따로 계산(값은 예전과 같음)
 function gdMine(){ const g=G.gd; if(!g) return null; const w=gdWeek(); if(g.w!==w){ g.w=w; g.p=0; g.cl=0; } return g; }
 function gdAlive(d){ return d&&!d.left&&Date.now()-(d.t||0)<21*86400000; }
 function gdMembers(code){ const L=[]; const o=GDO[code]||{}; for(const id in o){ if(id!==G.id&&gdAlive(o[id])) L.push(o[id]); } const g=gdMine(); if(g&&g.c===code) L.push(gdRec()); return L; }
@@ -5120,6 +5120,16 @@ const SKICON=(()=>{
    새 버전으로 처음 켜면 한 번, 무엇이 바뀌었는지 쉬운 말로 보여 줌(G.seenVer). 메뉴 → 업데이트 소식에서 다시 볼 수 있음.
    ※ 버전을 올릴 때마다 맨 앞에 한 줄 묶음을 더해요(오래된 것은 8개까지만 남김). */
 const PATCH_NOTES=[
+ {v:"v101",d:"11/10",t:"🎰 신들의 무기 뽑기 · 👑 유일왕의 무기 (우리 기획 반영!)",items:[
+   "🎰 메뉴 → 신들의 무기 뽑기! 근거리 17등급(미친 → 외계 → 수호신 → … → 종결)은 공격력이 올라가고, 원거리 7등급(공허 → … → 제작자)은 「던지기」가 번개·아이스스피어·무한창·핵무기로 바뀌어요.",
+   "🎟 뽑기권: 매일 2장 무료 · 보스를 잡으면 +1 · 거대 보스를 이기면 +5. 모자라면 금화로도 뽑아요. 10번 뽑기는 좋은 등급 1개 보장, 80번 안에 귀한 등급 확정!",
+   "📊 확률표는 뽑기 창에서 볼 수 있어요. 순서는 기획 그대로, 아주 희박하지만 진짜로 나오는 확률로 맞췄어요.",
+   "👑 유일왕의 무기 4개: 게슈탈트의 눈 · 카타스트로피 · 데우스 엑스 마키나 · 숨겨진 네 번째 「아르카이온 제로」. 뽑기·보스에서 나오는 「유일왕의 파편」을 모아 만들어요. 처음 얻은 사람 이름이 새겨져요.",
+   "💥 아르카이온 제로를 얻으면 궁극기 「만상종결·무시원」 버튼이 생겨요 — 주변 괴물 존재삭제!",
+   "⚔ 요청사항: 스킬·일반 공격 데미지 30% 업! 레벨업도 1.5배 빨라졌어요.",
+   "🚩 상대가 제단을 지키고 있어도 점령할 수 있어요(대신 느려요 — 쫓아내면 빨라져요).",
+   "🌋 거대 보스가 이제 3일마다 나와요.",
+   "🤝 다른 플레이어와 싸울 때는 뽑기 무기 힘이 많이 줄어들어요(공평하게)."]},
  {v:"v95",d:"11/9",t:"🎵 신들의 악기 · 🐏 황금 양 몰이 · 🌑 라후의 일식 축제",items:[
    "🎵 신들의 악기: 메뉴 → 신들의 악기에서 황금 나팔 · 뿔피리 · 시타르 · 리라 중 하나를 골라 「연주하기」! 화면 아래 색깔 버튼 5개(도·레·미·솔·라)로 연주하면 근처 사람에게도 들려요.",
    "📜 악보 4곡(에덴의 아침 · 무지개 다리 · 연꽃 자장가 · 올림포스 행진)을 맞게 치면 🌸 꽃비와 금화! 근처 사람과 10초 안에 같은 노래를 치면 🌟 합주 보너스. 시끄러우면 「근처 연주 소리 끄기」.",
@@ -8218,6 +8228,123 @@ TITLES.push({id:"ek1",n:"해를 돌려준 자",t:2,h:"라후의 일식 성공 �
 #ekThrow:disabled{filter:grayscale(.7);opacity:.7}
 </style>
 <script>
+/* ================= v101: 🎰 신들의 무기 뽑기 · 👑 유일왕의 무기 (아들들 기획 11/10) =================
+   - 근거리 17등급(공격력 +%) · 원거리 7등급(「던지기」가 그 무기로 바뀌고 던지기 데미지 +%).
+   - 확률은 아이들 표의 순서를 그대로 살리고, 합이 100%가 되게 + "희박하지만 실제로 나오는" 값으로 맞춤(GZ_M / GZ_R 의 p).
+   - 뽑기권 🎟: 매일 무료 1장씩 · 보스 처치 · 금화 구매(100+10·Lv). 10연속은 한 개 이상 높은 등급 보장. 80번 동안 귀한 게 안 나오면 보장(천장).
+   - 👑 유일왕의 무기 4개: 뽑기에서 아주 드물게(0.002%) 바로 나오거나, 「유일왕의 파편」을 모아 만들기(진짜 얻는 길).
+       게슈탈트의 눈(치명타) · 카타스트로피(지배) · 데우스 엑스 마키나(절대방어) · 아르카이온 제로(궁극기 만상종결·무시원)
+   - 다른 플레이어를 때릴 때는 뽑기 무기 힘이 크게 줄어듦(gzPvp) — 친구들이 한 방에 쓰러지지 않게.
+   - 저장: G.gc={tk,cm[],cr[],m,r,pm,pr,n,fr,k[],evo,fd,ult}. 보관 주제 kg/<번호> = 그 무기를 처음 얻은 사람. */
+const GZ_M=[ {n:"미친",w:"루비소드",p:55,b:.05},{n:"외계",w:"광선검",p:20,b:.1},{n:"수호신",w:"대전의 검",p:12,b:.16},{n:"타이탄",w:"묠니르",p:6,b:.24},{n:"스크램블",w:"불검",p:3.5,b:.33},{n:"공허",w:"다이아 검",p:2,b:.44},
+  {n:"절대적",w:"빛의 대검",p:.8,b:.58},{n:"신성",w:"신검",p:.4,b:.75},{n:"멀티버스",w:"광선검",p:.15,b:.95},{n:"초월",w:"루비소드",p:.07,b:1.2},{n:"구원",w:"빛의 대검",p:.04,b:1.45},{n:"신",w:"신검",p:.02,b:1.75},
+  {n:"절대자",w:"대전의 검",p:.01,b:2.1},{n:"갓즈",w:"묠니르",p:.005,b:2.5},{n:"개념",w:"다이아 검",p:.003,b:3},{n:"무한",w:"불검",p:.0015,b:3.6},{n:"종결",w:"종결의 검",p:.0005,b:4.5} ];
+const GZ_R=[ {n:"공허",w:"아이스스피어",p:60,b:.1,c:0x8fe6ff},{n:"구원",w:"번개",p:25,b:.25,c:0xfff07a,zap:1},{n:"절대자",w:"무한창",p:9,b:.5,c:0xb48cff},{n:"인피니티",w:"이노센트 제로",p:5,b:.8,c:0xffffff},
+  {n:"핵",w:"핵무기",p:.9,b:1.4,c:0x9dff5a,nuke:1},{n:"종결",w:"종결의 창",p:.09,b:2.2,c:0xff4a5a,zap:1},{n:"제작자",w:"제작자의 번개",p:.01,b:3.5,c:0xffd84a,zap:1,nuke:1} ];
+const GZ_KING=[ {n:"게슈탈트의 눈",ic:"👁",h:"모든 것을 볼 수 있다",e:"약점이 보여요 · 치명타 확률 +25%",cost:100},{n:"카타스트로피",ic:"🌀",h:"모든 것을 지배한다",e:"공격력 +50% · 때린 일반 괴물이 10% 확률로 굴복(바로 쓰러짐)",cost:200},
+  {n:"데우스 엑스 마키나",ic:"🛡",h:"절대방어",e:"받는 피해 절반 · 쓰러질 피해를 60초에 한 번 막고 체력 50% 회복",cost:350},{n:"아르카이온 제로",ic:"👑",h:"태초 이전의 종결자 · 네 번째 숨겨진 무기",e:"공격력 +150% · 절대진화(처치할수록 영원히 강해짐, 최대 +100%) · 궁극기 「만상종결·무시원」",cost:600} ];
+const GZ_ALIAS=["신들의 무덤","무한의 살해자","창조 이전의 왕관","모든 결말의 주인","존재하지 않는 절대자"];
+const GZ_KP=.002, GZ_PITY=80, GZ_ULT_CD=120;   // 유일왕 직접 뽑기 확률(%) · 천장 · 궁극기 재사용(초)
+const GZ={ult:0,save:0,aura:null,auraC:-1,netw:false,hudT:0,first:{}};
+function gz(){ const c=G.gc=G.gc||{}; if(c.tk==null) c.tk=5; c.cm=c.cm||[]; c.cr=c.cr||[]; if(c.m==null) c.m=-1; if(c.r==null) c.r=-1; c.pm=c.pm||0; c.pr=c.pr||0; c.n=c.n||0; c.fr=c.fr||0; c.k=c.k||[0,0,0,0]; c.evo=c.evo||0; return c; }
+function gzCol(i,n){ const t=i/(n-1); const stops=[[141,147,168],[58,141,255],[176,97,255],[255,207,74],[255,90,70],[255,255,255]]; const f=t*(stops.length-1), a=Math.floor(Math.min(f,stops.length-1.001)), u=f-a; const A=stops[a],B=stops[a+1]; return [0,1,2].map(k=>Math.round(A[k]+(B[k]-A[k])*u)); }
+function gzCss(i,n){ const c=gzCol(i,n); return `rgb(${c[0]},${c[1]},${c[2]})`; }
+function gzHex(i,n){ const c=gzCol(i,n); return (c[0]<<16)|(c[1]<<8)|c[2]; }
+function gzName(kind,g){ const T=kind==="m"?GZ_M:GZ_R; return `${T[g].n} ${T[g].w}`; }
+function gzPct(p){ return p>=1?p+"%":p>=.01?p.toFixed(2).replace(/0+$/,"")+"%":`${p}% (약 ${fmt(Math.round(100/p))}번에 1번)`; }
+function gzCost(){ return 100+G.lv*10; }
+function gzEvo(){ return Math.min(1,gz().evo*.0005); }
+/* 공격력 배율(근거리 무기 + 유일왕) · 던지기 배율(원거리 무기) */
+function gzAtkMul(){ const c=gz(); let m=1+(c.m>=0?GZ_M[c.m].b:0); if(c.k[1]) m+=.5; if(c.k[3]) m+=1.5+gzEvo(); return m; }
+function gzThrowMul(){ const c=gz(); return 1+(c.r>=0?GZ_R[c.r].b:0); }
+function gzPvp(d){ const m=gzAtkMul()*1.3; return Math.max(1,Math.round(d/Math.pow(m,.75))); }   // 다른 플레이어에게는 늘어난 힘의 1/4제곱만 남김
+/* ---------- 뽑기 ---------- */
+function gzRoll(T,minG){ let tot=0; for(let i=minG||0;i<T.length;i++) tot+=T[i].p; let r=Math.random()*tot; for(let i=minG||0;i<T.length;i++){ r-=T[i].p; if(r<=0) return i; } return T.length-1; }
+function gzPull(kind,minG){ const c=gz(), T=kind==="m"?GZ_M:GZ_R, rare=kind==="m"?6:4, pk=kind==="m"?"pm":"pr"; let g;
+  if(c[pk]+1>=GZ_PITY) g=gzRoll(T,rare); else g=gzRoll(T,minG||0);
+  if(g>=rare) c[pk]=0; else c[pk]++;
+  const own=kind==="m"?c.cm:c.cr; const isNew=!own[g]; own[g]=(own[g]||0)+1; c.n++; c.fr+=2; let equip=false; const ek=kind==="m"?"m":"r"; if(g>c[ek]){ c[ek]=g; equip=true; }
+  let king=-1; if(Math.random()*100<GZ_KP){ const left=[0,1,2,3].filter(i=>!c.k[i]&&(i<3||(c.k[0]&&c.k[1]&&c.k[2]))); if(left.length){ king=left[0]; gzKingGive(king,true); } }
+  return {kind,g,isNew,equip,king}; }
+function gzDo(kind,n){ const c=gz(); if(c.tk<n){ const need=n-c.tk, cost=need*gzCost(); if(G.gold<cost){ toast("🎟 뽑기권과 금화가 모자라요",`뽑기권 ${need}장 = 금화 ${fmt(cost)}`,2); return; } G.gold-=cost; c.tk+=need; }
+  c.tk-=n; const out=[]; const floor=kind==="m"?3:2; for(let i=0;i<n;i++){ const guar=(n>=10&&i===n-1&&!out.some(o=>o.g>=floor))?floor:0; out.push(gzPull(kind,guar)); }
+  saveGame(); gzAura(true); showGachaResult(kind,out); }
+function showGachaResult(kind,out){ const T=kind==="m"?GZ_M:GZ_R; const best=out.reduce((a,b)=>b.g>a.g?b:a,out[0]); const rows=out.map(o=>`<div class="gzr" style="--gc:${gzCss(o.g,T.length)}"><b>${T[o.g].n}</b><span>${T[o.g].w}</span>${o.isNew?"<i>NEW</i>":""}${o.king>=0?`<em>👑 ${GZ_KING[o.king].n}!</em>`:""}</div>`).join("");
+  card(`<h2>🎰 뽑기 결과</h2><div class="gzgrid">${rows}</div><p style="font-size:13px">${best.equip||out.some(o=>o.equip)?"더 높은 등급이 나와서 자동으로 꼈어요. ":""}👑 유일왕의 파편 +${out.length*2} (지금 ${fmt(gz().fr)}개)</p><button class="go" id="gzAgain" style="align-self:center">뽑기 창으로</button>`);
+  $("gzAgain").onclick=()=>showGacha(); const rareG=kind==="m"?6:4; if(best.g>=rareG){ jingle([523,659,784,1046,1318]); buzz([40,40,80]); try{ lvBanner("✨ "+T[best.g].n+" 등급!",T[best.g].w,gzPct(T[best.g].p)+"의 확률을 뚫었어요",gzCss(best.g,T.length)); }catch(e){} try{ fxRing(P.x,P.z,gzHex(best.g,T.length),14,1); }catch(e){} } else jingle([659,784]); }
+/* ---------- 유일왕의 무기 ---------- */
+function gzKingGive(i,fromPull){ const c=gz(); if(c.k[i]) return; c.k[i]=1; saveGame(); const K=GZ_KING[i]; try{ if(!GZ.first[i]) net.pushRet("kg/"+i,{i:G.id,n:G.name,r:G.realm,k:i,t:Date.now()}); }catch(e){}
+  setTimeout(()=>{ try{ lvBanner("👑 유일왕의 무기",K.n,K.h,"#ff4a5a"); }catch(e){ toast("👑 "+K.n,K.h,3); } jingle([392,523,659,784,1046,1318]); buzz([60,40,60,40,120]); try{ fxRing(P.x,P.z,0xff4a5a,24,1.6); fxBolt(P.x,P.z,0xffd84a); }catch(e){} },fromPull?900:100); gzUltBtn(); }
+function gzForge(i){ const c=gz(), K=GZ_KING[i]; if(c.k[i]) return; if(i===3&&!(c.k[0]&&c.k[1]&&c.k[2])){ toast("앞의 세 무기를 먼저 모아야 해요","네 번째는 숨겨진 무기예요",2); return; } if(c.fr<K.cost){ toast("👑 유일왕의 파편이 모자라요",`${fmt(c.fr)} / ${K.cost}`,2); return; } c.fr-=K.cost; gzKingGive(i,false); closeLayer(); }
+NETX.push({sub:"kg/+",pre:"kg/",f:(d)=>{ if(!d||d.k==null||!d.n||!(d.t>0)) return; const o=GZ.first[d.k]; if(!o||d.t<o.t) GZ.first[d.k]={n:String(d.n).slice(0,12),t:d.t,me:d.i===G.id}; }});
+function gzUltimate(){ const c=gz(); if(!c.k[3]||P.dead||layerOpen) return; if(GZ.ult>0){ toast(`만상종결 준비 중… ${Math.ceil(GZ.ult)}초`,null,.8); return; } if(inCapital(P.x,P.z)){ toast("수도 안에서는 쓸 수 없어요",null,1); return; }
+  GZ.ult=GZ_ULT_CD; const st=stat(); P.combat=4; if(player&&player.userData.gl) animState(player,"skill"); drama(0x1a0010,.6,1.6); P.shake=Math.max(P.shake||0,1.2); buzz([80,40,160]); tone(80,.6,"sawtooth",0,.14); tone(160,.5,"square",.1,.1); tone(1200,.5,"sine",.35,.08);
+  try{ lvBanner("궁극기","만상종결 · 무시원","존재삭제 — 모든 것이 처음으로 돌아간다","#ff4a5a"); }catch(e){} fxRing(P.x,P.z,0xff4a5a,60,1.4); fxRing(P.x,P.z,0xffffff,40,1); fxFlash(P.x,3,P.z,0xff4a5a,20,.8);
+  const list=mobs.filter(m=>m.hp>0&&Math.hypot(m.x-P.x,m.z-P.z)<35+(m.titan?8:0)); list.forEach((m,k)=>setTimeout(()=>{ if(m.hp<=0&&!m.titan) return; try{ fxBolt(m.x,m.z,0xff4a5a); }catch(e){} if(m.boss||m.titan||m.elite) damageMob(m,st.atk*30,true); else damageMob(m,Math.max(m.hp+1,st.atk*30),true); },250+k*60));
+  try{ net.send({t:"a",k:"skl"}); }catch(e){} }
+function gzUltBtn(){ let b=$("bGzUlt"); const has=gz().k[3]; if(!has){ if(b) b.hidden=true; return; } if(!b){ const th=$("bThrow"); if(!th||!th.parentNode) return; b=document.createElement("button"); b.id="bGzUlt"; b.type="button"; b.className="act gzult"; b.innerHTML='<span>만상<br>종결</span><small id="gzUltCd"></small><i class="cd" id="gzUltV"></i>'; th.parentNode.appendChild(b); try{ hold(b,gzUltimate); }catch(e){ b.onclick=gzUltimate; } } b.hidden=false; }
+/* ---------- 다른 함수 감싸기 ---------- */
+(function(){
+  const _st=stat; stat=function(){ const s=_st(); const c=gz(); s.atk*=1.3*gzAtkMul(); if(c.k[0]) s.crit+=.25; return s; };   // 1.3 = 요청사항 "스킬·일반공격 데미지 업"
+  const _dm=damageMob; damageMob=function(m,dmg,crit){ try{ if(gz().k[1]&&!m.boss&&!m.titan&&!m.elite&&m.hp>0&&dmg<m.hp&&Math.random()<.1){ dmg=m.hp+1; floatDmg(m.x,5*m.scale,m.z,"굴복!","gain"); } }catch(e){} return _dm(m,dmg,crit); };
+  const _km=killMob; killMob=function(m){ _km(m); try{ const c=gz(); if(c.k[3]&&c.evo<2000) c.evo++; if(m.war||m.titan) return; if(m.boss){ c.tk+=1; c.fr+=3; floatDmg(m.x,5,m.z,"🎟 뽑기권 +1","gain"); } else if(m.elite){ c.fr+=1; if(Math.random()<.25){ c.tk+=1; floatDmg(m.x,5,m.z,"🎟 뽑기권 +1","gain"); } } }catch(e){} };
+  const _hp=hurtPlayer; hurtPlayer=function(dmg,from){ try{ const c=gz(); if(c.k[2]&&!P.dead&&P.invul<=0&&typeof dmg==="number"){ dmg*=.5; if(dmg>=P.hp&&GZ.save<=0&&!(P.y>0.8&&!(typeof from==="object"&&from&&from.sure))){ GZ.save=60; P.hp=Math.max(P.hp,Math.round(stat().mhp*.5)); P.invul=Math.max(P.invul||0,3); floatDmg(P.x,4.6,P.z,"🛡 절대방어!","gain"); fxRing(P.x,P.z,0xffd84a,8,.8); jingle([784,1046]); return; } } }catch(e){} return _hp(dmg,from); };
+  const _td=titanDefeated; titanDefeated=function(){ const was=TB.claimed; _td(); try{ if(!was&&TB.claimed){ const c=gz(); c.tk+=5; c.fr+=40; saveGame(); setTimeout(()=>toast("🎟 뽑기권 +5 · 👑 유일왕의 파편 +40","거대 보스 보상",3),2500); } }catch(e){} };
+  /* 던지기: 원거리 뽑기 무기를 끼면 그 무기를 던짐 */
+  const _tw=throwWeapon; throwWeapon=function(){ const c=gz(); if(c.r<0) return _tw(); if(P.dead||layerOpen||throwCd>0) return; const R=GZ_R[c.r]; throwCd=3; const st=stat(); P.atkAnim=.35; P.combat=4; if(player.userData.gl) animState(player,"skill");
+    const tg=nearestFoe(24); if(tg) P.rot=Math.atan2(tg.x-P.x,tg.z-P.z); if(player) player.rotation.y=P.rot; const range=20; const tx=tg?tg.x:P.x+Math.sin(P.rot)*range, tz=tg?tg.z:P.z+Math.cos(P.rot)*range; const sx=P.x+Math.sin(P.rot)*.8, sz=P.z+Math.cos(P.rot)*.8; const crit=Math.random()<st.crit;
+    const rad=R.nuke?9:4.5; fireProj({x:sx,z:sz,y:2.6,tx,tz,ty:1.4,kind:"orb",speed:R.nuke?18:30,arc:R.nuke?.6:.12,dmg:st.atk*3*gzThrowMul(),crit,r:rad,hits:"mobs",zap:R.zap,big:1,color:R.c});
+    if(R.nuke) setTimeout(()=>{ try{ fxFlash(tx,2,tz,R.c,16,.7); fxRing(tx,tz,R.c,26,1); P.shake=Math.max(P.shake||0,.9); }catch(e){} },Math.hypot(tx-sx,tz-sz)/18*1000);
+    drama(R.c,.25,.6); tone(300,.12,"sawtooth",0,.1); tone(R.zap?1400:600,.1,"triangle",.05,.08); buzz(20); try{ net.send({t:"a",k:"thr",pk:"orb",sx:+sx.toFixed(1),sz:+sz.toFixed(1),pts:[[+tx.toFixed(1),+tz.toFixed(1)]]}); }catch(e){} };
+  const _th=throwHud; throwHud=function(){ const c=gz(); const b=$("bThrow"); if(c.r<0||!b){ if(b&&b._k==="gz") b._k=null; return _th(); } const nm=GZ_R[c.r].w; if(b._k!=="gz"||b._gn!==nm){ b._k="gz"; b._gn=nm; $("thrNm").textContent=nm; } const tc=throwCd>0?Math.ceil(throwCd)+"초":""; if(b._tc!==tc){ b._tc=tc; $("thrCd").textContent=tc; } const pv=throwCd>0?Math.round(throwCd/3*100)+"%":"0%"; if(b._pv!==pv){ b._pv=pv; $("thrCdV").style.setProperty("--p",pv); } };
+})();
+/* ---------- 발밑 등급 빛 고리 ---------- */
+function gzAura(pop){ const c=gz(); const g=c.k[3]?99:c.m; if(g===GZ.auraC&&!pop) return; GZ.auraC=g; if(GZ.aura){ scene.remove(GZ.aura); GZ.aura=null; } if(g<3) return; const col=g===99?0xff4a5a:gzHex(g,GZ_M.length);
+  const m=new THREE.Mesh(new THREE.RingGeometry(1.25,1.5,40),glowMat(col,.5)); m.rotation.x=-Math.PI/2; m.userData.noOutline=true; scene.add(m); GZ.aura=m; if(pop){ try{ SLASH.wrap(col); }catch(e){} } }
+XTICK.push(dt=>{ if(!started||G.realm<0) return; if(GZ.ult>0) GZ.ult-=dt; if(GZ.save>0) GZ.save-=dt;
+  if(!GZ.netw&&typeof net!=="undefined"&&net&&net.send){ GZ.netw=true; const _s=net.send; net.send=function(o){ try{ if(o&&o.t==="hit"&&o.d>0) o.d=gzPvp(o.d); }catch(e){} return _s(o); }; }
+  if(GZ.aura){ GZ.aura.position.set(P.x,hAt(P.x,P.z)+.09+(P.y||0)*0,P.z); GZ.aura.rotation.z+=dt*.8; GZ.aura.visible=!P.dead; }
+  GZ.hudT-=dt; if(GZ.hudT>0) return; GZ.hudT=.25; gzAura(false); gzUltBtn(); const b=$("bGzUlt"); if(b&&!b.hidden){ const tc=GZ.ult>0?Math.ceil(GZ.ult)+"초":""; if(b._tc!==tc){ b._tc=tc; $("gzUltCd").textContent=tc; } const pv=GZ.ult>0?Math.round(GZ.ult/GZ_ULT_CD*100)+"%":"0%"; if(b._pv!==pv){ b._pv=pv; $("gzUltV").style.setProperty("--p",pv); } } });
+/* ---------- 창 ---------- */
+function gzFree(){ const c=gz(); const d=kday(); if(c.fd===d) return false; c.fd=d; c.tk+=2; saveGame(); return true; }
+function showGacha(tab){ const c=gz(); const got=gzFree(); tab=tab||"pull";
+  const tabs=`<div class="gztabs"><button data-t="pull" class="${tab==="pull"?"on":""}">🎰 뽑기</button><button data-t="bag" class="${tab==="bag"?"on":""}">⚔ 내 무기</button><button data-t="king" class="${tab==="king"?"on":""}">👑 유일왕</button><button data-t="odds" class="${tab==="odds"?"on":""}">📊 확률표</button></div>`;
+  let body="";
+  if(tab==="pull"){ body=`<p>🎟 뽑기권 <b>${c.tk}</b>장 · 금화 ${fmt(G.gold)} · 모자란 뽑기권은 한 장에 금화 ${fmt(gzCost())}${got?"<br>🎁 오늘의 무료 뽑기권 2장을 받았어요!":""}</p>
+     <div class="row"><div class="ic">⚔</div><div class="t"><div>근거리 무기 뽑기</div><span>17등급 · 공격력이 올라요 · 지금: ${c.m>=0?gzName("m",c.m)+" (+"+Math.round(GZ_M[c.m].b*100)+"%)":"없음"}</span></div><button class="buy" id="gzM1">1번</button><button class="buy" id="gzM10">10번</button></div>
+     <div class="row"><div class="ic">🏹</div><div class="t"><div>원거리 무기 뽑기</div><span>7등급 · 「던지기」가 그 무기로! · 지금: ${c.r>=0?gzName("r",c.r)+" (+"+Math.round(GZ_R[c.r].b*100)+"%)":"없음"}</span></div><button class="buy" id="gzR1">1번</button><button class="buy" id="gzR10">10번</button></div>
+     <div class="diary"><p>🎟 뽑기권: 매일 처음 열면 2장 · 보스 처치 +1 · ★정예 가끔 +1 · 거대 보스 승리 +5</p><p>🔟 10번 뽑기는 근거리 「타이탄」·원거리 「절대자」 이상 1개 보장</p><p>🍀 ${GZ_PITY}번 동안 귀한 등급이 안 나오면 다음 뽑기는 근거리 「절대적」·원거리 「핵」 이상 확정 (근거리 ${c.pm}/${GZ_PITY} · 원거리 ${c.pr}/${GZ_PITY})</p><p>👑 뽑을 때마다 유일왕의 파편 +2 (지금 ${fmt(c.fr)}개)</p></div>`; }
+  else if(tab==="bag"){ const mk=(kind,T,own,eq)=>T.map((t,i)=>own[i]?`<div class="row gzrow" style="--gc:${gzCss(i,T.length)}"><div class="ic">${kind==="m"?"⚔":"🏹"}</div><div class="t"><div><b class="gzn">${t.n}</b> ${t.w} ×${own[i]}</div><span>${kind==="m"?"공격력":"던지기 데미지"} +${Math.round(t.b*100)}%</span></div><button class="buy${eq===i?" alt":""}" data-eq="${kind}${i}">${eq===i?"끼는 중":"끼기"}</button></div>`:"").reverse().join("");
+     const a=mk("m",GZ_M,c.cm,c.m), b=mk("r",GZ_R,c.cr,c.r); body=`<p>지금 내 공격력 배율 ×${(1.3*gzAtkMul()).toFixed(2)} · 던지기 ×${gzThrowMul().toFixed(2)} · 뽑은 횟수 ${fmt(c.n)}</p><h3>⚔ 근거리</h3>${a||'<p style="font-size:13px">아직 없어요</p>'}<h3>🏹 원거리</h3>${b||'<p style="font-size:13px">아직 없어요</p>'}`; }
+  else if(tab==="king"){ const rows=GZ_KING.map((K,i)=>{ const f=GZ.first[i]; const lock=i===3&&!(c.k[0]&&c.k[1]&&c.k[2]); return `<div class="row gzrow" style="--gc:${i===3?"#ff4a5a":"#ffd84a"}"><div class="ic">${lock&&!c.k[i]?"❓":K.ic}</div><div class="t"><div><b class="gzn">${lock&&!c.k[i]?"네 번째 숨겨진 무기":K.n}</b></div><span>${lock&&!c.k[i]?"앞의 세 무기를 모두 모으면 모습을 드러내요":K.h+" — "+K.e}${f?`<br>📜 첫 주인: ${f.n}`:""}</span></div>${c.k[i]?'<button class="buy alt" disabled>가졌어요</button>':`<button class="buy" data-fg="${i}" ${c.fr<K.cost||lock?"disabled":""}>파편 ${K.cost}</button>`}</div>`; }).join("");
+     body=`<div class="diary"><p>📖 유일왕에게는 무기가 네 개 있었다. 온 세계에 단 네 개뿐.</p><p>${GZ_ALIAS.map(a=>"「"+a+"」").join(" · ")}</p><p style="color:#a85a00;font-weight:800">최초이자 최후의 선언</p></div><p>👑 유일왕의 파편 <b>${fmt(c.fr)}</b>개 · 뽑기 +2 · 보스 +3 · ★정예 +1 · 거대 보스 승리 +40<br>뽑기에서 ${GZ_KP}%(5만 번에 1번) 확률로 바로 나오기도 해요.</p>${rows}${c.k[3]?`<p style="font-size:13px">절대진화: 공격력 +${(gzEvo()*100).toFixed(1)}% (처치 ${fmt(c.evo)}/2,000) · 궁극기는 「던지기」 위의 빨간 버튼 (${GZ_ULT_CD}초마다)</p>`:""}`; }
+  else { const tb=(T)=>T.map((t,i)=>`<div class="gzo" style="--gc:${gzCss(i,T.length)}"><b>${t.n}</b><span>${gzPct(t.p)}</span></div>`).join(""); body=`<h3>⚔ 근거리 무기</h3><div class="gzodds">${tb(GZ_M)}</div><h3>🏹 원거리 무기</h3><div class="gzodds">${tb(GZ_R)}</div><h3>👑 유일왕의 무기</h3><div class="gzodds"><div class="gzo" style="--gc:#ff4a5a"><b>유일왕의 무기</b><span>${gzPct(GZ_KP)}</span></div></div><p style="font-size:12px">아이디어 표의 순서는 그대로, 다 더하면 딱 100%가 되게 맞췄어요. 뽑기는 게임 금화와 뽑기권으로만 해요.</p>`; }
+  card(`<h2>🎰 신들의 무기 뽑기</h2>${tabs}${body}`);
+  layers.querySelectorAll(".gztabs button").forEach(b=>b.onclick=()=>showGacha(b.dataset.t));
+  const on=(id,f)=>{ const e=$(id); if(e) e.onclick=f; }; on("gzM1",()=>gzDo("m",1)); on("gzM10",()=>gzDo("m",10)); on("gzR1",()=>gzDo("r",1)); on("gzR10",()=>gzDo("r",10));
+  layers.querySelectorAll("[data-eq]").forEach(b=>b.onclick=()=>{ const k=b.dataset.eq[0], i=+b.dataset.eq.slice(1); const key=k==="m"?"m":"r"; c[key]=c[key]===i?-1:i; saveGame(); gzAura(true); showGacha("bag"); });
+  layers.querySelectorAll("[data-fg]").forEach(b=>b.onclick=()=>gzForge(+b.dataset.fg)); }
+MENU_X.push({ic:"🎰",n:"신들의 무기 뽑기",id:"gzBtn",sub:()=>{ const c=gz(); return `🎟 ${c.tk}장${c.fd!==kday()?" · 🎁 오늘 무료 2장!":""} · 근거리 ${c.m>=0?GZ_M[c.m].n:"-"} · 원거리 ${c.r>=0?GZ_R[c.r].n:"-"} · 👑 ${c.k.filter(x=>x).length}/4`; },f:()=>showGacha()});
+TITLES.push({id:"gz1",n:"뽑기의 달인",t:1,h:"무기 100번 뽑기",g:()=>[gz().n,100]},{id:"gz2",n:"확률을 뚫은 자",t:2,h:"근거리 「절대적」 이상 얻기",g:()=>[gz().cm.some((n,i)=>n&&i>=6)?1:0,1]},{id:"gz3",n:"유일왕의 후계자",t:3,h:"유일왕의 무기 하나 얻기",g:()=>[gz().k.filter(x=>x).length,1]},{id:"gz4",n:"태초 이전의 종결자",t:3,h:"아르카이온 제로 얻기",g:()=>[gz().k[3]?1:0,1]});
+</script>
+<style>
+.gztabs{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:2px 0 6px}
+.gztabs button{font-size:13px;font-weight:800;padding:7px 10px;border-radius:10px;border:2px solid rgba(255,255,255,.35);background:rgba(255,255,255,.08);color:#fff}
+.gztabs button.on{background:linear-gradient(180deg,#ffe08a,#e0a020);color:#2a1606;border-color:#fff}
+.gzgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:6px;width:100%}
+.gzr{position:relative;display:flex;flex-direction:column;align-items:center;padding:8px 4px;border-radius:10px;border:2px solid var(--gc);background:rgba(0,0,0,.35);box-shadow:0 0 10px -2px var(--gc)}
+.gzr b{color:var(--gc);font-size:15px;text-shadow:0 1px 0 #000} .gzr span{font-size:12px;opacity:.92}
+.gzr i{position:absolute;top:-6px;right:-4px;font-style:normal;font-size:10px;font-weight:900;background:#ff4a5a;color:#fff;border-radius:6px;padding:1px 4px}
+.gzr em{font-style:normal;font-size:12px;color:#ffd84a;font-weight:900}
+.gzrow{border-left:4px solid var(--gc)} .gzn{color:var(--gc);text-shadow:0 1px 0 #000}
+.gzodds{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:4px;width:100%}
+.gzo{display:flex;justify-content:space-between;gap:6px;padding:4px 8px;border-radius:8px;background:rgba(0,0,0,.3);border-left:4px solid var(--gc);font-size:12px}
+.gzo b{color:var(--gc)}
+.act.gzult{position:absolute;left:-64px;bottom:80px;background:radial-gradient(circle at 35% 30%,#ff9aa2,#8a0018 70%);font-size:11px;line-height:1.05;text-shadow:0 1px 0 #000}
+.act.gzult[hidden]{display:none}
+@media (max-height:640px){ .act.gzult{bottom:70px} }
+</style>
+<script>
 // v100 그래픽: 아래 메뉴 버튼(가방·임무·세계·상점·말하기·≡) 글씨 옆 작은 그림 + 새 소식 빨간 점 반짝 — 모습만
 const MENUIC=(function(){
   const IC={bBag:"🎒",bQuest:"📜",bMap:"🗺️",bShop:"🛒",bSay:"💬",bMenu:"⚙️"};
@@ -8452,7 +8579,7 @@ function showMenu(){ card(`<h2>신들의 전쟁</h2><p>${G.name} · ${RM().n} ${
   ${typeof menuXRows==="function"?menuXRows():""}
   <div class="row"><div class="ic">🗿</div><div class="t"><div>지혜의 석상 수수께끼</div><span>${orNeedRows()>0?`오늘의 문제 ${3-orNeedRows()}/3 · 다 맞히면 경험치 +15%`:`오늘 ${orOk()}/3 정답`} · 연속 ${G.orcLast===kday()||G.orcLast===kday()-1?(G.orcSt||0):0}일</span></div><button class="buy" id="orBtn">열기</button></div>
   <div class="row"><div class="ic">🌱</div><div class="t"><div>새싹과 길잡이</div><span>${mtRole()==="sprout"?"나는 🌱 새싹 · 길잡이와 함께 다니면 경험치 +20%":mtRole()==="guide"?`나는 🧭 길잡이 · 별 ${mtStars()}개 · 새싹을 도와요`:"처음 온 사람을 도와 길잡이 별 모으기"}</span></div><button class="buy" id="mtBtn">열기</button></div>
-  <div class="row"><div class="ic">🌋</div><div class="t"><div>이번 주 거대 보스</div><span>모두 함께 체력 깎기 · 용사 뽑기</span></div><button class="buy" id="titanBtn">열기</button></div>
+  <div class="row"><div class="ic">🌋</div><div class="t"><div>거대 보스 (3일마다)</div><span>모두 함께 체력 깎기 · 용사 뽑기</span></div><button class="buy" id="titanBtn">열기</button></div>
   <div class="row"><div class="t"><div>꾸미기</div><span>얼굴·옷·머리·망토·무기·빛깔</span></div><button class="buy alt" id="lookBtn">열기</button></div>
   <div class="row"><div class="t"><div>집(수도)으로 순간이동</div><span>전투 중엔 안 돼요${DG.on?" · 미궁에서 나가요":""}${HM.on?" · 신전 섬에서 내려가요":""}${DS.on?" · 사막에서 나가요":""}${PG.on?" · 놀이 마당에서 나가요":""}</span></div><button class="buy" id="goHome">가기</button></div>
   <div class="row"><div class="t"><div>전체 화면</div><span>아이폰은 공유 → "홈 화면에 추가"로 앱처럼 설치하면 전체 화면</span></div><button class="buy alt" id="full">켜기</button></div>
@@ -8555,7 +8682,7 @@ window.__gw={regionBanner,PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoa
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="91ecd83c";
+(function(){ var CUR="f419494c";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);

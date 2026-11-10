@@ -124,9 +124,9 @@ function tickTerritory(dt){ const rg=regionAt(P.x,P.z); $("region").innerHTML=rg
   if(typeof warActive==="function"&&warActive()&&WAR.cur.rg===rg.id){ P.capProg=0; P.capRg=-1; return; }
   const g=TERR_RINGS[rg.id]; const d=Math.hypot(P.x-g.position.x,P.z-g.position.z);
   if(d<8&&W.o[rg.id]!==G.realm){ let blocked=false; for(const id in PEERS){ const o=PEERS[id]; if(o.realm===W.o[rg.id]&&!o.dead&&Math.hypot(o.x-g.position.x,o.z-g.position.z)<16) blocked=true; }
-    if(blocked){ toast("상대 세계 플레이어가 제단을 지키고 있어요",null,.6); return; }
-    if(P.capRg!==rg.id){ P.capRg=rg.id; P.capProg=0; } P.capProg+=dt/12; g.userData.orb.scale.setScalar(1.3+Math.sin(performance.now()/120)*.3);
-    toast(`${rg.n} 점령 중… ${Math.round(P.capProg*100)}%`,null,.3);
+    /* v101 요청: 지키고 있어도 점령 가능(대신 절반 속도) */
+    if(P.capRg!==rg.id){ P.capRg=rg.id; P.capProg=0; } P.capProg+=dt/(blocked?24:12); g.userData.orb.scale.setScalar(1.3+Math.sin(performance.now()/120)*.3);
+    toast(`${rg.n} 점령 중… ${Math.round(P.capProg*100)}%`,blocked?"상대가 지키고 있어서 느려요 — 쫓아내면 빨라져요":null,.3);
     if(P.capProg>=1){ W.o[rg.id]=G.realm; W.ts[rg.id]=Date.now(); G.capt++; saveWorld(); paintTerritory(); net.send({t:"cap",o:W.o,ts:W.ts}); net.pushWorld(); toast(`${rg.n}을(를) ${RM().n} 영토로!`,`영토 ${terrBonus()}곳 · 공격 +${terrBonus()*3}%`,3); jingle([523,659,784,1046]); fxRing(g.position.x,g.position.z,RM().c1,16,1.2); G.gold+=60; gainXp(80+G.lv*10); questEvent("cap",rg); P.capProg=0; P.capRg=-1; saveGame(); } }
   else { P.capProg=0; P.capRg=-1; g.userData.orb.scale.setScalar(1.3); } }
 

@@ -49,7 +49,7 @@ document.addEventListener("visibilitychange",()=>{ if(document.hidden) saveGame(
 const RM=()=>REALMS[G.realm]||REALMS[0];
 
 /* ================= 능력치 ================= */
-function xpNeed(lv){ return Math.round(95*Math.pow(lv,1.95)); }   // v53 패치: 더 어렵게 (Lv10 약 1.3배, Lv30 약 1.4배)
+function xpNeed(lv){ return Math.round(64*Math.pow(lv,1.95)); }   // v101 요청: 경험치 1.5배 빨리(95→64)   // v53 패치: 더 어렵게 (Lv10 약 1.3배, Lv30 약 1.4배)
 //   // v28 패치: 더 어렵게 (Lv10 약 1.9배, Lv30 약 2.3배)   // v17 패치: 예전 36·lv^1.45 → 레벨이 너무 빨리 올라서 약 3~4배 느리게
 function lvGap(mlv){ const d=G.lv-mlv; return d<=5?1:Math.max(.1,1-(d-5)*.15); }   // 나보다 6레벨 넘게 낮은 괴물은 경험치 줄어듦
 function terrBonus(){ let n=0; for(let i=0;i<REGIONS.length;i++) if(!REGIONS[i].cap && W.o[i]===G.realm) n++; return n; }

@@ -133,9 +133,9 @@ function showCombos(){ const R=RM(); G.combos=G.combos||{}; const keys=["0-0","1
   card(`<h2>🤝 합체 기술 도감</h2><p>${R.n} 합체 기술 ${got}/6</p><p style="font-size:13px">같은 세계 친구와 <b>8걸음 안</b>에 서서, <b>3초 안에</b> 둘이 기술을 하나씩 쓰면 합체 기술이 터져요! 데미지 6배 · 체력 회복 · 처음 성공하면 금화와 경험치 보너스.<br>"하나, 둘, 셋!" 하고 맞춰 보세요.</p>${rows}`); }
 
 /* ---------- 3. 주간 거대 보스 ---------- */
-const TITAN_HP=2000000, TITAN_POS={x:0,z:-24}, WEEK_MS=7*86400000;
-function titanWeek(){ return Math.floor((Date.now()+9*3600000-4*86400000)/WEEK_MS); }   // 한국 시간 월요일 0시에 바뀜
-function titanWeekStart(w){ return w*WEEK_MS+4*86400000-9*3600000; }
+const TITAN_HP=1200000, TITAN_POS={x:0,z:-24}, WEEK_MS=3*86400000;   // v101: 3일마다 새 보스(체력 200만→120만)
+function titanWeek(){ return Math.floor((Date.now()+9*3600000)/WEEK_MS); }   // v101: 한국 시간 0시 기준 3일마다 바뀜(이름은 예전 그대로 Week)
+function titanWeekStart(w){ return w*WEEK_MS-9*3600000; }
 function titanDef(w){ const R=REALMS[((w%4)+4)%4]; return {n:R.worldBoss.n,shape:R.worldBoss.shape,c:R.worldBoss.c,realm:REALMS.indexOf(R)}; }
 const TB=(function(){ let s=null; try{ s=JSON.parse(load("gw-titan-"+ROOM)||"null"); }catch(e){} if(!s||s.w!==titanWeek()) s={w:titanWeek(),mine:0,others:{},claimed:false}; return s; })();
 function titanSave(){ save("gw-titan-"+ROOM,JSON.stringify(TB)); }
@@ -161,7 +161,7 @@ function titanDefeated(){ if(TB.claimed) return; TB.claimed=true; titanSave(); t
   let gold=helped?300+G.lv*25:Math.round((300+G.lv*25)*.4), xp=helped?250+G.lv*35:Math.round((250+G.lv*35)*.4); if(meHero){ gold*=2; xp*=2; G.hero=TB.w; }
   G.titanWins=(G.titanWins||0)+1; const t=Math.min(3,Math.max(G.rank,1)); const s=pick(["w","a","r"]); G.bag.push({s,t}); G.gold+=gold; gainXp(xp); G.pots+=3; saveGame();
   card(`<h2>🏆 거대 ${D.n} 쓰러뜨림!</h2><p>모두 함께 힘을 합쳐 이겼어요!</p><div class="idlegrid"><div><b>+${fmt(gold)}</b><span>금화</span></div><div><b>+${fmt(xp)}</b><span>경험치</span></div><div><b>${rarTag(t)}</b><span>${itemName(s,t)}</span></div><div><b>+3</b><span>${RM().potion}</span></div></div>
-   <p>${hero?`이번 주 <b style="color:var(--gold)">🏅 용사: ${hero.n}</b> (${fmt(hero.d)} 데미지)`:""}${meHero?"<br>내가 용사예요! 보상 2배 · 다음 주까지 이름 옆에 🏅":""}${helped?"":"<br>(이번엔 직접 때리지 않아서 보상이 조금 작아요)"}</p><button class="buy" id="tOk" style="align-self:center">만세!</button>`);
+   <p>${hero?`이번 <b style="color:var(--gold)">🏅 용사: ${hero.n}</b> (${fmt(hero.d)} 데미지)`:""}${meHero?"<br>내가 용사예요! 보상 2배 · 다음 보스까지 이름 옆에 🏅":""}${helped?"":"<br>(이번엔 직접 때리지 않아서 보상이 조금 작아요)"}</p><button class="buy" id="tOk" style="align-self:center">만세!</button>`);
   $("tOk").onclick=closeLayer; jingle([523,659,784,1046,1318,1568,2093]); buzz([80,40,80,40,120]); }
 function titanIdle(r){ titanRoll(); if(TB.claimed||titanLeft()<=0||!r||!r.kills) return null; const now=Date.now(), ws=titanWeekStart(TB.w); const away=r.away||1; const frac=clamp((now-Math.max(now-away,ws))/away,0,1); const d=Math.round(r.kills*frac*(40+r.lv*20)); if(d<=0) return null; TB.mine+=d; TB.dirty=true; titanSave(); if(titanLeft()<=0) setTimeout(()=>{ if(!layerOpen) titanDefeated(); else TB.pending=1; },4000); return {d,n:"거대 "+titanDef(TB.w).n}; }
 /* v29 거대 보스 등장: 땅이 갈라지며 붉은 빛 → 쿵쿵 흔들리며 솟아오름 → 흙먼지·충격파 → 큰 이름 */
@@ -172,7 +172,7 @@ function titanSink(m,dt){ const H=(m.mesh.userData.h||4)*m.scale; if(m.rise<0) r
   return H*1.05*(1-e)+Math.sin(m.rise*60)*.08*(1-m.rise); }
 function titanIntro(m){ m.rise=0; const X=TITAN_POS.x,Z=TITAN_POS.z; const D=titanDef(TB.w); const c=(REALMS[D.realm]&&REALMS[D.realm].c1)||0xff6a3d;
   fxRing(X,Z,0xff3a1a,30,2.4); fxRing(X,Z,0xffa040,14,1.6); fxFlash(X,1,Z,0xff5a20,10,1.4); drama(0xff4a20,.45,2.6); tone(48,1.6,"sawtooth",0,.14); tone(36,2,"triangle",.2,.12);
-  if(!layerOpen&&!TITAN.intro){ TITAN.intro=1; setTimeout(()=>{ if(TITAN.m===m&&!layerOpen) lvBanner("⚠ 이번 주 거대 보스",m.n,"모두의 힘으로 쓰러뜨려요 · <b>빨간 고리</b>가 보이면 멀리 피해요","#ff6a3d"); },900); } }
+  if(!layerOpen&&!TITAN.intro){ TITAN.intro=1; setTimeout(()=>{ if(TITAN.m===m&&!layerOpen) lvBanner("⚠ 거대 보스 등장",m.n,"모두의 힘으로 쓰러뜨려요 · <b>빨간 고리</b>가 보이면 멀리 피해요","#ff6a3d"); },900); } }
 function tickTitan(dt){ if(!started) return; titanRoll(); const dead=titanLeft()<=0; if(dead&&!TB.claimed&&!layerOpen) titanDefeated();
   const near=Math.hypot(P.x-TITAN_POS.x,P.z-TITAN_POS.z);
   if(!dead&&!TB.claimed&&near<120&&!TITAN.m) titanSpawn(); if((dead||near>140)&&TITAN.m) titanRemove();
@@ -190,12 +190,12 @@ function tickTitan(dt){ if(!started) return; titanRoll(); const dead=titanLeft()
       if(TITAN.warnT>0){ TITAN.warnT-=dt; if(TITAN.warnT<=0){ TITAN.stompT=rnd(3.5,5); fxRing(TITAN_POS.x,TITAN_POS.z,0xffb070,30,.6); fxSpark(TITAN_POS.x,1,TITAN_POS.z,0xcfc4ac,40); P.shake=Math.max(P.shake||0,.8); thud();
         if(Math.hypot(P.x-TITAN_POS.x,P.z-TITAN_POS.z)<13) hurtPlayer(mobStats(G.lv,false).atk*1.6*(1-dmgReduce(stat().def)),m.n); } } }
     if(d<70) placeLabel(m.lbl,TITAN_POS.x,(m.mesh.userData.h||4)*m.scale*.5,TITAN_POS.z,`🌋 ${m.n} <b>모두의 거대 보스 · 남은 체력 ${fmt(titanLeft())}</b><span class="hp mob"><s></s><i></i></span>`), hpBar(m.lbl,titanLeft()/TITAN_HP); else m.lbl.style.display="none"; }
-  const pill=$("titanPill"); if(pill){ const pct=Math.round(titanLeft()/TITAN_HP*100); const txt=TB.claimed||dead?"🌋 🏆 이번 주 승리":`🌋 ${titanDef(TB.w).n} ${pct}%`; if(pill._t!==txt){ pill._t=txt; pill.textContent=txt; } } }
+  const pill=$("titanPill"); if(pill){ const pct=Math.round(titanLeft()/TITAN_HP*100); const txt=TB.claimed||dead?"🌋 🏆 승리":`🌋 ${titanDef(TB.w).n} ${pct}%`; if(pill._t!==txt){ pill._t=txt; pill.textContent=txt; } } }
 function titanGo(){ if(mobs.some(m=>!m.titan&&m.state==="chase"&&Math.hypot(m.x-P.x,m.z-P.z)<16)){ toast("전투 중에는 안 돼요"); return; } P.x=TITAN_POS.x+rnd(-3,3); P.z=TITAN_POS.z+30; P.invul=2; closeLayer(); toast("거대 보스 앞에 왔어요!","빨간 고리가 보이면 멀리 피해요",2.6); }
 function showTitan(){ titanRoll(); const D=titanDef(TB.w); const left=titanLeft(), pct=Math.round(left/TITAN_HP*100); const end=titanWeekStart(TB.w+1); const hrs=Math.max(0,(end-Date.now())/3600000);
   const rank=titanRank().map((x,k)=>`<div class="row"><div class="ic" style="color:${REALMS[x.r]?REALMS[x.r].c1:"#fff"}">${k===0&&x.d>0?"🏅":k+1}</div><div class="t"><div>${x.n}${x.me?" (나)":""}</div><span>${fmt(Math.round(x.d))} 데미지</span></div></div>`).join("");
   const done=TB.claimed||left<=0;
-  card(`<h2>🌋 이번 주 거대 보스</h2><p><b style="color:var(--gold)">거대 ${D.n}</b> · ${done?"쓰러뜨렸어요! 다음 주 월요일에 새 보스가 깨어나요":`남은 체력 ${fmt(left)} / ${fmt(TITAN_HP)} (${pct}%) · 남은 시간 ${hrs>=24?Math.floor(hrs/24)+"일 ":""}${Math.floor(hrs%24)}시간`}</p>
+  card(`<h2>🌋 거대 보스 (3일마다)</h2><p><b style="color:var(--gold)">거대 ${D.n}</b> · ${done?`쓰러뜨렸어요! ${Math.floor(hrs/24)?Math.floor(hrs/24)+"일 ":""}${Math.floor(hrs%24)}시간 뒤 새 보스가 깨어나요`:`남은 체력 ${fmt(left)} / ${fmt(TITAN_HP)} (${pct}%) · 남은 시간 ${hrs>=24?Math.floor(hrs/24)+"일 ":""}${Math.floor(hrs%24)}시간`}</p>
    <div class="bar" style="height:14px;border:2px solid #ffcf4a;border-radius:8px;overflow:hidden;background:#000"><i style="display:block;height:100%;width:${pct}%;background:linear-gradient(90deg,#b01030,#ff3d4a)"></i></div>
    <p style="font-size:13px">세계의 중심에 사는 아주 큰 보스예요. 체력은 <b>모든 친구가 함께</b> 깎아요. 게임을 꺼 둔 동안 수련한 것도 데미지로 보태져요.<br>쓰러뜨리면 모두에게 신화 상자(금화·경험치·장비·물약), 가장 많이 때린 사람은 <b>🏅 용사</b>(보상 2배).</p>
    <h3>데미지 순위</h3>${rank}${done?"":`<button class="go" id="tGo" style="align-self:center;font-size:18px;padding:10px 22px">보스에게 가기</button>`}`);
