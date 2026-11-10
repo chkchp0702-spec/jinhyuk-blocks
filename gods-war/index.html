@@ -658,7 +658,7 @@ body.eco .mbtn.newdot,body.eco .mbtn.newdot::before{animation:none!important}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v102";
+const VER="v103";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -5120,6 +5120,15 @@ const SKICON=(()=>{
    새 버전으로 처음 켜면 한 번, 무엇이 바뀌었는지 쉬운 말로 보여 줌(G.seenVer). 메뉴 → 업데이트 소식에서 다시 볼 수 있음.
    ※ 버전을 올릴 때마다 맨 앞에 한 줄 묶음을 더해요(오래된 것은 8개까지만 남김). */
 const PATCH_NOTES=[
+ {v:"v103",d:"11/10",t:"🌱 씨앗 밭 · 📯 모여라 뿔나팔 · 🏯 구름 나라",items:[
+   "🌱 데메테르의 씨앗 밭: 내 신전 섬 길 옆에 밭 4칸(Lv30·60에 한 칸씩 더)! 씨앗을 심으면 게임을 꺼 둬도 자라요(1~8시간). 메뉴 → 데메테르의 씨앗 밭에서 심기·거두기도 돼요.",
+   "🔮 마법 날씨: 40분마다 절반쯤 ⚡번개 비 · 🌈무지개 · 🌠별똥별이 8분 동안 와요. 그동안 자라던 작물이 ⚡·🌈·🌠 변신 작물이 될 수 있어요(금화 ×3·×5·×8 + 룬 가루). 작물 도감 32칸!",
+   "💧 이웃 밭에 물 주기(하루 5번): 그 밭이 10분 빨리 자라고 주인에게 💖 하트. 씨앗은 매일 무료 3개 · 괴물 · 낚시 · 씨앗 가게에서.",
+   "📯 모여라 뿔나팔: 메뉴에서 하고 싶은 일(미궁·거대 보스·산 거인·양 몰이…)을 골라 불면 같은 방 모두에게 카드가 가요. 「함께!」를 누르면 파티가 되어 그 사람 곁으로 휙!",
+   "👥 파티(최대 4명): 왼쪽 위에 친구 체력 · 가까이 있으면 경험치 +10% · 정해진 말 💬 · 2분 넘게 함께하면 「함께한 모험 ★」과 ⭐ 또 만나요 친구.",
+   "🏯 구름 나라 옥황 궁궐: 세계의 중심 북쪽 빨간 🏯 구름 문(Lv30)! 띠 동물 섬 12개에서 모으기·밀기·술래잡기·지키기 시험 — 큰 동물일수록 여럿이 필요해요(사람이 모자라면 그림자·구름 동자가 도와줘요).",
+   "🔖 띠 도장 12개를 다 모으면 띠 동물 하나가 짝꿍 신수로! 🍑 매주 토요일 저녁 8시 「하늘 복숭아 잔치」에서 구름 원숭이를 막고, 천도복숭아로 궁궐 상점에서 뽑기권·재료·장식을 사요.",
+   "🏅 새 칭호 11개."]},
  {v:"v101",d:"11/10",t:"🎰 신들의 무기 뽑기 · 👑 유일왕의 무기 (우리 기획 반영!)",items:[
    "🎰 메뉴 → 신들의 무기 뽑기! 근거리 17등급(미친 → 외계 → 수호신 → … → 종결)은 공격력이 올라가고, 원거리 7등급(공허 → … → 제작자)은 「던지기」가 번개·아이스스피어·무한창·핵무기로 바뀌어요.",
    "🎟 뽑기권: 매일 2장 무료 · 보스를 잡으면 +1 · 거대 보스를 이기면 +5. 모자라면 금화로도 뽑아요. 10번 뽑기는 좋은 등급 1개 보장, 80번 안에 귀한 등급 확정!",
@@ -5163,11 +5172,6 @@ const PATCH_NOTES=[
  {v:"v84",d:"11/9",t:"⚖ 공평 맞추기는 이번 한 번만",items:[
    "⚖ 공평 맞추기는 이번 한 번만 해요. 캐릭터마다 한 번 가장 높은 친구에게 맞춰지면 그다음부터는 각자 자기 힘으로 키워요.",
    "아직 안 맞춰진 친구는 11월 11일까지 게임을 켜면 맞춰져요."]},
- {v:"v83",d:"11/9",t:"⚖ 공평 맞추기",items:[
-   "⚖ 같은 방 친구 중 가장 높은 사람에게 모두가 저절로 맞춰져요! 게임을 켜면 몇 초 안에 맞춰져요.",
-   "맞춰지는 것: 레벨·경험치 · 계급(승급) · 장비 등급(무기·갑옷·유물 칸마다) · 대장간 강화 · 신수(없는 신수도 받고, 레벨도 같아져요).",
-   "금화·재료·꾸미기·칭호는 각자 모은 그대로예요."]},
- {v:"v76",d:"11/6",t:"🎁 선물 도착",items:["「잼민이진혁겜해요」 님에게 금화 100,000 선물! 게임을 켜면 바로 들어와요."]},
 ];
 function patchNew(){ const seen=G.seenVer; if(!seen) return PATCH_NOTES.slice(0,1); const i=PATCH_NOTES.findIndex(p=>p.v===seen); return i<0?PATCH_NOTES.slice(0,1):PATCH_NOTES.slice(0,i); }
 function showPatch(all){ const L=all?PATCH_NOTES:patchNew(); G.seenVer=PATCH_NOTES[0].v; saveGame();
@@ -8402,6 +8406,622 @@ const RIM=(function(){
 })();
 </script>
 <script>
+/* ================= v103-1: 🌱 데메테르의 씨앗 밭 — 꺼 둬도 자라는 내 밭과 날씨 변신 (IDEAS G11/10-1) =================
+   내 신전 섬(04k-home) 길 양옆에 밭 4칸(Lv30 5칸 · Lv60 6칸). 씨앗을 심으면 게임을 꺼 둬도 시간이 흐르며 자람(1~8시간).
+   🔮 마법 날씨: 40분 칸마다 절반쯤 「⚡ 번개 비 · 🌈 무지개 · 🌠 별똥별」 중 하나가 8분 동안 옴(한국 시간·날짜로 정해져 모든 폰이 같음).
+      작물이 자라는 동안 마법 날씨가 지나가면 정해진 확률로 ⚡번개·🌈무지개·🌠별빛 작물로 변신(확률은 창에 공개, 돈과 상관없음).
+      변신 여부는 심은 시각 + 날씨 시각으로 계산 → 게임을 꺼 둔 동안 온 날씨도 똑같이 셈.
+   💧 물 주기: 다른 사람(처음 보는 사람도) 밭에 하루 5번(같은 사람은 하루 1번). 그 밭의 자라는 작물이 모두 10분 빨리 자람 + 주인에게 하트.
+      보관(retained) gn/<id> = 내 밭 모습 {i,n,r,p:[[씨앗,심은시각,당긴ms]|0],h,t} · gnw/<주인>/<준 사람> = {ts,n,d}
+      주인 폰이 켜지면 받은 물을 밭에 더하고 "○○ 님이 물을 줬어요 💧".
+   씨앗: 매일 무료 3개 · 괴물 4%(보스 40%) · 낚시 15% · 거둘 때 25% 다시 · 씨앗 가게(금화, 앞 6종).
+   거두기: 2~4개 → 금화·경험치(변신 ×3·×5·×8) · 변신하면 ✨ 룬 가루. 작물 도감 32칸(8종 × 보통·⚡·🌈·🌠).
+   저장: G.gn={p:[{s,t0,w}|null],sd:[8],dex:{},hv,mu,fd,wd:{d,n,who},ws:{},hearts,wg}. 칭호 4개. */
+const GN_CROPS=[
+ {n:"생명나무 사과",ic:"🍎",h:1,c:0xe8423a,v:40,buy:1},
+ {n:"황금 밀",ic:"🌾",h:1.5,c:0xf0c040,v:55,buy:1},
+ {n:"무지개 당근",ic:"🥕",h:2,c:0xff8a2a,v:70,buy:1},
+ {n:"아테나 올리브",ic:"🫒",h:3,c:0x7a9a3a,v:100,buy:1},
+ {n:"연꽃 망고",ic:"🥭",h:4,c:0xffb030,v:130,buy:1},
+ {n:"해님 해바라기",ic:"🌻",h:5,c:0xffd020,v:160,buy:1},
+ {n:"별빛 호박",ic:"🎃",h:6,c:0xff7a20,v:200,buy:0},
+ {n:"구름 포도",ic:"🍇",h:8,c:0x9a5ae0,v:260,buy:0} ];
+const GN_MUT=[{n:"번개",ic:"⚡",mul:3,p:.45,c:0x8fe6ff,css:"#8fe6ff"},{n:"무지개",ic:"🌈",mul:5,p:.3,c:0xff8ad8,css:"#ff9ae0"},{n:"별빛",ic:"🌠",mul:8,p:.22,c:0xfff2a0,css:"#fff2a0"}];
+const GN_WX=[{n:"번개 비",ic:"⚡",d:"번쩍번쩍 파란 번개 비"},{n:"무지개",ic:"🌈",d:"하늘에 커다란 무지개"},{n:"별똥별",ic:"🌠",d:"반짝 별똥별이 쏟아져요"}];
+const GN_POS=[[-3.3,5.2],[3.3,5.2],[-3.3,8.4],[3.3,8.4],[-3.3,11.4],[3.3,11.4]];
+const GN_BLOCK=40*60000, GN_LEN=8*60000, GN_WATER=10*60000, GN_WDAY=5;
+const GN={g:null,owner:null,key:"",t:0,pubT:3,dirty:true,lbls:[],wq:[],wqT:0,wx:-1,rain:null,sky:null,starT:0,boltT:3,readyTold:false,seedT:0};
+const GNO={};
+function gnH(a,b){ let h=Math.imul((a|0)^0x9e3779b9,0x85ebca6b)^Math.imul((b|0)+0x632be5ab,0xc2b2ae35); h^=h>>>15; h=Math.imul(h,0x27d4eb2f); h^=h>>>13; return (h>>>0)/4294967296; }
+function gnData(){ const g=G.gn=G.gn||{}; if(!Array.isArray(g.p)) g.p=[]; while(g.p.length<GN_POS.length) g.p.push(null); if(!Array.isArray(g.sd)||g.sd.length!==GN_CROPS.length){ const o=Array.isArray(g.sd)?g.sd:[]; g.sd=GN_CROPS.map((c,i)=>o[i]||0); if(!g.init){ g.init=1; g.sd[0]+=3; g.sd[1]+=2; } } g.dex=g.dex||{}; g.ws=g.ws||{}; return g; }
+function gnSlots(){ return 4+(G.lv>=30?1:0)+(G.lv>=60?1:0); }
+function gnGrowMs(s){ return GN_CROPS[s].h*3600000; }
+function gnReadyAt(p){ return p.t0+gnGrowMs(p.s)-(p.w||0); }
+function gnProg(p,now){ const g=gnGrowMs(p.s); return clamp(((now||Date.now())-p.t0+(p.w||0))/g,0,1); }
+/* ---------- 🔮 마법 날씨 (모든 폰 같음) ---------- */
+function gnBlk(t){ return Math.floor((t+9*3600000)/GN_BLOCK); }
+function gnWxOf(b){ if(gnH(b,77)<.5) return null; const r=gnH(b,31); const k=r<.45?0:r<.8?1:2; const s=b*GN_BLOCK-9*3600000+Math.floor(gnH(b,13)*30)*60000; return {k,s,e:s+GN_LEN,b}; }
+function gnWxNow(t){ t=t||Date.now(); const w=gnWxOf(gnBlk(t)); return w&&t>=w.s&&t<w.e?w:null; }
+function gnWxNext(t){ t=t||Date.now(); for(let b=gnBlk(t);b<gnBlk(t)+40;b++){ const w=gnWxOf(b); if(w&&w.e>t) return w; } return null; }
+function gnMutOf(p,now){ const end=Math.min(gnReadyAt(p),now||Date.now()); let best=-1; if(end<=p.t0) return -1;
+  for(let b=gnBlk(p.t0);b<=gnBlk(end);b++){ const w=gnWxOf(b); if(!w||w.e<=p.t0||w.s>=end) continue; if(gnH(Math.floor(p.t0/1000),Math.floor(w.s/60000))<GN_MUT[w.k].p) best=Math.max(best,w.k); } return best; }
+function gnHM(t){ const d=new Date(t+9*3600000); return `${d.getUTCHours()}:${String(d.getUTCMinutes()).padStart(2,"0")}`; }
+function gnLeft(ms){ ms=Math.max(0,ms); const m=Math.ceil(ms/60000); return m>=60?`${Math.floor(m/60)}시간 ${m%60?m%60+"분":""}`.trim():`${m}분`; }
+/* ---------- 씨앗 얻기 ---------- */
+function gnSeedPick(rare){ const w=GN_CROPS.map((c,i)=>i<6?(6-i)*1.0:rare?2.2:.7); let r=Math.random()*w.reduce((a,b)=>a+b,0); for(let i=0;i<w.length;i++){ r-=w[i]; if(r<=0) return i; } return 0; }
+function gnGiveSeed(s,n,why){ const g=gnData(); g.sd[s]=(g.sd[s]||0)+(n||1); GN.dirty=true; if(why&&!layerOpen) floatDmg(P.x,4.6,P.z,`🌱 ${GN_CROPS[s].ic} 씨앗 +${n||1}`,"gain"); }
+function gnDaily(){ const g=gnData(), d=kday(); if(g.fd===d) return null; g.fd=d; const got=[gnSeedPick(true),gnSeedPick(false),gnSeedPick(false)]; got.forEach(s=>g.sd[s]++); saveGame(); return got; }
+(function(){ const _km=killMob; killMob=function(m){ _km(m); try{ if(m.war||m.titan||m.arena||!started) return; if(Math.random()<(m.boss?.4:.04)) gnGiveSeed(gnSeedPick(!!m.boss),1,true); }catch(e){} }; })();
+(function(){ if(typeof fishCaught!=="function") return; const _fc=fishCaught; fishCaught=function(g){ _fc(g); try{ if(Math.random()<.15) gnGiveSeed(gnSeedPick(false),1,true); }catch(e){} }; })();
+/* ---------- 심기 · 거두기 ---------- */
+function gnPlant(i,s){ const g=gnData(); if(i>=gnSlots()||g.p[i]) return; if((g.sd[s]||0)<=0){ toast("그 씨앗이 없어요",null,1.4); return; } g.sd[s]--; g.p[i]={s,t0:Date.now(),w:0}; GN.dirty=true; saveGame();
+  jingle([523,659,784]); buzz(15); if(GN.g&&GN.owner===G.id){ const q=GN_POS[i]; fxSpark(HM.cx+q[0],.8,HM.cz+q[1],0x9dffb8,12); }
+  toast(`🌱 ${GN_CROPS[s].ic} ${GN_CROPS[s].n}을(를) 심었어요`,`${gnLeft(gnGrowMs(s))} 뒤에 다 자라요 · 게임을 꺼 둬도 자라요`,2.6); }
+function gnHarvest(i){ const g=gnData(), p=g.p[i]; if(!p) return; const now=Date.now(); if(gnReadyAt(p)>now){ toast("🌱 아직 자라는 중이에요",`${gnLeft(gnReadyAt(p)-now)} 남았어요`,1.6); return; }
+  const C=GN_CROPS[p.s], mu=gnMutOf(p,now), mul=mu>=0?GN_MUT[mu].mul:1; const cnt=2+Math.floor(gnH(Math.floor(p.t0/1000),5)*3);
+  const gold=Math.round(C.v*cnt*mul*(1+G.lv*.04)), xp=Math.round(xpNeed(G.lv)*.004*C.h*mul)+10; G.gold+=gold; gainXp(xp);
+  const key=p.s+"_"+mu, isNew=!g.dex[key]; g.dex[key]=1; g.hv=(g.hv||0)+1; if(mu>=0){ g.mu=(g.mu||0)+1; G.rune=(G.rune||0)+mu+1; }
+  let back=""; if(Math.random()<.25){ g.sd[p.s]++; back=` · ${C.ic} 씨앗 +1`; }
+  g.p[i]=null; GN.dirty=true; saveGame();
+  try{ COINFLY.burst(P.x,1.6,P.z,mu>=0?9:5); }catch(e){} buzz([20,20,40]);
+  if(GN.g&&GN.owner===G.id){ const q=GN_POS[i]; fxSpark(HM.cx+q[0],1,HM.cz+q[1],mu>=0?GN_MUT[mu].c:C.c,mu>=0?28:14); fxRing(HM.cx+q[0],HM.cz+q[1],mu>=0?GN_MUT[mu].c:0xffe08a,3,.5); }
+  const name=(mu>=0?GN_MUT[mu].ic+" "+GN_MUT[mu].n+" ":"")+C.n; const sub=`${C.ic}×${cnt} · 금화 +${fmt(gold)} · 경험치 +${fmt(xp)}${mu>=0?` · ✨ 룬 가루 +${mu+1}`:""}${back}${isNew?" · 📖 도감 새 칸!":""}`;
+  if(mu>=0||isNew){ jingle(mu>=0?[659,880,1046,1318,1568]:[523,659,784,1046]); try{ lvBanner(mu>=0?`${GN_MUT[mu].ic} 날씨 변신 작물!`:"📖 처음 거둔 작물!",name,sub,mu>=0?GN_MUT[mu].css:"#9dffb8"); }catch(e){ toast("🧺 "+name,sub,3); } }
+  else { jingle([523,659,784]); toast(`🧺 ${name} 거뒀어요!`,sub,2.6); } }
+function gnHarvestAll(){ const g=gnData(); let n=0; for(let i=0;i<gnSlots();i++){ const p=g.p[i]; if(p&&gnReadyAt(p)<=Date.now()){ gnHarvest(i); n++; } } return n; }
+/* ---------- 💧 물 주기 ---------- */
+function gnWDay(){ const g=gnData(), d=kday(); if(!g.wd||g.wd.d!==d) g.wd={d,n:0,who:{}}; return g.wd; }
+function gnGrowing(rec){ const now=Date.now(); return (rec.p||[]).filter(q=>q&&q[1]+GN_CROPS[q[0]].h*3600000-(q[2]||0)>now).length; }
+function gnCanWater(id){ const W=gnWDay(); return id!==G.id&&W.n<GN_WDAY&&!W.who[id]; }
+function gnWater(id){ const rec=GNO[id]; if(!rec||!gnCanWater(id)) return; if(!gnGrowing(rec)){ toast("그 밭은 지금 자라는 작물이 없어요",null,1.6); return; }
+  const W=gnWDay(); W.n++; W.who[id]=1; const g=gnData(); g.wg=(g.wg||0)+1; try{ net.pushRet("gnw/"+id+"/"+G.id,{ts:Date.now(),n:G.name,d:kday()}); }catch(e){}
+  (rec.p||[]).forEach(q=>{ if(q) q[2]=(q[2]||0)+GN_WATER; }); const gold=25+G.lv*2, xp=Math.round(xpNeed(G.lv)*.003)+5; G.gold+=gold; gainXp(xp); saveGame();
+  if(GN.g&&GN.owner===id){ GN.key=""; (rec.p||[]).forEach((q,i)=>{ if(q){ const s=GN_POS[i]; fxSpark(HM.cx+s[0],1.2,HM.cz+s[1],0x7ad8ff,10); } }); }
+  jingle([784,988,1175]); buzz(15); toast(`💧 ${rec.n}님 밭에 물을 줬어요!`,`작물이 10분 빨리 자라요 · 금화 +${gold} · 경험치 +${fmt(xp)} · 오늘 ${W.n}/${GN_WDAY}`,2.4); }
+function gnPub(){ if(G.realm<0) return; const g=gnData(); try{ net.pushRet("gn/"+G.id,{i:G.id,n:G.name,r:G.realm,p:g.p.slice(0,gnSlots()).map(p=>p?[p.s,p.t0,p.w||0]:0),h:g.hearts||0,t:Date.now()}); GN.dirty=false; }catch(e){} }
+NETX.push({sub:"gn/+",pre:"gn/",f:d=>{ if(!d||!d.i||d.i===G.id||!REALMS[d.r]||!Array.isArray(d.p)) return; const o=GNO[d.i]; if(o&&o.t>d.t) return; d.p=d.p.slice(0,GN_POS.length).map(q=>Array.isArray(q)&&GN_CROPS[q[0]]?[q[0]|0,+q[1]||0,+q[2]||0]:0); GNO[d.i]=d; if(GN.owner===d.i) GN.key=""; }});
+NETX.push({sub:()=>"gnw/"+G.id+"/+",pre:"gnw/",f:(d,topic)=>{ const a=String(topic).split("/"); if(a[1]!==G.id) return; const who=a[2]; if(!who||who===G.id||!d||!d.ts) return; const g=gnData(); if((g.ws[who]||0)>=d.ts) return; if(Date.now()-d.ts>3*86400000){ g.ws[who]=d.ts; return; }
+  g.ws[who]=d.ts; let n=0; g.p.forEach(p=>{ if(p&&gnReadyAt(p)>Date.now()){ p.w=(p.w||0)+GN_WATER; n++; } }); g.hearts=(g.hearts||0)+1; GN.dirty=true; GN.key=""; saveGame(); GN.wq.push({n:String(d.n||"누군가").slice(0,8),k:n}); GN.wqT=1.5; }});
+function gnWaterToast(){ const L=GN.wq.splice(0); if(!L.length) return; const names=[...new Set(L.map(x=>x.n))]; jingle([784,988,1175,1568]); buzz([15,20,15]);
+  toast(`💧 ${names.slice(0,3).join(" · ")}${names.length>3?` 외 ${names.length-3}명`:""}님이 내 밭에 물을 줬어요!`,`💖 하트 +${L.length} · 자라는 작물이 ${L.length*10}분 빨리 자라요`,3.2); }
+/* ---------- 신전 섬의 밭 (3D) ---------- */
+const GNM={};
+function gnMat(k,o){ return GNM[k]||(GNM[k]=mat(o)); }
+function gnPlantMesh(s,prog,mu){ const C=GN_CROPS[s], g=new THREE.Group(); const leaf=gnMat("leaf",{color:0x4fae4a,roughness:.8}), stem=gnMat("stem",{color:0x3f8a3a,roughness:.9});
+  if(prog<.25){ const sp=new THREE.Mesh(GEO.cone,leaf); sp.scale.set(.25,.4+prog*1.2,.25); sp.position.y=.3; g.add(sp); [-1,1].forEach(k=>{ const l=sph(.13,leaf,k*.14,.4,0); l.scale.set(1.4,.5,.9); g.add(l); }); return g; }
+  const h=.5+prog*1.1; g.add(cyl(.05,.07,h,stem,0,.15+h/2,0,6)); for(let k=0;k<3;k++){ const l=sph(.2,leaf,Math.cos(k*2.1)*.22,.3+h*(.35+k*.2),Math.sin(k*2.1)*.22); l.scale.set(1.5,.45,.9); l.rotation.y=k*2.1; g.add(l); }
+  if(prog>=1){ const fm=mu>=0?new THREE.MeshStandardMaterial({color:C.c,emissive:GN_MUT[mu].c,emissiveIntensity:.55,roughness:.4,metalness:.2}):gnMat("crop"+s,{color:C.c,roughness:.5});
+    const n=s===1?5:3; for(let k=0;k<n;k++){ const f=sph(s===6?.34:s===7?.13:.2,fm,Math.cos(k*2.4)*.28,.35+h*.75+(k%2)*.12,Math.sin(k*2.4)*.28); if(s===1) f.scale.set(.6,1.8,.6); g.add(f); if(s===7) for(let j=0;j<4;j++) g.add(sph(.12,fm,f.position.x+Math.cos(j*1.6)*.12,f.position.y-.12-(j%2)*.1,f.position.z+Math.sin(j*1.6)*.12)); }
+    if(s===5){ const fl=cyl(.4,.4,.08,gnMat("sunf",{color:0xffd020,roughness:.5}),0,.3+h,.1,14); fl.rotation.x=1.2; g.add(fl); g.add(sph(.18,gnMat("sunc",{color:0x6a3a1a}),0,.32+h,.15)); }
+    if(mu>=0){ const r=new THREE.Mesh(GEO.ring,glowMat(GN_MUT[mu].c,.55)); r.rotation.x=-Math.PI/2; r.scale.setScalar(1.2); r.position.y=.15; r.userData.noOutline=true; r.userData.gspin=1; g.add(r); const o=sph(.12,glowMat(GN_MUT[mu].c,.9),0,h+1.1,0); o.userData.noOutline=true; o.userData.gbob=1; g.add(o); }
+    else { const sp=sph(.08,glowMat(0xfff2a0,.8),0,h+.9,0); sp.userData.noOutline=true; sp.userData.gbob=1; g.add(sp); } }
+  return g; }
+function gnBuild3D(){ if(GN.g){ try{ GN.g.parent&&GN.g.parent.remove(GN.g); }catch(e){} GN.g=null; } if(!HM.on||!HM.g||!HM.data) return; const owner=HM.data.i; const mine=owner===G.id;
+  const rec=mine?{p:gnData().p.map(p=>p?[p.s,p.t0,p.w||0]:0)}:GNO[owner]; const slots=mine?gnSlots():Math.max(4,(rec&&rec.p?rec.p.length:4));
+  const g=new THREE.Group(); const soil=gnMat("soil",{color:0x6a4a30,roughness:1}), soil2=gnMat("soil2",{color:0x58391f,roughness:1}), wood=gnMat("gwood",{color:0x9a6a3a,roughness:.9}), now=Date.now();
+  GN.plots=[]; for(let i=0;i<slots&&i<GN_POS.length;i++){ const [x,z]=GN_POS[i]; const pl=new THREE.Group(); pl.position.set(x,0,z); pl.add(box(2.3,.22,2.3,wood,0,.11,0)); pl.add(box(2,.26,2,soil,0,.14,0)); for(let k=-1;k<=1;k+=2) pl.add(box(1.8,.06,.25,soil2,0,.29,k*.45));
+    const q=rec&&rec.p?rec.p[i]:0; let st="empty", mu=-1;
+    if(q){ const p={s:q[0],t0:q[1],w:q[2]}; const pr=gnProg(p,now); mu=pr>=1?gnMutOf(p,now):-1; st=pr>=1?"ready":"grow"; const pm=gnPlantMesh(p.s,pr,mu); pm.position.y=.2; pl.add(pm); }
+    else if(mine){ const m=new THREE.Mesh(new THREE.RingGeometry(.55,.75,24),glowMat(0x9dffb8,.35)); m.rotation.x=-Math.PI/2; m.position.y=.32; m.userData.noOutline=true; m.userData.gpulse=1; pl.add(m); }
+    g.add(pl); GN.plots.push({x,z,st,q,mu}); }
+  if(mine&&slots<GN_POS.length){ for(let i=slots;i<GN_POS.length;i++){ const [x,z]=GN_POS[i]; const pl=box(2.3,.18,2.3,gnMat("lock",{color:0xb8a888,roughness:1}),x,.09,z); g.add(pl); } }
+  shadowify(g); HM.g.add(g); GN.g=g; GN.owner=owner; }
+(function(){ const _hb=hmBuild; hmBuild=function(){ _hb(); try{ GN.key=""; gnBuild3D(); }catch(e){ console.warn(e); } }; })();
+function gnKey(){ if(!HM.on||!HM.data) return ""; const owner=HM.data.i, mine=owner===G.id, now=Date.now(); const rec=mine?{p:gnData().p.map(p=>p?[p.s,p.t0,p.w||0]:0)}:GNO[owner];
+  return owner+"|"+(mine?gnSlots():"")+"|"+(rec&&rec.p?rec.p.map(q=>{ if(!q) return 0; const p={s:q[0],t0:q[1],w:q[2]}; const pr=gnProg(p,now); return q[0]+":"+Math.floor(pr*6)+":"+(pr>=1?gnMutOf(p,now):-2); }).join(","):"x"); }
+function gnPlotCtx(){ if(!HM.on||!GN.plots||!HM.data) return null; const mine=HM.data.i===G.id; let best=null,bd=2.1;
+  GN.plots.forEach((p,i)=>{ const d=Math.hypot(P.x-(HM.cx+p.x),P.z-(HM.cz+p.z)); if(d<bd){ bd=d; best={i,p}; } }); if(!best) return null; const {i,p}=best;
+  if(mine){ if(p.st==="ready") return {t:`🧺 거두기 · ${p.mu>=0?GN_MUT[p.mu].ic:""}${GN_CROPS[p.q[0]].ic}`,f:()=>{ gnHarvest(i); GN.key=""; }};
+    if(p.st==="grow"){ const q=p.q; return {t:`🌱 ${GN_CROPS[q[0]].ic} ${gnLeft(q[1]+gnGrowMs(q[0])-(gnData().p[i]?gnData().p[i].w||0:0)-Date.now())} 남음`,f:showGarden}; }
+    return {t:"🌱 씨앗 심기",f:()=>gnSeedCard(i)}; }
+  const id=HM.data.i; if(p.st==="grow"&&gnCanWater(id)) return {t:"💧 물 주기",f:()=>gnWater(id)}; return null; }
+CTX_EXTRA.push(gnPlotCtx);
+/* ---------- 🔮 날씨 그림 ---------- */
+function gnRainMk(){ const N=HIGH()?320:160, geo=new THREE.BufferGeometry(), a=new Float32Array(N*6); geo.setAttribute("position",new THREE.BufferAttribute(a,3));
+  const m=new THREE.LineSegments(geo,new THREE.LineBasicMaterial({color:0xc8ecff,transparent:true,opacity:.7,fog:false,depthWrite:false})); m.frustumCulled=false; m.userData.noOutline=true; m.userData.v=[]; for(let i=0;i<N;i++) m.userData.v.push([rnd(-22,22),rnd(0,18),rnd(-22,22)]); scene.add(m); return m; }
+function gnSkyEl(){ if(GN.sky) return GN.sky; const d=document.createElement("div"); d.id="gnSky"; d.innerHTML='<i class="bow"></i><i class="st"></i><i class="st"></i><i class="st"></i><i class="st"></i>'; document.body.appendChild(d); GN.sky=d; return d; }
+function gnWxTick(dt){ const w=gnWxNow(), away=(typeof DG!=="undefined"&&DG.on)||(typeof xzOn==="function"&&!!xzOn()); const k=w&&!away&&started?w.k:-1;
+  if(w&&w.b!==GN.wx){ GN.wx=w.b; if(started&&!layerOpen&&!P.dead){ const g=gnData(); const grow=g.p.some(p=>p&&gnReadyAt(p)>Date.now()); toast(`${GN_WX[w.k].ic} 마법 날씨 — ${GN_WX[w.k].n}!`,grow?`8분 동안 · 자라는 작물이 ${GN_MUT[w.k].ic}${GN_MUT[w.k].n} 작물로 변할 수 있어요 (${Math.round(GN_MUT[w.k].p*100)}%)`:"8분 동안 · 밭에 씨앗을 심어 두면 날씨 변신 작물이 생길 수 있어요",3.4); jingle([659,880,1175]); } }
+  const sk=gnSkyEl(); const cls=k<0?"":["rain","bow","star"][k]; if(sk._c!==cls){ sk._c=cls; sk.className=cls; }
+  // 번개 비 — 내 둘레에 파란 빗줄기 + 가끔 번개
+  if(k===0){ if(!GN.rain) GN.rain=gnRainMk(); GN.rain.visible=true; const R=GN.rain, a=R.geometry.attributes.position.array, base=hAt(P.x,P.z); R.userData.v.forEach((v,i)=>{ v[1]-=dt*26; if(v[1]<0){ v[1]=rnd(12,18); v[0]=rnd(-22,22); v[2]=rnd(-22,22); } const x=P.x+v[0], y=base+v[1], z=P.z+v[2]; a[i*6]=x; a[i*6+1]=y; a[i*6+2]=z; a[i*6+3]=x+.12; a[i*6+4]=y+1.3; a[i*6+5]=z; }); R.geometry.attributes.position.needsUpdate=true;
+    GN.boltT-=dt; if(GN.boltT<=0){ GN.boltT=rnd(5,10); try{ fxBolt(P.x+rnd(-20,20),P.z+rnd(-20,20),0x8fe6ff); WEATHER.flash=Math.max(WEATHER.flash,.7); }catch(e){} } }
+  else if(GN.rain) GN.rain.visible=false;
+  // 별똥별 — 땅에도 가끔 반짝 별가루
+  if(k===2){ GN.starT-=dt; if(GN.starT<=0){ GN.starT=rnd(.6,1.4); fxSpark(P.x+rnd(-14,14),rnd(.5,3),P.z+rnd(-14,14),0xfff2a0,8); } } }
+/* ---------- 매 프레임 ---------- */
+function gnTick(dt){ if(!started||G.realm<0) return; const g=gnData(); gnWxTick(dt);
+  if(GN.wqT>0){ GN.wqT-=dt; if(GN.wqT<=0){ if(!layerOpen&&!P.dead) gnWaterToast(); else GN.wqT=1; } }
+  GN.pubT-=dt; if(net.up>0&&(GN.pubT<=0||(GN.dirty&&GN.pubT<290))){ GN.pubT=300; gnPub(); }
+  GN.t-=dt; if(GN.t<=0){ GN.t=1;
+    if(!GN.seedT){ GN.seedT=1; const got=gnDaily(); if(got) setTimeout(()=>{ if(!layerOpen) toast("🌱 오늘의 무료 씨앗 3개!",got.map(s=>GN_CROPS[s].ic+" "+GN_CROPS[s].n).join(" · ")+" · 메뉴 → 데메테르의 씨앗 밭",3); },9000); }
+    if(!GN.readyTold&&!layerOpen&&!P.dead){ const n=g.p.filter((p,i)=>p&&i<gnSlots()&&gnReadyAt(p)<=Date.now()).length; if(n){ GN.readyTold=true; toast(`🧺 밭에 작물이 ${n}개 다 자랐어요!`,"메뉴 → 데메테르의 씨앗 밭에서 거두기",2.6); } }
+    if(HM.on){ const k=gnKey(); if(k!==GN.key){ GN.key=k; gnBuild3D(); } } else if(GN.g){ GN.g=null; GN.plots=null; } }
+  if(GN.g&&HM.on){ const tn=performance.now()/1000; GN.g.traverse(o=>{ const u=o.userData; if(u.gspin) o.rotation.z+=dt*1.2; if(u.gbob){ o.position.y+=Math.sin(tn*2.6+o.id)*dt*.35; } if(u.gpulse&&o.material) o.material.opacity=.25+Math.sin(tn*3+o.id)*.15; });
+    while(GN.lbls.length<GN_POS.length) GN.lbls.push(makeLabel("ally"));
+    const near=(GN.plots||[]).map((p,i)=>({i,d:Math.hypot(P.x-(HM.cx+p.x),P.z-(HM.cz+p.z))})).filter(x=>x.d<7).sort((a,b)=>a.d-b.d).slice(0,3).map(x=>x.i);
+    GN.lbls.forEach((l,i)=>{ const p=GN.plots&&GN.plots[i]; if(!p||layerOpen||near.indexOf(i)<0||p.st==="empty"&&HM.data.i!==G.id){ l.style.display="none"; return; }
+      const q=p.q; let h; if(p.st==="empty") h="🌱 빈 밭"; else if(p.st==="ready") h=`${p.mu>=0?`<b style="color:${GN_MUT[p.mu].css}">${GN_MUT[p.mu].ic}${GN_MUT[p.mu].n}</b> `:""}${GN_CROPS[q[0]].ic} <b>다 자랐어요!</b>`; else h=`${GN_CROPS[q[0]].ic} ${gnLeft(q[1]+gnGrowMs(q[0])-(q[2]||0)-Date.now())}`;
+      placeLabel(l,HM.cx+p.x,2.6,HM.cz+p.z,h); }); }
+  else GN.lbls.forEach(l=>l.style.display="none"); }
+XTICK.push(gnTick);
+/* ---------- 창 ---------- */
+function gnSeedCard(i){ const g=gnData(); const have=GN_CROPS.map((C,s)=>({C,s})).filter(x=>g.sd[x.s]>0);
+  card(`<h2>🌱 어떤 씨앗을 심을까요?</h2><p style="font-size:13px">밭 ${i+1}번 칸 · 게임을 꺼 둬도 자라요. 자라는 동안 🔮 마법 날씨가 오면 날씨 변신 작물이 될 수 있어요!</p>
+   ${have.length?`<div class="exgrid">${have.map(x=>`<button class="buy" data-s="${x.s}">${x.C.ic} ${x.C.n}<br><small>${gnLeft(gnGrowMs(x.s))} · ${g.sd[x.s]}개</small></button>`).join("")}</div>`:`<p>씨앗이 없어요. 씨앗 가게에서 사거나 괴물·낚시에서 모아요.</p>`}
+   <div style="display:flex;gap:8px;justify-content:center"><button class="buy alt" id="gnShop">🛒 씨앗 가게</button><button class="buy alt" id="gnBack">↩ 밭 보기</button></div>`);
+  layers.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{ gnPlant(i,+b.dataset.s); GN.key=""; showGarden(); });
+  $("gnShop").onclick=()=>gnShop(i); $("gnBack").onclick=showGarden; }
+function gnPrice(s){ return Math.round(GN_CROPS[s].v*.9*(1+G.lv*.02)); }
+function gnShop(back){ const g=gnData();
+  card(`<h2>🛒 데메테르의 씨앗 가게</h2><p style="font-size:13px">금화로 씨앗을 사요(진짜 돈 없음). 🎃 별빛 호박 · 🍇 구름 포도 씨앗은 괴물·낚시·매일 선물에서만 나와요.</p>
+   <div class="exgrid">${GN_CROPS.map((C,s)=>C.buy?`<button class="buy" data-b="${s}" ${G.gold<gnPrice(s)?"disabled":""}>${C.ic} ${C.n}<br><small>🪙 ${fmt(gnPrice(s))} · 가진 것 ${g.sd[s]}</small></button>`:"").join("")}</div>
+   <p style="font-size:12px;text-align:center">🪙 ${fmt(G.gold)}</p><button class="buy alt" id="gnBack" style="align-self:center">↩ 돌아가기</button>`);
+  layers.querySelectorAll("[data-b]").forEach(b=>b.onclick=()=>{ const s=+b.dataset.b, pr=gnPrice(s); if(G.gold<pr) return; G.gold-=pr; g.sd[s]++; saveGame(); tone(880,.06); gnShop(back); });
+  $("gnBack").onclick=()=>back!=null&&back>=0?gnSeedCard(back):showGarden(); }
+function gnDex(){ const g=gnData(); const n=Object.keys(g.dex).length;
+  card(`<h2>📖 작물 도감 ${n}/${GN_CROPS.length*4}</h2><p style="font-size:13px">작물마다 보통 · ⚡번개 · 🌈무지개 · 🌠별빛 네 가지 모습이 있어요. 마법 날씨 때 자라는 작물이 변신해요!</p>
+   <div class="diary">${GN_CROPS.map((C,s)=>`<p>${C.ic} ${C.n} ${[-1,0,1,2].map(m=>g.dex[s+"_"+m]?`<b style="color:${m<0?"#fff":GN_MUT[m].css}">${m<0?"●":GN_MUT[m].ic}</b>`:'<span style="opacity:.3">○</span>').join(" ")}</p>`).join("")}</div>
+   <button class="buy alt" id="gnBack" style="align-self:center">↩ 밭 보기</button>`); $("gnBack").onclick=showGarden; }
+function showGarden(){ const g=gnData(), now=Date.now(), S=gnSlots(), W=gnWDay(); const wn=gnWxNow(), nx=wn||gnWxNext(); const ready=g.p.filter((p,i)=>p&&i<S&&gnReadyAt(p)<=now).length;
+  const rows=[]; for(let i=0;i<GN_POS.length;i++){ const p=g.p[i]; if(i>=S){ rows.push(`<div class="row"><div class="ic">🔒</div><div class="t"><div>밭 ${i+1}</div><span>Lv.${i===4?30:60}에 열려요</span></div></div>`); continue; }
+    if(!p){ rows.push(`<div class="row"><div class="ic">🟫</div><div class="t"><div>밭 ${i+1} · 비어 있어요</div><span>씨앗을 심어요</span></div><button class="buy" data-plant="${i}">🌱 심기</button></div>`); continue; }
+    const C=GN_CROPS[p.s], ra=gnReadyAt(p), done=ra<=now, mu=gnMutOf(p,now); const bar=Math.round(gnProg(p,now)*100);
+    rows.push(`<div class="row"><div class="ic">${C.ic}</div><div class="t"><div>${mu>=0?`<b style="color:${GN_MUT[mu].css}">${GN_MUT[mu].ic}${GN_MUT[mu].n}</b> `:""}${C.n}</div><span>${done?"다 자랐어요! 🧺":`${bar}% · ${gnLeft(ra-now)} 남음 (${gnHM(ra)})`}${!done&&mu>=0?" · 날씨 변신 성공!":""}</span></div>${done?`<button class="buy" data-hv="${i}">🧺 거두기</button>`:""}</div>`); }
+  const nbr=Object.values(GNO).filter(r=>Date.now()-r.t<7*86400000&&gnGrowing(r)>0).sort((a,b)=>(PEERS[b.i]?1:0)-(PEERS[a.i]?1:0)||(W.who[a.i]?1:0)-(W.who[b.i]?1:0)||b.t-a.t).slice(0,8);
+  const seeds=GN_CROPS.map((C,s)=>g.sd[s]?`${C.ic}${g.sd[s]}`:"").filter(Boolean).join(" ")||"없음";
+  card(`<h2>🌱 데메테르의 씨앗 밭</h2><p>내 <b>신전 섬</b> 길 옆 밭에 씨앗을 심으면 <b>게임을 꺼 둬도 자라요.</b> 자라는 동안 🔮 마법 날씨가 지나가면 ⚡번개 · 🌈무지개 · 🌠별빛 작물로 변신할 수 있어요!</p>
+   <div class="idlegrid"><div><b>${ready?`🧺 ${ready}`:"🌿"}</b><span>${ready?"다 자란 작물":"자라는 중"}</span></div><div><b>💖 ${g.hearts||0}</b><span>물 받은 하트</span></div><div><b>📖 ${Object.keys(g.dex).length}/${GN_CROPS.length*4}</b><span>작물 도감</span></div></div>
+   <p style="font-size:13px;text-align:center">${wn?`🔮 지금 <b>${GN_WX[wn.k].ic} ${GN_WX[wn.k].n}</b>! (${gnHM(wn.e)}까지) · 변신 확률 ${Math.round(GN_MUT[wn.k].p*100)}%`:nx?`🔮 다음 마법 날씨: <b>${gnHM(nx.s)} ${GN_WX[nx.k].ic} ${GN_WX[nx.k].n}</b> (변신 확률 ${Math.round(GN_MUT[nx.k].p*100)}%)`:""}</p>
+   ${rows.join("")}
+   <p style="font-size:12px">🌱 가진 씨앗: ${seeds}</p>
+   <div class="exgrid">${ready>1?`<button class="buy" id="gnAll">🧺 모두 거두기</button>`:""}<button class="buy alt" id="gnShopB">🛒 씨앗 가게</button><button class="buy alt" id="gnDexB">📖 작물 도감</button><button class="buy alt" id="gnHome">🏡 내 신전 섬으로</button></div>
+   <h3>💧 이웃 밭에 물 주기 <small style="font-size:12px;opacity:.8">오늘 ${W.n}/${GN_WDAY}</small></h3>
+   ${nbr.length?nbr.map(r=>{ const R=REALMS[r.r]; const did=W.who[r.i]; return `<div class="row"><div class="ic" style="color:${R.c1}">${R.icon}</div><div class="t"><div>${r.n}${PEERS[r.i]?' <i class="st on">접속 중</i>':""}</div><span>자라는 작물 ${gnGrowing(r)}개 · 💖 ${r.h||0}</span></div><button class="buy" data-w="${r.i}" ${did||W.n>=GN_WDAY?"disabled":""}>${did?"✅ 줬어요":"💧 물 주기"}</button></div>`; }).join(""):'<p style="font-size:13px">지금은 물이 필요한 이웃 밭이 없어요.</p>'}
+   <p style="font-size:12px">💧 물을 주면 그 밭이 10분 빨리 자라고 주인에게 💖 하트가 가요 (같은 사람은 하루 1번). 내 밭도 다른 사람이 물을 주면 꺼 둔 동안에도 빨리 자라요!</p>
+   <p style="font-size:12px">🔮 마법 날씨는 40분마다 절반쯤 와요(8분). 변신 확률: ⚡ 45% · 🌈 30% · 🌠 22% (날씨가 한 번 지나갈 때마다). 변신 작물은 금화 ×3 · ×5 · ×8 + ✨ 룬 가루!</p>`);
+  layers.querySelectorAll("[data-plant]").forEach(b=>b.onclick=()=>gnSeedCard(+b.dataset.plant));
+  layers.querySelectorAll("[data-hv]").forEach(b=>b.onclick=()=>{ closeLayer(); gnHarvest(+b.dataset.hv); GN.key=""; });
+  layers.querySelectorAll("[data-w]").forEach(b=>b.onclick=()=>{ gnWater(b.dataset.w); showGarden(); });
+  if($("gnAll")) $("gnAll").onclick=()=>{ closeLayer(); gnHarvestAll(); GN.key=""; };
+  $("gnShopB").onclick=()=>gnShop(-1); $("gnDexB").onclick=gnDex; $("gnHome").onclick=()=>{ if(HM.on&&HM.data&&HM.data.i===G.id){ closeLayer(); return; } hmEnter(G.id); }; }
+MENU_X.push({ic:"🌱",n:"데메테르의 씨앗 밭",id:"gnBtn",sub:()=>{ const g=gnData(), now=Date.now(); const r=g.p.filter((p,i)=>p&&i<gnSlots()&&gnReadyAt(p)<=now).length, gr=g.p.filter((p,i)=>p&&i<gnSlots()&&gnReadyAt(p)>now).length; const w=gnWxNow(); return `${r?`🧺 ${r}개 다 자람 · `:""}${gr?`🌿 ${gr}개 자라는 중`:"빈 밭에 씨앗 심기"}${w?` · ${GN_WX[w.k].ic} 마법 날씨!`:""}`; },f:showGarden});
+TITLES.push({id:"gn10",n:"새싹 농부",t:1,h:"작물 10번 거두기",g:()=>[(G.gn&&G.gn.hv)||0,10]},{id:"gnm10",n:"날씨를 기다리는 농부",t:2,h:"날씨 변신 작물 10번 거두기",g:()=>[(G.gn&&G.gn.mu)||0,10]},
+ {id:"gnd24",n:"데메테르의 정원사",t:3,h:"작물 도감 24칸 채우기",g:()=>[G.gn&&G.gn.dex?Object.keys(G.gn.dex).length:0,24]},{id:"gnw30",n:"물 주는 이웃",t:1,h:"이웃 밭에 물 30번 주기",g:()=>[(G.gn&&G.gn.wg)||0,30]});
+</script>
+<style>
+#gnSky{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden;opacity:0;transition:opacity 2s}
+#gnSky.rain,#gnSky.bow,#gnSky.star{opacity:1}
+#gnSky .bow{position:absolute;left:-10%;right:-10%;top:-38vh;height:110vh;display:none;background:radial-gradient(ellipse 60% 80% at 50% 100%,transparent 52%,rgba(180,90,255,.34) 53.5%,rgba(80,110,255,.36) 55.5%,rgba(60,180,255,.36) 57.5%,rgba(90,215,90,.36) 59.5%,rgba(255,230,60,.4) 61.5%,rgba(255,150,40,.4) 63.5%,rgba(255,70,70,.4) 65.5%,transparent 67.5%);animation:gnBow 6s ease-in-out infinite}
+#gnSky.bow .bow{display:block}
+#gnSky.rain{background:linear-gradient(180deg,rgba(40,70,120,.22),rgba(40,70,120,0) 60%)}
+#gnSky .st{position:absolute;display:none;width:120px;height:2px;border-radius:2px;background:linear-gradient(90deg,rgba(255,250,210,0),#fff6c8);box-shadow:0 0 8px #fff2a0;transform:rotate(-24deg);animation:gnStar 2.6s linear infinite}
+#gnSky.star .st{display:block}
+#gnSky.star{background:linear-gradient(180deg,rgba(30,20,80,.25),rgba(30,20,80,0) 55%)}
+#gnSky .st:nth-child(2){left:62%;top:6%;animation-delay:-.4s} #gnSky .st:nth-child(3){left:30%;top:2%;animation-delay:-1.3s;animation-duration:3.1s} #gnSky .st:nth-child(4){left:82%;top:16%;animation-delay:-2.1s} #gnSky .st:nth-child(5){left:12%;top:12%;animation-delay:-.9s;animation-duration:3.6s}
+@keyframes gnStar{0%{opacity:0;translate:0 0}8%{opacity:1}35%{opacity:0;translate:-260px 115px}100%{opacity:0;translate:-260px 115px}}
+@keyframes gnBow{0%,100%{opacity:.85}50%{opacity:1}}
+</style>
+<script>
+/* ================= v103-2: 📯 모여라 뿔나팔 — 처음 보는 사람과 바로 파티 짓기 (IDEAS G11/10-2) =================
+   메뉴 → 모여라 뿔나팔 → 하고 싶은 일(같이 사냥·미궁·거대 보스·산 거인·양 몰이·하늘 탑·현상수배·영토 전쟁·구름 나라)을 고르면
+   같은 방 모든 사람 화면 오른쪽에 카드가 떠요: "📯 ○○ · 🌀 신들의 미궁 · 2/4명 · 📍 장소". 「함께!」→ 파티가 되고 그 사람 곁으로 휙.
+   파티(최대 4명): 왼쪽 위 파티 칸에 친구 체력 막대 · 파티원 발밑 하늘색 고리 · 가까이(30m) 있으면 경험치 +10% · 정해진 말 버튼(글자 안 침).
+   파티가 끝날 때 2분 넘게 함께였으면 「🤝 함께한 모험 ★」 도장 + 「⭐ 또 만나요」(그 사람이 나팔을 불면 내 카드가 맨 위에, 소리도 남).
+   카드 끄기 가능. 실시간 메시지: t:"hnp"(방장이 3초마다 파티 모습 알림) · "hnj"(함께 하기) · "hnl"(나가기). 방장 소식이 15초 없으면 파티 끝.
+   저장: G.hnStar · G.hnFav{id:이름} · G.hnMute · G.hnN(파티 수) · G.hnHost(나팔 분 수) · G.hnTog(함께한 초). 칭호 3개. */
+const HN_ACT=[{ic:"⚔️",n:"같이 사냥해요"},{ic:"🌀",n:"신들의 미궁"},{ic:"🌋",n:"거대 보스"},{ic:"🏔️",n:"산 거인"},{ic:"🐏",n:"황금 양 몰이"},{ic:"🪜",n:"하늘 탑"},{ic:"🎯",n:"현상수배"},{ic:"🚩",n:"영토 전쟁"},{ic:"🏯",n:"구름 나라 띠 시험"}];
+const HN_SAY=["이쪽으로!","잠깐 기다려!","보스 간다!","도와줘!","고마워! 🤝","잘했어! 👍"];
+const HN_MAX=4, HN_OPEN=180000, HN_NEAR=30, HN_STAR=120;
+const HN={party:null,ads:{},hide:{},sendT:0,t:0,el:null,cards:null,rings:{},tog:0,sayOpen:false,lastFav:{}};
+function hnPid(){ return G.id+"-"+Date.now().toString(36); }
+function hnMine(){ return HN.party&&HN.party.h===G.id; }
+function hnZoneOk(x,z){ if(typeof dsIn==="function"&&dsIn(z)) return "ds"; if(Math.abs(x)<WORLD_HALF&&Math.abs(z)<WORLD_HALF) return "w"; return ""; }
+function hnZone(x,z){ try{ if(typeof okIn==="function"&&okIn(x,z)) return "🏯 구름 나라"; if(typeof twIn==="function"&&twIn(x,z)) return "🪜 하늘 탑"; if(typeof arIn==="function"&&arIn(x,z)) return "⚔️ 결투장"; if(typeof pgIn==="function"&&pgIn(z)) return "🏟️ 놀이 마당"; return frZone(x,z); }catch(e){ return "어딘가"; } }
+/* ---------- 나팔 불기 (방장) ---------- */
+function hnBlow(a){ if(HN.party&&!hnMine()){ toast("지금은 다른 파티에 있어요","파티를 나간 다음 불어요",1.8); return; }
+  if(hnMine()){ HN.party.a=a; HN.party.open=Date.now()+HN_OPEN; }
+  else HN.party={p:hnPid(),h:G.id,hn:G.name,a,m:[G.id],mn:[G.name],open:Date.now()+HN_OPEN,t0:Date.now(),last:Date.now(),seen:{}};
+  G.hnHost=(G.hnHost||0)+1; saveGame(); HN.sendT=0; closeLayer();
+  jingle([392,523,659,784,1046]); buzz([30,40,30]); fxRing(P.x,P.z,0x6af0ff,7,.7); fxSpark(P.x,3,P.z,0x6af0ff,24);
+  toast(`📯 뿔나팔을 불었어요! — ${HN_ACT[a].ic} ${HN_ACT[a].n}`,`같은 방 모두에게 카드가 가요 · 3분 동안 모집 · 최대 ${HN_MAX}명`,3); }
+function hnSend(){ const p=HN.party; if(!p||!hnMine()) return; const open=p.open>Date.now()&&p.m.length<HN_MAX?1:0;
+  const ml=p.m.map(id=>id===G.id?G.lv:(PEERS[id]?PEERS[id].lv:0)); try{ net.send({t:"hnp",p:p.p,a:p.a,m:p.m,mn:p.mn,ml,open,x:Math.round(P.x),z:Math.round(P.z),zn:hnZone(P.x,P.z),hl:G.lv}); }catch(e){} }
+function hnDisband(){ const p=HN.party; if(!p) return; if(hnMine()){ try{ net.send({t:"hnp",p:p.p,a:p.a,m:[],mn:[],open:0,dis:1}); }catch(e){} } else { try{ net.send({t:"hnl",p:p.p}); }catch(e){} } hnEnd(true); }
+/* ---------- 받기 ---------- */
+NETR.hnp=(o,d)=>{ if(!d||!d.p||!Array.isArray(d.m)) return; const now=Date.now();
+  if(d.dis||!d.m.length){ delete HN.ads[d.p]; if(HN.party&&HN.party.p===d.p&&!hnMine()){ hnEnd(false,`${o.name}님이 파티를 끝냈어요`); } return; }
+  HN.ads[d.p]={p:d.p,h:o.id,hn:o.name,hr:o.realm,a:d.a|0,m:d.m.slice(0,HN_MAX),mn:(d.mn||[]).slice(0,HN_MAX).map(s=>String(s).slice(0,8)),ml:d.ml||[],open:!!d.open,x:+d.x||0,z:+d.z||0,zn:String(d.zn||"").slice(0,16),hl:d.hl|0,last:now};
+  const P0=HN.party; const inIt=d.m.indexOf(G.id)>=0;
+  if(P0&&P0.p===d.p&&!hnMine()){ if(!inIt){ hnEnd(false,"파티에서 빠졌어요"); return; } Object.assign(P0,{a:d.a|0,m:d.m.slice(0,HN_MAX),mn:HN.ads[d.p].mn,last:now}); }
+  else if(inIt&&(!P0||P0.p!==d.p)&&HN.want===d.p){ HN.want=null; hnJoined(HN.ads[d.p]); }
+  else if(!P0&&d.open&&!G.hnMute&&!HN.hide[d.p]&&G.hnFav&&G.hnFav[o.id]&&!HN.lastFav[d.p]){ HN.lastFav[d.p]=1; jingle([784,988,1175,1568]); buzz([20,30,20]); } };
+NETR.hnj=(o,d)=>{ const p=HN.party; if(!p||!hnMine()||d.p!==p.p) return; if(p.m.indexOf(o.id)>=0){ HN.sendT=0; return; } if(p.m.length>=HN_MAX||p.open<Date.now()){ return; }
+  p.m.push(o.id); p.mn.push(o.name); p.seen[o.id]=1; HN.sendT=0; jingle([659,880,1046]); toast(`📯 ${o.name}님이 파티에 들어왔어요!`,`${HN_ACT[p.a].ic} ${HN_ACT[p.a].n} · ${p.m.length}/${HN_MAX}명`,2.2); };
+NETR.hnl=(o,d)=>{ const p=HN.party; if(!p||!hnMine()||d.p!==p.p) return; const i=p.m.indexOf(o.id); if(i<=0) return; p.m.splice(i,1); p.mn.splice(i,1); HN.sendT=0; toast(`👋 ${o.name}님이 파티를 나갔어요`,null,1.6); };
+/* ---------- 함께 하기 (파티원) ---------- */
+function hnJoin(pid){ const ad=HN.ads[pid]; if(!ad||!ad.open){ toast("모집이 끝났어요",null,1.4); return; } if(HN.party){ toast("이미 파티에 있어요",null,1.4); return; } HN.want=pid; HN.wantT=6; try{ net.send({t:"hnj",p:pid}); }catch(e){} tone(880,.06); toast(`📯 ${ad.hn}님 파티에 들어가는 중…`,null,1.2); }
+function hnJoined(ad){ HN.party={p:ad.p,h:ad.h,hn:ad.hn,a:ad.a,m:ad.m.slice(),mn:ad.mn.slice(),open:0,t0:Date.now(),last:Date.now(),seen:{}}; G.hnN=(G.hnN||0)+1; saveGame();
+  jingle([523,659,784,1046,1318]); buzz([20,30,40]); hnGoTo(ad.h,true); }
+function hnGoTo(id,first){ const o=PEERS[id]; if(!o){ return; } const hz=hnZoneOk(o.x,o.z), mz=hnZoneOk(P.x,P.z);
+  const say=t=>toast(first?`📯 ${o.name}님 파티에 들어왔어요!`:`📯 ${o.name}님에게`,t,2.6);
+  if(typeof okIn==="function"&&okIn(o.x,o.z)&&!P.dead&&!P.trial){ if(!OK.on) okEnter(); if(OK.on){ P.x=o.x+rnd(-2,2); P.z=o.z+2.5; fxRing(P.x,P.z,0x6af0ff,6,.7); say("🏯 구름 나라에서 만났어요!"); } return; }
+  if(!hz){ say(`📍 ${hnZone(o.x,o.z)}에 있어요 — 입구로 가서 만나요`); return; }
+  if(P.dead||P.trial){ say("지금은 갈 수 없어요 · 나중에 파티 칸에서 「곁으로」를 눌러요"); return; }
+  if(mobs.some(m=>m.state==="chase"&&Math.hypot(m.x-P.x,m.z-P.z)<16)){ say("전투가 끝나면 파티 칸에서 「곁으로」를 눌러요"); return; }
+  if(hz==="ds"){ if(typeof gtOpen!=="function"||!gtOpen()){ say("태양의 사막에 있어요"); return; } if(!DS.on) dsEnter(); }
+  else if(mz!=="w"||(typeof glAway==="function"&&glAway())){ try{ if(DG.on) dgExit(true); }catch(e){} try{ if(HM.on) hmExit(); }catch(e){} try{ if(DS.on) dsExit(true,true); }catch(e){} try{ if(typeof RC!=="undefined"&&RC.on) rcEnd(false); }catch(e){} try{ if(typeof OK!=="undefined"&&OK.on) okExit(true,true); }catch(e){} if(typeof glAway==="function"&&glAway()){ say(`지금 있는 곳(${hnZone(P.x,P.z)})에서 먼저 나와요`); return; } }
+  closeLayer(); P.x=o.x+rnd(-2,2); P.z=o.z+2.5; P.y=0; P.vy=0; P.invul=Math.max(P.invul||0,1.5); fxRing(P.x,P.z,0x6af0ff,6,.7); fxSpark(P.x,2,P.z,0x6af0ff,30); jingle([523,784,1046]);
+  say(first?`🌀 곁으로 왔어요! ${HN_ACT[HN.party?HN.party.a:0].ic} ${HN_ACT[HN.party?HN.party.a:0].n}`:"🌀 곁으로 왔어요!"); }
+/* ---------- 파티 끝 ---------- */
+function hnEnd(self,why){ const p=HN.party; if(!p) return; HN.party=null; HN.want=null; for(const id in HN.rings){ scene.remove(HN.rings[id]); } HN.rings={}; HN.sayOpen=false;
+  const tog=Math.round(HN.tog); HN.tog=0; const mates=p.m.map((id,i)=>({id,n:p.mn[i]})).filter(x=>x.id!==G.id);
+  if(why&&!self) toast("📯 "+why,null,2);
+  if(tog>=HN_STAR&&mates.length){ G.hnStar=(G.hnStar||0)+1; const gold=60+G.lv*6; G.gold+=gold; saveGame(); HN.endQ={mates,tog,gold}; }
+  else saveGame(); }
+function hnEndCard(q){ G.hnFav=G.hnFav||{};
+  card(`<h2>🤝 함께한 모험 ★</h2><p style="font-size:16px">${Math.floor(q.tog/60)}분 동안 함께했어요! 「함께한 모험」 도장 ★ ${G.hnStar} · 금화 +${fmt(q.gold)}</p>
+   ${q.mates.map(m=>`<div class="row"><div class="ic">🙂</div><div class="t"><div><b>${m.n}</b></div><span>${G.hnFav[m.id]?"⭐ 또 만나요 친구":"다음에 또 만날까요?"}</span></div><button class="buy${G.hnFav[m.id]?" alt":""}" data-fav="${m.id}" data-n="${m.n}">${G.hnFav[m.id]?"⭐ 친구예요":"⭐ 또 만나요"}</button></div>`).join("")}
+   <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><button class="buy" id="hnThx">고마워! 🤝 보내기</button><button class="go" id="hnOk">좋아요!</button></div>
+   <p style="font-size:12px">⭐ 또 만나요 친구가 뿔나팔을 불면 카드가 맨 위에 뜨고 소리로 알려 줘요.</p>`); jingle([523,659,784,1046,1318]);
+  layers.querySelectorAll("[data-fav]").forEach(b=>b.onclick=()=>{ const id=b.dataset.fav; if(G.hnFav[id]) delete G.hnFav[id]; else { const k=Object.keys(G.hnFav); if(k.length>=30) delete G.hnFav[k[0]]; G.hnFav[id]=b.dataset.n; } saveGame(); hnEndCard(q); });
+  $("hnThx").onclick=()=>{ hnSay(4); $("hnThx").disabled=true; }; $("hnOk").onclick=closeLayer; }
+function hnSay(i){ const m=HN_SAY[i]; if(!m) return; try{ net.send({t:"say",m}); net.chat(G.name,m,G.realm); }catch(e){} HN.sayOpen=false; }
+/* ---------- 경험치 +10% ---------- */
+function hnNearMates(){ const p=HN.party; if(!p) return 0; let n=0; p.m.forEach(id=>{ if(id===G.id) return; const o=PEERS[id]; if(o&&!o.dead&&Math.hypot(o.x-P.x,o.z-P.z)<HN_NEAR) n++; }); return n; }
+(function(){ const _gx=gainXp; gainXp=function(n){ try{ if(n>0&&HN.party&&hnNearMates()>0) n=Math.round(n*1.1); }catch(e){} return _gx(n); }; })();
+/* ---------- 화면: 카드 · 파티 칸 ---------- */
+function hnCardsEl(){ const q=$("quest"); const host=q&&q.parentNode;
+  if(!HN.cards){ const d=document.createElement("div"); d.id="hnCards"; d.addEventListener("pointerdown",e=>e.stopPropagation()); HN.cards=d;
+    d.addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b) return; if(b.dataset.j) hnJoin(b.dataset.j); else if(b.dataset.x){ HN.hide[b.dataset.x]=1; tone(440,.05); } HN.cardKey=""; hnCards(); }); }
+  if(HN.cards.parentNode!==host||!HN.cards.isConnected){ if(host&&q) host.insertBefore(HN.cards,q); else document.body.appendChild(HN.cards); } return HN.cards; }
+function hnCards(){ const el=hnCardsEl(); const now=Date.now(); const show=started&&!layerOpen&&!P.dead&&!HN.party&&!G.hnMute;
+  const L=show?Object.values(HN.ads).filter(a=>a.open&&now-a.last<9000&&!HN.hide[a.p]&&PEERS[a.h]&&a.m.indexOf(G.id)<0).sort((a,b)=>((G.hnFav||{})[b.h]?1:0)-((G.hnFav||{})[a.h]?1:0)||b.last-a.last).slice(0,2):[];
+  const key=L.map(a=>a.p+a.m.length+a.a+a.zn+(HN.want===a.p?"w":"")).join("|"); if(key===HN.cardKey) return; HN.cardKey=key;
+  el.innerHTML=L.map(a=>{ const fav=(G.hnFav||{})[a.h]; const R=REALMS[a.hr]||REALMS[0]; return `<div class="hnc${fav?" fav":""}" style="--rc:${R.c1}"><div class="hd">📯${fav?"⭐":""} <b>${a.hn}</b> · ${HN_ACT[a.a].ic} ${HN_ACT[a.a].n} <em>${a.m.length}/${HN_MAX}</em></div><div class="bt"><span class="zn">📍 ${a.zn||"?"}</span><button type="button" class="go" data-j="${a.p}" ${HN.want===a.p?"disabled":""}>${HN.want===a.p?"…":"함께!"}</button><button type="button" class="x" data-x="${a.p}">✕</button></div></div>`; }).join(""); el.hidden=!L.length; }
+function hnPanelEl(){ const q=$("quest"); const host=q&&q.parentNode; if(HN.el&&HN.el.isConnected&&HN.el.parentNode===host) return HN.el;
+  if(!HN.el){ const d=document.createElement("div"); d.id="hnParty"; d.hidden=true; d.addEventListener("pointerdown",e=>e.stopPropagation());
+    d.addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b) return; if(b.dataset.go) hnGoTo(b.dataset.go,false); else if(b.dataset.s!=null) hnSay(+b.dataset.s); else if(b.id==="hnSayB"){ HN.sayOpen=!HN.sayOpen; } else if(b.id==="hnMenuB") showHorn(); HN.panelKey=""; hnPanel(); }); HN.el=d; }
+  if(host&&q) host.insertBefore(HN.el,q); else document.body.appendChild(HN.el); return HN.el; }
+function hnPanel(){ const el=hnPanelEl(); const p=HN.party; const show=!!p&&started&&!layerOpen; if(!show){ if(!el.hidden){ el.hidden=true; HN.panelKey=""; } return; }
+  const rows=p.m.map((id,i)=>{ const me=id===G.id; const o=PEERS[id]; const hp=me?P.hp/stat().mhp:o?(o.hp/(o.mhp||1)):0; const near=me||o&&Math.hypot(o.x-P.x,o.z-P.z)<HN_NEAR; const pc=Math.round(clamp(hp,0,1)*100);
+    return `<div class="m${me?" me":""}${o&&o.dead?" dead":""}"><span class="n">${id===p.h?"👑":""}${p.mn[i]||"?"}</span><span class="hb"><i style="width:${pc}%"></i></span>${!me&&o&&!near?`<button type="button" data-go="${id}">곁으로</button>`:!me&&!o?'<span class="off">…</span>':""}</div>`; }).join("");
+  const open=hnMine()&&p.open>Date.now()&&p.m.length<HN_MAX; const bonus=hnNearMates()>0;
+  const h=`<div class="hd"><button type="button" id="hnMenuB">📯 ${HN_ACT[p.a].ic} ${p.m.length}/${HN_MAX}</button>${bonus?'<span class="bn">경험치 +10%</span>':""}${open?'<span class="op">모집 중</span>':""}<button type="button" id="hnSayB">💬</button></div>${rows}${HN.sayOpen?`<div class="say">${HN_SAY.map((s,i)=>`<button type="button" data-s="${i}">${s}</button>`).join("")}</div>`:""}`;
+  if(el.hidden) el.hidden=false; if(HN.panelKey!==h){ HN.panelKey=h; el.innerHTML=h; } }
+function hnRings(dt){ const p=HN.party; const want={}; if(p) p.m.forEach(id=>{ if(id!==G.id&&PEERS[id]&&!PEERS[id].dead) want[id]=1; });
+  for(const id in HN.rings){ if(!want[id]){ scene.remove(HN.rings[id]); delete HN.rings[id]; } }
+  for(const id in want){ let r=HN.rings[id]; if(!r){ r=new THREE.Mesh(GEO.ring,glowMat(0x6af0ff,.75)); r.rotation.x=-Math.PI/2; r.scale.setScalar(1.5); r.userData.noOutline=true; scene.add(r); HN.rings[id]=r; } const o=PEERS[id]; r.position.set(o.x,hAt(o.x,o.z)+.1,o.z); r.rotation.z+=dt*1.5; r.material.opacity=.5+Math.sin(performance.now()/300)*.2; } }
+/* ---------- 매 프레임 ---------- */
+function hnTick(dt){ if(!started||G.realm<0) return; const now=Date.now(); const p=HN.party;
+  if(p){ if(hnMine()){ HN.sendT-=dt; if(HN.sendT<=0){ HN.sendT=3; hnSend(); } for(let i=p.m.length-1;i>=1;i--){ if(!PEERS[p.m[i]]){ const n=p.mn[i]; p.m.splice(i,1); p.mn.splice(i,1); HN.sendT=0; toast(`👋 ${n}님이 떠났어요`,null,1.4); } } if(p.m.length<=1&&p.open<now&&now-p.t0>HN_OPEN){ hnEnd(true); toast("📯 아무도 오지 않아서 모집을 끝냈어요","다음에 다시 불어 봐요!",2.2); } }
+    else if(now-p.last>15000||!PEERS[p.h]){ hnEnd(false,`${p.hn}님의 파티가 끝났어요`); }
+    if(HN.party&&hnNearMates()>0){ HN.tog+=dt; G.hnTog=(G.hnTog||0)+dt; } }
+  if(HN.want){ HN.wantT-=dt; if(HN.wantT<=0){ const ad=HN.ads[HN.want]; HN.want=null; HN.cardKey=""; toast("📯 파티에 못 들어갔어요",ad&&ad.m.length>=HN_MAX?"자리가 다 찼어요":"다시 눌러 봐요",1.8); } }
+  if(HN.endQ&&!layerOpen&&!P.dead){ const q=HN.endQ; HN.endQ=null; hnEndCard(q); }
+  HN.t-=dt; if(HN.t<=0){ HN.t=.25; for(const k in HN.ads){ if(now-HN.ads[k].last>20000) delete HN.ads[k]; } hnCards(); hnPanel(); }
+  hnRings(dt); }
+XTICK.push(hnTick);
+/* ---------- 창 ---------- */
+function showHorn(){ const p=HN.party; const open=Object.values(HN.ads).filter(a=>a.open&&Date.now()-a.last<9000&&PEERS[a.h]&&a.m.indexOf(G.id)<0);
+  card(`<h2>📯 모여라 뿔나팔</h2><p>하고 싶은 일을 골라 뿔나팔을 불면, 같은 방 모든 사람 화면에 카드가 떠요. 「함께!」를 누른 사람은 파티가 되어 내 곁으로 와요 (최대 ${HN_MAX}명).</p>
+   ${p?`<div class="idlegrid"><div><b>${HN_ACT[p.a].ic} ${p.m.length}/${HN_MAX}</b><span>${hnMine()?"내 파티":p.hn+"님의 파티"}</span></div><div><b>${hnNearMates()>0?"+10%":"—"}</b><span>경험치 (가까이 있을 때)</span></div><div><b>${Math.floor(HN.tog/60)}분</b><span>함께한 시간</span></div></div><p style="font-size:13px">👥 ${p.mn.join(" · ")}</p>`:""}
+   <h3>${p&&hnMine()?"🔄 하고 싶은 일 바꾸고 다시 모집":"📯 무엇을 같이 할까요?"}</h3>
+   ${p&&!hnMine()?'<p style="font-size:13px">지금은 다른 사람 파티에 있어요.</p>':`<div class="exgrid">${HN_ACT.map((A,i)=>`<button class="buy" data-a="${i}">${A.ic} ${A.n}</button>`).join("")}</div>`}
+   ${!p&&open.length?`<h3>📯 지금 모집 중인 파티</h3>${open.map(a=>`<div class="row"><div class="ic">${HN_ACT[a.a].ic}</div><div class="t"><div>${(G.hnFav||{})[a.h]?"⭐ ":""}<b>${a.hn}</b> · ${HN_ACT[a.a].n}</div><span>${a.m.length}/${HN_MAX}명 · 📍 ${a.zn}</span></div><button class="go" data-j="${a.p}">함께!</button></div>`).join("")}`:""}
+   ${p?`<button class="buy alt" id="hnLeave" style="align-self:center">${hnMine()?"🏁 파티 끝내기":"👋 파티 나가기"}</button>`:""}
+   <div class="idlegrid"><div><b>★ ${G.hnStar||0}</b><span>함께한 모험 도장</span></div><div><b>⭐ ${Object.keys(G.hnFav||{}).length}</b><span>또 만나요 친구</span></div><div><b>${G.hnN||0}</b><span>들어간 파티</span></div></div>
+   <div class="exgrid"><button class="buy alt" id="hnMute">${G.hnMute?"🔕 나팔 카드 꺼짐 (켜기)":"🔔 나팔 카드 켜짐 (끄기)"}</button>${Object.keys(G.hnFav||{}).length?'<button class="buy alt" id="hnFavB">⭐ 또 만나요 친구 보기</button>':""}</div>
+   <p style="font-size:12px">글자는 치지 않고 정해진 말(💬)만 써요. 파티 칸에서 친구 체력을 보고 「곁으로」로 다시 모일 수 있어요. 2분 넘게 함께하면 「함께한 모험 ★」 도장!</p>`);
+  layers.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>hnBlow(+b.dataset.a));
+  layers.querySelectorAll("[data-j]").forEach(b=>b.onclick=()=>{ hnJoin(b.dataset.j); closeLayer(); });
+  if($("hnLeave")) $("hnLeave").onclick=()=>{ hnDisband(); closeLayer(); toast("📯 파티를 나왔어요",null,1.4); };
+  $("hnMute").onclick=()=>{ G.hnMute=!G.hnMute; saveGame(); HN.cardKey=""; showHorn(); };
+  if($("hnFavB")) $("hnFavB").onclick=()=>{ const F=G.hnFav||{}; card(`<h2>⭐ 또 만나요 친구</h2>${Object.keys(F).map(id=>`<div class="row"><div class="ic">⭐</div><div class="t"><div><b>${F[id]}</b>${PEERS[id]?' <i class="st on">접속 중</i>':""}</div><span>이 친구가 뿔나팔을 불면 카드가 맨 위에 떠요</span></div><button class="buy alt" data-un="${id}">빼기</button></div>`).join("")}<button class="buy alt" id="hnBk" style="align-self:center">↩ 돌아가기</button>`); layers.querySelectorAll("[data-un]").forEach(b=>b.onclick=()=>{ delete F[b.dataset.un]; saveGame(); b.closest(".row").remove(); }); $("hnBk").onclick=showHorn; }; }
+MENU_X.push({ic:"📯",n:"모여라 뿔나팔",id:"hnBtn",sub:()=>{ const p=HN.party; if(p) return `${HN_ACT[p.a].ic} 파티 ${p.m.length}/${HN_MAX}명${hnNearMates()>0?" · 경험치 +10%":""}`; const n=Object.values(HN.ads).filter(a=>a.open&&PEERS[a.h]).length; return n?`📯 모집 중인 파티 ${n}개!`:"처음 보는 사람과 바로 파티 짓기"; },f:showHorn});
+TITLES.push({id:"hn5",n:"함께 가요",t:1,h:"「함께한 모험 ★」 도장 5개",g:()=>[G.hnStar||0,5]},{id:"hnh10",n:"뿔나팔 부는 사람",t:1,h:"뿔나팔 10번 불기",g:()=>[G.hnHost||0,10]},{id:"hn30",n:"모두의 파티 친구",t:3,h:"「함께한 모험 ★」 도장 30개",g:()=>[G.hnStar||0,30]});
+</script>
+<style>
+#hnCards{pointer-events:auto;align-self:flex-start;display:flex;flex-direction:column;gap:3px;margin-top:3px;max-width:200px}
+#hnCards[hidden]{display:none}
+#hnCards .hnc{padding:4px 7px 5px;border-radius:11px;background:linear-gradient(180deg,rgba(18,48,70,.94),rgba(14,26,48,.94));border:1.5px solid #6af0ff;box-shadow:0 2px 0 rgba(0,0,0,.45),0 0 10px rgba(106,240,255,.35);color:#fff;font-size:11.5px;line-height:1.3;animation:hnIn .35s ease-out}
+#hnCards .hnc.fav{border-color:#ffd24a;box-shadow:0 2px 0 rgba(0,0,0,.45),0 0 12px rgba(255,210,74,.55)}
+#hnCards .hd{text-shadow:0 1px 0 #000} #hnCards .hd b{color:var(--rc)} #hnCards .hd em{font-style:normal;color:#9dffb8;font-weight:800}
+#hnCards .bt{display:flex;gap:4px;align-items:center;margin-top:2px} #hnCards .zn{flex:1;opacity:.85;font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#hnCards .bt .go{font-size:12.5px;padding:2px 10px;min-height:0;border-radius:9px} #hnCards .bt .x{width:24px;height:22px;border-radius:7px;border:0;background:rgba(255,255,255,.14);color:#fff;font-size:11px}
+@keyframes hnIn{from{transform:translateX(-24px);opacity:0}to{transform:none;opacity:1}}
+#hnParty{pointer-events:auto;align-self:flex-start;margin-top:3px;padding:4px 7px 5px;border-radius:12px;background:rgba(14,30,52,.85);border:1.5px solid rgba(106,240,255,.8);box-shadow:0 2px 0 rgba(0,0,0,.45);color:#fff;font-size:11.5px;min-width:150px;max-width:190px}
+#hnParty[hidden]{display:none}
+#hnParty .hd{display:flex;gap:4px;align-items:center;margin-bottom:2px} #hnParty .hd button{border:0;border-radius:8px;background:rgba(106,240,255,.22);color:#e8fbff;font-size:12px;font-weight:800;padding:1px 7px}
+#hnParty .hd #hnSayB{margin-left:auto} #hnParty .bn{font-size:10.5px;color:#9dffb8;font-weight:800} #hnParty .op{font-size:10.5px;color:#ffe08a}
+#hnParty .m{display:flex;align-items:center;gap:5px;line-height:1.35} #hnParty .m .n{flex:0 0 64px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis} #hnParty .m.me .n{color:#ffe08a} #hnParty .m.dead{opacity:.5}
+#hnParty .hb{flex:1;height:6px;border-radius:4px;background:rgba(0,0,0,.5);overflow:hidden;min-width:40px} #hnParty .hb i{display:block;height:100%;background:linear-gradient(90deg,#3fd46a,#9dffb8)}
+#hnParty .m button{border:0;border-radius:7px;background:#6af0ff;color:#0e2030;font-size:10.5px;font-weight:800;padding:0 5px} #hnParty .off{opacity:.6}
+#hnParty .say{display:flex;flex-wrap:wrap;gap:3px;margin-top:3px} #hnParty .say button{border:0;border-radius:8px;background:rgba(255,255,255,.16);color:#fff;font-size:11px;padding:2px 6px}
+</style>
+<script>
+/* ================= v103-3: 🏯 구름 나라 옥황 궁궐 — 열두 띠 수호 동물이 사는 새 땅 (IDEAS G11/10-3) =================
+   Lv30부터 세계의 중심 북쪽 「🏯 구름 문(홍살문)」 → 지도 밖(x≈-380, z≈-380) 구름 바다 위 옥황 궁궐 + 띠 동물 섬 12개. 괴물 없는 안전한 땅.
+   섬마다 띠 수호 동물이 시험을 냄 — 작은 동물은 혼자(👥1), 큰 동물은 여럿(용 👥6). 4가지 놀이:
+     🧺 모으기(쥐·토끼·원숭이·닭) · 🛞 밀기(소·양·돼지: 미는 사람이 많을수록 빨라짐) · 🏃 술래잡기(호랑이·뱀·말) · 🛡 지키기(용·개: 여의주/등불을 꼬마 구름 도깨비에게서 지킴)
+   사람이 모자라면 쉬고 있는 친구 영웅(💤 그림자) 또는 ☁ 구름 동자가 대신 도와줌(사람보다 조금 느림). 근처에 진짜 사람이 있으면 그 사람 움직임도 내 시험에 그대로 셈.
+   처음 깨면 띠 도장 + 큰 상(진짜 사람 2명 이상이면 ×1.5 「함께 깬 시험」). 하루 한 번 다시 깨면 작은 상. 도장 12개 → 띠 동물 하나를 짝꿍 신수로(🐣 신수 도감에 12칸 추가).
+   🍑 하늘 복숭아 잔치: 매주 토요일 저녁 8시~8시 15분(한국 시간). 장난꾸러기 구름 원숭이 떼가 복숭아나무로 몰려옴 → 몸으로 막으면(닿으면) 쫓아냄.
+      내가 지킨 수는 보관 okf/<주>/<id> → 모두 더한 수만큼 다음 주 궁궐 상점 칸이 열림(100 · 300). 🍑 천도복숭아로 상점에서 뽑기권·재료·신전 장식.
+   💤 쉬는 동안 내 영웅이 궁궐 정원사를 도와 2시간마다 🍑 1개(최대 6개) → 복숭아나무에서 받기.
+   저장: G.ok={st{k:1},dy{k:날},n,tog,pk(고른 띠),pc(🍑),gt(정원 받은 때),fw,fs,fb}. 칭호 4개. */
+const OKX=-380, OKZ=-380, OK_R=106, OK_IR=72, OK_IS=11, OK_PLZ=44;
+const OK_ZOD=[
+ {n:"쥐",ic:"🐭",ty:"col",need:1,it:"별 치즈",c:0xffe060,pc:0xb8b8c8,pc2:0xffb0c0,f:"round"},
+ {n:"소",ic:"🐮",ty:"push",need:2,it:"구름 수레바퀴",c:0xc8a070,pc:0xf4efe6,pc2:0x5a4030,f:"horn"},
+ {n:"호랑이",ic:"🐯",ty:"tag",need:3,pc:0xffa040,pc2:0x3a2a20,f:"stripe"},
+ {n:"토끼",ic:"🐰",ty:"col",need:1,it:"달 떡",c:0xffffff,pc:0xffffff,pc2:0xffc0d0,f:"long"},
+ {n:"용",ic:"🐲",ty:"def",need:6,it:"여의주",c:0x7ad8ff,pc:0x4ac08a,pc2:0xffd24a,f:"dragon"},
+ {n:"뱀",ic:"🐍",ty:"tag",need:2,pc:0x8ad04a,pc2:0xffe08a,f:"none"},
+ {n:"말",ic:"🐴",ty:"tag",need:3,pc:0xb07a4a,pc2:0x3a2a1a,f:"none",fast:1},
+ {n:"양",ic:"🐑",ty:"push",need:2,it:"구름 털실 공",c:0xfffbea,pc:0xfffbea,pc2:0xc8a070,f:"curl"},
+ {n:"원숭이",ic:"🐵",ty:"col",need:3,it:"천도복숭아",c:0xff9ab0,pc:0xa0704a,pc2:0xf0c8a0,f:"round"},
+ {n:"닭",ic:"🐔",ty:"col",need:1,it:"황금 알",c:0xffd040,pc:0xffffff,pc2:0xff3a3a,f:"comb",bird:1},
+ {n:"개",ic:"🐶",ty:"def",need:3,it:"수호 등불",c:0xffb040,pc:0xe0b070,pc2:0x8a5a30,f:"flop"},
+ {n:"돼지",ic:"🐷",ty:"push",need:4,it:"커다란 도토리",c:0xa06a3a,pc:0xffb0c0,pc2:0xff8aa0,f:"snout"} ];
+const OK_TY={col:{n:"모으기",ic:"🧺"},push:{n:"밀기",ic:"🛞"},tag:{n:"술래잡기",ic:"🏃"},def:{n:"지키기",ic:"🛡"}};
+const OK_SHOP=[{n:"물약 3개",ic:"🧪",c:2,t:0,f:()=>{ G.pots+=3; }},{n:"쇳조각 5개",ic:"⛓",c:3,t:0,f:()=>{ G.ore=(G.ore||0)+5; }},
+ {n:"무기 뽑기권 1장",ic:"🎟",c:8,t:1,f:()=>{ try{ gz().tk++; }catch(e){} }},{n:"룬 가루 2개",ic:"✨",c:4,t:1,f:()=>{ G.rune=(G.rune||0)+2; }},
+ {n:"신전 장식 «구름 궁궐 등불»",ic:"🏮",c:15,t:2,f:()=>{ hmAdd(OK_DECO); }},{n:"신전 장식 «띠 동물 석상»",ic:"🗿",c:25,t:2,f:()=>{ hmAdd(OK_DECO+1); }}];
+const OK_TIER=[0,100,300];
+const OK={on:false,built:false,parts:[],isl:[],ani:[],gate:null,gateLbl:null,lbls:[],tr:null,bar:null,cd:0,amb:0,t:0,pubT:5,dirty:false,fe:null,feLbl:null,mon:[],tree:null,treeLbl:null,palLbl:null,exit:null,force:0};
+const OKF={};   // OKF[주][id]={i,n,s}
+function okIn(x,z){ return Math.abs(x-OKX)<150&&Math.abs(z-OKZ)<150; }
+function okData(){ const o=G.ok=G.ok||{}; o.st=o.st||{}; o.dy=o.dy||{}; if(o.pk==null) o.pk=-1; o.pc=o.pc||0; return o; }
+function okStamps(){ return Object.keys(okData().st).length; }
+function okIslPos(k){ const a=-Math.PI/2+k*Math.PI/6; return {x:OKX+Math.cos(a)*OK_IR,z:OKZ+Math.sin(a)*OK_IR,a}; }
+function okWeek(){ return Math.floor((kday()+3)/7); }
+(function(){ const _h=hAt; hAt=function(x,z){ return okIn(x,z)?0:_h(x,z); }; })();
+/* ---------- 띠 짝꿍 신수 (PETS에 12칸) ---------- */
+const OKP0=PETS.length;
+OK_ZOD.forEach(Z=>PETS.push({n:"띠 수호 "+Z.n,kind:Z.bird?"bird":"pegasus",c:Z.pc,c2:Z.pc2,egg:"구름 무늬 알",zod:1,par:[0,0]}));
+try{ OK_ZOD.forEach(Z=>NE_ICON.push(Z.ic)); }catch(e){}
+(function(){ const _mp=makePet; makePet=function(r,lv,sh){ const D=PETS[r]; if(!D||!D.zod) return _mp(r,lv,sh); const g=_mp(r,lv,sh); try{ const Z=OK_ZOD[r-OKP0]; const u=g.userData, b=u.body;
+    if(Z.f!=="dragon"){ (u.wings||[]).forEach(w=>w.visible=false); u.fly=false; }
+    const m2=mat({color:Z.pc2,roughness:.55}), m1=mat({color:Z.pc,roughness:.55}), gold=mat({color:0xffc83a,metalness:.4,roughness:.35});
+    b.children.forEach(c=>{ if(c.geometry===GEO.cone&&c.position.y>1&&Math.abs(c.position.x)>.2&&Z.f!=="none") c.visible=false; });
+    if(Z.f==="round") [-1,1].forEach(s=>{ const e=sph(.2,m1,s*.32,1.02,.45); e.scale.z=.4; b.add(e); b.add(sph(.12,m2,s*.32,1.02,.5)); });
+    if(Z.f==="long") [-1,1].forEach(s=>{ const e=sph(.13,m1,s*.16,1.25,.42); e.scale.set(1,3.2,.6); e.rotation.z=-s*.15; b.add(e); });
+    if(Z.f==="flop") [-1,1].forEach(s=>{ const e=sph(.16,m2,s*.42,.75,.5); e.scale.set(.6,1.6,.5); e.rotation.z=s*.3; b.add(e); });
+    if(Z.f==="horn"||Z.f==="dragon") [-1,1].forEach(s=>{ const h=new THREE.Mesh(GEO.cone,Z.f==="dragon"?gold:mat({color:0xf3e2b8})); h.scale.set(.1,.36,.1); h.position.set(s*.26,1.1,.5); h.rotation.z=-s*.5; b.add(h); });
+    if(Z.f==="dragon") for(let k=0;k<4;k++){ const sp=new THREE.Mesh(GEO.cone,gold); sp.scale.set(.09,.2,.09); sp.position.set(0,.55-k*.05,.1-k*.22); b.add(sp); }
+    if(Z.f==="curl") [-1,1].forEach(s=>{ const t=new THREE.Mesh(new THREE.TorusGeometry(.14,.06,6,12),m2); t.position.set(s*.4,.85,.5); t.rotation.y=Math.PI/2; b.add(t); });
+    if(Z.f==="curl") for(let k=0;k<6;k++) b.add(sph(.22,m1,Math.cos(k)*.32,.32+(k%2)*.1,Math.sin(k*1.7)*.35));
+    if(Z.f==="stripe") for(let k=0;k<3;k++){ const s=box(.9,.08,.12,m2,0,.3,.25-k*.28); s.rotation.x=.2; b.add(s); }
+    if(Z.f==="snout"){ const s=cyl(.16,.16,.12,m2,0,.5,1.02,12); s.rotation.x=Math.PI/2; b.add(s); }
+    if(Z.f==="comb") for(let k=0;k<3;k++) b.add(sph(.09,mat({color:0xff3a3a}),0,1.06+(k===1?.06:0),.5-k*.1));
+  }catch(e){ console.warn(e); } return g; }; })();
+/* ---------- 신수 도감에서 띠 신수 설명 ---------- */
+(function(){ const _sp=showPets; showPets=function(){ _sp(); try{ const t=`섞인 신수 · 🥚 신수 둥지에서 ${PETS[0].n.replace("아기 ","")}+${PETS[0].n.replace("아기 ","")}`; layers.querySelectorAll(".row span").forEach(s=>{ if(s.textContent===t) s.textContent="🏯 구름 나라 · 띠 도장 12개를 모으면 하나를 골라요"; }); }catch(e){} }; })();
+/* ---------- 신전 장식 2개 ---------- */
+const OK_DECO=DECO.length;
+DECO.push({n:"구름 궁궐 등불",ic:"🏮",t:2,sc:14,p:0,mk:r=>{ const g=new THREE.Group(); g.add(box(.9,.3,.9,mat({color:0x8a7a68}),0,.15,0)); g.add(cyl(.12,.12,2.6,mat({color:0xc8322a}),0,1.6,0,8)); const l=cyl(.55,.55,.9,glowMat(0xff7a4a,.75),0,3,0,10); l.userData.noOutline=true; l.userData.pulse=1; g.add(l); g.add(cyl(.62,.62,.12,mat({color:0x2f8a6a}),0,3.5,0,10)); g.add(cyl(.62,.62,.12,mat({color:0x2f8a6a}),0,2.5,0,10)); return g; }},
+ {n:"띠 동물 석상",ic:"🗿",t:3,sc:20,p:0,mk:r=>{ const g=new THREE.Group(); g.add(cyl(1.2,1.4,.8,M.marble,0,.4,0,16)); try{ const k=Math.max(0,(G.ok&&G.ok.pk>=0)?G.ok.pk:2); const p=makePet(OKP0+k,12); p.traverse(o=>{ if(o.isMesh) o.material=M.gold; }); p.scale.multiplyScalar(1.8); p.position.y=.8; g.add(p); }catch(e){} return g; }});
+/* ---------- 모양 ---------- */
+function okPalace(){ const g=new THREE.Group(); const st=mat({color:0xb0a898,roughness:.9}), st2=mat({color:0x948c7c,roughness:.95}), red=mat({color:0xb8281f,roughness:.6}), grn=mat({color:0x2f8a6a,roughness:.6}), roofM=mat({color:0x3d4b5c,roughness:.55}), gold=M.gold;
+  g.add(box(30,1.4,20,st,0,.7,0)); g.add(box(31,.3,21,st2,0,1.45,0)); g.add(box(10,.7,3,st,0,.35,11.3)); g.add(box(10,.35,1.6,st,0,.9,10.6));
+  for(let k=0;k<8;k++){ const x=-11.2+k*3.2; g.add(cyl(.42,.48,6,red,x,4.6,6.4,10)); g.add(cyl(.42,.48,6,red,x,4.6,-6.4,10)); }
+  [-1,1].forEach(s=>{ g.add(cyl(.42,.48,6,red,s*11.2,4.6,0,10)); });
+  g.add(box(25,4.6,11.4,mat({color:0xf2e6cc,roughness:.9}),0,3.9,0)); for(let k=0;k<6;k++) g.add(box(2.2,3,.2,mat({color:0x8a3a2a}),-8+k*3.2,3.4,5.75));
+  g.add(box(27,1,15,grn,0,8.1,0)); g.add(box(27.4,.25,15.4,gold,0,7.55,0));
+  const roof=new THREE.Mesh(new THREE.CylinderGeometry(.62,1,1,4,1),roofM); roof.rotation.y=Math.PI/4; roof.scale.set(25,4.2,17); roof.position.y=10.7; g.add(roof);
+  const eave=new THREE.Mesh(new THREE.CylinderGeometry(1,1.08,1,4,1),roofM); eave.rotation.y=Math.PI/4; eave.scale.set(25.5,.5,17.5); eave.position.y=8.85; g.add(eave);
+  g.add(box(17,.9,.9,mat({color:0x2a3440}),0,12.9,0)); [-1,1].forEach(s=>{ const o=new THREE.Mesh(GEO.cone,gold); o.scale.set(.6,1.6,.6); o.position.set(s*8.8,13.6,0); o.rotation.z=s*.35; g.add(o); });
+  [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([a,b])=>{ const t=new THREE.Mesh(GEO.cone,roofM); t.scale.set(.7,2,.7); t.position.set(a*17.5,9.6,b*12); t.rotation.z=-a*.9; t.rotation.x=b*.9; g.add(t); });
+  const pl=box(5,1.6,.3,mat({color:0x1a2a50}),0,9.2,8.1); g.add(pl); g.add(box(5.4,1.9,.2,gold,0,9.2,8.0));
+  [-1,1].forEach(s=>{ const lp=new THREE.Group(); lp.add(cyl(.5,.6,1.4,st,0,.7,0,8)); const f=sph(.5,glowMat(0xffa860,.85),0,1.9,0); f.userData.noOutline=true; lp.add(f); lp.position.set(s*7,0,14.5); g.add(lp); });
+  return g; }
+function okGateModel(){ const g=new THREE.Group(); const red=mat({color:0xc8322a,roughness:.6}), dk=mat({color:0x3d4b5c,roughness:.6}), gold=M.gold;
+  [-1,1].forEach(s=>{ g.add(cyl(.42,.5,7.4,red,s*3,3.7,0,10)); g.add(cyl(.62,.7,.6,mat({color:0x9a8a78}),s*3,.3,0,10)); });
+  g.add(box(7.6,.45,.45,red,0,6.2,0)); g.add(box(8.2,.5,.5,red,0,7.3,0)); for(let k=0;k<9;k++){ const sl=cyl(.07,.07,1.6,red,-2.6+k*.65,8.1,0,6); g.add(sl); const tip=new THREE.Mesh(GEO.cone,gold); tip.scale.set(.12,.3,.12); tip.position.set(-2.6+k*.65,9,0); g.add(tip); }
+  const tg=new THREE.Group(); tg.position.set(0,8.4,.1); const t1=sph(.5,mat({color:0xc8322a}),0,0,0); tg.add(t1); g.add(tg);
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(2.4,.2,10,40),glowMat(0xbfe8ff,.8)); ring.position.y=3.3; ring.userData.noOutline=true; g.add(ring);
+  const disc=new THREE.Mesh(new THREE.CircleGeometry(2.3,40),glowMat(0xffffff,.35)); disc.position.y=3.3; disc.userData.noOutline=true; g.add(disc);
+  for(let k=0;k<6;k++){ const c=sph(.9+k%2*.4,mat({color:0xffffff,roughness:1}),Math.cos(k)*3.6,.4,Math.sin(k*1.3)*1.2); c.scale.y=.55; g.add(c); }
+  g.userData.ring=ring; g.userData.disc=disc; return g; }
+function okTree(){ const g=new THREE.Group(); const tr=mat({color:0x7a5236,roughness:.95}), lf=mat({color:0x6ab85a,roughness:.8}), bl=mat({color:0xffb8d0,roughness:.7}), pm=mat({color:0xffa0a8,roughness:.45,emissive:0x401010});
+  g.add(cyl(.7,1,4.5,tr,0,2.25,0,9)); [[0,5.6,0,2.8],[2,5,1,2],[-2,5.2,-.6,2.1],[.6,6.6,-1.4,1.8],[-1,6.4,1.4,1.9]].forEach(([x,y,z,r],i)=>g.add(sph(r,i%2?bl:lf,x,y,z)));
+  const pe=new THREE.Group(); for(let k=0;k<14;k++){ const a=k*2.39, rr=1.6+(k%3)*.7; const p=sph(.32,pm,Math.cos(a)*rr,4.4+(k%4)*.7,Math.sin(a)*rr); pe.add(p); } g.add(pe); g.userData.pe=pe;
+  g.add(cyl(3.2,3.4,.5,mat({color:0x9a8a78}),0,.25,0,18)); return g; }
+function okBuild(){ if(OK.built) return; OK.built=true; const add=o=>{ scene.add(o); OK.parts.push(o); return o; };
+  const cloud=mat({color:0xa8b8d4,roughness:1}), puff=mat({color:0xdce6f4,roughness:1}), plz=mat({color:0x957e58,roughness:.95}), grass=mat({color:0x3f9232,roughness:1}), rim=mat({color:0x86704f,roughness:.95}), wood=mat({color:0x74492a,roughness:.9});
+  const G0=new THREE.Group();
+  const sea=new THREE.Mesh(new THREE.CircleGeometry(OK_R+14,72),cloud); sea.rotation.x=-Math.PI/2; sea.position.set(OKX,-.05,OKZ); G0.add(sea);
+  for(let k=0;k<46;k++){ const a=k/46*6.283, rr=OK_R+6+(k*13)%10; const c=sph(4+(k%4)*1.6,puff,OKX+Math.cos(a)*rr,.6+(k%3),OKZ+Math.sin(a)*rr); c.scale.y=.5; G0.add(c); }
+  for(let k=0;k<30;k++){ const a=k*2.4, rr=20+(k*37)%80; const c=sph(1.5+(k%3)*.8,puff,OKX+Math.cos(a)*rr,-.2,OKZ+Math.sin(a)*rr); c.scale.y=.3; G0.add(c); }
+  const p0=cyl(OK_PLZ,OK_PLZ+.6,.5,plz,OKX,-.2,OKZ,64); G0.add(p0); const gr=new THREE.Mesh(new THREE.RingGeometry(OK_PLZ-2.2,OK_PLZ-1.4,64),M.gold); gr.rotation.x=-Math.PI/2; gr.position.set(OKX,.07,OKZ); G0.add(gr);
+  for(let k=0;k<12;k++){ const P1=okIslPos(k); const isl=cyl(OK_IS,OK_IS+.5,.6,grass,P1.x,-.25,P1.z,32); G0.add(isl); const ri=new THREE.Mesh(new THREE.RingGeometry(OK_IS-.3,OK_IS+.5,32),rim); ri.rotation.x=-Math.PI/2; ri.position.set(P1.x,.07,P1.z); G0.add(ri);
+    const len=OK_IR-OK_IS-OK_PLZ+2, mx=OKX+Math.cos(P1.a)*(OK_PLZ+len/2-1), mz=OKZ+Math.sin(P1.a)*(OK_PLZ+len/2-1); const br=box(len,.3,3.2,wood,mx,.05,mz); br.rotation.y=-P1.a; G0.add(br);
+    const px=P1.x+Math.cos(P1.a)*6.5, pz=P1.z+Math.sin(P1.a)*6.5; G0.add(cyl(1.8,2.1,1,M.marble,px,.5,pz,16)); G0.add(cyl(1.85,1.85,.15,M.gold,px,1.05,pz,16));
+    OK.isl.push({k,x:P1.x,z:P1.z,a:P1.a,px,pz}); }
+  add(shadowify(G0));
+  const pal=okPalace(); pal.position.set(OKX,0,OKZ-6); add(shadowify(pal));
+  const tr=okTree(); tr.position.set(OKX+26,0,OKZ+12); add(shadowify(tr)); OK.tree={x:OKX+26,z:OKZ+12,g:tr};
+  const ex=okGateModel(); ex.position.set(OKX,0,OKZ+OK_R-6); add(shadowify(ex)); OK.exit={x:OKX,z:OKZ+OK_R-6.6,g:ex};
+  OK.isl.forEach(s=>{ const pet=makePet(OKP0+s.k,12); pet.scale.multiplyScalar(2.4); pet.position.set(s.px,1.1,s.pz); pet.rotation.y=Math.atan2(s.x-s.px,s.z-s.pz); add(pet); OK.ani.push({k:s.k,m:pet,y0:1.1,t:Math.random()*6}); });
+  OK.parts.forEach(o=>o.traverse&&o.traverse(m=>{ if(m.material&&m.material.blending===THREE.AdditiveBlending){ m.castShadow=false; m.userData.noOutline=true; } })); }
+function okShow(v){ OK.parts.forEach(o=>o.visible=v); }
+/* ---------- 들어가기 · 나가기 ---------- */
+const OK_GATE={x:0,z:-46};
+function okEnter(){ if(OK.on||P.dead) return; if(G.lv<30){ toast("🏯 구름 나라는 Lv.30부터 갈 수 있어요",`지금 Lv.${G.lv}`,2); return; } if(P.trial){ toast("승급 시험 중이에요"); return; }
+  if(mobs.some(m=>m.state==="chase"&&Math.hypot(m.x-P.x,m.z-P.z)<16)){ toast("전투 중에는 갈 수 없어요"); return; }
+  try{ if(TW.on) twExit(true,true); }catch(e){} try{ if(LV.on) lvExit(true,true); }catch(e){} try{ if(AR.on) arExit(true,true); }catch(e){}
+  okBuild(); OK.on=true; okShow(true); OK.cd=2.5; P.x=OKX; P.z=OKZ+32; P.y=0; P.vy=0; P.rot=Math.PI; P.invul=Math.max(P.invul||0,1.5); P.guide=null; $("guide").hidden=true; closeLayer();
+  const o=okData(); const first=!o.vis; o.vis=(o.vis||0)+1; saveGame();
+  try{ lvBanner("옥황상제의 하늘 궁궐","🏯 구름 나라",first?"열두 섬의 띠 수호 동물이 시험을 내요 — 큰 동물은 여럿이 함께!":`띠 도장 ${okStamps()}/12`,"#bfe8ff"); }catch(e){}
+  fxRing(P.x,P.z,0xbfe8ff,8,.8); fxSpark(P.x,2,P.z,0xffffff,30); jingle([523,659,784,1046,1318]); }
+function okExit(silent,noTp){ if(!OK.on) return; if(OK.tr) okEndTrial(false,true); OK.on=false; okShow(false); OK.lbls.forEach(l=>l.style.display="none"); [OK.treeLbl,OK.palLbl].forEach(l=>l&&(l.style.display="none")); okMonClear();
+  if(!noTp){ P.x=OK_GATE.x; P.z=OK_GATE.z+6; P.y=0; P.vy=0; P.rot=0; OK.cd=4; } if(!silent) toast("세계의 중심으로 돌아왔어요",null,1.6); }
+setTimeout(()=>{ try{ const g=okGateModel(); g.position.set(OK_GATE.x,hAt(OK_GATE.x,OK_GATE.z),OK_GATE.z); scene.add(shadowify(g)); g.traverse(o=>{ if(o.material&&o.material.blending===THREE.AdditiveBlending){ o.castShadow=false; o.userData.noOutline=true; } }); OK.gate=g; }catch(e){ console.warn(e); } },30);
+function okGateNear(){ if(OK.on||!evOver()) return false; if(typeof glAway==="function"&&glAway()) return false; return Math.hypot(P.x-OK_GATE.x,P.z-OK_GATE.z)<5.5; }
+/* ---------- 시험 ---------- */
+function okRnd(seed){ let s=seed>>>0||1; return ()=>{ s=(s*1664525+1013904223)>>>0; return s/4294967296; }; }
+function okActors(){ const L=[{x:P.x,z:P.z,me:1}]; for(const id in PEERS){ const o=PEERS[id]; if(!o.dead&&okIn(o.x,o.z)) L.push({x:o.x,z:o.z,peer:id}); } return L; }
+function okRealOn(s){ let n=1; for(const id in PEERS){ const o=PEERS[id]; if(!o.dead&&Math.hypot(o.x-s.x,o.z-s.z)<OK_IS+6) n++; } return n; }
+function okHelperName(i){ const L=[]; try{ for(const id in ROSTER){ const p=ROSTER[id]; if(p&&p.n&&isAway(p)) L.push(p); } }catch(e){} const p=L[i%Math.max(1,L.length)]; return p&&L.length>i?{n:p.n+"의 그림자",r:p.r|0,k:p.k|0,lk:p.lk}:{n:"☁ 구름 동자",r:-1}; }
+function okHelperMesh(h){ let m=null; try{ if(h.r>=0){ m=makeAvatar(h.r,h.k||0,false,typeof ghostLook==="function"?ghostLook(h.lk):{}); m.traverse(o=>{ if(o.material&&!o.material._okc){ o.material=o.material.clone(); o.material._okc=1; o.material.transparent=true; o.material.opacity=.6; } }); } }catch(e){ m=null; }
+  if(!m){ m=new THREE.Group(); const w=mat({color:0xffffff,roughness:.8}), f=mat({color:0xffe0c8,roughness:.7}); m.add(sph(.7,w,0,.8,0)); m.add(sph(.45,f,0,1.75,0)); m.add(sph(.55,w,0,2.15,-.05)); [-1,1].forEach(s=>m.add(sph(.07,mat({color:0x222222}),s*.16,1.8,.4))); for(let k=0;k<5;k++){ const c=sph(.35,w,Math.cos(k*1.25)*.7,.25,Math.sin(k*1.25)*.7); c.scale.y=.6; m.add(c); } }
+  scene.add(m); return m; }
+function okIslIn(s,x,z,pad){ const dx=x-s.x, dz=z-s.z, d=Math.hypot(dx,dz), lim=OK_IS-(pad||1); if(d>lim){ return {x:s.x+dx/d*lim,z:s.z+dz/d*lim}; } return {x,z}; }
+function okStart(k){ if(OK.tr) return; const Z=OK_ZOD[k], s=OK.isl[k]; const real=okRealOn(s); const hn=Math.max(0,Z.need-real); const R=okRnd(Date.now()); const tr={k,ty:Z.ty,t0:performance.now(),real,need:Z.need,score:0,goal:0,hl:[],objs:[],s};
+  for(let i=0;i<hn;i++){ const H=okHelperName(i); const a=R()*6.283; const h={n:H.n,x:s.x+Math.cos(a)*6,z:s.z+Math.sin(a)*6,mv:0,f:0,i}; h.mesh=okHelperMesh(H); h.lbl=makeLabel("ally"); tr.hl.push(h); }
+  const add=o=>{ scene.add(o); tr.objs.push(o); return o; };
+  if(Z.ty==="col"){ tr.goal=6+Z.need*4; tr.T=40+Z.need*6; tr.items=[]; for(let i=0;i<tr.goal;i++){ const a=R()*6.283, d=2+R()*(OK_IS-3); const x=s.x+Math.cos(a)*d, z=s.z+Math.sin(a)*d; const m=new THREE.Group(); const core=Z.it==="달 떡"?cyl(.35,.35,.25,mat({color:0xffffff,emissive:0x888888,emissiveIntensity:.3}),0,0,0,14):sph(.32,mat({color:Z.c,emissive:Z.c,emissiveIntensity:.35,roughness:.4}),0,0,0); m.add(core); const gl=sph(.55,glowMat(Z.c,.35),0,0,0); gl.userData.noOutline=true; m.add(gl); m.position.set(x,.7,z); add(m); tr.items.push({x,z,m,ph:R()*6}); } }
+  if(Z.ty==="push"){ tr.T=65; const ga=s.a+Math.PI; const gx=s.x+Math.cos(ga)*(OK_IS-2.4), gz=s.z+Math.sin(ga)*(OK_IS-2.4); tr.goalP={x:gx,z:gz}; const g=new THREE.Mesh(new THREE.RingGeometry(1.6,2.3,32),glowMat(0x9dffb8,.7)); g.rotation.x=-Math.PI/2; g.position.set(gx,.1,gz); g.userData.noOutline=true; add(g);
+    const bx=s.x+Math.cos(s.a)*1.5, bz=s.z+Math.sin(s.a)*1.5; const r=Z.need>=4?1.5:1.15; const bm=new THREE.Group(); const ball=sph(r,mat({color:Z.c,roughness:.7}),0,0,0); bm.add(ball); if(Z.f==="horn"){ const sp=new THREE.Mesh(new THREE.TorusGeometry(r*.95,.12,6,20),mat({color:0x6a4a2a})); bm.add(sp); } if(Z.f==="snout"){ const cap=sph(r*.75,mat({color:0x6a4a2a}),0,r*.55,0); cap.scale.y=.6; bm.add(cap); } bm.position.set(bx,r,bz); add(bm); tr.ball={x:bx,z:bz,r,m:bm,roll:0}; tr.goal=1; tr.d0=Math.hypot(bx-gx,bz-gz); }
+  if(Z.ty==="tag"){ tr.goal=2+Z.need; tr.T=50+Z.need*5; const m=makePet(OKP0+k,12); m.scale.multiplyScalar(1.6); m.position.set(s.x,0,s.z); add(m); tr.ani={x:s.x,z:s.z,m,imm:0,sp:5.3+Z.need*.2+(Z.fast?.8:0),h:0,wT:0,wa:0}; const st=OK.ani[k]; if(st) st.m.visible=false; }
+  if(Z.ty==="def"){ tr.T=45; const N=Math.max(3,Z.need); tr.orbs=[]; for(let i=0;i<N;i++){ const a=i/N*6.283; const x=s.x+Math.cos(a)*5, z=s.z+Math.sin(a)*5; const m=new THREE.Group(); m.add(cyl(.5,.6,.8,M.marble,0,.4,0,10)); const o=sph(.5,mat({color:Z.c,emissive:Z.c,emissiveIntensity:.6,roughness:.3}),0,1.4,0); m.add(o); const gl=sph(.8,glowMat(Z.c,.35),0,1.4,0); gl.userData.noOutline=true; m.add(gl); m.position.set(x,0,z); add(m); tr.orbs.push({x,z,hp:3,m,o}); }
+    tr.imps=[]; tr.spT=1.5; tr.spI=2.6/Math.sqrt(N); tr.goal=Math.ceil(N/2); }
+  OK.tr=tr; G.okTry=(G.okTry||0)+1;
+  try{ lvBanner(`${Z.ic} ${Z.n}의 시험 — ${OK_TY[Z.ty].ic} ${OK_TY[Z.ty].n}`,okGoalTxt(tr),`${real>1?`👥 진짜 친구 ${real}명`:"👤 나 혼자"}${hn?` + ${tr.hl[0].n.indexOf("그림자")>0?"💤":"☁"} 도우미 ${hn}명`:""} · 권장 👥${Z.need}명`,"#bfe8ff"); }catch(e){}
+  jingle([523,659,784]); fxRing(s.x,s.z,0xbfe8ff,OK_IS,.8); }
+function okGoalTxt(tr){ const Z=OK_ZOD[tr.k]; return tr.ty==="col"?`${Z.it} ${tr.goal}개를 모두 모아요`:tr.ty==="push"?`${Z.it}을(를) 초록 고리까지 밀어요 — 여럿이 밀면 빨라요`:tr.ty==="tag"?`${Z.n}에게 ${tr.goal}번 닿아요 — 둘러싸서 잡아요`:`${Z.it} ${tr.orbs.length}개 중 ${tr.goal}개 이상 지켜요 — 꼬마 도깨비에게 닿으면 펑!`; }
+function okMove(h,tx,tz,sp,dt){ const dx=tx-h.x, dz=tz-h.z, d=Math.hypot(dx,dz); if(d>.1){ const v=Math.min(d,sp*dt); h.x+=dx/d*v; h.z+=dz/d*v; h.f=Math.atan2(dx,dz); h.mv=1; } else h.mv=0; }
+function okTickTrial(dt){ const tr=OK.tr; if(!tr) return; const Z=OK_ZOD[tr.k], s=tr.s; tr.el=(tr.el||0)+Math.min(dt,.1); const el=tr.el, left=tr.T-el; const tn=performance.now()/1000;
+  if(Math.hypot(P.x-s.x,P.z-s.z)>OK_IS+14){ okEndTrial(false,false,"섬을 떠나서 시험이 멈췄어요"); return; }
+  const A=okActors(); tr.hl.forEach(h=>A.push(h));
+  if(tr.ty==="col"){ tr.items=tr.items.filter(it=>{ it.ph+=dt*3; it.m.position.y=.7+Math.sin(it.ph)*.15; it.m.rotation.y+=dt*2; for(const a of A){ if(Math.hypot(a.x-it.x,a.z-it.z)<1.7){ scene.remove(it.m); tr.score++; fxSpark(it.x,1,it.z,Z.c,10); tone(880+tr.score*20,.06,"triangle"); if(a.me) floatDmg(it.x,2,it.z,`${Z.ic} ${tr.score}/${tr.goal}`,"gain"); return false; } } return true; });
+    tr.hl.forEach((h,i)=>{ let best=null,bd=1e9; tr.items.forEach((it,j)=>{ const d=Math.hypot(it.x-h.x,it.z-h.z)+(j%tr.hl.length===i?0:3); if(d<bd){ bd=d; best=it; } }); if(best) okMove(h,best.x,best.z,5.2,dt); else okMove(h,s.x,s.z,4,dt); });
+    if(tr.score>=tr.goal){ okEndTrial(true); return; } }
+  if(tr.ty==="push"){ const b=tr.ball, g=tr.goalP; let n=0, vx=0, vz=0; A.forEach(a=>{ const dx=b.x-a.x, dz=b.z-a.z, d=Math.hypot(dx,dz); if(d<b.r+1.6&&d>.05){ n++; vx+=dx/d; vz+=dz/d; } }); const vl=Math.hypot(vx,vz);
+    if(n>0&&vl>.01){ const sp=Math.min(3.8,3.4*n/tr.need); const nx=b.x+vx/vl*sp*dt, nz=b.z+vz/vl*sp*dt; const c=okIslIn(s,nx,nz,b.r+.3); b.roll+=sp*dt/b.r; b.x=c.x; b.z=c.z; tr.push=n; } else tr.push=0;
+    b.m.position.set(b.x,b.r,b.z); b.m.rotation.x=b.roll;
+    A.forEach(a=>{ if(!a.me&&!a.peer) return; const dx=a.x-b.x, dz=a.z-b.z, d=Math.hypot(dx,dz); if(a.me&&d<b.r+.6&&d>.01){ P.x=b.x+dx/d*(b.r+.6); P.z=b.z+dz/d*(b.r+.6); } });
+    const gx=g.x-b.x, gz=g.z-b.z, gd=Math.hypot(gx,gz)||1; tr.hl.forEach((h,i)=>{ const lat=(i-(tr.hl.length-1)/2)*1.3; const tx=b.x-gx/gd*(b.r+.9)-gz/gd*lat, tz=b.z-gz/gd*(b.r+.9)+gx/gd*lat; okMove(h,tx,tz,4.6,dt); });
+    tr.score=Math.max(0,Math.round((1-gd/tr.d0)*100)); if(gd<1.8){ okEndTrial(true); return; } }
+  if(tr.ty==="tag"){ const a=tr.ani; a.imm=Math.max(0,a.imm-dt); let fx=0,fz=0,near=0; A.forEach(q=>{ const dx=a.x-q.x, dz=a.z-q.z, d=Math.hypot(dx,dz); if(d<8&&d>.01){ const w=(8-d)/8; fx+=dx/d*w; fz+=dz/d*w; near++; } });
+    const toC={x:s.x-a.x,z:s.z-a.z}, dc=Math.hypot(toC.x,toC.z); if(dc>OK_IS-4){ fx+=toC.x/dc*(dc-(OK_IS-4))*.6; fz+=toC.z/dc*(dc-(OK_IS-4))*.6; }
+    let vx=0,vz=0; const fl=Math.hypot(fx,fz); if(fl>.02){ const k=a.imm>0?1.25:1; vx=fx/fl*a.sp*k; vz=fz/fl*a.sp*k; a.wT-=dt; if(a.wT<=0){ a.wT=rnd(.6,1.2); a.wa=rnd(-.8,.8); } const c=Math.cos(a.wa), sn=Math.sin(a.wa); const ox=vx*c-vz*sn, oz=vx*sn+vz*c; vx=ox; vz=oz; } else { a.wT-=dt; if(a.wT<=0){ a.wT=rnd(1,2); a.wa=Math.random()*6.283; } vx=Math.cos(a.wa)*1.5; vz=Math.sin(a.wa)*1.5; }
+    const c=okIslIn(s,a.x+vx*dt,a.z+vz*dt,1.2); const mv=Math.hypot(c.x-a.x,c.z-a.z)/Math.max(dt,.001); if(mv>.2) a.h=Math.atan2(c.x-a.x,c.z-a.z); a.x=c.x; a.z=c.z;
+    a.m.position.set(a.x,Math.abs(Math.sin(tn*12))*.25*Math.min(1,mv/4),a.z); a.m.rotation.y=a.h; if(a.m.userData.body) a.m.userData.body.rotation.z=Math.sin(tn*14)*.08*Math.min(1,mv/4);
+    if(a.imm<=0){ for(const q of A){ if(Math.hypot(q.x-a.x,q.z-a.z)<2.4){ tr.score++; a.imm=1.2; fxSpark(a.x,1.5,a.z,0xffe08a,18); fxRing(a.x,a.z,0xffe08a,3,.4); tone(988,.08,"triangle"); tone(1318,.1,"triangle",.07); floatDmg(a.x,3,a.z,`${Z.ic} 잡았다! ${tr.score}/${tr.goal}`,"gain"); buzz(15); break; } } }
+    tr.hl.forEach((h,i)=>{ const n=tr.hl.length+1; const ang=(i+1)/n*6.283+tn*.3; const tx=a.x+Math.cos(ang)*1.6, tz=a.z+Math.sin(ang)*1.6; okMove(h,tx,tz,6.4,dt); });
+    if(tr.score>=tr.goal){ okEndTrial(true); return; } }
+  if(tr.ty==="def"){ tr.spT-=dt; const alive=tr.orbs.filter(o=>o.hp>0); if(tr.spT<=0&&left>2){ tr.spT=tr.spI; const a=Math.random()*6.283; const x=s.x+Math.cos(a)*(OK_IS-.5), z=s.z+Math.sin(a)*(OK_IS-.5); const m=new THREE.Group(); const body=sph(.45,mat({color:0x9a8ab8,roughness:.7,emissive:0x2a1a4a,emissiveIntensity:.4}),0,.6,0); body.scale.y=.85; m.add(body); [-1,1].forEach(q=>{ m.add(sph(.1,mat({color:0xffffff,emissive:0xffffff,emissiveIntensity:.6}),q*.15,.7,.38)); const h=new THREE.Mesh(GEO.cone,mat({color:0xffd24a})); h.scale.set(.08,.2,.08); h.position.set(q*.2,1.05,0); m.add(h); }); const c=sph(.5,mat({color:0xffffff,roughness:1}),0,.15,0); c.scale.y=.4; m.add(c); m.position.set(x,0,z); scene.add(m); tr.objs.push(m); tr.imps.push({x,z,m,ph:Math.random()*6}); }
+    tr.imps=tr.imps.filter(im=>{ let tg=null,bd=1e9; alive.forEach(o=>{ const d=Math.hypot(o.x-im.x,o.z-im.z); if(d<bd){ bd=d; tg=o; } }); if(!tg){ scene.remove(im.m); return false; }
+      for(const q of A){ if(Math.hypot(q.x-im.x,q.z-im.z)<1.6){ scene.remove(im.m); tr.score++; fxSpark(im.x,.8,im.z,0xd8c8ff,10); tone(700+Math.random()*300,.05,"triangle"); if(q.me) floatDmg(im.x,2,im.z,"펑!","gain"); return false; } }
+      okMove(im,tg.x,tg.z,2.5,dt); im.ph+=dt*8; im.m.position.set(im.x,Math.abs(Math.sin(im.ph))*.3,im.z); im.m.rotation.y=im.f||0;
+      if(Math.hypot(tg.x-im.x,tg.z-im.z)<1){ tg.hp--; scene.remove(im.m); fxSpark(tg.x,1.4,tg.z,0xff6a6a,12); tone(220,.12,"sawtooth"); if(tg.hp<=0){ tg.o.material.emissiveIntensity=0; tg.o.material.color.setHex(0x555566); tg.m.children.forEach(c=>{ if(c.material&&c.material.blending===THREE.AdditiveBlending) c.visible=false; }); floatDmg(tg.x,2.6,tg.z,`${Z.it} 꺼짐!`,""); } return false; } return true; });
+    tr.orbs.forEach(o=>{ if(o.hp>0){ o.o.position.y=1.4+Math.sin(tn*2+o.x)*.12; o.o.scale.setScalar(.6+o.hp*.13); } });
+    tr.hl.forEach((h,i)=>{ const o=tr.orbs[i%tr.orbs.length]; let tg=null,bd=6.5; tr.imps.forEach(im=>{ const d=Math.hypot(im.x-o.x,im.z-o.z); if(d<bd){ bd=d; tg=im; } }); if(tg) okMove(h,tg.x,tg.z,5,dt); else okMove(h,o.x+1.2,o.z+1.2,4,dt); });
+    if(alive.length<tr.goal){ okEndTrial(false,false,`${Z.it}이(가) 너무 많이 꺼졌어요`); return; } if(left<=0){ okEndTrial(true); return; } }
+  if(left<=0&&OK.tr){ okEndTrial(false,false,"시간이 다 됐어요"); return; }
+  tr.hl.forEach(h=>{ h.mesh.position.set(h.x,Math.abs(Math.sin(tn*9+h.i))*(h.mv?.15:0),h.z); h.mesh.rotation.y=h.f||0; const u=h.mesh.userData; if(u&&u.legL){ const sw=h.mv?Math.sin(tn*10+h.i)*.7:0; u.legL.rotation.x=sw; u.legR.rotation.x=-sw; } if(!layerOpen) placeLabel(h.lbl,h.x,3.2,h.z,h.n); else h.lbl.style.display="none"; });
+  okBar(tr,left); }
+function okBar(tr,left){ if(!OK.bar){ const b=document.createElement("div"); b.id="okBar"; b.hidden=true; document.body.appendChild(b); OK.bar=b; } const b=OK.bar; if(!tr||layerOpen){ if(!b.hidden) b.hidden=true; return; } b.hidden=false;
+  const Z=OK_ZOD[tr.k]; const sec=Math.max(0,Math.ceil(left)); const prog=tr.ty==="col"?`${Z.it} ${tr.score}/${tr.goal}`:tr.ty==="push"?`${Z.it} ${tr.score}% · 미는 사람 ${tr.push||0}/${tr.need}`:tr.ty==="tag"?`잡기 ${tr.score}/${tr.goal}`:`${Z.it} ${tr.orbs.filter(o=>o.hp>0).length}/${tr.orbs.length} (${tr.goal}개 지키기) · 펑 ${tr.score}`;
+  const h=`<b>${Z.ic} ${Z.n}의 시험 · ${prog}</b><span>⏱ ${Math.floor(sec/60)}:${String(sec%60).padStart(2,"0")} · 👥 ${tr.real}명${tr.hl.length?` + 도우미 ${tr.hl.length}`:""}</span>`; if(b._h!==h){ b._h=h; b.innerHTML=h; } }
+function okEndTrial(win,silent,why){ const tr=OK.tr; if(!tr) return; OK.tr=null; tr.objs.forEach(o=>scene.remove(o)); tr.hl.forEach(h=>{ scene.remove(h.mesh); h.lbl.remove(); }); const st=OK.ani[tr.k]; if(st) st.m.visible=true; okBar(null);
+  if(silent) return; const Z=OK_ZOD[tr.k]; if(!win){ toast(`${Z.ic} 아쉬워요!`,(why||"")+" · 동물 앞에서 다시 도전해요",2.4); tone(330,.2,"triangle"); return; }
+  const o=okData(), d=kday(), first=!o.st[tr.k], daily=o.dy[tr.k]!==d; const tog=tr.real>=2; const mul=tog?1.5:1; let gold=0,xp=0,rune=0,pc=0;
+  if(first){ gold=300+G.lv*25; xp=Math.round(xpNeed(G.lv)*.15); rune=2; pc=5; o.st[tr.k]=Date.now(); }
+  else if(daily){ gold=80+G.lv*8; xp=Math.round(xpNeed(G.lv)*.04); pc=2; }
+  if(first||daily){ o.dy[tr.k]=d; gold=Math.round(gold*mul); xp=Math.round(xp*mul); G.gold+=gold; gainXp(xp); G.rune=(G.rune||0)+rune; o.pc+=pc; }
+  o.n=(o.n||0)+1; if(tog) o.tog=(o.tog||0)+1; saveGame(); try{ COINFLY.burst(P.x,1.6,P.z,first?10:5); }catch(e){} jingle(first?[523,659,784,1046,1318,1568]:[523,659,784,1046]); buzz([20,30,40]); fxRing(tr.s.x,tr.s.z,0xffe08a,OK_IS,1);
+  const sub=first||daily?`금화 +${fmt(gold)} · 경험치 +${fmt(xp)}${rune?` · ✨ +${rune}`:""} · 🍑 +${pc}${tog?" · 👥 함께 깬 시험 ×1.5":""}`:"오늘 상은 이미 받았어요 · 연습 성공!";
+  try{ lvBanner(first?`${Z.ic} 띠 도장을 받았어요!`:`${Z.ic} ${Z.n}의 시험 성공!`,first?`띠 도장 ${okStamps()}/12`:`${OK_TY[tr.ty].ic} ${OK_TY[tr.ty].n}`,sub,"#bfe8ff"); }catch(e){ toast(`${Z.ic} 성공!`,sub,3); }
+  if(first&&okStamps()>=12&&o.pk<0) setTimeout(()=>{ if(OK.on) okPetCard(); },3200); }
+function okPetCard(){ const o=okData(); if(o.pk>=0||okStamps()<12) return;
+  card(`<h2>🐲 열두 띠의 친구!</h2><p>띠 도장 12개를 다 모았어요! 마음에 드는 <b>띠 수호 동물</b> 하나가 짝꿍 신수로 와요. (한 번만 고를 수 있어요)</p>
+   <div class="exgrid">${OK_ZOD.map((Z,k)=>`<button class="buy" data-zp="${k}">${Z.ic} ${Z.n}</button>`).join("")}</div>`);
+  layers.querySelectorAll("[data-zp]").forEach(b=>b.onclick=()=>{ const k=+b.dataset.zp; const r=OKP0+k; o.pk=k; petData(); if(!G.pets[r]) G.pets[r]={lv:1,xp:0,t:Date.now()}; G.pet=r; saveGame(); try{ rebuildMyPet(); net.hello(); net.pushProfile(1); }catch(e){} closeLayer();
+    jingle([523,659,784,1046,1318,1568]); try{ lvBanner("🐣 새 짝꿍 신수!",PETS[r].n,"이제 나를 따라다녀요 · 🐣 신수 도감에서 바꿀 수 있어요","#ffe08a"); }catch(e){} }); }
+/* ---------- 🍑 하늘 복숭아 잔치 ---------- */
+function okFeast(){ const now=Date.now(); if(OK.force&&now<OK.force+15*60000) return {t:OK.force,w:okWeek()}; const k=kday(); for(let d=k-1;d<=k+7;d++){ if((d+4)%7!==6) continue; const t=d*86400000-9*3600000+20*3600000; if(now<t+15*60000) return {t,w:Math.floor((d+3)/7)}; } return null; }
+function okFeastLive(){ const f=okFeast(); return f&&Date.now()>=f.t&&Date.now()<f.t+15*60000?f:null; }
+function okFeastTotal(w){ const L=OKF[w]||{}; let s=0; for(const id in L) s+=L[id].s||0; const o=okData(); if(o.fw===w&&!(L[G.id])) s+=o.fs||0; return s; }
+function okTier(){ const w=okWeek(); const prev=okFeastTotal(w-1), cur=okFeastTotal(w); const v=Math.max(prev,okFeastLive()?cur:0); let t=0; OK_TIER.forEach((m,i)=>{ if(v>=m) t=i; }); return {t,v,prev,cur}; }
+NETX.push({sub:"okf/+/+",pre:"okf/",f:(d,topic)=>{ const a=String(topic).split("/"); const w=+a[1], id=a[2]; if(!d||!id||!(w>0)) return; (OKF[w]=OKF[w]||{})[id]={i:id,n:String(d.n||"?").slice(0,8),s:Math.max(0,Math.min(999,d.s|0))}; }});
+function okFeastPub(){ const o=okData(); if(!o.fw) return; try{ net.pushRet("okf/"+o.fw+"/"+G.id,{n:G.name,s:o.fs||0,t:Date.now()}); OK.dirty=false; }catch(e){} }
+function okMonClear(){ OK.mon.forEach(m=>scene.remove(m.m)); OK.mon=[]; }
+function okMonMesh(){ const g=new THREE.Group(); const fur=mat({color:0xd8d0e8,roughness:.9}), face=mat({color:0xffe0c8,roughness:.8}); g.add(sph(.55,fur,0,.9,0)); g.add(sph(.42,fur,0,1.6,.1)); g.add(sph(.3,face,0,1.55,.32)); [-1,1].forEach(s=>{ g.add(sph(.16,fur,s*.42,1.7,.05)); g.add(sph(.06,mat({color:0x222222}),s*.1,1.62,.6)); }); const t=new THREE.Mesh(new THREE.TorusGeometry(.35,.07,6,12,Math.PI*1.3),fur); t.position.set(0,1,-.5); g.add(t); const c=sph(.6,mat({color:0xffffff,roughness:1}),0,.2,0); c.scale.y=.4; g.add(c); return g; }
+function okFeastTick(dt){ const f=okFeastLive(), o=okData(); const tr=OK.tree;
+  if(f&&OK.feT!==f.t){ OK.feT=f.t; if(o.fw!==f.w){ o.fw=f.w; o.fs=0; } OK.fePe=60; if(!layerOpen&&started) toast("🍑 구름 나라 하늘 복숭아 잔치!","장난꾸러기 구름 원숭이가 복숭아를 훔치러 와요 · 15분 동안 몸으로 막아요!",3.4); jingle([659,784,988,1318]); }
+  if(!f){ if(OK.mon.length) okMonClear(); return; } if(!OK.on||!tr) return;
+  OK.feSp=(OK.feSp||0)-dt; const ppl=okActors().length; if(OK.feSp<=0&&OK.mon.length<6+ppl*3){ OK.feSp=Math.max(.4,1.6-ppl*.2); const a=Math.random()*6.283; const x=tr.x+Math.cos(a)*30, z=tr.z+Math.sin(a)*30; const m=okMonMesh(); m.position.set(x,0,z); scene.add(m); OK.mon.push({x,z,m,st:0,ph:Math.random()*6,sp:rnd(4.2,5.6)}); }
+  const A=okActors(); const tn=performance.now()/1000;
+  OK.mon=OK.mon.filter(mo=>{ for(const q of A){ if(Math.hypot(q.x-mo.x,q.z-mo.z)<1.8){ scene.remove(mo.m); fxSpark(mo.x,1,mo.z,0xffb8d0,12); if(q.me){ o.fs=(o.fs||0)+1; o.pc+=1; OK.dirty=true; floatDmg(mo.x,2.4,mo.z,`🍑 지켰다! ${o.fs}`,"gain"); tone(880+Math.random()*200,.06,"triangle"); } return false; } }
+    if(mo.st===0){ okMove(mo,tr.x,tr.z,mo.sp,dt); if(Math.hypot(mo.x-tr.x,mo.z-tr.z)<3.6){ mo.st=1; OK.fePe=Math.max(0,(OK.fePe||60)-1); mo.away=Math.random()*6.283; floatDmg(mo.x,3,mo.z,"🍑 쏙!",""); } }
+    else { okMove(mo,tr.x+Math.cos(mo.away)*40,tr.z+Math.sin(mo.away)*40,mo.sp*1.2,dt); if(Math.hypot(mo.x-tr.x,mo.z-tr.z)>36){ scene.remove(mo.m); return false; } }
+    mo.ph+=dt*10; mo.m.position.set(mo.x,Math.abs(Math.sin(mo.ph))*.5,mo.z); mo.m.rotation.y=mo.f||0; return true; });
+  if(tr.g&&tr.g.userData.pe){ const n=Math.ceil((OK.fePe==null?60:OK.fePe)/60*14); tr.g.userData.pe.children.forEach((p,i)=>p.visible=i<n); }
+  OK.pubT-=dt; if(OK.dirty&&OK.pubT<=0){ OK.pubT=8; okFeastPub(); } }
+/* ---------- 매 프레임 ---------- */
+function okTick(dt){ if(!started||G.realm<0) return; const tn=performance.now(); OK.cd=Math.max(0,OK.cd-dt);
+  if(OK.gate){ const u=OK.gate.userData; u.ring.rotation.z+=dt*1.2; u.disc.material.opacity=.25+Math.sin(tn/260)*.1; if(!OK.gateLbl) OK.gateLbl=makeLabel("ally"); if(!OK.on&&!layerOpen&&evOver()&&Math.hypot(P.x-OK_GATE.x,P.z-OK_GATE.z)<34) placeLabel(OK.gateLbl,OK_GATE.x,10.2,OK_GATE.z,`🏯 <b>구름 나라</b>${okFeastLive()?" · 🍑 잔치 중!":""}`); else OK.gateLbl.style.display="none"; }
+  okFeastTick(dt);
+  if(!OK.on) return; if(!okIn(P.x,P.z)){ okExit(true,true); return; }
+  if(OK.exit){ const u=OK.exit.g.userData; u.ring.rotation.z+=dt*1.2; if(OK.cd<=0&&!OK.tr&&Math.hypot(P.x-OK.exit.x,P.z-OK.exit.z)<2.6){ okExit(); return; } }
+  OK.ani.forEach(a=>{ a.t+=dt; if(a.m.visible){ a.m.position.y=a.y0+Math.abs(Math.sin(a.t*2.2))*.25; const u=a.m.userData; if(u&&u.body) u.body.rotation.z=Math.sin(a.t*1.6)*.06; } });
+  okTickTrial(dt);
+  while(OK.lbls.length<12) OK.lbls.push(makeLabel("ally")); const o=okData(), d=kday();
+  OK.isl.forEach((s,i)=>{ const l=OK.lbls[i]; const dist=Math.hypot(P.x-s.px,P.z-s.pz); if(layerOpen||dist>40||(OK.tr&&OK.tr.k!==i)){ l.style.display="none"; return; } const Z=OK_ZOD[i];
+    placeLabel(l,s.px,6.8,s.pz,`${o.st[i]?"🔖":""}${Z.ic} <b>${Z.n}</b> <span style="font-size:11px">${OK_TY[Z.ty].ic}${OK_TY[Z.ty].n} · 👥${Z.need}${o.dy[i]===d?" · 오늘 ✅":""}</span>`); });
+  if(!OK.treeLbl) OK.treeLbl=makeLabel("ally"); if(!OK.palLbl) OK.palLbl=makeLabel("boss");
+  if(!layerOpen&&Math.hypot(P.x-OK.tree.x,P.z-OK.tree.z)<30){ const f=okFeastLive(); placeLabel(OK.treeLbl,OK.tree.x,9,OK.tree.z,f?`🍑 <b>복숭아 잔치!</b> 내가 지킨 ${o.fs||0}`:`🍑 <b>하늘 복숭아나무</b>${okGarden()>0?` · 씨 ${okGarden()}개`:""}`); } else OK.treeLbl.style.display="none";
+  if(!layerOpen&&Math.hypot(P.x-OKX,P.z-OKZ)<46) placeLabel(OK.palLbl,OKX,15.5,OKZ-6,`🏯 옥황 궁궐 <b>띠 도장 ${okStamps()}/12</b>`); else OK.palLbl.style.display="none";
+  OK.amb-=dt; if(OK.amb<=0){ OK.amb=ECO()?.7:.3; fxSpark(P.x+rnd(-30,30),rnd(.5,3),P.z+rnd(-30,30),0xffffff,2); }
+  $("region").innerHTML=OK.tr?`🏯 구름 나라 <b>${OK_ZOD[OK.tr.k].ic} 시험 중</b>`:`🏯 구름 나라 <b>띠 도장 ${okStamps()}/12 · 🍑 ${o.pc}</b>`; }
+XTICK.push(okTick);
+function okGarden(){ const o=okData(); if(!o.gt){ o.gt=Date.now(); return 0; } return Math.min(6,Math.floor((Date.now()-o.gt)/(2*3600000))); }
+function okGardenTake(){ const n=okGarden(); if(n<=0){ toast("🍑 아직 복숭아 씨가 없어요","내가 쉬는 동안 2시간마다 1개씩 모여요 (최대 6개)",2); return; } const o=okData(); o.pc+=n; o.gt=Date.now(); saveGame(); jingle([659,880,1046]); toast(`🍑 천도복숭아 +${n}`,"쉬는 동안 내 영웅이 궁궐 정원사를 도왔어요 · 궁궐 상점에서 써요",2.6); }
+CTX_EXTRA.push(()=>{ if(okGateNear()) return {t:G.lv>=30?"🏯 구름 나라로":"🏯 구름 나라 (Lv.30)",f:okEnter};
+  if(!OK.on||OK.tr) return null;
+  for(const s of OK.isl){ if(Math.hypot(P.x-s.px,P.z-s.pz)<4.2){ const Z=OK_ZOD[s.k]; const done=okData().dy[s.k]===kday(); return {t:`${Z.ic} ${Z.n}의 시험 ${OK_TY[Z.ty].ic}${done?" (연습)":""}`,f:()=>okStart(s.k)}; } }
+  if(Math.hypot(P.x-OK.tree.x,P.z-OK.tree.z)<5&&!okFeastLive()) return {t:`🍑 복숭아 씨 받기${okGarden()?` (${okGarden()})`:""}`,f:okGardenTake};
+  if(Math.hypot(P.x-OKX,P.z-(OKZ+8))<5.5) return {t:"🏯 궁궐 상점",f:okShop};
+  if(okData().pk<0&&okStamps()>=12&&Math.hypot(P.x-OKX,P.z-(OKZ+8))<9) return {t:"🐲 띠 짝꿍 고르기",f:okPetCard};
+  return null; });
+/* ---------- 울타리 · 하늘 · 지도 ---------- */
+function okClamp(){ if(!okIn(P.x,P.z)){ okExit(true,true); return false; } const r=Math.hypot(P.x-OKX,P.z-OKZ); if(r>OK_R-1.5){ const k=(OK_R-1.5)/r; P.x=OKX+(P.x-OKX)*k; P.z=OKZ+(P.z-OKZ)*k; }
+  const bx=OKX, bz=OKZ-6, hx=15.8, hz=10.8; const dx=P.x-bx, dz=P.z-bz; if(Math.abs(dx)<hx&&Math.abs(dz)<hz){ if(hx-Math.abs(dx)<hz-Math.abs(dz)) P.x=bx+Math.sign(dx||1)*hx; else P.z=bz+Math.sign(dz||1)*hz; }
+  const t=OK.tree; if(t){ const ex=P.x-t.x, ez=P.z-t.z, d=Math.hypot(ex,ez); if(d<3.6&&d>.01){ P.x=t.x+ex/d*3.6; P.z=t.z+ez/d*3.6; } }
+  OK.isl.forEach(s=>{ const ex=P.x-s.px, ez=P.z-s.pz, d=Math.hypot(ex,ez); if(d<2.3&&d>.01){ P.x=s.px+ex/d*2.3; P.z=s.pz+ez/d*2.3; } }); return true; }
+function okSky(dt){ SKY.tTop.setHex(0x4a86d8); SKY.tBot.setHex(0xcfe0ff); const k=Math.min(1,dt*1.5); SKY.top.lerp(SKY.tTop,k); SKY.bot.lerp(SKY.tBot,k); scene.fog.color.copy(SKY.bot); scene.fog.near=110; scene.fog.far=360;
+  sky.position.copy(camera.position); STARS.material.opacity=0; MOON.visible=false; sun.position.set(P.x+40,90,P.z+30); sun.target.position.set(P.x,0,P.z); const e=ECO(); sun.intensity=e?.8:.95; sun.color.setHex(0xfff0e0); hemi.intensity=e?.34:.44; fill.intensity=e?.15:.2; skyMat.uniforms.sunDir.value.copy(sun.position).sub(camera.position).normalize(); renderer.toneMappingExposure=e?.78:.84; }
+function okMinimap(){ const ctx=mctx, S=fitCanvas(mm); const s=S*.94/(OK_R*2+8); const X=x=>S/2+(x-OKX)*s, Z=z=>S/2+(z-OKZ)*s;
+  ctx.fillStyle="#9fc8f0"; ctx.fillRect(0,0,S,S); dot(ctx,X(OKX),Z(OKZ),OK_R*s,"#ffffff","#dbe8f8",2); dot(ctx,X(OKX),Z(OKZ),OK_PLZ*s,"#eae2d2","#ffc83a",2);
+  const o=okData(); OK.isl.forEach(i=>{ dot(ctx,X(i.x),Z(i.z),OK_IS*s,o.st[i.k]?"#bfe6a0":"#8fd47a","#fff",1.5); mmLabel(ctx,OK_ZOD[i.k].ic,X(i.x),Z(i.z),Math.round(S/16),"#fff"); });
+  ctx.fillStyle="#c8322a"; ctx.fillRect(X(OKX-15),Z(OKZ-16),30*s,20*s); if(OK.tree) mmLabel(ctx,"🍑",X(OK.tree.x),Z(OK.tree.z),Math.round(S/16),"#fff"); if(OK.exit) dot(ctx,X(OK.exit.x),Z(OK.exit.z),S/30,"#ffd27a","#fff",2);
+  for(const id in PEERS){ const q=PEERS[id]; if(!q.dead&&okIn(q.x,q.z)) dot(ctx,X(q.x),Z(q.z),S/36,"#1e8e3e","#fff",1.5); }
+  const px=X(P.x), pz=Z(P.z); ctx.save(); ctx.translate(px,pz); ctx.rotate(Math.PI-P.rot); ctx.fillStyle="#3a8dff"; ctx.strokeStyle="#fff"; ctx.lineWidth=2; ctx.beginPath(); const q=S/20; ctx.moveTo(0,-q); ctx.lineTo(q*.7,q*.7); ctx.lineTo(0,q*.35); ctx.lineTo(-q*.7,q*.7); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
+  mmLabel(ctx,"🏯 구름 나라",S/2,S*.07,Math.round(S/12),"#fff"); }
+XZONE.push({on:()=>OK.on,clamp:okClamp,sky:okSky,mm:okMinimap});
+MAP_X.push((ctx,tx,tz,big,u)=>{ mapPin(ctx,tx(OK_GATE.x),tz(OK_GATE.z),(big?6:7.5)*u,"#c8322a","🏯"); });
+/* ---------- 친구 위치·곁으로 가기에서 구름 나라 알아보기 ---------- */
+(function(){ try{ const _fz=frZone; frZone=function(x,z){ return okIn(x,z)?"🏯 구름 나라":_fz(x,z); }; const _fa=frArea; frArea=function(x,z){ return okIn(x,z)?"ok":_fa(x,z); };
+  const _ft=frTeleport; frTeleport=function(id){ const o=PEERS[id]; if(o&&okIn(o.x,o.z)&&!OK.on){ if(CQ.tpT>0||P.dead||P.trial){ return _ft(id); } okEnter(); if(!OK.on) return; } else if(o&&!okIn(o.x,o.z)&&OK.on){ okExit(true,true); } return _ft(id); }; }catch(e){ console.warn(e); } })();
+/* ---------- 창 ---------- */
+function okShop(){ const o=okData(), T=okTier();
+  card(`<h2>🏯 옥황 궁궐 상점</h2><p>🍑 천도복숭아로 사요(진짜 돈 없음). 토요일 저녁 <b>하늘 복숭아 잔치</b>에서 모두가 지킨 복숭아가 많을수록 다음 주에 더 많은 칸이 열려요!</p>
+   <div class="idlegrid"><div><b>🍑 ${o.pc}</b><span>내 천도복숭아</span></div><div><b>${fmt(T.v)}</b><span>${T.prev>=T.cur||!okFeastLive()?"지난 잔치에서 모두가 지킨 복숭아":"이번 잔치 (지금)"}</span></div></div>
+   ${OK_SHOP.map((it,i)=>{ const lock=it.t>T.t; return `<div class="row"${lock?' style="opacity:.55"':""}><div class="ic">${it.ic}</div><div class="t"><div>${it.n}</div><span>${lock?`🔒 모두 함께 복숭아 ${OK_TIER[it.t]}개를 지키면 열려요`:`🍑 ${it.c}개`}</span></div>${lock?"":`<button class="buy" data-sh="${i}" ${o.pc<it.c?"disabled":""}>사기</button>`}</div>`; }).join("")}`);
+  layers.querySelectorAll("[data-sh]").forEach(b=>b.onclick=()=>{ const it=OK_SHOP[+b.dataset.sh]; if(o.pc<it.c) return; o.pc-=it.c; it.f(); saveGame(); jingle([659,880]); toast(`🏯 ${it.ic} ${it.n}`,`🍑 −${it.c}`,1.6); okShop(); }); }
+function showCloud(){ const o=okData(), d=kday(), f=okFeast(), live=okFeastLive();
+  const fd=f?new Date(f.t+9*3600000):null; const ftxt=live?"🍑 <b>지금 하늘 복숭아 잔치 중!</b> 구름 나라 복숭아나무로!":f?`🍑 다음 하늘 복숭아 잔치: ${fd.getUTCMonth()+1}/${fd.getUTCDate()}(토) 저녁 8시`:"";
+  card(`<h2>🏯 구름 나라 옥황 궁궐</h2><p>세계의 중심 북쪽 <b>🏯 구름 문</b>(Lv.30)으로 가면 하늘 위 궁궐과 띠 동물 섬 12개! 섬마다 띠 수호 동물이 시험을 내요. <b>작은 동물은 혼자, 큰 동물은 여럿이</b> — 사람이 모자라면 💤 쉬는 친구의 그림자나 ☁ 구름 동자가 도와줘요.</p>
+   <div class="idlegrid"><div><b>🔖 ${okStamps()}/12</b><span>띠 도장</span></div><div><b>🍑 ${o.pc}</b><span>천도복숭아</span></div><div><b>👥 ${o.tog||0}</b><span>함께 깬 시험</span></div></div>
+   <p style="font-size:13px;text-align:center">${ftxt}</p>
+   <div class="diary">${OK_ZOD.map((Z,k)=>`<p>${o.st[k]?"🔖":"⬜"} ${Z.ic} <b>${Z.n}</b> · ${OK_TY[Z.ty].ic} ${OK_TY[Z.ty].n} · 👥${Z.need}명${o.dy[k]===d?" · 오늘 ✅":""}</p>`).join("")}</div>
+   ${o.pk>=0?`<p style="font-size:13px">🐣 내 띠 짝꿍: ${OK_ZOD[o.pk].ic} ${PETS[OKP0+o.pk].n}</p>`:`<p style="font-size:12px">🔖 도장 12개를 다 모으면 띠 동물 하나가 짝꿍 신수로 와요!</p>`}
+   <p style="font-size:12px">처음 깨면 도장 + 큰 상 · 하루 한 번 다시 깨면 작은 상 · 진짜 사람 2명 이상이면 상 ×1.5. 💤 쉬는 동안 내 영웅이 2시간마다 🍑 1개를 모아 둬요(복숭아나무에서 받기, 최대 6개).</p>
+   <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">${OK.on?'<button class="buy alt" id="okShopB">🏯 궁궐 상점</button>':'<button class="go" id="okGo">🧭 구름 문으로 길 안내</button>'}${o.pk<0&&okStamps()>=12?'<button class="buy" id="okPk">🐲 띠 짝꿍 고르기</button>':""}</div>`);
+  if($("okGo")) $("okGo").onclick=()=>{ closeLayer(); if(Math.hypot(P.x-OK_GATE.x,P.z-OK_GATE.z)<8) okEnter(); else setGuide({x:OK_GATE.x,z:OK_GATE.z+5,label:"🏯 구름 문"}); };
+  if($("okShopB")) $("okShopB").onclick=okShop; if($("okPk")) $("okPk").onclick=okPetCard; }
+MENU_X.push({ic:"🏯",n:"구름 나라 옥황 궁궐",id:"okBtn",sub:()=>`${okFeastLive()?"🍑 복숭아 잔치 중! · ":""}띠 도장 ${okStamps()}/12 · 🍑 ${okData().pc}${G.lv<30?" · Lv.30부터":""}`,f:showCloud});
+TITLES.push({id:"ok1",n:"구름 나라 손님",t:1,h:"띠 도장 1개 받기",g:()=>[okStamps(),1]},{id:"ok12",n:"열두 띠의 친구",t:3,h:"띠 도장 12개 모두 받기",g:()=>[okStamps(),12]},
+ {id:"okt10",n:"함께 여는 하늘 문",t:2,h:"진짜 친구와 함께 띠 시험 10번 깨기",g:()=>[(G.ok&&G.ok.tog)||0,10]},{id:"okf30",n:"복숭아 지킴이",t:2,h:"복숭아 잔치에서 원숭이 30마리 쫓기",g:()=>[(G.ok&&G.ok.fs)||0,30]});
+</script>
+<style>
+#okBar{position:fixed;left:50%;top:calc(max(8px,env(safe-area-inset-top)) + 54px);transform:translateX(-50%);z-index:5;pointer-events:none;min-width:250px;max-width:min(60vw,480px);padding:5px 14px 7px;border-radius:14px;background:linear-gradient(180deg,rgba(30,60,100,.9),rgba(20,34,60,.9));border:2px solid #bfe8ff;box-shadow:0 0 0 2px rgba(0,0,0,.45),0 0 14px rgba(191,232,255,.4);color:#fff;text-align:center;display:flex;flex-direction:column;gap:1px}
+#okBar[hidden]{display:none} #okBar b{font-size:14px;color:#e8f6ff;text-shadow:0 2px 0 #000} #okBar span{font-size:12px;opacity:.92}
+</style>
+<script>
 /* ================= 아주 작은 MQTT 클라이언트 (웹소켓) — 외부 라이브러리 없이 ================= */
 function MiniMQTT(url,opt){
   const self={url,ok:false,ws:null,buf:new Uint8Array(0),pid:1,pingT:null,retry:null,closed:false,subs:[],opt};
@@ -8714,7 +9334,7 @@ window.__gw={regionBanner,PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoa
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="f0d897f5";
+(function(){ var CUR="50cd3195";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
