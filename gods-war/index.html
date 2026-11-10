@@ -563,6 +563,10 @@ body.eco .act.atk.full,body.eco .act.atk.full::before{animation:none}
 .bar.xp.lvup::before{content:"";position:absolute;inset:0;z-index:3;background:linear-gradient(90deg,#fff,#ffe58a,#fff);animation:xpLvF .9s ease-out forwards;pointer-events:none}
 @keyframes xpLv{0%{box-shadow:0 0 0 1px #fff,0 0 16px 5px rgba(255,230,140,.95)}100%{box-shadow:inset 0 1px 2px rgba(0,0,0,.7),0 0 0 1px rgba(255,214,120,.28)}}
 @keyframes xpLvF{0%{opacity:1}100%{opacity:0}}
+/* v99 기술 버튼 그림 아이콘 */ .act.skl.hasic{justify-content:center;gap:0;padding:0 2px} .act.skl .sic{display:block;font-style:normal;font-size:23px;line-height:1;margin-top:1px;filter:drop-shadow(0 1px 0 rgba(30,10,0,.45)) drop-shadow(0 0 4px rgba(255,255,255,.55));pointer-events:none;transition:transform .12s}
+.act.skl.hasic span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;max-width:54px;font-size:8.5px;line-height:1.05;margin-top:1px;letter-spacing:-.3px;color:#fff;text-shadow:0 1px 0 rgba(20,8,30,.9),0 0 3px rgba(20,8,30,.8),1px 0 0 rgba(20,8,30,.6),-1px 0 0 rgba(20,8,30,.6)}
+.act.skl.fire .sic{transform:scale(1.25)} .act.skl.lock .sic{opacity:.6;font-size:19px} .act.skl.lock.hasic span{display:none} .act.skl.lock.hasic small{font-size:8.5px;margin-top:2px;color:#fff;text-shadow:0 1px 0 #000,0 0 3px #000} .act.skl.cool .sic{opacity:.5}
+@media (max-height:640px){ .act.skl .sic{font-size:19px} .act.skl.hasic span{font-size:7.5px;max-width:46px} }
 /* v98 경험치 구슬 */ .xpfly{position:fixed;left:-7px;top:-7px;width:14px;height:14px;border-radius:50%;z-index:30;pointer-events:none;background:radial-gradient(circle at 40% 38%,#fff 0 22%,#bff4ff 40%,#4fc3ff 70%,rgba(40,120,255,0) 100%);box-shadow:0 0 0 1.5px rgba(20,70,190,.6),0 0 8px 3px rgba(110,200,255,.9),0 0 16px 5px rgba(60,120,255,.45);will-change:transform} .xpfly::after{content:"";position:absolute;left:50%;top:50%;width:4px;height:4px;margin:-2px;border-radius:50%;background:#fff;box-shadow:-5px 3px 0 -1px rgba(190,240,255,.7),-9px 6px 0 -1.5px rgba(150,210,255,.45),-12px 9px 0 -2px rgba(120,180,255,.25)} .xpfly.v{background:radial-gradient(circle at 40% 38%,#fff 0 22%,#e6d4ff 40%,#a87bff 70%,rgba(120,60,255,0) 100%);box-shadow:0 0 0 1.5px rgba(90,30,190,.6),0 0 8px 3px rgba(190,150,255,.85),0 0 16px 5px rgba(140,90,255,.4)} body.eco .xpfly{box-shadow:0 0 0 1.5px rgba(20,70,190,.6),0 0 5px 2px rgba(110,200,255,.8)}
 .bar.xp.xphit::after{content:"";position:absolute;top:-3px;bottom:-3px;right:0;width:100%;pointer-events:none;z-index:3;background:radial-gradient(ellipse 18px 9px at var(--xpe,100%) 50%,rgba(255,255,255,.95),rgba(170,230,255,.6) 45%,rgba(120,200,255,0) 100%);animation:xpHit .38s ease-out forwards} @keyframes xpHit{0%{opacity:1}100%{opacity:0}}
 .xpsp{position:absolute;width:4px;height:4px;border-radius:50%;background:#fff;box-shadow:0 0 5px 2px #9be7ff,0 0 2px #fff;pointer-events:none;z-index:4;opacity:0;animation:xpSp .8s ease-out forwards}
@@ -641,7 +645,7 @@ body.dying>*:not(#layers):not(#view):not(.revfl):not(script){opacity:0!important
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v98";
+const VER="v99";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -5078,6 +5082,27 @@ setTimeout(()=>{ const z=$("zoomBtns"); if(!z) return; const b=document.createEl
 TITLES.push({id:"sk9",n:"기술의 달인",t:2,h:"기술 9개를 모두 배우기",g:()=>[RM().skills.filter(S=>G.rank>=S.rank).length,9]},{id:"sk500",n:"기술 폭풍",t:1,h:"기술 500번 쓰기",g:()=>[G.sklN||0,500]});
 </script>
 <script>
+/* ================= 기술 버튼에 그림 아이콘 (v99) =================
+   기술 버튼이 글씨만 있어서 무슨 기술인지 한눈에 안 보였음 → 버튼 가운데 큰 그림(이모지) + 아래 작은 이름.
+   기술 이름으로 그림을 고르고(망치 🔨·서리 ❄️·늑대 🐺 …), 모르는 기술은 종류(type)로 고름. 0.5초마다 이름이 바뀌었는지만 봄(칸 바꾸기·세계 바꾸기 따라감).
+   글씨(DOM)만 바꾸니 그리기 호출 0. 기술 규칙·쿨타임 그대로. */
+const SKICON=(()=>{
+  const BYN={"심판의 빛":"☀️","치유의 날개":"🕊️","미카엘의 창":"⚜️","빛의 화살비":"🏹","수호천사의 방패":"🛡️","축복의 빛":"💖","케루빔의 불칼":"🔥","세라핌의 날개":"🌀","최후의 나팔":"📯",
+    "천둥의 망치":"🔨","광전사의 포효":"💢","라그나로크":"🌋","서리 숨결":"❄️","발키리의 창":"🗡️","이그드라실의 축복":"🌳","펜리르 소환":"🐺","궁니르":"☄️","요르문간드의 고리":"🐍",
+    "수다르샤나 차크라":"☸️","하누만의 도약":"🐒","시바의 춤":"🔱","아그니의 불꽃":"🔥","나가의 올가미":"🐍","락슈미의 축복":"🌸","가네샤의 방패":"🐘","인드라의 바즈라":"⚡","칼리의 분노":"💥",
+    "번개 낙하":"⚡","헤르메스의 질주":"👟","포세이돈의 해일":"🌊","아폴론의 화살":"🏹","아이기스":"🛡️","아스클레피오스의 지팡이":"⚕️","메두사의 눈":"👁️","하데스의 손":"✋","제우스의 심판":"🌩️"};
+  const BYT={aoe:"💥",bolt:"⚡",dash:"💨",heal:"💚",line:"🗡️",orbit:"🌀",rage:"💢",freeze:"❄️",meteor:"☄️",multi:"🏹",pull:"🌀",shield:"🛡️",summon:"🐾",team:"💖",ult:"🌟"};
+  const KW=[["화살","🏹"],["방패","🛡️"],["망치","🔨"],["번개","⚡"],["불","🔥"],["얼음","❄️"],["서리","❄️"],["창","🗡️"],["치유","💚"],["축복","💖"],["파도","🌊"],["해일","🌊"],["뱀","🐍"]];
+  function icon(S){ if(!S) return "✨"; if(BYN[S.n]) return BYN[S.n]; for(const k of KW) if(S.n.indexOf(k[0])>=0) return k[1]; return BYT[S.type]||"✨"; }
+  const last=[];
+  function sync(){ try{ if(typeof G==="undefined"||!G||typeof RM!=="function") return; const R=RM(); if(!R||!R.skills) return;
+      for(let i=0;i<6;i++){ const b=document.getElementById("bSkill"+i); if(!b) continue; let si=i; try{ si=skSlot(i); }catch(e){} const S=R.skills[si]; const key=(S&&S.n)||"";
+        if(last[i]===key&&b.querySelector(".sic")) continue; last[i]=key; let ic=b.querySelector(".sic"); if(!ic){ ic=document.createElement("i"); ic.className="sic"; const sp=b.querySelector("span"); b.insertBefore(ic,sp||null); b.classList.add("hasic"); }
+        ic.textContent=icon(S); } }catch(e){} }
+  setInterval(sync,500); return {sync,icon};
+})();
+</script>
+<script>
 /* ================= v47-3: 🛠 업데이트 소식(패치 노트) =================
    새 버전으로 처음 켜면 한 번, 무엇이 바뀌었는지 쉬운 말로 보여 줌(G.seenVer). 메뉴 → 업데이트 소식에서 다시 볼 수 있음.
    ※ 버전을 올릴 때마다 맨 앞에 한 줄 묶음을 더해요(오래된 것은 8개까지만 남김). */
@@ -8492,7 +8517,7 @@ window.__gw={regionBanner,PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoa
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="ee09e5b4";
+(function(){ var CUR="0b38d624";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
