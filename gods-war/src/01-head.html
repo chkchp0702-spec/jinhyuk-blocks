@@ -588,6 +588,19 @@ body.dying>*:not(#layers):not(#view):not(.revfl):not(script){opacity:0!important
 .revfl{position:fixed;inset:0;z-index:30;pointer-events:none;background:radial-gradient(circle at 50% 55%,rgba(255,255,240,.95),rgba(255,240,190,.5) 40%,rgba(255,255,255,0) 75%);animation:revFl .9s ease-out forwards}
 @keyframes revFl{0%{opacity:1}100%{opacity:0}}
 @media (orientation:landscape) and (max-height:500px){.layer.death .logo{font-size:38px!important} .layer.death .help{font-size:12px;line-height:1.35;margin:4px 0 6px}}
+/* v100 메뉴 버튼 그림 아이콘·새 소식 점 */
+.mbtn.hasmic::before{content:attr(data-ic);display:inline-block;margin-right:4px;font-size:1.05em;line-height:1;vertical-align:-2px;filter:drop-shadow(0 1px 0 rgba(0,0,0,.55)) drop-shadow(0 0 3px rgba(255,220,140,.35));transform-origin:50% 70%}
+.mbtn.hasmic.micOnly{font-size:0!important;min-width:46px!important} .mbtn.hasmic.micOnly::before{font-size:17px;margin:0;vertical-align:-3px}
+.mbtn.hasmic:active::before{transform:scale(1.2) rotate(-8deg)}
+.mbtn.newdot::before{animation:micWig 2.4s ease-in-out infinite}
+@keyframes micWig{0%,78%,100%{transform:none}82%{transform:rotate(-14deg) scale(1.15)}88%{transform:rotate(12deg) scale(1.15)}94%{transform:rotate(-6deg)}}
+.mbtn .nd,.mbtn.newdot{--nd:1}
+.mbtn.newdot{background-image:radial-gradient(circle 5px at calc(100% - 9px) 8px,#fff 0 1.5px,#ff3b3b 2.5px 4.2px,#7a0010 4.6px 5px,transparent 5.5px),linear-gradient(180deg,rgba(78,58,140,.95),rgba(30,20,62,.95) 55%,rgba(18,12,40,.97)),linear-gradient(180deg,var(--gm1),var(--gm2) 40%,var(--gm3) 70%,var(--gm4))!important;background-origin:padding-box,padding-box,border-box!important;background-clip:padding-box,padding-box,border-box!important;animation:ndGlow 1.3s ease-in-out infinite}
+@keyframes ndGlow{0%,100%{filter:none}50%{filter:brightness(1.18) drop-shadow(0 0 5px rgba(255,80,80,.55))}}
+.mbtn.ndpop{animation:ndPop .45s cubic-bezier(.3,1.8,.5,1),ndGlow 1.3s .45s ease-in-out infinite}
+@keyframes ndPop{0%{transform:scale(1)}40%{transform:scale(1.14) translateY(-3px)}100%{transform:none}}
+@media (orientation:portrait) and (max-width:440px){.mbtn.hasmic:not(.micOnly)::before{display:block;margin:0 auto 1px;font-size:15px}}
+body.eco .mbtn.newdot,body.eco .mbtn.newdot::before{animation:none!important}
 </style>
 </head>
 <body>

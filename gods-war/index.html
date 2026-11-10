@@ -588,6 +588,19 @@ body.dying>*:not(#layers):not(#view):not(.revfl):not(script){opacity:0!important
 .revfl{position:fixed;inset:0;z-index:30;pointer-events:none;background:radial-gradient(circle at 50% 55%,rgba(255,255,240,.95),rgba(255,240,190,.5) 40%,rgba(255,255,255,0) 75%);animation:revFl .9s ease-out forwards}
 @keyframes revFl{0%{opacity:1}100%{opacity:0}}
 @media (orientation:landscape) and (max-height:500px){.layer.death .logo{font-size:38px!important} .layer.death .help{font-size:12px;line-height:1.35;margin:4px 0 6px}}
+/* v100 메뉴 버튼 그림 아이콘·새 소식 점 */
+.mbtn.hasmic::before{content:attr(data-ic);display:inline-block;margin-right:4px;font-size:1.05em;line-height:1;vertical-align:-2px;filter:drop-shadow(0 1px 0 rgba(0,0,0,.55)) drop-shadow(0 0 3px rgba(255,220,140,.35));transform-origin:50% 70%}
+.mbtn.hasmic.micOnly{font-size:0!important;min-width:46px!important} .mbtn.hasmic.micOnly::before{font-size:17px;margin:0;vertical-align:-3px}
+.mbtn.hasmic:active::before{transform:scale(1.2) rotate(-8deg)}
+.mbtn.newdot::before{animation:micWig 2.4s ease-in-out infinite}
+@keyframes micWig{0%,78%,100%{transform:none}82%{transform:rotate(-14deg) scale(1.15)}88%{transform:rotate(12deg) scale(1.15)}94%{transform:rotate(-6deg)}}
+.mbtn .nd,.mbtn.newdot{--nd:1}
+.mbtn.newdot{background-image:radial-gradient(circle 5px at calc(100% - 9px) 8px,#fff 0 1.5px,#ff3b3b 2.5px 4.2px,#7a0010 4.6px 5px,transparent 5.5px),linear-gradient(180deg,rgba(78,58,140,.95),rgba(30,20,62,.95) 55%,rgba(18,12,40,.97)),linear-gradient(180deg,var(--gm1),var(--gm2) 40%,var(--gm3) 70%,var(--gm4))!important;background-origin:padding-box,padding-box,border-box!important;background-clip:padding-box,padding-box,border-box!important;animation:ndGlow 1.3s ease-in-out infinite}
+@keyframes ndGlow{0%,100%{filter:none}50%{filter:brightness(1.18) drop-shadow(0 0 5px rgba(255,80,80,.55))}}
+.mbtn.ndpop{animation:ndPop .45s cubic-bezier(.3,1.8,.5,1),ndGlow 1.3s .45s ease-in-out infinite}
+@keyframes ndPop{0%{transform:scale(1)}40%{transform:scale(1.14) translateY(-3px)}100%{transform:none}}
+@media (orientation:portrait) and (max-width:440px){.mbtn.hasmic:not(.micOnly)::before{display:block;margin:0 auto 1px;font-size:15px}}
+body.eco .mbtn.newdot,body.eco .mbtn.newdot::before{animation:none!important}
 </style>
 </head>
 <body>
@@ -645,7 +658,7 @@ body.dying>*:not(#layers):not(#view):not(.revfl):not(script){opacity:0!important
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v99";
+const VER="v100";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -8205,6 +8218,31 @@ TITLES.push({id:"ek1",n:"해를 돌려준 자",t:2,h:"라후의 일식 성공 �
 #ekThrow:disabled{filter:grayscale(.7);opacity:.7}
 </style>
 <script>
+// v100 그래픽: 아래 메뉴 버튼(가방·임무·세계·상점·말하기·≡) 글씨 옆 작은 그림 + 새 소식 빨간 점 반짝 — 모습만
+const MENUIC=(function(){
+  const IC={bBag:"🎒",bQuest:"📜",bMap:"🗺️",bShop:"🛒",bSay:"💬",bMenu:"⚙️"};
+  const TXT={"성전":"🏛️"};
+  let last={};
+  function tick(){
+    try{
+      for(const id in IC){ const el=document.getElementById(id); if(!el) continue;
+        const ic=TXT[el.textContent.trim()]||IC[id]; if(el.dataset.ic!==ic){ el.dataset.ic=ic; el.classList.add("hasmic"); }
+        if(id==="bMenu"&&el.textContent.trim()==="≡") el.classList.add("micOnly"); }
+      if(typeof started==="undefined"||!started) return;
+      // 새 소식: 받을 임무 보상 / 가방에 더 센 장비
+      let q=false,b=false;
+      try{ q=(G.quests||[]).some(x=>x.done); }catch(e){}
+      try{ const bb=bagBest(); b=["w","a","r"].some(s=>bb[s].t!==G.eq[s]); }catch(e){}
+      set("bQuest",q); set("bBag",b);
+    }catch(e){}
+  }
+  function set(id,on){ const el=document.getElementById(id); if(!el) return; if(last[id]===on) return; last[id]=on;
+    el.classList.toggle("newdot",on); if(on){ el.classList.remove("ndpop"); void el.offsetWidth; el.classList.add("ndpop"); } }
+  setInterval(tick,600); setTimeout(tick,50);
+  return {tick};
+})();
+</script>
+<script>
 /* ================= 아주 작은 MQTT 클라이언트 (웹소켓) — 외부 라이브러리 없이 ================= */
 function MiniMQTT(url,opt){
   const self={url,ok:false,ws:null,buf:new Uint8Array(0),pid:1,pingT:null,retry:null,closed:false,subs:[],opt};
@@ -8517,7 +8555,7 @@ window.__gw={regionBanner,PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoa
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="0b38d624";
+(function(){ var CUR="91ecd83c";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
