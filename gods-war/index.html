@@ -700,7 +700,7 @@ body.eco .mbtn.newdot,body.eco .mbtn.newdot::before{animation:none!important}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v109";
+const VER="v110";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -1810,9 +1810,13 @@ const SHARD=(()=>{ const N=120; let pts=null, pos, col, al, sz, P_=[]; let head=
 const HITF=(()=>{ const C=[]; const ease=k=>1-Math.pow(1-k,3);
   function knock(m,dmg,crit){ if(!m||!m.mesh||m.titan) return; const dx=m.x-P.x, dz=m.z-P.z, d=Math.hypot(dx,dz)||1;
     let s=clamp(.45+(dmg/(m.mhp||1))*2.2,.45,1.25)*(crit?1.3:1); if(m.boss) s*=.35; s/=Math.max(1,(m.scale||1)*.75);
-    m.kb={x:dx/d,z:dz/d,s,t:0}; m.hs=crit?.09:.05; m.mesh.rotation.order="YXZ"; m.mesh.userData.hsU=performance.now()+m.hs*1000; }
+    m.kb={x:dx/d,z:dz/d,s,t:0}; m.hs=crit?.09:.05; let A=clamp(.2+(dmg/(m.mhp||1))*.6,.2,.36)*(crit?1.3:1); if(m.boss) A*=.5; m.sq={t:0,a:A,c:crit?0xffe7a0:0xffffff}; m.mesh.rotation.order="YXZ"; m.mesh.userData.hsU=performance.now()+m.hs*1000; }
   // tickMobs 에서 위치를 정한 다음 부름
-  function apply(m,dt){ const k=m.kb; if(!k) return; if(m.hs>0) m.hs-=dt; else k.t+=dt; const D=.34; if(k.t>=D){ m.kb=null; return; }
+  /* v109: 맞으면 몸이 하얗게 확 부풀었다(옆으로 퍼지고 납작) 용수철처럼 쭉 늘었다 돌아옴 — 모습만 */
+  function squash(m,dt){ const q=m.sq; if(!q||!m.mesh) return; if(!(m.hs>0)) q.t+=dt; const T=.42; if(q.t>=T){ m.sq=null; return; }
+    const t=q.t, e=Math.exp(-t*9)*Math.cos(t*24)*q.a*(1-t/T); const g=m.mesh.scale; const y=1-e*.75, xz=1+e*.6;
+    g.set(g.x*xz,g.y*y,g.z*xz); const f=t<.06?1:Math.max(0,1-(t-.06)/.2); try{ hitTint(m.mesh,f*.95,q.c); }catch(err){} }
+  function apply(m,dt){ squash(m,dt); const k=m.kb; if(!k) return; if(m.hs>0) m.hs-=dt; else k.t+=dt; const D=.34; if(k.t>=D){ m.kb=null; return; }
     const u=k.t/D; const off=k.s*(u<.18?ease(u/.18):Math.pow(1-(u-.18)/.82,2)); const p=m.mesh.position;
     p.x+=k.x*off; p.z+=k.z*off; p.y+=off*.22; if(!m.mesh.userData.float) m.mesh.rotation.x+=-off*.38; }
   function die(m){ if(!m||!m.mesh||m.titan||m.corpse) return false; const lim=ECO()?4:8; while(C.length>=lim) end(C[0]);
@@ -2461,7 +2465,7 @@ function tickMobs(dt){
     const tnow=performance.now(); m.mesh.position.set(m.x,hAt(m.x,m.z)+(m.mesh.userData.float?Math.sin(tnow/400+m.x)*.3+.2:0)+(m.mesh.userData.lunge>0?.4:0)+(m.state==="chase"?Math.abs(Math.sin(tnow/90+m.x))*.25:0),m.z); if(m.mesh.userData.lunge>0) m.mesh.userData.lunge-=dt; m.mesh.rotation.x=m.state==="chase"&&!m.mesh.userData.float?Math.sin(tnow/90+m.x)*.08:0; if(m.aura){ m.aura.rotation.z+=dt*2; m.aura.scale.setScalar(1+Math.sin(tnow/250)*.12); }
     if(m._lk){ m.mesh.rotation.y-=m._lk; m._ryp-=m._lk; m._lk=0; } let dr=m.rot-m.mesh.rotation.y; while(dr>Math.PI) dr-=Math.PI*2; while(dr<-Math.PI) dr+=Math.PI*2; m.mesh.rotation.y+=dr*Math.min(1,dt*8);
     if(m.mesh.userData.gl){ animState(m.mesh,m.hit>0&&m.hp>0?"hit":m.state==="chase"?(d>(m.boss?3.4:2.3)?"run":"idle"):m.state==="wander"?"walk":"idle"); if(m.mesh.userData.lunge>.2) animState(m.mesh,"attack"); m.mesh.rotation.x=0; }
-    hitTint(m.mesh,m.hit/.15); const sc=m.scale*(m.hit>0?1.12:1); m.mesh.scale.set(sc*(1+Math.sin(tnow/600+m.x)*.02),sc*(1+Math.sin(tnow/600+m.x+1)*.03),sc); try{ MOBANIM.apply(m,dt,tnow,d); }catch(e){} HITF.apply(m,dt); try{ MOBSHADE.apply(m,d); }catch(e){} WARN.tick(m,aggro&&d<=(m.boss?3.4:2.3),dt);
+    hitTint(m.mesh,m.hit/.15); const sc=m.scale*(m.hit>0&&!m.sq?1.12:1); m.mesh.scale.set(sc*(1+Math.sin(tnow/600+m.x)*.02),sc*(1+Math.sin(tnow/600+m.x+1)*.03),sc); try{ MOBANIM.apply(m,dt,tnow,d); }catch(e){} HITF.apply(m,dt); try{ MOBSHADE.apply(m,d); }catch(e){} WARN.tick(m,aggro&&d<=(m.boss?3.4:2.3),dt);
     if(d<48){ const h=m.mesh.userData.h||4; placeLabel(m.lbl,m.x,h*m.scale,m.z,mobTag(m)); hpBar(m.lbl,m.hp/m.mhp); } else m.lbl.style.display="none";
   }
   WARN.end();
@@ -9576,7 +9580,7 @@ window.__gw={regionBanner,PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoa
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="96ef45e8";
+(function(){ var CUR="abcff3bb";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);

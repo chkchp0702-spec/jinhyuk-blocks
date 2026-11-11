@@ -29,9 +29,13 @@ const SHARD=(()=>{ const N=120; let pts=null, pos, col, al, sz, P_=[]; let head=
 const HITF=(()=>{ const C=[]; const ease=k=>1-Math.pow(1-k,3);
   function knock(m,dmg,crit){ if(!m||!m.mesh||m.titan) return; const dx=m.x-P.x, dz=m.z-P.z, d=Math.hypot(dx,dz)||1;
     let s=clamp(.45+(dmg/(m.mhp||1))*2.2,.45,1.25)*(crit?1.3:1); if(m.boss) s*=.35; s/=Math.max(1,(m.scale||1)*.75);
-    m.kb={x:dx/d,z:dz/d,s,t:0}; m.hs=crit?.09:.05; m.mesh.rotation.order="YXZ"; m.mesh.userData.hsU=performance.now()+m.hs*1000; }
+    m.kb={x:dx/d,z:dz/d,s,t:0}; m.hs=crit?.09:.05; let A=clamp(.2+(dmg/(m.mhp||1))*.6,.2,.36)*(crit?1.3:1); if(m.boss) A*=.5; m.sq={t:0,a:A,c:crit?0xffe7a0:0xffffff}; m.mesh.rotation.order="YXZ"; m.mesh.userData.hsU=performance.now()+m.hs*1000; }
   // tickMobs 에서 위치를 정한 다음 부름
-  function apply(m,dt){ const k=m.kb; if(!k) return; if(m.hs>0) m.hs-=dt; else k.t+=dt; const D=.34; if(k.t>=D){ m.kb=null; return; }
+  /* v109: 맞으면 몸이 하얗게 확 부풀었다(옆으로 퍼지고 납작) 용수철처럼 쭉 늘었다 돌아옴 — 모습만 */
+  function squash(m,dt){ const q=m.sq; if(!q||!m.mesh) return; if(!(m.hs>0)) q.t+=dt; const T=.42; if(q.t>=T){ m.sq=null; return; }
+    const t=q.t, e=Math.exp(-t*9)*Math.cos(t*24)*q.a*(1-t/T); const g=m.mesh.scale; const y=1-e*.75, xz=1+e*.6;
+    g.set(g.x*xz,g.y*y,g.z*xz); const f=t<.06?1:Math.max(0,1-(t-.06)/.2); try{ hitTint(m.mesh,f*.95,q.c); }catch(err){} }
+  function apply(m,dt){ squash(m,dt); const k=m.kb; if(!k) return; if(m.hs>0) m.hs-=dt; else k.t+=dt; const D=.34; if(k.t>=D){ m.kb=null; return; }
     const u=k.t/D; const off=k.s*(u<.18?ease(u/.18):Math.pow(1-(u-.18)/.82,2)); const p=m.mesh.position;
     p.x+=k.x*off; p.z+=k.z*off; p.y+=off*.22; if(!m.mesh.userData.float) m.mesh.rotation.x+=-off*.38; }
   function die(m){ if(!m||!m.mesh||m.titan||m.corpse) return false; const lim=ECO()?4:8; while(C.length>=lim) end(C[0]);
