@@ -614,6 +614,35 @@ body.dying>*:not(#layers):not(#view):not(.revfl):not(script){opacity:0!important
 @keyframes ndPop{0%{transform:scale(1)}40%{transform:scale(1.14) translateY(-3px)}100%{transform:none}}
 @media (orientation:portrait) and (max-width:440px){.mbtn.hasmic:not(.micOnly)::before{display:block;margin:0 auto 1px;font-size:15px}}
 body.eco .mbtn.newdot,body.eco .mbtn.newdot::before{animation:none!important}
+/* v109 물약 버튼: 그림 병·개수 배지·마시면 흔들림 */
+.act.pot.hasbot{padding:0;justify-content:center;background:radial-gradient(circle at 35% 28%,#7fe8a6,#17804a 62%,#0c4d2c 100%)}
+.act.pot.hasbot .pbot{width:58%;height:58%;margin-top:-6px;filter:drop-shadow(0 2px 0 rgba(0,0,0,.45));transform-origin:50% 85%;overflow:visible}
+.act.pot.hasbot .pnm{position:absolute;bottom:5px;left:0;right:0;text-align:center;font-size:10px;font-weight:900;color:#fff;text-shadow:0 1px 0 #053a1c,0 0 3px #053a1c;pointer-events:none}
+.act.pot .pbadge{position:absolute;top:-6px;right:-7px;min-width:22px;height:22px;padding:0 5px;box-sizing:border-box;border-radius:11px;background:linear-gradient(180deg,#fff2b8,#ffc23a 55%,#d47a10);color:#3a1d00;font-size:13px;font-weight:900;line-height:19px;text-align:center;border:2px solid #4a2600;box-shadow:0 2px 0 rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.8);opacity:1;z-index:5;pointer-events:none;font-variant-numeric:tabular-nums}
+.act.pot.pmany .pbadge{background:linear-gradient(180deg,#e9fff1,#62f09a 55%,#14904a);border-color:#063a1c;color:#03250f}
+.act.pot.pempty{filter:grayscale(.85) brightness(.7)}
+.act.pot.pempty .pbadge{background:linear-gradient(180deg,#d9d9de,#8d8d96);border-color:#2a2a30;color:#fff}
+.act.pot.pempty .pbwave{transform:translateY(16px)}
+.act.pot .pbwave{transition:transform .5s;animation:pbWave 1.6s linear 1}
+.act.pot .pbub{opacity:0}
+.act.pot.pdrink .pbot{animation:pbShake .55s cubic-bezier(.3,1.4,.5,1)}
+.act.pot.pdrink .pbwave{animation:pbSlosh .7s ease-out}
+.act.pot.pdrink .pbub{animation:pbBub .7s ease-out}
+.act.pot.pdrink .pbub.b2{animation-delay:.08s} .act.pot.pdrink .pbub.b3{animation-delay:.16s}
+.act.pot.pdrink .pbadge,.act.pot.pgain .pbadge{animation:pbBadge .45s cubic-bezier(.3,1.8,.5,1)}
+.act.pot.pdrink::before{content:"";position:absolute;inset:-6px;border-radius:50%;border:3px solid #9dffb8;box-shadow:0 0 14px #5dff9a;pointer-events:none;animation:pbRing .55s ease-out forwards;z-index:4}
+.act.pot.pnope .pbot{animation:pbNope .34s ease-in-out}
+.act.pot.pnope .pbadge{background:linear-gradient(180deg,#ffb4a8,#e0392a);color:#fff;border-color:#4a0800}
+.act.pot.plow:not(.pempty){animation:pbLow .7s ease-out}
+@keyframes pbWave{from{transform:translateX(0)}to{transform:translateX(-20px)}}
+@keyframes pbSlosh{0%{transform:translate(0,-3px) rotate(-6deg)}35%{transform:translate(-8px,2px) rotate(5deg)}70%{transform:translate(-14px,-1px) rotate(-2deg)}100%{transform:translate(-20px,0)}}
+@keyframes pbShake{0%{transform:rotate(0) scale(1)}20%{transform:rotate(-18deg) scale(1.15)}45%{transform:rotate(14deg) scale(1.1)}70%{transform:rotate(-7deg)}100%{transform:none}}
+@keyframes pbBub{0%{opacity:0;transform:translateY(0)}25%{opacity:1}100%{opacity:0;transform:translateY(-16px)}}
+@keyframes pbBadge{0%{transform:scale(1)}40%{transform:scale(1.5)}100%{transform:scale(1)}}
+@keyframes pbRing{from{transform:scale(.85);opacity:1}to{transform:scale(1.35);opacity:0}}
+@keyframes pbNope{0%,100%{transform:none}25%{transform:translateX(-4px) rotate(-8deg)}75%{transform:translateX(4px) rotate(8deg)}}
+@keyframes pbLow{0%{transform:scale(1)}30%{transform:scale(1.14);filter:brightness(1.4) drop-shadow(0 0 10px #7dffaa)}100%{transform:none}}
+@media (max-height:640px){ .act.pot.hasbot .pnm{font-size:9px;bottom:3px} .act.pot .pbadge{min-width:19px;height:19px;font-size:11px;line-height:16px;top:-5px;right:-6px} }
 </style>
 </head>
 <body>
