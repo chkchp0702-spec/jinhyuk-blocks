@@ -2,6 +2,13 @@
 
 매일 새벽 하나씩 "보이는 모습"을 낫게 만든다. 돈 드는 것 안 씀(코드 + GitHub CC0 에셋만).
 
+## 🔋 배터리 규칙 (v108부터 — 새 그래픽을 넣을 때 꼭 지키기)
+- 절약 모드(기본)에서는 06b-power.js PWR 가 화면에서 지름 약 5픽셀보다 작게 보이거나 안개에 덮인 물체를 저절로 안 그림. 멀리서도 꼭 보여야 하는 표시(길잡이 빛기둥 등)는 mesh.userData.noLod=true 또는 material.fog=false.
+- CSS 의 `infinite` 애니메이션은 절약 모드에서 한 번만 돌고 멈춤(body.eco.pwPlay). 계속 움직여야 하면 3D 프레임(update)에서 움직이기 — CSS 무한 애니메이션은 3D가 쉬어도 화면 전체를 120Hz로 다시 그리게 함.
+- WebGL 화면을 drawImage/readPixels 로 읽지 않기(그래픽 칩이 멈춰 기다림). 꼭 필요하면 바뀔 때만.
+- 매 장 getBoundingClientRect·getComputedStyle 부르지 않기(화면 배치 다시 계산). 화면 전체를 덮는 반투명 겹(div) 새로 만들지 않기.
+- 확인: 들판(REGIONS[내 세계*3+1])에서 renderer.info.render.calls 가 절약 모드 250 아래인지.
+
 ## 후보 표
 | # | 업그레이드 | 어디(파일·함수) | 상태 |
 |---|---|---|---|

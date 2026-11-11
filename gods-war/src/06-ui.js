@@ -125,7 +125,7 @@ function showMenu(){ card(`<h2>신들의 전쟁</h2><p>${G.name} · ${RM().n} ${
   <div class="row"><div class="t"><div>꾸미기</div><span>얼굴·옷·머리·망토·무기·빛깔</span></div><button class="buy alt" id="lookBtn">열기</button></div>
   <div class="row"><div class="t"><div>집(수도)으로 순간이동</div><span>전투 중엔 안 돼요${DG.on?" · 미궁에서 나가요":""}${HM.on?" · 신전 섬에서 내려가요":""}${DS.on?" · 사막에서 나가요":""}${PG.on?" · 놀이 마당에서 나가요":""}</span></div><button class="buy" id="goHome">가기</button></div>
   <div class="row"><div class="t"><div>전체 화면</div><span>아이폰은 공유 → "홈 화면에 추가"로 앱처럼 설치하면 전체 화면</span></div><button class="buy alt" id="full">켜기</button></div>
-  <div class="row"><div class="ic">🔋</div><div class="t"><div>배터리 절약</div><span>켬: 싸울 때 초당 30장·걸을 때 24장(가만히 있으면 20→12→6장)·진짜 그림자 대신 발밑 동그란 그림자·테두리 선 없음·해상도 더 낮게·버튼 뒤 흐림 효과 끔·풀·꽃·나무·집은 가까운 것만 묶어서 그림·가벼운 재질·안개 너머는 안 그림·중계 서버 2곳만·소리 장치 쉬기·배터리 20% 아래면 초절약·빛 번짐 끔·해상도 맞춤(배터리 오래감) / 끔: 최고 화질(배터리 빨리 닳음)</span></div><button class="buy alt" id="eco">${ECO()?"켜짐":"꺼짐"}</button></div>
+  <div class="row"><div class="ic">🔋</div><div class="t"><div>배터리 절약</div><span>켬: 싸울 때 초당 30장·걸을 때 24장(가만히 있으면 20→12→6장, 그사이 폰을 푹 쉬게 함)·멀리 있어 아주 작게 보이는 물체는 안 그림·버튼·글씨의 반짝임은 한 번만·진짜 그림자 대신 발밑 동그란 그림자·테두리 선 없음·해상도 더 낮게·버튼 뒤 흐림 효과 끔·풀·꽃·나무·집은 가까운 것만 묶어서 그림·가벼운 재질·안개 너머는 안 그림·중계 서버 2곳만·소리 장치 쉬기·배터리 20% 아래면 초절약·빛 번짐 끔·해상도 맞춤(배터리 오래감) / 끔: 최고 화질(배터리 빨리 닳음)</span></div><button class="buy alt" id="eco">${ECO()?"켜짐":"꺼짐"}</button></div>
   <div class="row"><div class="t"><div>그래픽</div><span>높음: 그림자·부드러움 / 보통: 폰이 느릴 때</span></div><button class="buy alt" id="gfx">${HIGH()?"높음":"보통"}</button></div>
   <div class="row"><div class="t"><div>캐릭터 새로 만들기</div><span>이름·세계·레벨이 모두 사라져요</span></div><button class="buy sell" id="wipe">지우기</button></div>
   <p style="font-size:12px">밤낮은 8분마다 바뀌고 모든 폰이 같은 시각이에요.<br>3D 모델: KayKit 1.0·2.0·Mystery 시리즈 (CC0, 무료, GitHub) · 엔진: three.js<br>조작: 왼쪽 화면을 끌면 이동 · 공격/기술 3개/물약/점프 버튼 · 키보드 WASD, J 공격, K U I 기술, L 물약, 스페이스 점프</p>`);
@@ -203,9 +203,14 @@ function cullFar(dt){ CULL.t-=dt; if(CULL.t>0) return; CULL.t=.5; const far=(sce
 function isCalm(){ return P.combat<=0&&!P.moving&&!P.dead&&!(typeof PG!=="undefined"&&PG.m)&&!(typeof DG!=="undefined"&&DG.on)&&!(typeof WAR!=="undefined"&&WAR&&WAR.joined); }
 function frameGap(t){ if(!ECO()) return 0; if(!started) return 1/10; const calm=isCalm(), idle=t-lastInput; if(layerOpen&&calm) return 1/8; if(calm&&idle>45000) return 1/6; if(calm&&idle>8000) return 1/12; if(calm&&idle>2500) return 1/20; if(LOWBAT.on) return 1/20; return (P.combat>0||(typeof PG!=="undefined"&&PG.m)||(typeof DG!=="undefined"&&DG.on)||(typeof RC!=="undefined"&&RC.on))?1/30:1/24; }
 let shadowN=0;
-function frame(t){ requestAnimationFrame(frame); if((t-last)/1000<frameGap(t)-.004) return; const dt=Math.min(.05,(t-last)/1000); last=t; if(started){ update(dt); if(ECO()) try{ cullFar(dt); }catch(e){} } else { const a=t/9000; camera.position.set(Math.sin(a)*70,30,Math.cos(a)*70); camera.lookAt(0,18,0); tickFX(dt); dayNight(dt,true,REALMS[0]); } if(ECO()&&renderer.shadowMap.enabled){ if(++shadowN%(isCalm()?8:4)===1) renderer.shadowMap.needsUpdate=true; } if(POST&&started) POST.render(); else { renderer.setRenderTarget(null); renderer.render(scene,camera); } }
+/* v108 배터리: 절약 모드에서는 화면 주사율(갤럭시 탭 120Hz)마다 깨어나지 않고, 다음 장 차례가 될 때까지 타이머로 푹 쉼 → 손대면 바로 깨움(pwKick) */
+const PWL={tm:0,raf:0,vs:16.7,lt:0};
+function pwSched(){ if(PWL.raf||PWL.tm) return; if(!ECO()){ PWL.raf=requestAnimationFrame(frame); return; } const now=performance.now(), wait=frameGap(now)*1000-(now-last); if(wait>PWL.vs*.7){ PWL.tm=setTimeout(()=>{ PWL.tm=0; PWL.raf=requestAnimationFrame(frame); },wait-PWL.vs*.5); } else PWL.raf=requestAnimationFrame(frame); }
+function pwKick(){ if(PWL.tm){ clearTimeout(PWL.tm); PWL.tm=0; } pwSched(); }
+["pointerdown","keydown","pointermove"].forEach(ev=>addEventListener(ev,()=>{ if(PWL.tm) pwKick(); },{capture:true,passive:true}));
+function frame(t){ PWL.raf=0; { const d=t-PWL.lt; PWL.lt=t; if(d>3&&d<PWL.vs*1.4+1) PWL.vs=PWL.vs*.9+d*.1; } if((t-last)<frameGap(t)*1000-Math.max(4,PWL.vs*.55)){ pwSched(); return; } const dt=Math.min(.05,(t-last)/1000); last=t; pwSched(); if(started){ update(dt); if(ECO()) try{ cullFar(dt); }catch(e){} } else { const a=t/9000; camera.position.set(Math.sin(a)*70,30,Math.cos(a)*70); camera.lookAt(0,18,0); tickFX(dt); dayNight(dt,true,REALMS[0]); } if(ECO()&&renderer.shadowMap.enabled){ if(++shadowN%(isCalm()?8:4)===1) renderer.shadowMap.needsUpdate=true; } if(POST&&started) POST.render(); else { renderer.setRenderTarget(null); renderer.render(scene,camera); } }
 $("bQuest").onclick=()=>{ if(P.nearTemple) showTemple(); else showQuests(); };
-showTitle(); requestAnimationFrame(frame);
+showTitle(); pwSched();
 /* v41 기술 준비 알림: 쿨타임 끝나는 순간 버튼 반짝 + 작은 딩 (06-ui.js HUD 에서 부름) */
 /* v67 기술 버튼 손맛: 쿨타임 동안 둘레에 금빛 회복 고리 + 시계바늘 빛, 쓰면 기술 색 물결·꾹 눌림, 아직이면 도리도리 */
 (function(){ for(let i=0;i<6;i++){ const b=$("bSkill"+i); if(b&&!b.querySelector(".cdr")){ const r=document.createElement("i"); r.className="cdr"; b.appendChild(r); } } })();

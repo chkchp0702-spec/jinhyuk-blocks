@@ -154,7 +154,7 @@ function onHexReady(){ try{ PLACED.forEach(p=>{ if(p.obj){ scene.remove(p.obj); 
   for(const k in groups){ const g=groups[k]; const im=new THREE.InstancedMesh(g.geo,(HIGH()&&/^trees?_/.test(k))?treeSwayMat(g.mat):(/^building_(home|tavern|blacksmith|church|tower|market|windmill)/.test(k)&&typeof winGlowMat==="function")?winGlowMat(g.mat):g.mat,g.mats.length); g.mats.forEach((m,i)=>im.setMatrixAt(i,m)); im.instanceMatrix.needsUpdate=true; im.castShadow=HIGH(); im.receiveShadow=HIGH()&&!ECO(); im.frustumCulled=false; im.userData.noOutline=true; im.userData.cullR=-1;
     im.userData.hx={minx:g.minx-g.r,maxx:g.maxx+g.r,minz:g.minz-g.r,maxz:g.maxz+g.r}; scene.add(im); HEXI.list.push(im); } HEXI.x=1e9; hexTick(1); }catch(e){ console.warn(e); } }
 function hexTick(dt){ HEXI.t-=dt; if(HEXI.t>0||!HEXI.list.length) return; HEXI.t=.3; if(Math.hypot(P.x-HEXI.x,P.z-HEXI.z)<4&&HEXI.zoom===ZOOM) return; HEXI.x=P.x; HEXI.z=P.z; HEXI.zoom=ZOOM;
-  const far=170*Math.max(1,ZOOM*.85)+20, back=P.z+16+14*ZOOM;
+  let far=170*Math.max(1,ZOOM*.85)+20; if(ECO()&&scene.fog&&scene.fog.far) far=Math.min(far,scene.fog.far+14); /* v108 배터리: 안개가 다 덮은 칸은 안 그림 */ const back=P.z+16+14*ZOOM;
   for(const im of HEXI.list){ const b=im.userData.hx; const dx=Math.max(b.minx-P.x,0,P.x-b.maxx), dz=Math.max(b.minz-P.z,0,P.z-b.maxz); im.visible=b.minz<=back&&dx*dx+dz*dz<=far*far; } }
 function hexPick(p){ const c=REALM_HEXCOLOR[p.realm]||"yellow"; if(p.hx) return p.hx; let h=null;
   if(p.kind==="tree"){ const pool=p.realm===1?["trees_B_small","trees_B_medium","trees_B_large","tree_single_B"]:p.realm===2?["tree_single_A","tree_single_B","trees_A_small"]:["trees_A_small","trees_A_medium","trees_A_large","tree_single_A"]; h={name:pick(pool),scale:rnd(4.5,6.5)}; }

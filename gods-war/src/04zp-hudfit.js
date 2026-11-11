@@ -50,7 +50,7 @@ const HUDFIT=(()=>{
       if(m.getBoundingClientRect().bottom>lim) m.hidden=true;
     }catch(e){ console.warn(e); }
     busy=false; }
-  function sched(){ if(pend) return; pend=true; requestAnimationFrame(fit); }
+  function sched(){ if(pend) return; pend=true; if(ECO()) setTimeout(fit,450); else requestAnimationFrame(fit); }   // v108 배터리: 절약 모드에선 매 장 화면 배치를 다시 재지 않고 0.45초에 한 번
   const mo=new MutationObserver(rs=>{ if(rs.some(r=>!(more&&(r.target===more||more.contains(r.target))))) sched(); });
   function watch(){ const q=document.getElementById("quest"); const host=q&&q.parentNode;
     if(host) mo.observe(host,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:["hidden"]}); }
