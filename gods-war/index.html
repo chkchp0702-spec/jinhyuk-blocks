@@ -719,7 +719,7 @@ body.eco .mbtn.newdot,body.eco .mbtn.newdot::before{animation:none!important}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v112";
+const VER="v113";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -5289,6 +5289,13 @@ const SKICON=(()=>{
    새 버전으로 처음 켜면 한 번, 무엇이 바뀌었는지 쉬운 말로 보여 줌(G.seenVer). 메뉴 → 업데이트 소식에서 다시 볼 수 있음.
    ※ 버전을 올릴 때마다 맨 앞에 한 줄 묶음을 더해요(오래된 것은 8개까지만 남김). */
 const PATCH_NOTES=[
+ {v:"v113",d:"11/11",t:"⚡ 신의 반격 · 🐫 헤르메스 짐수레 · 🏰 기사단 성 차지하기",items:[
+   "⚡ 신의 반격: 괴물 발밑 빨간 원이 다 차기 직전에 점프해서 피하면 「⚡ 완벽!」 — 세상이 잠깐 느려져요. 그때 공격 버튼을 누르면 내 세계의 반격(빛 십자·번개·연꽃 회오리·방패 밀치기)이 데미지 ×2! 8초 안에 또 하면 콤보 ×2.5·×3.",
+   "🐫 헤르메스 짐수레: 세계의 중심 둘레 큰길을 짐수레가 장터 4곳을 돌며 쉬지 않고 굴러가요(아무도 없어도 아기 당나귀가 혼자!). 곁에 사람이 많을수록 빨라져요(최대 ×2).",
+   "🐒 사티로스 도둑이 짐을 노려요! 달아나기 전에 잡으면 짐을 되찾아요. 장터에 닿으면 🐫 호송 도장 + 금화·경험치, 모두의 배달이 늘면 짐수레 시장에 새 물건이 열려요.",
+   "🏰 기사단 성 차지하기: 세계의 중심 둘레 네 귀퉁이에 성 4개! 매주 금요일 저녁 8시~8시 반 공성전(첫 회 11/13). 🪵 공성 망치를 함께 밀고 성문을 부순 다음 빛 구슬 곁에서 30초 버티면 우리 기사단 성!",
+   "🛡 성 주인 기사단은 접속하지 않아도 단원들의 「수비 영웅」이 성을 지켜요. 성 주인: 성 근처 경험치 +10% · 하루 한 번 👑 성주 보물. 공성전에 함께하면 🎁 공성 상자!",
+   "🏅 새 칭호 9개."]},
  {v:"v108",d:"11/11",t:"🔋 배터리 대수술 — 폰이 덜 뜨겁고 오래가요",items:[
    "🔋 화면을 쉬는 동안 폰도 진짜로 쉬어요: 예전엔 그림을 안 그리는 순간에도 1초에 120번(갤럭시 탭) 깨어났는데, 이제는 다음 그림 차례까지 푹 잠들어요. 화면을 만지면 바로 깨어나요.",
    "🌫 멀리 있어 콩알만 하게 보이거나 안개에 덮인 물체는 안 그려요 — 들판에서 한 번에 그리는 양이 절반쯤으로 줄었어요(보이는 모습은 그대로).",
@@ -5339,11 +5346,6 @@ const PATCH_NOTES=[
    "🎲 혼자서도 새 돌발 이벤트 3가지: ❄ 서리 폭풍 버티기(파란 고리를 피해요) · ⏱ 사냥 시간 도전(50초에 12마리) · 🧚 길 잃은 요정 데려다주기(매복 조심!).",
    "⚠ 조금 더 어려워졌어요: 괴물 체력 약 10%↑ · 공격력 약 7%↑ · ★정예가 조금 더 자주 나와요. 대신 함께하면 보상이 훨씬 커요!",
    "🏅 새 칭호 4개(반가운 친구 · 손발이 척척 · 끝까지 함께 · 함께라면 무적). 만남 임무·함께 이벤트는 둘 다 v88 이상일 때만 생겨요 — 친구에게 게임을 한 번 껐다 켜라고 알려 주세요."]},
- {v:"v85",d:"11/9",t:"🎯 오늘의 현상수배 · 🐲 전설 신수 길들이기",items:[
-   "🎯 오늘의 현상수배: 네 수도 광장의 현상수배 게시판에 날마다 대장 괴물 3마리! 사냥터 어딘가에 숨어서 어슬렁거려요. 가까이 가야 보이고, 멀리서는 「쿵… 쿵…」 발소리만 들려요.",
-   "🎯 찾으면 「🚩 찾았다!」 — 같은 방 모두의 지도와 화면 가장자리에 깃발이 떠요(처음 찾은 사람은 눈 밝은 탐정 보너스). 체력은 모두 함께 깎고, 한 번이라도 때린 사람은 모두 현상금을 받아요. 빨간 고리는 점프로 피해요!",
-   "🐲 전설 신수 길들이기 대작전: 11/14(토) 저녁 8시 첫 방문, 그다음 매달 첫째 토요일 저녁 8시! 전설 신수가 한 세계의 수도 하늘에 내려와요.",
-   "🐲 싸우지 않아요 — 둘레에 서서 「🪢 빛의 밧줄」을 박자 맞춰 눌러요. 모두의 밧줄로 고리가 가득 차면 함께한 사람 모두 전설 신수 알(하루 뒤 부화)! 날개 바람은 점프로 피해요. 메뉴 🐲 에서 바로 가기."]}
 ];
 function patchNew(){ const seen=G.seenVer; if(!seen) return PATCH_NOTES.slice(0,1); const i=PATCH_NOTES.findIndex(p=>p.v===seen); return i<0?PATCH_NOTES.slice(0,1):PATCH_NOTES.slice(0,i); }
 function showPatch(all){ const L=all?PATCH_NOTES:patchNew(); G.seenVer=PATCH_NOTES[0].v; saveGame();
@@ -9349,6 +9351,405 @@ const POTBTN=(function(){
 })();
 </script>
 <script>
+/* ================= v113-1: ⚡ 신의 반격 — 딱 맞춰 피하면 세상이 느려지는 순간 (IDEAS G11/11-1) =================
+   괴물이 때리기 직전(발밑 빨간 원이 차오를 때) 「딱 그 순간」 점프해서 공격을 피하면 = 완벽한 피하기!
+   - 판정: 점프를 누른 뒤 0.42초 안에 괴물 공격이 들어와 공중에서 피함(처음 5번은 0.6초로 넉넉하게). hurtPlayer 를 감쌈.
+   - 연출: 0.55초 동안 세상이 느려짐(update 의 dt 를 줄임 → 괴물·화살·효과 모두) + 화면 가장자리 금빛 + "⚡ 완벽!" + 찰칵 소리.
+   - 1.1초 안에 공격 버튼 → 「신의 반격」: 세계마다 다른 연출(에덴 빛 십자 · 아스가르드 번개 · 인도 연꽃 회오리 · 올림푸스 방패 밀치기)
+     데미지 = 공격력 × 2 (콤보 2번째 ×2.5 · 3번째부터 ×3) + 괴물이 1.6초 동안 비틀(다음 공격이 늦어짐) + 뒤로 밀림.
+   - 콤보: 8초 안에 다시 반격하면 이어짐. 다른 사람 화면에도 내 자리에서 금빛 번쩍(t:"ctr").
+   저장: G.ctN(완벽 피하기) · G.ctK(반격) · G.ctBest(최고 콤보) · G.ctTip(안내 본 횟수). 칭호 3개. */
+const CT_WIN=.42, CT_WIN_EASY=.6, CT_SLOW=.55, CT_SCALE=.3, CT_HIT=1.1, CT_COMBO=8;
+const CT={jt:-9,last:-9,slowT:0,win:0,m:null,combo:0,comboT:0,tipT:0,el:null};
+const CT_STYLE=[{n:"빛의 십자 베기",c:0xffe58a,c2:0xffffff},{n:"번개 내려찍기",c:0x9ad8ff,c2:0xffffff},{n:"연꽃 회오리",c:0xff8fc8,c2:0xffe08a},{n:"방패 밀치기",c:0xffd05a,c2:0x7ab8ff}];
+function ctNow(){ return performance.now()/1000; }
+function ctEl(){ if(CT.el&&CT.el.isConnected) return CT.el; const d=document.createElement("div"); d.id="ctFx"; d.innerHTML='<div class="ed"></div><div class="tx"></div>'; document.body.appendChild(d); CT.el=d; return d; }
+function ctShow(txt,sub){ const d=ctEl(); d.querySelector(".tx").innerHTML=`${txt}${sub?`<small>${sub}</small>`:""}`; d.classList.remove("on"); void d.offsetWidth; d.classList.add("on"); clearTimeout(CT.hideT); CT.hideT=setTimeout(()=>d.classList.remove("on"),900); }
+/* ---------- 점프 기록: 점프 버튼은 06-ui.js 가 먼저 묶어서, 매 프레임 위로 솟는 순간(vy 가 갑자기 커짐)을 봄 ---------- */
+function ctJumpWatch(){ const vy=P.vy||0; if(vy>8&&vy>(CT.pvy||0)+4) CT.jt=ctNow()-.016; CT.pvy=vy; }
+/* ---------- 완벽한 피하기 판정 ---------- */
+function ctAttacker(from){ if(typeof from!=="string") return null; let best=null, bd=1e9; for(const m of mobs){ if(m.hp<=0||m.n!==from||m.still||m.titan) continue; const d=Math.hypot(m.x-P.x,m.z-P.z); const lim=(m.boss?4.6:3.6)*Math.max(1,m.scale||1); if(d<lim&&d<bd){ bd=d; best=m; } } return best; }
+(function(){ const _h=hurtPlayer; hurtPlayer=function(dmg,from){
+  try{ if(!P.dead&&!(P.invul>0)&&P.y>0.8&&!(typeof from==="object"&&from&&from.sure)){ const t=ctNow(); const win=(G.ctN||0)<5?CT_WIN_EASY:CT_WIN;
+      if(t-CT.jt<win&&t-CT.last>1.2){ const m=ctAttacker(from); if(m){ const r=_h.apply(this,arguments); ctPerfect(m); return r; } } } }catch(e){ console.warn(e); }
+  return _h.apply(this,arguments); }; })();
+function ctPerfect(m){ CT.last=ctNow(); CT.slowT=CT_SLOW; CT.win=CT_HIT; CT.m=m; G.ctN=(G.ctN||0)+1; saveGame();
+  tone(1760,.05,"square",0,.07); tone(2349,.09,"sine",.03,.06); tone(220,.25,"sine",0,.05); buzz([15,30,15]);
+  try{ SFX.glow(P.x,1.6+hAt(P.x,P.z),P.z,0xffe08a,2.6,.5); }catch(e){} fxRing(P.x,P.z,0xffe08a,4,.45);
+  ctShow("⚡ 완벽!",G.ctN<=3?"지금 공격 버튼! → 신의 반격":"공격으로 반격!");
+  try{ m.cd=Math.max(m.cd||0,.9); }catch(e){} }
+/* ---------- 신의 반격 ---------- */
+function ctCounter(){ const m=CT.m; CT.win=0; CT.m=null; if(!m||m.hp<=0||mobs.indexOf(m)<0) return false; const d=Math.hypot(m.x-P.x,m.z-P.z); if(d>7) return false;
+  const t=ctNow(); CT.combo=(t-CT.comboT<CT_COMBO)?CT.combo+1:1; CT.comboT=t; const mult=CT.combo>=3?3:CT.combo===2?2.5:2;
+  P.rot=Math.atan2(m.x-P.x,m.z-P.z); try{ if(player) player.rotation.y=P.rot; }catch(e){}
+  const st=stat(); const realm=Math.max(0,G.realm|0); const S=CT_STYLE[realm]||CT_STYLE[0];
+  ctFx(realm,m); damageMob(m,st.atk*mult*rnd(.95,1.05),true);
+  if(m.hp>0){ m.cd=Math.max(m.cd||0,1.6); m.ctStun=1.6; if(!m.boss&&!m.still){ const k=d||1; m.x+=(m.x-P.x)/k*2.4; m.z+=(m.z-P.z)/k*2.4; } }
+  G.ctK=(G.ctK||0)+1; G.ctBest=Math.max(G.ctBest||0,CT.combo); saveGame();
+  ctShow(`⚡ 신의 반격!${CT.combo>1?` <em>×${CT.combo}</em>`:""}`,`${S.n} · 데미지 ×${mult}`);
+  jingle([784,1046,1318,1568]); thud(); buzz([30,20,50]); P.shake=Math.max(P.shake||0,.7);
+  try{ net.send({t:"ctr",x:Math.round(P.x*10)/10,z:Math.round(P.z*10)/10,r:realm,c:CT.combo}); }catch(e){}
+  return true; }
+function ctFx(realm,m){ const S=CT_STYLE[realm]||CT_STYLE[0]; const x=m.x, z=m.z, rot=P.rot;
+  try{
+    if(realm===0){ SFX.beamLine(P.x,P.z,rot+.45,8,1.1,S.c); SFX.beamLine(P.x,P.z,rot-.45,8,1.1,S.c2); SFX.glow(x,2+hAt(x,z),z,S.c,3.2,.5); SFX.runeAt(x,z,S.c,3.4,.7); }
+    else if(realm===1){ SFX.glow(x,6+hAt(x,z),z,S.c,2,.3); for(let k=0;k<6;k++) fxSpark(x,6-k,z,S.c,4); SFX.shock(x,z,S.c,5,.45); SFX.dust(x,z,14,3); SFX.glow(x,1+hAt(x,z),z,S.c2,3.4,.35); }
+    else if(realm===2){ SFX.runeAt(x,z,S.c,4,.8); SFX.shock(x,z,S.c2,4.2,.5); for(let k=0;k<8;k++){ const a=k/8*6.283; fxSpark(x+Math.cos(a)*1.6,1.2,z+Math.sin(a)*1.6,k%2?S.c:S.c2,4); } SFX.glow(x,1.8+hAt(x,z),z,S.c,2.8,.45); }
+    else { SFX.speed(P.x,P.z,rot,S.c); SFX.shock(x,z,S.c2,4.6,.45); SFX.glow(x,1.6+hAt(x,z),z,S.c,3,.45); SFX.dust(x,z,12,2.6); }
+  }catch(e){ fxRing(x,z,S.c,5,.5); fxSpark(x,2,z,S.c,24); }
+  fxFlash(x,1.6,z,0xffffff,2.4,.25); }
+(function(){ const _a=attack; attack=function(){ if(CT.win>0&&!P.dead&&!layerOpen&&!(P.atkCd>0)){ const ok=ctCounter(); const r=_a.apply(this,arguments); if(ok) P.atkCd=Math.max(P.atkCd||0,.32); return r; } return _a.apply(this,arguments); }; })();
+/* 남이 반격하면 그 자리에 금빛 번쩍 */
+NETR.ctr=(o,d)=>{ if(!o||!(Math.abs(+d.x)<2000)) return; const x=+d.x, z=+d.z; if(Math.hypot(x-P.x,z-P.z)>70) return; const S=CT_STYLE[d.r|0]||CT_STYLE[0]; fxRing(x,z,S.c,4.5,.45); fxSpark(x,2.4,z,S.c,16); try{ SFX.glow(x,1.8+hAt(x,z),z,S.c,2.2,.4); }catch(e){} if((d.c|0)>=3) floatDmg(x,4.6,z,`⚡ 반격 ×${d.c|0}`,"crit"); };
+/* ---------- 세상이 느려짐: update 의 dt 를 줄임 ---------- */
+function ctScale(){ if(CT.slowT<=0) return 1; const k=CT.slowT/CT_SLOW; return CT_SCALE+(1-CT_SCALE)*Math.max(0,1-k*1.6); }
+document.addEventListener("DOMContentLoaded",()=>{ try{ const _u=update; update=function(dt){ const s=ctScale(); return _u(s<1?dt*s:dt); }; }catch(e){ console.warn(e); } });
+/* ---------- 매 프레임 (진짜 시간으로 셈) ---------- */
+function ctTick(){ ctJumpWatch(); const t=ctNow(); const rd=Math.min(.1,t-(CT.rt||t)); CT.rt=t;
+  if(CT.slowT>0){ CT.slowT=Math.max(0,CT.slowT-rd); } const el=CT.el; if(el) el.classList.toggle("slow",CT.slowT>0);
+  if(CT.win>0){ CT.win=Math.max(0,CT.win-rd); if(CT.win<=0) CT.m=null; }
+  mobs.forEach(m=>{ if(m.ctStun>0){ m.ctStun-=rd; if(m.hp>0&&m.mesh){ m.mesh.rotation.z=Math.sin(t*18)*.12*Math.min(1,m.ctStun); if(m.ctStun<=0) m.mesh.rotation.z=0; } } });
+  // 처음 몇 번은 빨간 원이 찰 때 알려 줌
+  if((G.ctN||0)<2&&(G.ctTip||0)<6&&!P.dead&&!layerOpen&&t-CT.tipT>40){ const w=mobs.find(m=>m.mesh&&m.mesh.userData.wk>.35&&Math.hypot(m.x-P.x,m.z-P.z)<4.5); if(w){ CT.tipT=t; G.ctTip=(G.ctTip||0)+1; toast("💡 빨간 원이 다 차기 직전에 점프!","딱 맞춰 피하면 ⚡ 완벽! → 공격 버튼으로 「신의 반격」",3); } } }
+XTICK.push(ctTick);
+/* ---------- 창 ---------- */
+function showCounter(){ const realm=Math.max(0,G.realm|0); const S=CT_STYLE[realm];
+  card(`<h2>⚡ 신의 반격</h2><p>괴물 발밑에 <b style="color:#ff6a4a">빨간 원</b>이 차오르면 곧 공격이 와요. 원이 <b>거의 다 찼을 때</b> 점프해서 피하면 <b>⚡ 완벽!</b> — 세상이 잠깐 느려져요.</p>
+   <p>그때 <b>공격 버튼</b>을 누르면 내 세계의 「신의 반격」이 나가요: <b style="color:#ffe08a">${REALMS[realm].icon} ${S.n}</b> · 데미지 ×2 + 괴물이 비틀거려요. 8초 안에 또 반격하면 콤보 ×2.5 · ×3!</p>
+   <div class="idlegrid"><div><b>${G.ctN||0}</b><span>완벽한 피하기</span></div><div><b>${G.ctK||0}</b><span>신의 반격</span></div><div><b>×${G.ctBest||0}</b><span>최고 콤보</span></div></div>
+   <div class="exgrid">${CT_STYLE.map((s,i)=>`<div class="row"><div class="ic">${REALMS[i].icon}</div><div class="t"><div>${REALMS[i].n}</div><span>${s.n}</span></div></div>`).join("")}</div>
+   <p style="font-size:12px">처음 5번은 타이밍을 넉넉하게 봐줘요. 너무 일찍 뛰면 그냥 「피함!」이에요 — 원이 꽉 차기 바로 전이 딱 좋아요.</p>`); }
+MENU_X.push({ic:"⚡",n:"신의 반격",id:"ctBtn",sub:()=>(G.ctK?`반격 ${G.ctK}번 · 최고 콤보 ×${G.ctBest||1}`:"딱 맞춰 점프하면 슬로 모션 반격!"),f:showCounter});
+TITLES.push({id:"ct1",n:"딱 그 순간",t:1,h:"완벽한 피하기 10번",g:()=>[G.ctN||0,10]},{id:"ct2",n:"바람보다 빠른 자",t:2,h:"신의 반격 콤보 ×3",g:()=>[G.ctBest||0,3]},{id:"ct3",n:"반격의 신",t:3,h:"신의 반격 100번",g:()=>[G.ctK||0,100]});
+</script>
+<style>
+#ctFx{position:fixed;inset:0;pointer-events:none;z-index:40;opacity:0;transition:opacity .25s}
+#ctFx.on,#ctFx.slow{opacity:1;transition:none}
+#ctFx .ed{position:absolute;inset:0;box-shadow:inset 0 0 70px 18px rgba(255,214,90,.55),inset 0 0 0 3px rgba(255,236,160,.7);background:radial-gradient(ellipse at center,rgba(0,0,0,0) 55%,rgba(60,40,0,.28) 100%)}
+#ctFx:not(.slow) .ed{opacity:.45}
+#ctFx .tx{position:absolute;left:50%;top:30%;transform:translate(-50%,-50%) scale(.6);opacity:0;text-align:center;color:#fff3c0;font-weight:900;font-size:34px;letter-spacing:1px;text-shadow:0 3px 0 #7a4a00,0 0 14px rgba(255,200,60,.9),0 0 2px #000;white-space:nowrap}
+#ctFx .tx em{font-style:normal;color:#ffd24a} #ctFx .tx small{display:block;font-size:13px;font-weight:800;color:#fff;text-shadow:0 1px 2px #000;margin-top:2px}
+#ctFx.on .tx{animation:ctPop .9s ease-out forwards}
+@keyframes ctPop{0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}30%{transform:translate(-50%,-50%) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-62%) scale(1)}}
+</style>
+<script>
+/* ================= v113-2: 🐫 헤르메스 짐수레 호송 — 모두 함께 지키는 세계 길 (IDEAS G11/11-2) =================
+   세계의 중심 둘레(반지름 112m) 큰길을 헤르메스의 짐수레가 장터 4곳(동·남·서·북 갈림길)을 돌며 쉬지 않고 굴러감.
+   - 아무도 없어도 아기 당나귀가 혼자 끌고 감: 모든 폰이 같은 공식으로 앞으로 계산(마지막 상태 + 흐른 시간).
+   - 수레 14m 안에 있는 사람(나+친구)이 많을수록 빨라짐: 1명 ×1.25 … 4명 이상 ×2.
+   - 사람이 가까이 있으면 장난꾸러기 「사티로스 도둑」이 짐을 노리고 몰려옴(내 폰에서만 생김) → 수레에 닿으면 짐을 1개씩 훔쳐 달아남.
+     달아나기 전에 잡으면 훔친 짐을 되찾음. 짐 20개를 다 빼앗기면 빈 수레로 가고, 다음 수레엔 🛡 경비병 2명이 붙어 도둑이 덜 옴.
+   - 사람이 지켜 준 수레가 장터에 닿을 때마다(짐이 남아 있으면) 그 장터가 자라고(Lv), 모두의 배달 수가 늘어 짐수레 시장에 새 물건이 열림(10·30·60번).
+   - 그 길을 지킨(25초 넘게 수레 곁에 있던) 사람: 🐫 호송 도장 + 금화·경험치(남은 짐만큼 더).
+   공유: 보관 crv/s = {n 도착 수, d 짐 있는 배달 수, tw[4] 장터별 배달, lg 다리, p 진행, w 장터에서 쉬는 남은 초, c 짐, gd 경비, ts, by}
+         수레 40m 안의 사람 중 id 가 가장 작은 사람(대장)이 4초마다 올림. 실시간: t:"crs"(훔침) · "crg"(되찾음) → 대장이 반영.
+   저장: G.crSt(도장) · G.crT(도장 모은 수) · G.crRw(보상 받은 도착 번호) · G.crK(잡은 도둑) · G.crBack(되찾은 짐) · G.crSeen · G.crS(마지막 상태). 칭호 3개. */
+const CR_R=112, CR_SPD=.9, CR_WAIT=45, CR_CAR=20, CR_ESC=14, CR_NEAR=40, CR_LEG=CR_R*Math.PI/2, CR_E0=Date.UTC(2026,10,11,12,0,0);
+const CR_TOWN=[{n:"에덴·인도 갈림길 장터",ic:"🌅"},{n:"인도·올림푸스 장터",ic:"🪷"},{n:"올림푸스·아스가르드 장터",ic:"🏛"},{n:"아스가르드·에덴 장터",ic:"❄"}];
+const CR_TIER=[0,10,30,60];
+const CR={S:null,src:0,pubT:2,t:0,built:false,g:null,lbl:null,wheels:[],crates:[],guards:[],donkey:null,stalls:[],sLbl:[],bandits:[],waveT:6,escT:0,lastEsc:0,mult:1,lead:false,rep:false,repT:8,el:null,arr:null};
+function crTheta(S){ return ((S.lg+(S.w>0?0:S.p))%4)*Math.PI/2; }
+function crPos(S){ const a=crTheta(S); return {x:Math.cos(a)*CR_R,z:Math.sin(a)*CR_R,a}; }
+function crStop(i){ const a=(i%4)*Math.PI/2; return {x:Math.cos(a)*CR_R,z:Math.sin(a)*CR_R}; }
+function crInit(){ return {n:0,d:0,tw:[0,0,0,0],lg:0,p:0,w:0,c:CR_CAR,gd:0,ts:CR_E0,by:""}; }
+function crClean(d){ if(!d||typeof d!=="object") return null; const S={n:Math.max(0,d.n|0),d:Math.max(0,d.d|0),tw:[0,1,2,3].map(i=>Math.max(0,(d.tw&&d.tw[i])|0)),lg:((d.lg|0)%4+4)%4,p:clamp(+d.p||0,0,1),w:clamp(+d.w||0,0,CR_WAIT),c:clamp(d.c|0,0,CR_CAR),gd:d.gd?1:0,ts:+d.ts||0,by:String(d.by||"").slice(0,40)}; if(!(S.ts>CR_E0-86400000)) return null; return S; }
+/* 앞으로 계산: sec 초 동안, 빠르기 mult. 도착하면 onArr(S, 짐 있었나) */
+function crAdvance(S,sec,mult,onArr,esc){ sec=Math.min(sec,30*86400); let guard=0;
+  while(sec>1e-6&&guard++<100000){
+    if(S.w>0){ const u=Math.min(S.w,sec); S.w-=u; sec-=u; if(S.w<=1e-6){ S.w=0; S.p=0; } continue; }
+    const v=CR_SPD*(mult||1)/CR_LEG; const need=(1-S.p)/v; if(sec<need){ S.p+=v*sec; sec=0; break; }
+    sec-=need; const had=S.c>0; S.lg=(S.lg+1)%4; S.p=0; S.n++; if(had&&esc){ S.d++; S.tw[S.lg]++; }
+    if(onArr) try{ onArr(S,had); }catch(e){ console.warn(e); }
+    S.gd=had?0:1; S.c=CR_CAR; S.w=CR_WAIT; }
+  return S; }
+function crData(){ if(!CR.S){ let s=crClean(G.crS)||crInit(); crAdvance(s,(Date.now()-s.ts)/1000,1); s.ts=Date.now(); CR.S=s; } return CR.S; }
+/* ---------- 보관 메시지 ---------- */
+NETX.push({sub:"crv/s",pre:"crv/",f:d=>{ const S=crClean(d); if(!S) return; if(S.ts<=CR.src) return; if(CR.lead&&S.by&&S.by>G.id&&Date.now()-S.ts<15000) return;
+  CR.src=S.ts; const before=CR.S?CR.S.n:null; const sec=(Date.now()-S.ts)/1000; crAdvance(S,Math.max(0,sec),1); S.ts=Date.now(); CR.S=S; if(before!=null&&S.n>before) crArrivedRemote(before,S.n); }});
+function crPub(){ const S=crData(); if(!S) return; S.ts=Date.now(); S.by=G.id; try{ net.pushRet("crv/s",S); CR.src=S.ts; }catch(e){} }
+NETR.crs=(o,d)=>{ if(!CR.lead) return; const S=crData(); const k=clamp(d.k|0,1,3); S.c=Math.max(0,S.c-k); CR.pubT=Math.min(CR.pubT,.6); };
+NETR.crg=(o,d)=>{ if(!CR.lead) return; const S=crData(); const k=clamp(d.k|0,1,3); S.c=Math.min(CR_CAR,S.c+k); CR.pubT=Math.min(CR.pubT,.6); };
+/* ---------- 모습 ---------- */
+function crBuild(){ if(CR.built) return; CR.built=true;
+  const g=new THREE.Group(); const wood=mat({color:0x9a6a3a,roughness:.9}), dk=mat({color:0x5a3a20,roughness:.95}), cloth=mat({color:0x3a8ad8,roughness:.8}), gold=M.gold;
+  g.add(box(2.4,.25,3.6,wood,0,1.05,0)); g.add(box(.12,.6,3.6,wood,1.15,1.45,0)); g.add(box(.12,.6,3.6,wood,-1.15,1.45,0)); g.add(box(2.4,.6,.12,wood,0,1.45,-1.75));
+  [[1.3,1.1],[-1.3,1.1],[1.3,-1.1],[-1.3,-1.1]].forEach(([x,z])=>{ const w=new THREE.Mesh(new THREE.TorusGeometry(.55,.12,6,14),dk); w.position.set(x,.62,z); w.rotation.y=Math.PI/2; g.add(w); const hub=cyl(.12,.12,.26,gold,x,.62,z,8); hub.rotation.z=Math.PI/2; g.add(hub); CR.wheels.push(w); });
+  // 짐(상자·자루) 20개 자리 중 남은 만큼 보임
+  const cc=[0xd8a24a,0xc0503a,0x5aa04a,0x8a6ad8,0xe8d8b0];
+  for(let i=0;i<CR_CAR;i++){ const lx=i%3, lz=Math.floor(i/3)%4, ly=Math.floor(i/12); const sack=i%4===3; const c=sack?sph(.32,mat({color:0xe8d8b0,roughness:1}),0,0,0):box(.62,.5,.62,mat({color:cc[i%cc.length],roughness:.85}),0,0,0); c.position.set(-.75+lx*.75,1.45+ly*.55+(sack?.05:0),-1.15+lz*.75); g.add(c); CR.crates.push(c); }
+  // 날개 깃발(헤르메스)
+  g.add(cyl(.06,.06,3,dk,.95,2.6,-1.6,6)); const fl=box(1,.65,.04,cloth,1.45,3.7,-1.6); g.add(fl); CR.flag=fl;
+  const wg=mat({color:0xffffff,roughness:.6}); [-1,1].forEach(s=>{ const w=box(.5,.18,.04,wg,1.45+s*.62,3.95,-1.6); w.rotation.z=s*.5; g.add(w); });
+  // 손잡이 + 아기 당나귀
+  g.add(box(.1,.1,1.8,dk,.45,.95,2.6)); g.add(box(.1,.1,1.8,dk,-.45,.95,2.6));
+  const dn=new THREE.Group(); const fur=mat({color:0x9a8a7a,roughness:1}), belly=mat({color:0xe8e0d0,roughness:1}), blk=mat({color:0x2a2420});
+  dn.add(box(.9,.8,1.6,fur,0,1.15,0)); dn.add(box(.8,.3,1.3,belly,0,.82,0)); const head=new THREE.Group(); head.add(box(.55,.6,.8,fur,0,0,.2)); head.add(box(.45,.38,.35,belly,0,-.1,.62)); head.add(box(.12,.5,.12,fur,.18,.48,0)); head.add(box(.12,.5,.12,fur,-.18,.48,0)); head.add(sph(.07,blk,.2,.12,.5)); head.add(sph(.07,blk,-.2,.12,.5)); head.position.set(0,1.85,.95); dn.add(head);
+  const legs=[]; [[.3,.55],[-.3,.55],[.3,-.55],[-.3,-.55]].forEach(([x,z])=>{ const l=box(.22,.75,.22,fur,x,.38,z); dn.add(l); legs.push(l); }); dn.add(box(.08,.5,.08,blk,0,1.2,-.85)); dn.position.set(0,0,3.6); g.add(dn); CR.donkey={g:dn,head,legs};
+  // 경비병 2명(짐을 다 빼앗긴 다음 수레)
+  [-1,1].forEach(s=>{ const gu=new THREE.Group(); const bm=mat({color:0xc8a040,metalness:.4,roughness:.4}); gu.add(cyl(.32,.4,1.3,mat({color:0x8a2a2a}),0,.95,0,8)); gu.add(sph(.32,mat({color:0xf0c8a0}),0,1.85,0)); gu.add(cyl(.34,.34,.25,bm,0,2.05,0,10)); gu.add(box(.08,.5,.08,mat({color:0xd84a3a}),0,2.35,0)); const sh=cyl(.5,.5,.1,bm,s*.45,1.1,.2,14); sh.rotation.z=Math.PI/2; gu.add(sh); gu.add(cyl(.04,.04,2.6,dk,-s*.4,1.4,0,6)); gu.position.set(s*2,0,0); gu.visible=false; g.add(gu); CR.guards.push(gu); });
+  shadowify(g); g.userData.cullR=-1; scene.add(g); CR.g=g; CR.lbl=makeLabel("");
+  // 장터 4곳: 천막 노점 + 이름표
+  for(let i=0;i<4;i++){ const p=crStop(i); const a=i*Math.PI/2; const st=new THREE.Group(); const can=[0xe84a4a,0x3a9ae8,0xf2b21a,0x4ab85a][i];
+    const ox=Math.cos(a)*7, oz=Math.sin(a)*7; for(let k=0;k<2;k++){ const s2=new THREE.Group(); [[1.2,1],[-1.2,1],[1.2,-1],[-1.2,-1]].forEach(([x,z])=>s2.add(cyl(.07,.07,2.4,dk,x,1.2,z,6))); s2.add(box(2.7,.7,2.3,mat({color:0x9a6a3a}),0,.35,0)); const roof=new THREE.Mesh(new THREE.ConeGeometry(2.1,1,4),mat({color:k?0xfaf6ec:can,roughness:.8})); roof.position.y=2.9; roof.rotation.y=Math.PI/4; s2.add(roof); for(let q=0;q<4;q++) s2.add(box(.42,.36,.42,mat({color:cc[(q+k+i)%cc.length]}),-.8+q*.53,.88,0)); s2.position.set((k?-1:1)*2.4*Math.sin(a),0,(k?1:-1)*2.4*Math.cos(a)); s2.rotation.y=-a; st.add(s2); }
+    st.add(cyl(.09,.09,3.2,dk,0,1.6,0,6)); const sg=box(1.6,.6,.08,mat({color:0xf2e2b0}),0,2.9,0); sg.rotation.y=-a+Math.PI/2; st.add(sg);
+    st.position.set(p.x+ox,hAt(p.x+ox,p.z+oz),p.z+oz); shadowify(st); scene.add(st); CR.stalls.push(st); CR.sLbl.push(makeLabel("")); } }
+function crCrates(c){ CR.crates.forEach((m,i)=>{ m.visible=i<c; }); }
+/* ---------- 도둑 ---------- */
+function crBandit(){ const S=crData(), q=crPos(S); const fx=-Math.sin(q.a), fz=Math.cos(q.a); const side=Math.random()<.5?-1:1; const ang=side*rnd(.5,1.1); const ca=Math.cos(ang), sa=Math.sin(ang);
+  const dx=fx*ca-fz*sa, dz=fx*sa+fz*ca; const x=q.x+dx*rnd(18,24), z=q.z+dz*rnd(18,24);
+  const lv=Math.max(1,G.lv); const st=mobStats(lv,false); const mesh=makeMob("satyr",0x9a6a3a,.8);
+  const sack=sph(.38,mat({color:0xe8d8b0,roughness:1}),0,1.5,-.45); sack.visible=false; mesh.add(sack); mesh.userData.sack=sack;
+  const mask=box(.9,.18,.06,mat({color:0x2a2a3a}),0,2.15,.42); mesh.add(mask);
+  const hp=Math.max(40,Math.round(stat().atk*3.4));
+  const m={n:"사티로스 도둑",shape:"satyr",mesh,x,z,hx:x,hz:z,lv,boss:false,world:false,hp,mhp:hp,atk:st.atk*.4,xp:Math.round(st.xp*.8),gold:Math.round(st.gold*.8),rg:12,cd:1.2,state:"chase",t:0,lbl:makeLabel(""),rot:0,hit:0,scale:.8,power:0,ev:1,crb:1,carry:0,stealT:0,flee:0,fx:0,fz:0};
+  mesh.position.set(x,hAt(x,z),z); mesh.scale.setScalar(.8); scene.add(mesh); mobs.push(m); fxSpark(x,1,z,0x9a6a3a,10); CR.bandits.push(m); return m; }
+function crClearBandits(){ for(let i=mobs.length-1;i>=0;i--) if(mobs[i].crb) removeMob(mobs[i]); CR.bandits=[]; }
+(function(){ const _km=killMob; killMob=function(m){ const was=m&&m.crb, k=was?m.carry:0, x=m&&m.x, z=m&&m.z; _km(m); if(!was) return; G.crK=(G.crK||0)+1; const i=CR.bandits.indexOf(m); if(i>=0) CR.bandits.splice(i,1);
+  if(k>0){ G.crBack=(G.crBack||0)+k; const S=crData(); if(CR.lead){ S.c=Math.min(CR_CAR,S.c+k); CR.pubT=Math.min(CR.pubT,.6); } else { S.c=Math.min(CR_CAR,S.c+k); try{ net.send({t:"crg",k}); }catch(e){} } floatDmg(x,4.4,z,`📦 짐 +${k} 되찾음!`,"gain"); jingle([659,880,1046]); }
+  saveGame(); }; })();
+function crTickBandits(dt,S,q){ const tn=performance.now(); for(let i=CR.bandits.length-1;i>=0;i--){ const m=CR.bandits[i]; if(mobs.indexOf(m)<0){ CR.bandits.splice(i,1); continue; } const u=m.mesh.userData;
+    m.hit=Math.max(0,m.hit-dt); if(m.ctStun>0){ } else if(m.flee>0){ m.flee-=dt; m.x+=m.fx*6.5*dt; m.z+=m.fz*6.5*dt; m.rot=Math.atan2(m.fx,m.fz); if(m.flee<=0){ fxSpark(m.x,1,m.z,0x9a6a3a,10); removeMob(m); CR.bandits.splice(i,1); continue; } }
+    else { const dx=q.x-m.x, dz=q.z-m.z, d=Math.hypot(dx,dz); if(d>2.6){ const sp=(S.w>0?3:4.8)*(m.hit>0?.4:1); m.x+=dx/d*sp*dt; m.z+=dz/d*sp*dt; m.rot=Math.atan2(dx,dz); m.state="chase"; }
+      else { m.stealT+=dt; m.rot=Math.atan2(dx,dz); if(m.stealT>1.6&&S.c>0){ m.stealT=0; m.carry++; S.c=Math.max(0,S.c-1); u.lunge=.25; floatDmg(q.x,3.4,q.z,"📦 짐 -1","me"); tone(300,.08,"square",0,.06); if(CR.lead) CR.pubT=Math.min(CR.pubT,.6); else try{ net.send({t:"crs",k:1}); }catch(e){}
+          if(m.carry>=2||S.c<=0){ const k=d||1; m.fx=-dx/k; m.fz=-dz/k; m.flee=6; if(u.sack) u.sack.visible=true; toast("🐒 도둑이 짐을 들고 달아나요!","달아나기 전에 잡으면 되찾아요",1.4); } } } }
+    m.mesh.position.set(m.x,hAt(m.x,m.z)+(u.lunge>0?.35:0)+Math.abs(Math.sin(tn/90+m.x))*.2,m.z); if(u.lunge>0) u.lunge-=dt; let dr=m.rot-m.mesh.rotation.y; while(dr>Math.PI) dr-=Math.PI*2; while(dr<-Math.PI) dr+=Math.PI*2; m.mesh.rotation.y+=dr*Math.min(1,dt*10);
+    hitTint(m.mesh,m.hit/.15); m.mesh.scale.setScalar(m.scale*(m.hit>0?1.12:1)); try{ HITF.apply(m,dt); }catch(e){}
+    if(Math.hypot(P.x-m.x,P.z-m.z)<40) placeLabel(m.lbl,m.x,3.2,m.z,`${m.carry?"💰":"🐒"} 도둑<span class="hp"><i style="width:${Math.round(m.hp/m.mhp*100)}%"></i></span>`); else m.lbl.style.display="none"; } }
+/* ---------- 도착 ---------- */
+function crArrive(S,had){ const T=CR_TOWN[S.lg]; const near=Math.hypot(P.x-crStop(S.lg).x,P.z-crStop(S.lg).z)<60;
+  const esc=CR.escT; CR.escT=0; crClearBandits();
+  if(esc>=25&&(G.crRw||0)<S.n){ G.crRw=S.n; const k=had?1+Math.round(2*S.c/CR_CAR):0; const gold=Math.round((40+G.lv*6)*(had?(.5+S.c/CR_CAR):.3)); const xp=Math.round((30+G.lv*10)*(had?1:.4));
+    if(k>0){ G.crSt=(G.crSt||0)+k; G.crT=(G.crT||0)+k; } G.gold+=gold; gainXp(xp); saveGame(); CR.arr={T,had,k,gold,c:S.c,n:S.n};
+    jingle(had?[523,659,784,1046,1318]:[440,392,349]); buzz([30,30,60]); }
+  else if(near&&started){ toast(`🐫 짐수레가 ${T.ic} ${T.n}에 닿았어요!`,had?`짐 ${S.c}/${CR_CAR}개 배달 · 장터가 자라요`:"빈 수레… 다음 수레엔 경비병이 붙어요",2.4); } }
+function crArrivedRemote(a,b){ /* 남의 소식으로 도착 수가 올랐을 때 — 보상은 내가 곁에서 지켜본 경우만(crArrive 가 처리), 여긴 도둑 정리만 */ if(CR.escT>=25){ const S=crData(); crArrive(S,S.d>0); } else { CR.escT=0; crClearBandits(); } }
+/* ---------- 매 프레임 ---------- */
+function crEscorts(q){ let n=0; if(!P.dead&&Math.hypot(P.x-q.x,P.z-q.z)<CR_ESC&&!(typeof glAway==="function"&&glAway())) n++; for(const id in PEERS){ const o=PEERS[id]; if(!o.dead&&Math.hypot(o.x-q.x,o.z-q.z)<CR_ESC) n++; } return n; }
+function crLeader(q){ if(P.dead||Math.hypot(P.x-q.x,P.z-q.z)>CR_NEAR) return false; for(const id in PEERS){ const o=PEERS[id]; if(id<G.id&&Math.hypot(o.x-q.x,o.z-q.z)<CR_NEAR) return false; } return true; }
+function crTick(dt){ if(!started||G.realm<0) return; const S=crData(); crBuild();
+  let q=crPos(S); const esc=crEscorts(q); CR.lastEsc=esc; CR.mult=1+.25*Math.min(4,esc);
+  const n0=S.n; crAdvance(S,dt,S.w>0?1:CR.mult,crArrive,esc>0); S.ts=Date.now(); q=crPos(S);
+  const away=typeof glAway==="function"&&glAway(); const myD=Math.hypot(P.x-q.x,P.z-q.z);
+  CR.lead=!away&&crLeader(q); if(CR.lead){ CR.pubT-=dt; if(CR.pubT<=0||S.n!==n0){ CR.pubT=4; crPub(); } }
+  if(!away&&!P.dead&&myD<CR_ESC&&S.w<=0) CR.escT+=dt;
+  // 도둑 무리
+  if(!away&&!P.dead&&myD<CR_NEAR&&S.w<=0&&S.c>0){ CR.waveT-=dt; if(CR.waveT<=0){ CR.waveT=S.gd?34:22; const alive=CR.bandits.length; const k=Math.min(6-alive,S.gd?1:Math.min(4,1+esc)); for(let i=0;i<k;i++) crBandit(); if(k>0&&myD<25) toast("🐒 사티로스 도둑이 짐을 노려요!","수레 곁에서 막아요",1.6); } }
+  else if(myD>CR_NEAR+30&&CR.bandits.length) crClearBandits();
+  crTickBandits(dt,S,q);
+  // 모습
+  const g=CR.g; if(g){ const vis=!away&&myD<220; g.visible=vis; CR.stalls.forEach(s=>s.visible=!away);
+    if(vis){ const y=hAt(q.x,q.z); g.position.set(q.x,y,q.z); const yaw=Math.atan2(-Math.sin(q.a),Math.cos(q.a)); g.rotation.y=yaw; const moving=S.w<=0; const tn=performance.now();
+      if(moving){ CR.wheels.forEach(w=>w.rotation.x-=dt*CR_SPD*CR.mult/.55); const sw=Math.sin(tn/(160/CR.mult)); CR.donkey.legs.forEach((l,i)=>l.rotation.x=(i%2?sw:-sw)*.5); CR.donkey.head.rotation.x=Math.sin(tn/300)*.08; }
+      else { CR.donkey.legs.forEach(l=>l.rotation.x=0); CR.donkey.head.rotation.x=.25+Math.sin(tn/500)*.1; }
+      CR.flag.rotation.y=Math.sin(tn/250)*.25; crCrates(S.c); CR.guards.forEach(gu=>gu.visible=!!S.gd);
+      if(myD<70){ placeLabel(CR.lbl,q.x,4.8,q.z,`<b style="color:#ffe08a">🐫 헤르메스 짐수레</b><br>📦 ${S.c}/${CR_CAR}${S.gd?" · 🛡 경비":""}${S.w>0?` · ⏳ ${Math.ceil(S.w)}초 뒤 출발`:esc>0?` · 👥${esc} <b style="color:#9dffb8">×${CR.mult.toFixed(2).replace(/0$/,"")}</b>`:""}`); } else CR.lbl.style.display="none"; }
+    else CR.lbl.style.display="none";
+    CR.sLbl.forEach((el,i)=>{ const p=crStop(i); if(away||Math.hypot(P.x-p.x,P.z-p.z)>55){ el.style.display="none"; return; } placeLabel(el,p.x+Math.cos(i*Math.PI/2)*7,4.4,p.z+Math.sin(i*Math.PI/2)*7,`${CR_TOWN[i].ic} ${CR_TOWN[i].n} <b>Lv.${crTownLv(S.tw[i])}</b>`); }); }
+  // 저장 · 쉬는 동안 소식
+  CR.t-=dt; if(CR.t<=0){ CR.t=5; G.crS={n:S.n,d:S.d,tw:S.tw.slice(),lg:S.lg,p:S.p,w:S.w,c:S.c,gd:S.gd,ts:Date.now(),by:S.by}; }
+  if(!CR.rep){ CR.repT-=dt; if(CR.repT<=0){ CR.rep=true; const seen=G.crSeen; if(seen!=null&&S.n>seen){ const k=S.n-seen; toast(`🐫 쉬는 동안 짐수레가 장터에 ${k}번 도착했어요`,`모두의 배달 ${S.d}번 · 짐수레 시장이 자라요`,3); } G.crSeen=S.n; } } else G.crSeen=S.n;
+  if(CR.arr&&!layerOpen&&!P.dead){ const a=CR.arr; CR.arr=null; toast(`🐫 ${a.T.ic} ${a.T.n}에 무사히 도착!`,a.had?`짐 ${a.c}/${CR_CAR} · 🐫 호송 도장 +${a.k} · 금화 +${fmt(a.gold)}`:`빈 수레였어요 · 금화 +${fmt(a.gold)} · 다음 수레엔 경비병이!`,3); try{ fxRing(P.x,P.z,0xffe08a,6,.6); }catch(e){} } }
+XTICK.push(crTick);
+function crTownLv(n){ return 1+Math.min(9,Math.floor(Math.sqrt((n||0)/2))); }
+/* ---------- 지도 ---------- */
+MAP_X.push((ctx,tx,tz,big,u)=>{ if(typeof glAway==="function"&&glAway()) return; const S=crData(); ctx.save(); ctx.setLineDash([4*u,4*u]); ctx.strokeStyle="rgba(200,160,90,.55)"; ctx.lineWidth=1.4*u; ctx.beginPath(); for(let k=0;k<=48;k++){ const a=k/48*6.2832; const X=tx(Math.cos(a)*CR_R), Z=tz(Math.sin(a)*CR_R); if(k) ctx.lineTo(X,Z); else ctx.moveTo(X,Z); } ctx.stroke(); ctx.restore();
+  if(big) for(let i=0;i<4;i++){ const p=crStop(i); ctx.beginPath(); ctx.arc(tx(p.x),tz(p.z),2.6*u,0,6.2832); ctx.fillStyle="#f2b21a"; ctx.fill(); }
+  const q=crPos(S); mapPin(ctx,tx(q.x),tz(q.z),(big?6:7.5)*u,"#c08a3a","🐫"); });
+/* ---------- 창 ---------- */
+const CR_DECO=DECO.length;
+DECO.push({n:"헤르메스 짐수레 모형",ic:"🐫",t:2,sc:12,p:0,trophy:1,mk:r=>{ const g=new THREE.Group(); const w=mat({color:0x9a6a3a}); g.add(box(1.4,.18,2,w,0,.6,0)); [[.75,.6],[-.75,.6],[.75,-.6],[-.75,-.6]].forEach(([x,z])=>{ const t=new THREE.Mesh(new THREE.TorusGeometry(.32,.08,6,12),mat({color:0x5a3a20})); t.position.set(x,.36,z); t.rotation.y=Math.PI/2; g.add(t); }); [0xd8a24a,0xc0503a,0x5aa04a].forEach((c,i)=>g.add(box(.42,.36,.42,mat({color:c}),-.45+i*.45,.88,0))); g.add(cyl(.04,.04,1.6,mat({color:0x5a3a20}),.55,1.3,-.8,6)); g.add(box(.6,.4,.03,mat({color:0x3a8ad8}),.85,1.9,-.8)); return g; }},
+ {n:"날개 달린 이정표",ic:"🪧",t:3,sc:16,p:0,trophy:1,mk:r=>{ const g=new THREE.Group(); g.add(cyl(.12,.15,3,mat({color:0x8a6040}),0,1.5,0,8)); [0,1,2].forEach(k=>{ const b=box(1.5,.38,.08,mat({color:[0xf2e2b0,0xe8c890,0xf2e2b0][k]}),.5-k*.3,2.6-k*.55,0); b.rotation.y=k*.9; g.add(b); }); [-1,1].forEach(s=>{ const wg=box(.7,.22,.04,mat({color:0xffffff}),s*.4,3.15,0); wg.rotation.z=s*.5; g.add(wg); }); g.add(sph(.18,M.gold,0,3.1,0)); return g; }});
+const CR_SHOP=[{n:"물약 3개",ic:"🧪",c:2,t:0,f:()=>{ G.pots+=3; }},{n:"쇳조각 5개",ic:"⛓",c:3,t:0,f:()=>{ G.ore=(G.ore||0)+5; }},{n:"금화 꾸러미",ic:"💰",c:2,t:0,f:()=>{ G.gold+=150+G.lv*20; }},
+ {n:"무기 뽑기권 1장",ic:"🎟",c:8,t:1,f:()=>{ try{ gz().tk++; }catch(e){} }},{n:"룬 가루 2개",ic:"✨",c:4,t:1,f:()=>{ G.rune=(G.rune||0)+2; }},
+ {n:"신전 장식 «헤르메스 짐수레 모형»",ic:"🐫",c:15,t:2,f:()=>{ hmAdd(CR_DECO); }},{n:"신전 장식 «날개 달린 이정표»",ic:"🪧",c:25,t:3,f:()=>{ hmAdd(CR_DECO+1); }}];
+function crTier(){ const d=crData().d; let t=0; CR_TIER.forEach((v,i)=>{ if(d>=v) t=i; }); return t; }
+function crGo(){ if(P.dead||P.trial){ toast("지금은 갈 수 없어요"); return; } if(typeof glAway==="function"&&glAway()){ toast("지금 있는 곳에서 먼저 나와요"); return; } if(mobs.some(m=>m.state==="chase"&&!m.crb&&Math.hypot(m.x-P.x,m.z-P.z)<16)){ toast("전투 중에는 갈 수 없어요"); return; }
+  const q=crPos(crData()); closeLayer(); P.x=q.x+Math.cos(q.a)*4; P.z=q.z+Math.sin(q.a)*4; P.y=0; P.vy=0; P.invul=Math.max(P.invul||0,1.5); fxRing(P.x,P.z,0xffe08a,6,.7); fxSpark(P.x,2,P.z,0xffe08a,26); jingle([523,784,1046]); toast("🐫 짐수레 곁에 왔어요!","도둑이 오면 막아 줘요 · 사람이 많을수록 빨라져요",2.4); }
+function showCaravan(){ const S=crData(), q=crPos(S), T=crTier(); const at=S.w>0?CR_TOWN[S.lg]:null, nx=CR_TOWN[(S.lg+1)%4]; const left=S.w>0?null:Math.round((1-S.p)*CR_LEG/(CR_SPD*CR.mult)); const myD=Math.round(Math.hypot(P.x-q.x,P.z-q.z));
+  card(`<h2>🐫 헤르메스 짐수레</h2><p>세계의 중심 둘레 큰길을 짐수레가 장터 4곳을 돌며 <b>쉬지 않고</b> 굴러가요(아무도 없어도 아기 당나귀가 혼자 끌어요). 곁에 사람이 많을수록 빨라지고, <b>🐒 사티로스 도둑</b>이 짐을 노려요!</p>
+   <div class="idlegrid"><div><b>${at?`${at.ic} 쉬는 중`:`${nx.ic} 가는 중`}</b><span>${at?`${at.n} · ${Math.ceil(S.w)}초 뒤 출발`:`${nx.n}까지 약 ${Math.floor(left/60)}분 ${left%60}초`}</span></div><div><b>📦 ${S.c}/${CR_CAR}</b><span>남은 짐${S.gd?" · 🛡 경비병":""}</span></div><div><b>${myD}m</b><span>나와 수레 거리</span></div></div>
+   <div class="idlegrid"><div><b>${S.d}</b><span>모두의 배달</span></div><div><b>🐫 ${G.crSt||0}</b><span>내 호송 도장</span></div><div><b>${G.crK||0}</b><span>잡은 도둑</span></div></div>
+   <button class="go" id="crGoB" style="align-self:center">🌀 짐수레 곁으로 가기</button>
+   <h3>🏪 장터</h3>${CR_TOWN.map((t,i)=>`<div class="row"><div class="ic">${t.ic}</div><div class="t"><div>${t.n} <b>Lv.${crTownLv(S.tw[i])}</b></div><span>배달 ${S.tw[i]}번</span></div></div>`).join("")}
+   <h3>🛒 짐수레 시장 (🐫 도장으로 사요)</h3>
+   ${CR_SHOP.map((it,i)=>{ const lock=it.t>T; return `<div class="row"${lock?' style="opacity:.55"':""}><div class="ic">${it.ic}</div><div class="t"><div>${it.n}</div><span>${lock?`🔒 모두 함께 ${CR_TIER[it.t]}번 배달하면 열려요`:`🐫 ${it.c}개`}</span></div>${lock?"":`<button class="buy" data-cs="${i}" ${(G.crSt||0)<it.c?"disabled":""}>사기</button>`}</div>`; }).join("")}
+   <p style="font-size:12px">수레 곁(14m)에 25초 넘게 있다가 장터에 닿으면 🐫 호송 도장 + 금화·경험치(짐이 많이 남을수록 더). 달아나는 도둑을 잡으면 짐을 되찾아요!</p>`);
+  $("crGoB").onclick=crGo;
+  layers.querySelectorAll("[data-cs]").forEach(b=>b.onclick=()=>{ const it=CR_SHOP[+b.dataset.cs]; if((G.crSt||0)<it.c) return; G.crSt-=it.c; it.f(); saveGame(); jingle([659,880]); toast(`🐫 ${it.ic} ${it.n}`,`도장 −${it.c}`,1.6); showCaravan(); }); }
+MENU_X.push({ic:"🐫",n:"헤르메스 짐수레",id:"crBtn",sub:()=>{ const S=crData(); return S.w>0?`${CR_TOWN[S.lg].ic} 장터에서 쉬는 중 · 📦 ${S.c}`:`${CR_TOWN[(S.lg+1)%4].ic} 가는 중 · 📦 ${S.c}/${CR_CAR}${CR.lastEsc?` · 👥${CR.lastEsc}`:""}`; },f:showCaravan});
+TITLES.push({id:"cr1",n:"짐수레 지킴이",t:1,h:"🐫 호송 도장 10개 모으기",g:()=>[G.crT||0,10]},{id:"cr2",n:"도둑 잡는 사람",t:2,h:"사티로스 도둑 50마리",g:()=>[G.crK||0,50]},{id:"cr3",n:"헤르메스의 단짝",t:3,h:"🐫 호송 도장 100개 모으기",g:()=>[G.crT||0,100]});
+</script>
+<script>
+/* ================= v113-3: 🏰 기사단 성 차지하기 — 금요일 밤 공성전 (IDEAS G11/11-3 · 사용자: 금요일 저녁 8시로) =================
+   세계의 중심 둘레 네 귀퉁이(반지름 135m, 대각선)에 성 4개: 에덴 빛의 성채 · 아스가르드 서리 요새 · 인도 연꽃 성 · 올림푸스 대리석 성.
+   - 공성전: 매주 금요일 20:00~20:30(한국 시간). 19:50부터 알림. 첫 회 11/13(금).
+   - 성문 체력 300점: 공격 한 번 = 1점(치명타 2점) · 🪵 공성 망치 곁에 서 있으면 2.5초마다 4점(혼자면 🤖 탈로스가 같이 밀어 +4).
+     모든 사람의 타격을 더함(실시간 t:"csh" + 보관 cst/g/<성> 로 늦게 온 사람도 맞춤). 기사단이 달라도 같이 부술 수 있음(연합).
+   - 성문이 부서지면 안마당의 빛 구슬 곁(4m)에서 30초 버티면 차지! 같은 기사단이 함께 있으면 더 빨리.
+     주인 기사단의 진짜 단원이 구슬 8m 안에 있으면 멈춤. 성 앞은 주인 기사단의 「수비 영웅」(결투장 기록으로 만든 복사본 — 접속 안 한 단원)이 지킴.
+   - 차지하면 보관 cst/o/<성> = {g 코드, gn 이름, gf 깃발, n 차지한 사람, ts} → 깃발·지도 색이 그 기사단 색. 30분 안에 다시 빼앗길 수도!
+   - 성 주인 기사단: 일주일 동안 성 근처(45m)에서 경험치 +10% · 하루 한 번 「성주 보물」(금화 + 뽑기권) · 칭호.
+   - 공성전에 함께한 사람(성문 20점 이상 또는 성 근처 60초): 그 주 「공성 상자」 한 번.
+   - 기사단이 없으면 성문 부수기만 도울 수 있음(🗡 용병). 공성전이 아닐 때는 누구나 성 안을 구경할 수 있음.
+   저장: G.csHitN(성문 점수 누적) · G.csCap(차지 횟수) · G.csWk(공성 상자 받은 주) · G.csDay(성주 보물 받은 날) · G.csDef(쓰러뜨린 수비 영웅). 칭호 3개. */
+const CS_R=135, CS_W=10, CS_GATE=300, CS_HOLD=30, CS_DUR=30*60000, CS_HR=20;
+const CS_LIST=[{n:"에덴 빛의 성채",ic:"✝",wall:0xf4efe0,trim:0xffd05a,roof:0xffe08a},{n:"아스가르드 서리 요새",ic:"ᚦ",wall:0x8a96a8,trim:0xbfe4ff,roof:0x3a5a8a},{n:"인도 연꽃 성",ic:"🪷",wall:0xe0b080,trim:0xff8fb8,roof:0xd8602a},{n:"올림푸스 대리석 성",ic:"🏛",wall:0xf2efe8,trim:0x5a9adf,roof:0x7a9ad8}];
+CS_LIST.forEach((c,i)=>{ const sx=i===0||i===2?1:-1, sz=i<2?-1:1; c.x=sx*CS_R*Math.SQRT1_2; c.z=sz*CS_R*Math.SQRT1_2; c.ga=Math.atan2(-c.z,-c.x); });
+const CS={built:false,parts:[],c:[],o:{},hits:{},gsync:{},send:{},sendT:1,ramT:2.5,pubT:3,t:0,hold:{},foes:{},gm:{},hud:null,hudKey:"",noteT:0,live:null,force:0,near:0,part:{},ann:{},capQ:null,lbl:[]};
+function csSlot(t){ t=t||Date.now(); const k=kday(t); for(let d=k-1;d<=k+7;d++){ if((d+4)%7!==5) continue; const s=d*86400000-9*3600000+CS_HR*3600000; if(t<s+CS_DUR) return {t:s,w:d}; } return null; }
+function csLive(){ const now=Date.now(); if(CS.force&&now<CS.force+CS_DUR) return {t:CS.force,w:-1}; const s=csSlot(); return s&&now>=s.t&&now<s.t+CS_DUR?s:null; }
+function csWhen(t){ const d=new Date(t+9*3600000); return `${d.getUTCMonth()+1}/${d.getUTCDate()}(${"일월화수목금토"[d.getUTCDay()]}) 저녁 ${d.getUTCHours()-12}시`; }
+function csEpoch(i){ const o=CS.o[i]; return o?o.ts:0; }
+function csGateHp(i){ const e=csEpoch(i); const s=(CS.hits[i]&&CS.hits[i].e===e)?CS.hits[i].s:0; return Math.max(0,CS_GATE-s); }
+function csMyCode(){ try{ const g=gdMine(); return g?g.c:null; }catch(e){ return null; } }
+function csOwnerMine(i){ const o=CS.o[i]; const c=csMyCode(); return !!(o&&c&&o.g===c); }
+function csCol(i){ const o=CS.o[i]; if(!o||!o.gf) return null; return GD_COL[o.gf[0]]||"#888"; }
+function csSym(i){ const o=CS.o[i]; if(!o||!o.gf) return "🏳"; return GD_SYM[o.gf[1]]||"🛡️"; }
+function csOName(i){ const o=CS.o[i]; return o?gdName(o.gn):"주인 없음"; }
+/* ---------- 보관·실시간 ---------- */
+NETX.push({sub:"cst/+/+",pre:"cst/",f:(d,topic)=>{ const a=String(topic).split("/"); const kind=a[1], i=a[2]|0; if(!CS_LIST[i]||!d) return;
+  if(kind==="o"){ csOwnerSet(i,d,false); }
+  else if(kind==="g"){ if(!(d.s>0)) return; const h=CS.hits[i]; if(d.e===csEpoch(i)&&(!h||h.e!==d.e||h.s<d.s)) CS.hits[i]={e:d.e,s:Math.min(CS_GATE*2,d.s|0)}; } }});
+function csOwnerSet(i,d,live){ if(!d||!d.g||!(d.ts>0)) return false; const cur=CS.o[i]; if(cur&&cur.ts>=d.ts) return false; const o={g:String(d.g).slice(0,8),gn:Array.isArray(d.gn)?d.gn.slice(0,3).map(x=>x|0):[0,0,0],gf:Array.isArray(d.gf)?d.gf.slice(0,2).map(x=>x|0):[0,0],n:String(d.n||"?").slice(0,10),ts:+d.ts};
+  CS.o[i]=o; CS.hits[i]={e:o.ts,s:0}; CS.hold[i]=0; csFoesClear(i); csPaint(i);
+  if(live&&started){ const mine=csMyCode()===o.g; const C=CS_LIST[i]; try{ lvBanner(mine?"🏰 성을 차지했어요!":"🏰 성의 주인이 바뀌었어요",C.n,`${csSym(i)} ${gdName(o.gn)} · ${o.n}`,csCol(i)); }catch(e){ toast(`🏰 ${C.n}`,`${gdName(o.gn)}의 성이 되었어요`,3); }
+    jingle(mine?[523,659,784,1046,1318,1568]:[392,523,659]); buzz(mine?[40,30,80]:[30]); if(mine&&Math.hypot(P.x-C.x,P.z-C.z)<45) csCapReward(i); }
+  return true; }
+NETR.csh=(o,d)=>{ const i=d.c|0; if(!CS_LIST[i]||!(d.k>0)||d.e!==csEpoch(i)) return; const h=CS.hits[i]&&CS.hits[i].e===d.e?CS.hits[i]:(CS.hits[i]={e:d.e,s:0}); const was=h.s; h.s=Math.min(CS_GATE*2,h.s+Math.min(20,d.k|0)); if(was<CS_GATE&&h.s>=CS_GATE) csGateBroke(i); };
+NETR.csc=(o,d)=>{ const i=d.c|0; if(!CS_LIST[i]) return; csOwnerSet(i,d,true); };
+function csHit(i,k){ const e=csEpoch(i); const h=CS.hits[i]&&CS.hits[i].e===e?CS.hits[i]:(CS.hits[i]={e,s:0}); const was=h.s; h.s+=k; CS.send[i]=(CS.send[i]||0)+k; G.csHitN=(G.csHitN||0)+k; CS.part.hit=(CS.part.hit||0)+k; if(was<CS_GATE&&h.s>=CS_GATE) csGateBroke(i); }
+function csGateBroke(i){ const C=CS_LIST[i]; csGm(i,false); const d=Math.hypot(P.x-C.x,P.z-C.z); if(d<60&&started){ toast(`💥 ${C.n} 성문이 부서졌어요!`,"안마당의 빛 구슬 곁에서 30초 버티면 차지!",3); thud(); buzz([60,40,60]); P.shake=Math.max(P.shake||0,.8); }
+  const s=CS.c[i]; if(s){ s.doors.forEach(x=>x.visible=false); s.rubble.visible=true; const g=CS_LIST[i]; fxSpark(g.x+Math.cos(g.ga)*CS_W,2,g.z+Math.sin(g.ga)*CS_W,0xc8a070,30); }
+  (CS.foes[i]||[]).forEach(m=>{ m.home=1; }); }
+/* ---------- 성 모습 ---------- */
+function csBuild(){ if(CS.built) return; CS.built=true;
+  CS_LIST.forEach((C,i)=>{ const g=new THREE.Group(); const wall=mat({color:C.wall,roughness:.85}), trim=mat({color:C.trim,roughness:.5,metalness:.2}), roof=mat({color:C.roof,roughness:.7}), dk=mat({color:0x5a3a20,roughness:.95});
+    // 성벽: 원통 2겹(바깥·안) + 위 고리 + 성가퀴(인스턴스 하나) → 그리기 횟수를 적게
+    const gapA=2*Math.asin(1.75/CS_W); const wd=mat({color:C.wall,roughness:.85,side:THREE.DoubleSide});
+    const ow=new THREE.Mesh(new THREE.CylinderGeometry(CS_W+.6,CS_W+.6,4.2,40,1,true,Math.PI/2+gapA/2,Math.PI*2-gapA),wd); ow.position.y=2.1; g.add(ow);
+    const iw=new THREE.Mesh(new THREE.CylinderGeometry(CS_W-.6,CS_W-.6,4.2,40,1,true,Math.PI/2+gapA/2,Math.PI*2-gapA),wd); iw.position.y=2.1; g.add(iw);
+    const tp=new THREE.Mesh(new THREE.RingGeometry(CS_W-.6,CS_W+.6,40,1,gapA/2,Math.PI*2-gapA),mat({color:C.trim,roughness:.6,side:THREE.DoubleSide})); tp.rotation.x=-Math.PI/2; tp.position.y=4.2; g.add(tp);
+    { const N=36, L=[]; for(let k=0;k<N;k++){ const a=(k+.5)/N*Math.PI*2; const aa=Math.min(a,Math.PI*2-a); if(aa<gapA/2+.08) continue; L.push(a); } const im=new THREE.InstancedMesh(GEO.box,trim,L.length); const o3=new THREE.Object3D(); L.forEach((a,k)=>{ o3.position.set(Math.cos(a)*CS_W,4.55,Math.sin(a)*CS_W); o3.rotation.set(0,-a,0); o3.scale.set(1.25,.7,.7); o3.updateMatrix(); im.setMatrixAt(k,o3.matrix); }); g.add(im); }
+    // 성문(바깥쪽 = 로컬 +x 쪽, 그룹을 돌려 세계의 중심을 보게 함)
+    const doors=[]; [-1,1].forEach(s=>{ const d=box(.35,3.4,1.6,dk,CS_W,1.7,s*.82); g.add(d); doors.push(d); const st=box(.4,.2,1.5,mat({color:0x8a8a9a,metalness:.5}),CS_W+.2,2.4,s*.82); g.add(st); doors.push(st); });
+    g.add(box(1.6,1.1,4.6,wall,CS_W,4.6,0)); g.add(box(.3,1,1.6,trim,CS_W+.85,4.6,0));
+    const rubble=new THREE.Group(); for(let k=0;k<7;k++) rubble.add(box(rnd(.4,.9),rnd(.3,.6),rnd(.4,.9),dk,CS_W+rnd(-.6,1.4),.25,rnd(-1.2,1.2))); rubble.visible=false; g.add(rubble);
+    // 탑 4개 + 깃발
+    const flags=[]; [45,135,225,315].forEach(dg=>{ const a=dg*Math.PI/180; const x=Math.cos(a)*CS_W, z=Math.sin(a)*CS_W; g.add(cyl(1.7,1.9,6.4,wall,x,3.2,z,12)); g.add(cyl(2,2,.5,trim,x,6.6,z,12)); const cn=new THREE.Mesh(new THREE.ConeGeometry(2.1,2.8,12),roof); cn.position.set(x,8.2,z); g.add(cn);
+      g.add(cyl(.06,.06,2.4,dk,x,10.6,z,6)); const fl=box(1.4,.85,.05,mat({color:0xe8e8e8}),x+.7,11.3,z); fl.userData.flag=1; g.add(fl); flags.push(fl); });
+    // 안마당: 빛 구슬
+    g.add(cyl(1.3,1.6,1.1,trim,0,.55,0,12)); const orb=sph(.75,glowMat(0xffffff,.85),0,2.1,0); orb.userData.noOutline=true; g.add(orb); const oring=new THREE.Mesh(GEO.ring,glowMat(0xffffff,.5)); oring.rotation.x=-Math.PI/2; oring.scale.setScalar(4); oring.position.y=.15; oring.userData.noOutline=true; g.add(oring);
+    // 공성 망치(공성전 때만)
+    const ram=new THREE.Group(); const lg=cyl(.45,.45,4.4,mat({color:0x8a5a30,roughness:1}),0,1.2,0,10); lg.rotation.z=Math.PI/2; ram.add(lg); ram.add(sph(.55,mat({color:0x9a9aaa,metalness:.6,roughness:.35}),-2.3,1.2,0)); [[1.2,.8],[-1.2,.8],[1.2,-.8],[-1.2,-.8]].forEach(([x,z])=>{ const w=new THREE.Mesh(new THREE.TorusGeometry(.42,.1,6,12),dk); w.position.set(x,.45,z); ram.add(w); }); ram.add(box(3.2,.12,1.9,mat({color:0x8a5a30}),0,2.3,0));
+    ram.position.set(CS_W+6,0,0); ram.visible=false; g.add(ram);
+    const bot=new THREE.Group(); const br=mat({color:0xb07a3a,metalness:.6,roughness:.35}); bot.add(box(.9,1.2,.6,br,0,1.5,0)); bot.add(box(.6,.5,.5,br,0,2.4,0)); bot.add(sph(.08,glowMat(0x6af0ff,.9),.2,2.45,.26)); bot.add(sph(.08,glowMat(0x6af0ff,.9),-.2,2.45,.26)); [-.25,.25].forEach(x=>bot.add(box(.25,.9,.3,br,x,.45,0))); bot.position.set(CS_W+6,0,1.6); bot.visible=false; g.add(bot);
+    g.position.set(C.x,hAt(C.x,C.z),C.z); g.rotation.y=-C.ga; shadowify(g); scene.add(g); CS.parts.push(g);
+    CS.c[i]={g,doors,rubble,flags,orb,oring,ram,bot}; CS.lbl[i]={c:makeLabel(""),o:makeLabel(""),r:makeLabel("")}; csPaint(i); }); }
+function csLocal(i,lx,lz){ const C=CS_LIST[i]; const ca=Math.cos(C.ga), sa=Math.sin(C.ga); return {x:C.x+lx*ca-lz*sa,z:C.z+lx*sa+lz*ca}; }
+function csPaint(i){ const s=CS.c[i]; if(!s) return; const col=csCol(i); const c=new THREE.Color(col||"#e8e8e8"); s.flags.forEach(f=>{ f.material=mat({color:c.getHex(),roughness:.7}); }); s.orb.material.color.set(col?c:new THREE.Color(0xffffff)); s.oring.material.color.set(col?c:new THREE.Color(0xffffff)); }
+/* ---------- 성문(때릴 수 있는 것) ---------- */
+function csGm(i,on){ const cur=CS.gm[i]; if(on&&!cur){ const p=csLocal(i,CS_W+.6,0); const mesh=new THREE.Group(); mesh.userData.h=3.6; const m={n:CS_LIST[i].n+" 성문",shape:"x",mesh,x:p.x,z:p.z,hx:p.x,hz:p.z,lv:G.lv,boss:false,world:false,hp:CS_GATE,mhp:CS_GATE,atk:0,xp:0,gold:0,rg:12,cd:9,state:"idle",t:0,lbl:makeLabel(""),rot:0,hit:0,scale:1.4,power:0,ev:1,still:1,csGate:1,csI:i}; mesh.position.set(p.x,hAt(p.x,p.z),p.z); scene.add(mesh); mobs.push(m); CS.gm[i]=m; }
+  else if(!on&&cur){ removeMob(cur); delete CS.gm[i]; } }
+(function(){ const _dm=damageMob; damageMob=function(m,dmg,crit){ if(m&&m.csGate){ const i=m.csI; if(!csLive()||csGateHp(i)<=0) return; const k=crit?2:1; csHit(i,k); m.hit=.15; floatDmg(m.x,3.8,m.z,`쾅! -${k}`,crit?"crit":""); fxSpark(m.x,1.8,m.z,0xc8a070,6); tone(crit?200:150,.07,"square",0,.1); P.combat=4; return; } return _dm.apply(this,arguments); };
+  const _km=killMob; killMob=function(m){ const d=m&&m.csDef; _km(m); if(d){ G.csDef=(G.csDef||0)+1; saveGame(); } };
+  const _gx=gainXp; gainXp=function(n){ try{ if(n>0){ for(let i=0;i<4;i++){ if(csOwnerMine(i)&&Math.hypot(P.x-CS_LIST[i].x,P.z-CS_LIST[i].z)<45){ n=Math.round(n*1.1); break; } } } }catch(e){} return _gx(n); }; })();
+/* ---------- 수비 영웅 ---------- */
+function csFoesClear(i){ (CS.foes[i]||[]).forEach(m=>{ if(mobs.indexOf(m)>=0) removeMob(m); }); CS.foes[i]=[]; CS.foes[i].made=0; }
+function csFoeRecs(i){ const o=CS.o[i]; const L=[]; if(o){ try{ gdMembers(o.g).forEach(r=>{ if(r.me||PEERS[r.i]) return; const a=(typeof ARD!=="undefined")&&ARD[r.i]; L.push(a?Object.assign({},a,{n:a.n||r.n}):{n:r.n,r:r.r|0,k:0,l:r.l||1,lk:[0,0,0,0,0,0],e:[-1,-1,-1]}); }); }catch(e){} }
+  L.sort(()=>Math.random()-.5); const out=L.slice(0,3); const C=CS_LIST[i]; const realm=i; while(out.length<(o?2:2)) out.push({n:o?`${gdName(o.gn).split(" ")[1]||""} 수비병`:"돌 수비병",r:realm,k:1,l:G.lv,lk:[0,0,0,0,0,0],e:[-1,-1,-1],bot:1}); return out; }
+function csFoesMake(i){ const L=csFoeRecs(i); const st=stat(); CS.foes[i]=[]; CS.foes[i].made=1;
+  L.forEach((rec,k)=>{ const p=csLocal(i,CS_W+3.2,(k-(L.length-1)/2)*2.8); let mesh=null; try{ mesh=typeof arAvatar==="function"?arAvatar(rec):null; }catch(e){} if(!mesh) mesh=makeAvatar(rec.r|0,rec.k|0,false);
+    const hp=Math.round(st.atk*(rec.bot?9:14)); const ms=mobStats(Math.max(1,G.lv),false);
+    const m={n:rec.bot?rec.n:`🛡 ${rec.n}`,shape:"hero",mesh,x:p.x,z:p.z,hx:p.x,hz:p.z,lv:rec.l||G.lv,boss:false,world:false,hp,mhp:hp,atk:ms.atk*(rec.bot?.55:.7),xp:Math.round(ms.xp*1.5),gold:Math.round(ms.gold*1.5),rg:12,cd:1.3,state:"idle",t:0,lbl:makeLabel(""),rot:CS_LIST[i].ga+Math.PI,hit:0,scale:1,power:0,ev:1,csDef:1,csI:i,home:0,walk:0,copy:!rec.bot};
+    mesh.position.set(p.x,hAt(p.x,p.z),p.z); scene.add(mesh); mobs.push(m); CS.foes[i].push(m); }); }
+function csTickFoes(i,dt){ const L=CS.foes[i]; if(!L) return; const st=stat(), tn=performance.now(); const C=CS_LIST[i];
+  for(let k=L.length-1;k>=0;k--){ const m=L[k]; if(mobs.indexOf(m)<0){ L.splice(k,1); continue; } const u=m.mesh.userData; m.hit=Math.max(0,m.hit-dt); m.cd-=dt;
+    const home=m.home?csLocal(i,2.4*Math.cos(k*2.1),2.4*Math.sin(k*2.1)):{x:m.hx,z:m.hz};
+    const dx=P.x-m.x, dz=P.z-m.z, d=Math.hypot(dx,dz); let mv=0;
+    if(m.ctStun>0){ } else if(!P.dead&&d<13&&Math.hypot(P.x-home.x,P.z-home.z)<20){ m.state="chase"; m.rot=Math.atan2(dx,dz); if(d>2.2){ m.x+=dx/d*4.2*dt; m.z+=dz/d*4.2*dt; mv=1; } else if(m.cd<=0){ m.cd=1.35; hurtPlayer(m.atk*(1-dmgReduce(st.def)),m.n); u.lunge=.25; try{ if(u.gl) animState(m.mesh,"attack"); }catch(e){} } }
+    else { m.state="idle"; const hx=home.x-m.x, hz=home.z-m.z, hd=Math.hypot(hx,hz); if(hd>.6){ m.x+=hx/hd*3.6*dt; m.z+=hz/hd*3.6*dt; m.rot=Math.atan2(hx,hz); mv=1; } }
+    m.mesh.position.set(m.x,hAt(m.x,m.z)+(u.lunge>0?.3:0),m.z); if(u.lunge>0) u.lunge-=dt; let dr=m.rot-m.mesh.rotation.y; while(dr>Math.PI) dr-=Math.PI*2; while(dr<-Math.PI) dr+=Math.PI*2; m.mesh.rotation.y+=dr*Math.min(1,dt*8);
+    try{ if(u.gl) animState(m.mesh,m.hit>0?"hit":mv?"run":"idle"); else if(u.legL){ m.walk+=mv?dt*10:0; const sw=mv?Math.sin(m.walk)*.7:0; u.legL.rotation.x=sw; u.legR.rotation.x=-sw; } }catch(e){}
+    hitTint(m.mesh,m.hit/.15); try{ HITF.apply(m,dt); }catch(e){}
+    if(d<40) placeLabel(m.lbl,m.x,3.6,m.z,`${m.copy?'<span style="color:#9adfff">수비 영웅</span> ':""}${m.n}<span class="hp"><i style="width:${Math.round(m.hp/m.mhp*100)}%"></i></span>`); else m.lbl.style.display="none"; } }
+/* ---------- 보상 ---------- */
+function csCapReward(i){ G.csCap=(G.csCap||0)+1; const gold=400+G.lv*40; G.gold+=gold; try{ gz().tk+=3; }catch(e){} gainXp(200+G.lv*30); saveGame();
+  setTimeout(()=>toast(`🏰 ${CS_LIST[i].n} 차지 보상!`,`금화 +${fmt(gold)} · 🎟 뽑기권 +3`,3),2600); }
+function csPartReward(){ const live=csLive(); const wk=live?live.w:null; if(wk==null||G.csWk===wk) return; if((CS.part.hit||0)<20&&(CS.part.t||0)<60) return; G.csWk=wk; const gold=150+G.lv*15; G.gold+=gold; try{ gz().tk+=1; }catch(e){} G.ore=(G.ore||0)+5; saveGame();
+  toast("🎁 공성 상자!",`함께해 줘서 고마워요 · 금화 +${fmt(gold)} · 🎟 +1 · ⛓ +5`,3); jingle([659,784,1046,1318]); }
+function csCanClaim(){ let any=false; for(let i=0;i<4;i++) if(csOwnerMine(i)) any=true; return any&&G.csDay!==kday(); }
+function csClaim(){ if(!csCanClaim()) return; G.csDay=kday(); let n=0; for(let i=0;i<4;i++) if(csOwnerMine(i)) n++; const gold=(200+G.lv*20)*n; G.gold+=gold; try{ gz().tk+=n; }catch(e){} saveGame(); jingle([523,659,784,1046]); toast("👑 성주 보물!",`성 ${n}개 · 금화 +${fmt(gold)} · 🎟 뽑기권 +${n}`,2.6); }
+/* ---------- 매 프레임 ---------- */
+function csHudEl(){ const q=$("quest"); const host=q&&q.parentNode; if(CS.hud&&CS.hud.isConnected&&CS.hud.parentNode===host) return CS.hud; if(!CS.hud){ const d=document.createElement("div"); d.id="csHud"; d.hidden=true; d.addEventListener("pointerdown",e=>e.stopPropagation()); d.addEventListener("click",()=>showSiege()); CS.hud=d; } if(host&&q) host.insertBefore(CS.hud,q); else document.body.appendChild(CS.hud); return CS.hud; }
+function csTick(dt){ if(!started||G.realm<0) return; csBuild(); const live=csLive(); const away=typeof glAway==="function"&&glAway(); const now=Date.now(); const myCode=csMyCode();
+  // 알림
+  const slot=csSlot(); if(slot&&!live){ const left=slot.t-now; if(left>0&&left<10*60000&&CS.ann.pre!==slot.w){ CS.ann.pre=slot.w; toast("🏰 10분 뒤 기사단 공성전!","금요일 저녁 8시 · 세계의 중심 둘레 성 4개",3.2); jingle([392,523,659]); } }
+  if(live&&CS.ann.go!==live.t){ CS.ann.go=live.t; CS.part={hit:0,t:0}; try{ lvBanner("🏰 공성전 시작!","기사단 성 차지하기","30분 동안 · 성문을 부수고 빛 구슬을 지켜요","#c8322a"); }catch(e){} jingle([392,523,659,784,1046]); buzz([60,40,60]); }
+  if(!live&&CS.wasLive){ csPartReward(); for(let i=0;i<4;i++){ csGm(i,false); csFoesClear(i); } toast("🏰 공성전이 끝났어요!",`다음 공성전: ${slot?csWhen(slot.t):"다음 주 금요일"}`,3); }
+  if(live&&CS.wasLive&&live.t+CS_DUR-now<1500) csPartReward();
+  CS.wasLive=!!live;
+  let nearI=-1, nd=1e9; for(let i=0;i<4;i++){ const C=CS_LIST[i]; const d=Math.hypot(P.x-C.x,P.z-C.z); if(d<nd){ nd=d; nearI=i; } } CS.near=away?-1:nearI;
+  for(let i=0;i<4;i++){ const C=CS_LIST[i], s=CS.c[i]; const d=Math.hypot(P.x-C.x,P.z-C.z); const vis=!away&&d<(ECO()?150:220); s.g.visible=vis; const gate=csGateHp(i); const owner=csOwnerMine(i);
+    const broken=live&&gate<=0; s.doors.forEach(x=>x.visible=!broken); s.rubble.visible=broken;
+    s.ram.visible=!!live&&gate>0&&vis; s.orb.position.y=2.1+Math.sin(now/500+i)*.18; s.oring.rotation.z+=dt;
+    if(live&&!away){
+      // 성문 · 망치 · 수비 영웅(공격하는 사람 폰에서만)
+      csGm(i,gate>0&&!owner&&d<70);
+      if(!owner&&d<30&&!(CS.foes[i]&&CS.foes[i].made)) csFoesMake(i);
+      csTickFoes(i,dt);
+      // 닫힌 성문: 주인이 아니면 성벽 안으로 못 들어감
+      if(gate>0&&!owner&&d<CS_W+1&&!P.dead){ const k=(CS_W+1)/(d||1); P.x=C.x+(P.x-C.x)*k; P.z=C.z+(P.z-C.z)*k; }
+      // 망치 밀기
+      const rp=csLocal(i,CS_W+6,0); const rd=Math.hypot(P.x-rp.x,P.z-rp.z); s.bot.visible=false;
+      if(gate>0&&!owner&&rd<3.8&&!P.dead){ let push=1; for(const id in PEERS){ const o=PEERS[id]; if(!o.dead&&Math.hypot(o.x-rp.x,o.z-rp.z)<3.8) push++; } const robot=push===1; s.bot.visible=robot;
+        CS.ramT-=dt; if(CS.ramT<=0){ CS.ramT=2.5; const k=4+(robot?4:0); csHit(i,k); const gp=csLocal(i,CS_W+.6,0); floatDmg(gp.x,4,gp.z,`🪵 쿵! -${k}`,"crit"); fxSpark(gp.x,1.8,gp.z,0xc8a070,14); thud(); buzz(30); P.shake=Math.max(P.shake||0,.4); s.ram.position.x=CS_W+4.6; } else s.ram.position.x+=((CS_W+6)-s.ram.position.x)*Math.min(1,dt*3);
+        placeLabel(CS.lbl[i].r,rp.x,3.4,rp.z,`🪵 공성 망치 👥${push}${robot?" + 🤖 탈로스":""}`); }
+      else { CS.lbl[i].r.style.display="none"; s.ram.position.x=CS_W+6; }
+      // 빛 구슬 지키기
+      const od=Math.hypot(P.x-C.x,P.z-C.z);
+      if(gate<=0&&myCode&&!owner&&od<4&&!P.dead){ let block=false; const oc=CS.o[i]&&CS.o[i].g; for(const id in PEERS){ const o=PEERS[id]; if(oc&&!o.dead&&o.gd&&o.gd[3]===oc&&Math.hypot(o.x-C.x,o.z-C.z)<8) block=true; } (CS.foes[i]||[]).forEach(m=>{ if(m.hp>0&&Math.hypot(m.x-C.x,m.z-C.z)<8) block=true; });
+        let mates=0; for(const id in PEERS){ const o=PEERS[id]; if(!o.dead&&o.gd&&o.gd[3]===myCode&&Math.hypot(o.x-C.x,o.z-C.z)<5) mates++; }
+        if(!block){ CS.hold[i]=(CS.hold[i]||0)+dt*(1+.5*Math.min(3,mates)); if(Math.random()<dt*6) fxSpark(C.x,2,C.z,new THREE.Color(GD_COL[gdMine().gf[0]]||"#fff").getHex(),3);
+          if(CS.hold[i]>=CS_HOLD){ CS.hold[i]=0; const g=gdMine(); const rec={g:g.c,gn:g.gn,gf:g.gf,n:G.name,ts:Date.now()}; try{ net.pushRet("cst/o/"+i,rec); net.send(Object.assign({t:"csc",c:i},rec)); }catch(e){} csOwnerSet(i,rec,true); } }
+        placeLabel(CS.lbl[i].c,C.x,3.8,C.z,block?"⛔ 수비하는 사람이 있어요! 먼저 물리쳐요":`💠 차지하는 중 ${Math.floor(CS.hold[i]||0)}/${CS_HOLD}초${mates?` · 👥+${mates}`:""}<span class="hp"><i style="width:${Math.round((CS.hold[i]||0)/CS_HOLD*100)}%;background:#ffd24a"></i></span>`); }
+      else { if(od>6) CS.hold[i]=Math.max(0,(CS.hold[i]||0)-dt*2); CS.lbl[i].c.style.display="none"; }
+      if(d<60) CS.part.t=(CS.part.t||0)+dt;
+    } else { csGm(i,false); if(CS.foes[i]&&CS.foes[i].made) csFoesClear(i); CS.lbl[i].r.style.display="none"; CS.lbl[i].c.style.display="none"; s.bot.visible=false; }
+    // 성 이름표
+    if(vis&&d<75){ const col=csCol(i); placeLabel(CS.lbl[i].o,C.x,12.6,C.z,`<b style="color:#ffe08a">${C.ic} ${C.n}</b><br><span style="color:${col||"#ddd"}">${csSym(i)} ${csOName(i)}</span>${live?` · 성문 <b>${Math.round(gate/CS_GATE*100)}%</b>`:""}`); } else CS.lbl[i].o.style.display="none"; }
+  // 성문 이름표·체력
+  for(const k in CS.gm){ const m=CS.gm[k]; const hp=csGateHp(+k); m.hp=Math.max(1,hp); if(Math.hypot(P.x-m.x,P.z-m.z)<40) placeLabel(m.lbl,m.x,4.4,m.z,`🚪 성문 ${hp}/${CS_GATE}<span class="hp"><i style="width:${Math.round(hp/CS_GATE*100)}%"></i></span>`); else m.lbl.style.display="none"; }
+  // 보내기: 성문 점수 1초마다 묶어서 + 보관
+  CS.sendT-=dt; if(CS.sendT<=0){ CS.sendT=1; for(const i in CS.send){ const k=CS.send[i]; if(k>0){ try{ net.send({t:"csh",c:+i,e:csEpoch(+i),k}); }catch(e){} CS.gsync[i]=1; } } CS.send={}; }
+  CS.pubT-=dt; if(CS.pubT<=0){ CS.pubT=6; if(live) for(const i in CS.gsync){ const h=CS.hits[i]; if(h&&h.s>0) try{ net.pushRet("cst/g/"+i,{e:h.e,s:h.s,ts:Date.now()}); }catch(e){} } CS.gsync={}; }
+  // 위쪽 알림 띠
+  const hud=csHudEl(); const show=!!live&&!layerOpen&&!away; if(!show){ if(!hud.hidden) hud.hidden=true; CS.hudKey=""; }
+  else { const left=Math.max(0,live.t+CS_DUR-now); const mm=Math.floor(left/60000), ss=Math.floor(left%60000/1000); const C=nearI>=0?CS_LIST[nearI]:null; const near=C&&nd<80;
+    const h=`🏰 공성전 <b>${mm}:${String(ss).padStart(2,"0")}</b>${near?` · ${C.ic} ${csSym(nearI)} ${csOName(nearI)} · 🚪 ${Math.round(csGateHp(nearI)/CS_GATE*100)}%`:" · 메뉴 → 기사단 성"}${!myCode?' · <span style="color:#ffd08a">🗡 용병</span>':""}`;
+    if(h!==CS.hudKey){ CS.hudKey=h; hud.innerHTML=h; } if(hud.hidden) hud.hidden=false; } }
+XTICK.push(csTick);
+/* ---------- 지도 ---------- */
+MAP_X.push((ctx,tx,tz,big,u)=>{ if(typeof glAway==="function"&&glAway()) return; const live=csLive(); CS_LIST.forEach((C,i)=>{ const X=tx(C.x), Z=tz(C.z); const col=csCol(i); if(col){ ctx.beginPath(); ctx.arc(X,Z,(big?7:9)*u,0,6.2832); ctx.fillStyle=col+"66"; ctx.fill(); }
+  if(live){ ctx.beginPath(); ctx.arc(X,Z,(big?9:11)*u*(1+.15*Math.sin(performance.now()/200)),0,6.2832); ctx.strokeStyle="#ff4a3a"; ctx.lineWidth=1.6*u; ctx.stroke(); }
+  mapPin(ctx,X,Z,(big?6:7.5)*u,col||"#9a9aa8",col?csSym(i):"🏰"); }); });
+/* ---------- 창 ---------- */
+function csGo(i){ if(P.dead||P.trial){ toast("지금은 갈 수 없어요"); return; } if(typeof glAway==="function"&&glAway()){ toast("지금 있는 곳에서 먼저 나와요"); return; } if(mobs.some(m=>m.state==="chase"&&!m.csDef&&Math.hypot(m.x-P.x,m.z-P.z)<16)){ toast("전투 중에는 갈 수 없어요"); return; }
+  const p=csLocal(i,CS_W+12,rnd(-3,3)); closeLayer(); P.x=p.x; P.z=p.z; P.y=0; P.vy=0; P.invul=Math.max(P.invul||0,1.5); fxRing(P.x,P.z,0xffe08a,6,.7); jingle([523,784,1046]); toast(`🏰 ${CS_LIST[i].n} 앞이에요`,csLive()?"🪵 공성 망치 곁에 서면 함께 밀어요":"공성전은 금요일 저녁 8시!",2.4); }
+function showSiege(){ const live=csLive(), slot=csSlot(); const g=(()=>{ try{ return gdMine(); }catch(e){ return null; } })(); const own=[0,1,2,3].filter(csOwnerMine);
+  card(`<h2>🏰 기사단 성 차지하기</h2><p>세계의 중심 둘레 네 귀퉁이에 성이 있어요. <b>매주 금요일 저녁 8시~8시 반</b>에 기사단끼리 성을 차지해요! 🪵 공성 망치를 함께 밀고 성문을 때려 부순 다음, 안마당 <b>빛 구슬</b> 곁에서 30초 버티면 우리 성!</p>
+   <div class="idlegrid"><div><b>${live?"🔥 지금!":"⏳"}</b><span>${live?`끝까지 ${Math.ceil((live.t+CS_DUR-Date.now())/60000)}분`:slot?csWhen(slot.t):"-"}</span></div><div><b>${g?GD_SYM[g.gf[1]]||"🛡️":"🗡"}</b><span>${g?gdName(g.gn):"기사단 없음(용병)"}</span></div><div><b>${own.length}</b><span>우리 기사단의 성</span></div></div>
+   ${CS_LIST.map((C,i)=>{ const col=csCol(i); return `<div class="row"><div class="ic">${C.ic}</div><div class="t"><div><b>${C.n}</b></div><span style="color:${col||"inherit"}">${csSym(i)} ${csOName(i)}${CS.o[i]?` · ${CS.o[i].n}`:""}${live?` · 🚪 ${Math.round(csGateHp(i)/CS_GATE*100)}%`:""}</span></div><button class="go" data-cg="${i}">가기</button></div>`; }).join("")}
+   ${own.length?`<button class="buy" id="csClaimB" style="align-self:center" ${csCanClaim()?"":"disabled"}>${csCanClaim()?"👑 오늘의 성주 보물 받기":"👑 성주 보물은 내일 또!"}</button>`:""}
+   <p style="font-size:12px">${g?"":"⚠ 기사단이 없으면 성문 부수기만 도울 수 있어요(🗡 용병) — 메뉴 → 기사단에서 들어가요. "}성 주인은 접속하지 않아도 단원들의 <b>수비 영웅</b>이 성문 앞을 지켜요. 여러 기사단이 함께 성문을 부술 수 있고, 구슬은 먼저 지킨 기사단 거예요. 성 주인: 성 근처 경험치 +10% · 하루 한 번 성주 보물. 공성전에 함께하면 그 주 🎁 공성 상자!</p>`);
+  layers.querySelectorAll("[data-cg]").forEach(b=>b.onclick=()=>csGo(+b.dataset.cg)); if($("csClaimB")) $("csClaimB").onclick=()=>{ csClaim(); showSiege(); }; }
+MENU_X.push({ic:"🏰",n:"기사단 성",id:"csBtn",sub:()=>{ const live=csLive(); if(live) return "🔥 공성전 중! 지금 가요"; const own=[0,1,2,3].filter(csOwnerMine).length; const s=csSlot(); return `${own?`👑 우리 성 ${own}개 · `:""}공성전 ${s?csWhen(s.t):"금요일 8시"}`; },f:showSiege});
+TITLES.push({id:"cs1",n:"성문 부수는 자",t:1,h:"성문 점수 100점",g:()=>[G.csHitN||0,100]},{id:"cs2",n:"성의 주인",t:2,h:"성 차지하기 1번",g:()=>[G.csCap||0,1]},{id:"cs3",n:"네 성의 왕",t:3,h:"성 차지하기 10번",g:()=>[G.csCap||0,10]});
+</script>
+<style>
+#csHud{pointer-events:auto;align-self:flex-start;margin-top:3px;padding:3px 9px;border-radius:11px;background:linear-gradient(180deg,rgba(120,24,20,.92),rgba(70,14,14,.92));border:1.5px solid #ffb04a;color:#fff;font-size:11.5px;line-height:1.35;box-shadow:0 2px 0 rgba(0,0,0,.45);max-width:220px}
+#csHud[hidden]{display:none} #csHud b{color:#ffe08a}
+</style>
+<script>
 /* ================= 아주 작은 MQTT 클라이언트 (웹소켓) — 외부 라이브러리 없이 ================= */
 function MiniMQTT(url,opt){
   const self={url,ok:false,ws:null,buf:new Uint8Array(0),pid:1,pingT:null,retry:null,closed:false,subs:[],opt};
@@ -9666,7 +10067,7 @@ window.__gw={regionBanner,PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoa
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="cc23a630";
+(function(){ var CUR="cfec1b3e";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
