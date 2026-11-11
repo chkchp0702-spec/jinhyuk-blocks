@@ -210,6 +210,19 @@ body.lowhpEco #hpBar{animation:none}
 .chatlog{max-height:200px;overflow:auto;background:rgba(0,0,0,.3);border-radius:12px;padding:8px 10px;font-size:14px;display:flex;flex-direction:column;gap:4px;text-align:left} .chatlog b{font-weight:400}
 .chatin{display:flex;gap:6px;align-items:center}
 .lbl .bub{position:relative}
+/* v107: 말풍선 — 테두리·광택·꼬리 테두리, 이름 위에 따로 한 줄, 톡 튀어나옴, 글자 또르르(04zza-bubble.js) */
+.lbl .bub{display:table;margin:0 auto 9px;background:linear-gradient(180deg,#ffffff 0%,#fbf8ff 55%,#ece4ff 100%);color:#1b1430;border:2px solid #2a1f4a;border-radius:15px;padding:5px 12px 6px;font-size:14px;line-height:1.25;max-width:210px;white-space:normal;word-break:keep-all;overflow-wrap:anywhere;text-shadow:none;box-shadow:inset 0 2px 0 rgba(255,255,255,.9),inset 0 -3px 0 rgba(90,60,160,.12),0 3px 0 rgba(20,10,40,.45),0 6px 12px rgba(0,0,0,.25);transform-origin:50% 100%}
+.lbl .bub::before{content:"";position:absolute;left:50%;bottom:-10px;margin-left:-8px;border:8px solid transparent;border-top-color:#2a1f4a;border-bottom:0}
+.lbl .bub::after{content:"";position:absolute;left:50%;bottom:-6px;margin-left:-6px;border:6px solid transparent;border-top-color:#ece4ff;border-bottom:0}
+.lbl .bub .bh{color:transparent}
+.lbl .bub .bc{display:inline-block;width:2px;height:1em;margin-left:1px;vertical-align:-2px;background:#7a5cff;border-radius:1px;animation:bubCar .5s steps(2) infinite}
+.lbl .bub.bnew{animation:bubPop .32s cubic-bezier(.3,1.6,.5,1) both}
+.lbl.boss .bub{font-size:14px;color:#3a2208;background:linear-gradient(180deg,#fffaf0 0%,#fff1cf 60%,#f7dc9a 100%);border-color:#7a4a10;box-shadow:inset 0 2px 0 rgba(255,255,255,.9),0 0 0 1px #ffcf4a,0 3px 0 rgba(60,30,0,.5),0 6px 14px rgba(255,170,40,.3)}
+.lbl.boss .bub::before{border-top-color:#7a4a10} .lbl.boss .bub::after{border-top-color:#f7dc9a} .lbl.boss .bub .bc{background:#c07a10}
+.lbl.foe .bub{border-color:#7a1a2a} .lbl.foe .bub::before{border-top-color:#7a1a2a}
+.lbl.ally .bub{border-color:#16603a} .lbl.ally .bub::before{border-top-color:#16603a}
+@keyframes bubPop{0%{transform:scale(.2) translateY(8px);opacity:0}60%{opacity:1}100%{transform:none;opacity:1}}
+@keyframes bubCar{50%{opacity:0}}
 @media (max-height:640px){ #zoomBtns{top:calc(max(8px,env(safe-area-inset-top)) + 188px)} .act{width:56px;height:56px} .act.atk{width:72px;height:72px;font-size:15px} .acts{grid-template-columns:54px 54px 72px;grid-template-rows:50px 50px 72px;gap:6px} .act.skl{width:50px;height:50px;font-size:10px} #minimap{width:136px;height:136px} }
 
 /* v15.1 가로 화면 · 선명한 글씨 */
@@ -658,7 +671,7 @@ body.eco .mbtn.newdot,body.eco .mbtn.newdot::before{animation:none!important}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v106";
+const VER="v107";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -9155,6 +9168,18 @@ body.eco #portrait.low canvas{animation:none;box-shadow:inset 0 0 0 2px rgba(20,
   return {shoot,_t:()=>t}; })();
 </script>
 <script>
+/* ================= 말풍선 글자 또르르 (v107) =================
+   NPC·친구·내 말풍선이 나올 때 톡 튀어나오고, 글자가 하나씩 나옴(뒤 글자는 투명으로 자리만 잡아 풍선 크기가 흔들리지 않음).
+   placeLabel 을 감싸서 .bub 가 있는 이름표만 손봄 — 글자 바뀔 때만 DOM 씀. 게임 규칙·함께하기 메시지 그대로. */
+(function(){ if(typeof placeLabel!=="function") return; const _pl=placeLabel; const SPD=42;
+  const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  placeLabel=function(el,x,y,z,html){ const h0=el._h; _pl(el,x,y,z,html); if(el.style.display==="none") return;
+    if(el._h!==h0||el._bk!==el._h){ el._bk=el._h; const b=el.querySelector(".bub"); if(b){ const txt=b.textContent; const now=performance.now(); if(el._bt!==txt){ el._bt=txt; el._b0=now; el._bch=Array.from(txt); } el._bEl=b; el._bn=-1; if(now-el._b0<300) b.classList.add("bnew"); } else { el._bEl=null; el._bt=null; } }
+    const b=el._bEl; if(!b) return; const ch=el._bch, n=Math.min(ch.length,Math.floor((performance.now()-el._b0)/SPD)+1); if(n===el._bn) return; el._bn=n;
+    b.innerHTML=n>=ch.length?esc(el._bt):esc(ch.slice(0,n).join(""))+'<i class="bc"></i><span class="bh">'+esc(ch.slice(n).join(""))+'</span>'; };
+})();
+</script>
+<script>
 /* ================= 아주 작은 MQTT 클라이언트 (웹소켓) — 외부 라이브러리 없이 ================= */
 function MiniMQTT(url,opt){
   const self={url,ok:false,ws:null,buf:new Uint8Array(0),pid:1,pingT:null,retry:null,closed:false,subs:[],opt};
@@ -9467,7 +9492,7 @@ window.__gw={regionBanner,PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoa
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="e0878510";
+(function(){ var CUR="0cd64de5";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);

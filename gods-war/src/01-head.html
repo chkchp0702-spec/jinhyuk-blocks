@@ -210,6 +210,19 @@ body.lowhpEco #hpBar{animation:none}
 .chatlog{max-height:200px;overflow:auto;background:rgba(0,0,0,.3);border-radius:12px;padding:8px 10px;font-size:14px;display:flex;flex-direction:column;gap:4px;text-align:left} .chatlog b{font-weight:400}
 .chatin{display:flex;gap:6px;align-items:center}
 .lbl .bub{position:relative}
+/* v107: 말풍선 — 테두리·광택·꼬리 테두리, 이름 위에 따로 한 줄, 톡 튀어나옴, 글자 또르르(04zza-bubble.js) */
+.lbl .bub{display:table;margin:0 auto 9px;background:linear-gradient(180deg,#ffffff 0%,#fbf8ff 55%,#ece4ff 100%);color:#1b1430;border:2px solid #2a1f4a;border-radius:15px;padding:5px 12px 6px;font-size:14px;line-height:1.25;max-width:210px;white-space:normal;word-break:keep-all;overflow-wrap:anywhere;text-shadow:none;box-shadow:inset 0 2px 0 rgba(255,255,255,.9),inset 0 -3px 0 rgba(90,60,160,.12),0 3px 0 rgba(20,10,40,.45),0 6px 12px rgba(0,0,0,.25);transform-origin:50% 100%}
+.lbl .bub::before{content:"";position:absolute;left:50%;bottom:-10px;margin-left:-8px;border:8px solid transparent;border-top-color:#2a1f4a;border-bottom:0}
+.lbl .bub::after{content:"";position:absolute;left:50%;bottom:-6px;margin-left:-6px;border:6px solid transparent;border-top-color:#ece4ff;border-bottom:0}
+.lbl .bub .bh{color:transparent}
+.lbl .bub .bc{display:inline-block;width:2px;height:1em;margin-left:1px;vertical-align:-2px;background:#7a5cff;border-radius:1px;animation:bubCar .5s steps(2) infinite}
+.lbl .bub.bnew{animation:bubPop .32s cubic-bezier(.3,1.6,.5,1) both}
+.lbl.boss .bub{font-size:14px;color:#3a2208;background:linear-gradient(180deg,#fffaf0 0%,#fff1cf 60%,#f7dc9a 100%);border-color:#7a4a10;box-shadow:inset 0 2px 0 rgba(255,255,255,.9),0 0 0 1px #ffcf4a,0 3px 0 rgba(60,30,0,.5),0 6px 14px rgba(255,170,40,.3)}
+.lbl.boss .bub::before{border-top-color:#7a4a10} .lbl.boss .bub::after{border-top-color:#f7dc9a} .lbl.boss .bub .bc{background:#c07a10}
+.lbl.foe .bub{border-color:#7a1a2a} .lbl.foe .bub::before{border-top-color:#7a1a2a}
+.lbl.ally .bub{border-color:#16603a} .lbl.ally .bub::before{border-top-color:#16603a}
+@keyframes bubPop{0%{transform:scale(.2) translateY(8px);opacity:0}60%{opacity:1}100%{transform:none;opacity:1}}
+@keyframes bubCar{50%{opacity:0}}
 @media (max-height:640px){ #zoomBtns{top:calc(max(8px,env(safe-area-inset-top)) + 188px)} .act{width:56px;height:56px} .act.atk{width:72px;height:72px;font-size:15px} .acts{grid-template-columns:54px 54px 72px;grid-template-rows:50px 50px 72px;gap:6px} .act.skl{width:50px;height:50px;font-size:10px} #minimap{width:136px;height:136px} }
 
 /* v15.1 가로 화면 · 선명한 글씨 */
