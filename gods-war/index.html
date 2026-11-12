@@ -477,6 +477,16 @@ body.eco .act.skl .cdr{filter:saturate(2.4) brightness(1.3)} body.eco .sklwv{box
 .buy:not([disabled]):active{transform:translateY(2px);box-shadow:inset 0 1px 0 rgba(255,255,255,.6),inset 0 -1px 0 rgba(0,0,0,.25),0 0 0 rgba(0,0,0,.45)}
 .buy[disabled]{background-image:none;box-shadow:inset 0 -2px 0 rgba(0,0,0,.25);text-shadow:none}
 body.eco .row.rr3::before{animation:none;display:none}
+/* v120: 🎒 신화 장비 칸 — 테두리를 따라 금빛 빛줄기가 빙 돌고, 아이콘 귀퉁이에 별이 반짝 (가방 열렸을 때만 보임) */
+@property --rrA{syntax:"<angle>";inherits:false;initial-value:0deg}
+.row.rr3{border-color:rgba(255,207,74,.7)}
+.row.rr3::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:2px;background:conic-gradient(from var(--rrA),rgba(255,207,74,0) 0deg,rgba(255,207,74,0) 200deg,rgba(255,170,40,.75) 268deg,#ffe48a 318deg,#fffbe8 338deg,#ffcf4a 350deg,rgba(255,207,74,0) 360deg);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);animation:rrSpin 2.8s linear infinite;pointer-events:none;filter:drop-shadow(0 0 3px rgba(255,200,60,.9))}
+@keyframes rrSpin{to{--rrA:360deg}}
+.row.rr3 .ic{overflow:visible}
+.row.rr3 .ic::before{content:"✦";position:absolute;right:-6px;top:-7px;font-size:13px;line-height:1;color:#fffbe0;text-shadow:0 0 4px #ffcf4a,0 0 8px #ffb020;animation:rrStar 1.9s ease-in-out infinite;pointer-events:none;z-index:2}
+@keyframes rrStar{0%,100%{transform:scale(.55) rotate(0);opacity:.35}45%{transform:scale(1.15) rotate(45deg);opacity:1}70%{transform:scale(.8) rotate(80deg);opacity:.7}}
+.row.rr3 .t .rar{animation:rrTag 2.8s ease-in-out infinite}
+@keyframes rrTag{0%,100%{filter:brightness(1)}50%{filter:brightness(1.35) drop-shadow(0 0 4px rgba(255,207,74,.9))}}
 /* v45: 머리 위 체력바 — 금테·눈금·광택·흰 잔상·낮으면 깜빡 */
 .lbl .hp{position:relative;width:74px;height:7px;margin:4px auto 0;border-radius:3px;overflow:hidden;background:linear-gradient(180deg,#2a1530,#0b0410);box-shadow:0 0 0 1px #2a1606,0 0 0 2px rgba(255,214,120,.8),0 2px 3px 2px rgba(0,0,0,.55)}
 .lbl .hp i,.lbl .hp s{position:absolute;left:0;top:0;bottom:0;display:block;border-radius:2px;text-decoration:none}
@@ -725,7 +735,7 @@ body.eco .mbtn.newdot,body.eco .mbtn.newdot::before{animation:none!important}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v119";
+const VER="v120";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -10856,7 +10866,7 @@ window.__gw={regionBanner,PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoa
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="2cf170d8";
+(function(){ var CUR="016a2f5c";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
