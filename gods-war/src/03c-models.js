@@ -145,13 +145,25 @@ mvPosition=instanceMatrix*mvPosition;
 #endif
 mvPosition=modelViewMatrix*mvPosition;
 gl_Position=projectionMatrix*mvPosition;`); }; c.customProgramCacheKey=()=>"tsway"; TSWAY.set(m,c); return c; }
+/* v119 수도 깃발 천이 바람에 펄럭임(정점 셰이더 — 깃대 쪽은 그대로, 끝으로 갈수록 크게 물결). 그리기 호출 그대로 */
+const FWAVE=new Map(); function flagWaveMat(m){ if(!m||Array.isArray(m)) return m; let c=FWAVE.get(m); if(c) return c; c=m.clone(); c.side=THREE.DoubleSide; c.onBeforeCompile=sh=>{ sh.uniforms.uTime=TIME; sh.vertexShader="uniform float uTime;\n"+sh.vertexShader.replace("#include <begin_vertex>",`#include <begin_vertex>
+{ float _d=clamp((-transformed.z-.022)/.22,0.,1.); float _y=clamp((transformed.y-.12)/.15,0.,1.);
+#ifdef USE_INSTANCING
+float _ph=instanceMatrix[3].x*.23+instanceMatrix[3].z*.17;
+#else
+float _ph=0.;
+#endif
+float _gust=.75+.25*sin(uTime*.6+_ph);
+float _wv=sin(uTime*4.6-_d*7.5+_ph)*.7+sin(uTime*7.3-_d*11.+_ph*1.9)*.3;
+transformed.x+=_wv*_d*.032*_gust*step(.001,_y+_d);
+transformed.y+=(cos(uTime*4.6-_d*7.5+_ph)*.006-.012*_d*(1.-_gust))*_d; }`); }; c.customProgramCacheKey=()=>"fwave"; FWAVE.set(m,c); return c; }
 function onHexReady(){ try{ PLACED.forEach(p=>{ if(p.obj){ scene.remove(p.obj); p.obj=null; } }); HEXI.list.forEach(im=>scene.remove(im)); HEXI.list=[];
   const groups={}; const CH=100; const _m=new THREE.Matrix4(), _q=new THREE.Quaternion(), _s=new THREE.Vector3(), _p=new THREE.Vector3(), _e=new THREE.Euler();
   PLACED.forEach(p=>{ const h=hexPick(p); if(!h) return; const src=MODELS.hex[h.name]; if(!src) return; src.updateMatrixWorld(true); const cx=Math.floor(p.x/CH), cz=Math.floor(p.z/CH); let mi=0;
     _p.set(p.x,hAt(p.x,p.z)-.05,p.z); _q.setFromEuler(_e.set(0,p.rot||0,0)); _s.setScalar(h.scale); const root=new THREE.Matrix4().compose(_p,_q,_s);
     src.traverse(o=>{ if(!o.isMesh) return; const key=h.name+"|"+(mi++)+"|"+cx+"|"+cz; let g=groups[key]; if(!g){ g=groups[key]={geo:o.geometry,mat:o.material,mats:[],cx,cz,minx:1e9,maxx:-1e9,minz:1e9,maxz:-1e9,r:0}; } g.mats.push(_m.multiplyMatrices(root,o.matrixWorld).clone());
       const rr=(o.geometry.boundingSphere?o.geometry.boundingSphere.radius:3)*h.scale; g.r=Math.max(g.r,rr); g.minx=Math.min(g.minx,p.x); g.maxx=Math.max(g.maxx,p.x); g.minz=Math.min(g.minz,p.z); g.maxz=Math.max(g.maxz,p.z); }); });
-  for(const k in groups){ const g=groups[k]; const im=new THREE.InstancedMesh(g.geo,(HIGH()&&/^trees?_/.test(k))?treeSwayMat(g.mat):(/^building_(home|tavern|blacksmith|church|tower|market|windmill)/.test(k)&&typeof winGlowMat==="function")?winGlowMat(g.mat):g.mat,g.mats.length); g.mats.forEach((m,i)=>im.setMatrixAt(i,m)); im.instanceMatrix.needsUpdate=true; im.castShadow=HIGH(); im.receiveShadow=HIGH()&&!ECO(); im.frustumCulled=false; im.userData.noOutline=true; im.userData.cullR=-1;
+  for(const k in groups){ const g=groups[k]; const im=new THREE.InstancedMesh(g.geo,(HIGH()&&/^trees?_/.test(k))?treeSwayMat(g.mat):/^flag_/.test(k)?flagWaveMat(g.mat):(/^building_(home|tavern|blacksmith|church|tower|market|windmill)/.test(k)&&typeof winGlowMat==="function")?winGlowMat(g.mat):g.mat,g.mats.length); g.mats.forEach((m,i)=>im.setMatrixAt(i,m)); im.instanceMatrix.needsUpdate=true; im.castShadow=HIGH(); im.receiveShadow=HIGH()&&!ECO(); im.frustumCulled=false; im.userData.noOutline=true; im.userData.cullR=-1;
     im.userData.hx={minx:g.minx-g.r,maxx:g.maxx+g.r,minz:g.minz-g.r,maxz:g.maxz+g.r}; scene.add(im); HEXI.list.push(im); } HEXI.x=1e9; hexTick(1); }catch(e){ console.warn(e); } }
 function hexTick(dt){ HEXI.t-=dt; if(HEXI.t>0||!HEXI.list.length) return; HEXI.t=.3; if(Math.hypot(P.x-HEXI.x,P.z-HEXI.z)<4&&HEXI.zoom===ZOOM) return; HEXI.x=P.x; HEXI.z=P.z; HEXI.zoom=ZOOM;
   let far=170*Math.max(1,ZOOM*.85)+20; if(ECO()&&scene.fog&&scene.fog.far) far=Math.min(far,scene.fog.far+14); /* v108 배터리: 안개가 다 덮은 칸은 안 그림 */ const back=P.z+16+14*ZOOM;

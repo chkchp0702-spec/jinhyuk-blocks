@@ -725,7 +725,7 @@ body.eco .mbtn.newdot,body.eco .mbtn.newdot::before{animation:none!important}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v118";
+const VER="v119";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -1488,13 +1488,25 @@ mvPosition=instanceMatrix*mvPosition;
 #endif
 mvPosition=modelViewMatrix*mvPosition;
 gl_Position=projectionMatrix*mvPosition;`); }; c.customProgramCacheKey=()=>"tsway"; TSWAY.set(m,c); return c; }
+/* v119 수도 깃발 천이 바람에 펄럭임(정점 셰이더 — 깃대 쪽은 그대로, 끝으로 갈수록 크게 물결). 그리기 호출 그대로 */
+const FWAVE=new Map(); function flagWaveMat(m){ if(!m||Array.isArray(m)) return m; let c=FWAVE.get(m); if(c) return c; c=m.clone(); c.side=THREE.DoubleSide; c.onBeforeCompile=sh=>{ sh.uniforms.uTime=TIME; sh.vertexShader="uniform float uTime;\n"+sh.vertexShader.replace("#include <begin_vertex>",`#include <begin_vertex>
+{ float _d=clamp((-transformed.z-.022)/.22,0.,1.); float _y=clamp((transformed.y-.12)/.15,0.,1.);
+#ifdef USE_INSTANCING
+float _ph=instanceMatrix[3].x*.23+instanceMatrix[3].z*.17;
+#else
+float _ph=0.;
+#endif
+float _gust=.75+.25*sin(uTime*.6+_ph);
+float _wv=sin(uTime*4.6-_d*7.5+_ph)*.7+sin(uTime*7.3-_d*11.+_ph*1.9)*.3;
+transformed.x+=_wv*_d*.032*_gust*step(.001,_y+_d);
+transformed.y+=(cos(uTime*4.6-_d*7.5+_ph)*.006-.012*_d*(1.-_gust))*_d; }`); }; c.customProgramCacheKey=()=>"fwave"; FWAVE.set(m,c); return c; }
 function onHexReady(){ try{ PLACED.forEach(p=>{ if(p.obj){ scene.remove(p.obj); p.obj=null; } }); HEXI.list.forEach(im=>scene.remove(im)); HEXI.list=[];
   const groups={}; const CH=100; const _m=new THREE.Matrix4(), _q=new THREE.Quaternion(), _s=new THREE.Vector3(), _p=new THREE.Vector3(), _e=new THREE.Euler();
   PLACED.forEach(p=>{ const h=hexPick(p); if(!h) return; const src=MODELS.hex[h.name]; if(!src) return; src.updateMatrixWorld(true); const cx=Math.floor(p.x/CH), cz=Math.floor(p.z/CH); let mi=0;
     _p.set(p.x,hAt(p.x,p.z)-.05,p.z); _q.setFromEuler(_e.set(0,p.rot||0,0)); _s.setScalar(h.scale); const root=new THREE.Matrix4().compose(_p,_q,_s);
     src.traverse(o=>{ if(!o.isMesh) return; const key=h.name+"|"+(mi++)+"|"+cx+"|"+cz; let g=groups[key]; if(!g){ g=groups[key]={geo:o.geometry,mat:o.material,mats:[],cx,cz,minx:1e9,maxx:-1e9,minz:1e9,maxz:-1e9,r:0}; } g.mats.push(_m.multiplyMatrices(root,o.matrixWorld).clone());
       const rr=(o.geometry.boundingSphere?o.geometry.boundingSphere.radius:3)*h.scale; g.r=Math.max(g.r,rr); g.minx=Math.min(g.minx,p.x); g.maxx=Math.max(g.maxx,p.x); g.minz=Math.min(g.minz,p.z); g.maxz=Math.max(g.maxz,p.z); }); });
-  for(const k in groups){ const g=groups[k]; const im=new THREE.InstancedMesh(g.geo,(HIGH()&&/^trees?_/.test(k))?treeSwayMat(g.mat):(/^building_(home|tavern|blacksmith|church|tower|market|windmill)/.test(k)&&typeof winGlowMat==="function")?winGlowMat(g.mat):g.mat,g.mats.length); g.mats.forEach((m,i)=>im.setMatrixAt(i,m)); im.instanceMatrix.needsUpdate=true; im.castShadow=HIGH(); im.receiveShadow=HIGH()&&!ECO(); im.frustumCulled=false; im.userData.noOutline=true; im.userData.cullR=-1;
+  for(const k in groups){ const g=groups[k]; const im=new THREE.InstancedMesh(g.geo,(HIGH()&&/^trees?_/.test(k))?treeSwayMat(g.mat):/^flag_/.test(k)?flagWaveMat(g.mat):(/^building_(home|tavern|blacksmith|church|tower|market|windmill)/.test(k)&&typeof winGlowMat==="function")?winGlowMat(g.mat):g.mat,g.mats.length); g.mats.forEach((m,i)=>im.setMatrixAt(i,m)); im.instanceMatrix.needsUpdate=true; im.castShadow=HIGH(); im.receiveShadow=HIGH()&&!ECO(); im.frustumCulled=false; im.userData.noOutline=true; im.userData.cullR=-1;
     im.userData.hx={minx:g.minx-g.r,maxx:g.maxx+g.r,minz:g.minz-g.r,maxz:g.maxz+g.r}; scene.add(im); HEXI.list.push(im); } HEXI.x=1e9; hexTick(1); }catch(e){ console.warn(e); } }
 function hexTick(dt){ HEXI.t-=dt; if(HEXI.t>0||!HEXI.list.length) return; HEXI.t=.3; if(Math.hypot(P.x-HEXI.x,P.z-HEXI.z)<4&&HEXI.zoom===ZOOM) return; HEXI.x=P.x; HEXI.z=P.z; HEXI.zoom=ZOOM;
   let far=170*Math.max(1,ZOOM*.85)+20; if(ECO()&&scene.fog&&scene.fog.far) far=Math.min(far,scene.fog.far+14); /* v108 배터리: 안개가 다 덮은 칸은 안 그림 */ const back=P.z+16+14*ZOOM;
@@ -10488,6 +10500,45 @@ CTX_EXTRA.push(()=>{ if(!HY.on) return null; const t=hyTorchNear(); if(t) return
 TITLES.push({id:"hy1",n:"히드라 사냥꾼",t:1,h:"🐍 히드라 물리치기 1번",g:()=>[G.hyWin||0,1]},{id:"hy2",n:"이올라오스의 횃불",t:2,h:"🔥 잘린 목 30번 지지기",g:()=>[G.hyBurn||0,30]},{id:"hy3",n:"헤라클레스의 후예",t:3,h:"🐍 히드라 물리치기 20번",g:()=>[G.hyWin||0,20]});
 </script>
 <script>
+/* ================= 수도 광장 분수에서 물이 뿜어져 나옴 (v119) =================
+   분수 꼭대기에서 물줄기가 위로 솟았다가 사방으로 포물선을 그리며 떨어지고,
+   물그릇에 닿는 자리에선 작은 물보라가 톡 튐. 물 색은 세계 색이 살짝 섞인 하늘빛.
+   깃발 펄럭임은 03c-models.js flagWaveMat.
+   그리기: 수도마다 Points 1개(내가 그 수도 85m 안일 때만 보임) → 보통 그리기 호출 +1, PointLight 없음. 모습만. */
+const FOUNT=(()=>{ const list=[]; if(typeof REGIONS==="undefined") return {list};
+  const N=HIGH()&&!ECO()?190:ECO()?90:140;
+  REALMS.forEach((R,i)=>{ const cap=REGIONS[i*3]; if(!cap) return;
+    const geo=new THREE.BufferGeometry(); const pos=new Float32Array(N*3), seed=new Float32Array(N*3);
+    for(let k=0;k<N;k++){ seed[k*3]=Math.random(); seed[k*3+1]=Math.random(); seed[k*3+2]=k<N*.78?0:1; }   // 마지막 22%는 물보라
+    geo.setAttribute("position",new THREE.BufferAttribute(pos,3)); geo.setAttribute("aSeed",new THREE.BufferAttribute(seed,3));
+    geo.boundingSphere=new THREE.Sphere(new THREE.Vector3(0,2,0),8);
+    const tint=new THREE.Color(R.c1); const col=new THREE.Color(.72,.9,1).lerp(tint,.18);
+    const mat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,
+      uniforms:{uTime:TIME,uCol:{value:col},uPx:{value:Math.min(2,window.devicePixelRatio||1)},uDark:{value:0}},
+      vertexShader:"uniform float uTime; uniform float uPx; attribute vec3 aSeed; varying float vA; varying float vK;"+
+        " void main(){ float s=aSeed.x, s2=aSeed.y; vK=aSeed.z; vec3 p;"+
+        " if(vK<.5){ float t=fract(uTime*.55+s);"+                                   // 솟았다 떨어지는 물줄기(1.8초)
+        "   float a=s*6.2831*13.+s2*.4; float r=.15+t*(2.3+s2*.9); p=vec3(cos(a)*r, 3.35+6.2*t-8.9*t*t, sin(a)*r);"+
+        "   vA=smoothstep(0.,.06,t)*(1.-smoothstep(.9,1.,t)); gl_PointSize=uPx*(1.1+1.7*(1.-t))*70./max(1.,-(modelViewMatrix*vec4(p,1.)).z); }"+
+        " else { float t=fract(uTime*1.4+s*7.);"+                                    // 물그릇 물보라
+        "   float a=s*6.2831*17.; float r=2.3+s2*1.; float up=t*(1.-t)*1.6; p=vec3(cos(a)*(r+t*.35), .66+up, sin(a)*(r+t*.35));"+
+        "   vA=(1.-t)*.8; gl_PointSize=uPx*(1.+1.2*t)*65./max(1.,-(modelViewMatrix*vec4(p,1.)).z); }"+
+        " gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.); }",
+      fragmentShader:"uniform vec3 uCol; uniform float uDark; varying float vA; varying float vK;"+
+        " void main(){ vec2 c=gl_PointCoord*2.-1.; float r=dot(c,c); if(r>1.) discard;"+
+        " float core=1.-smoothstep(0.,.35,r); vec3 col=mix(uCol*(.8-uDark*.3),vec3(1.),core*.7);"+  // 가운데 하얀 반짝, 가장자리 물빛(눈밭에서도 보이게)
+        " gl_FragColor=vec4(col,vA*(1.-r)*(vK<.5?.95:.75)); }"});
+    const pts=new THREE.Points(geo,mat); pts.position.set(cap.x,0,cap.z); pts.frustumCulled=true; pts.userData.noOutline=true; pts.userData.noLod=true; pts.renderOrder=3; pts.visible=false; scene.add(pts);
+    list.push({pts,mat,x:cap.x,z:cap.z}); });
+  function indoor(){ return (typeof DG!=="undefined"&&DG.on)||(typeof HM!=="undefined"&&HM.on)||(typeof DS!=="undefined"&&DS.on)||(typeof PG!=="undefined"&&PG.on); }
+  let t=0;
+  XTICK.push(dt=>{ t-=dt; if(t>0||typeof P==="undefined") return; t=.25; const ind=indoor();
+    const night=(typeof DN!=="undefined"&&DN.night)?1:0;
+    for(const f of list){ const near=!ind&&Math.hypot(P.x-f.x,P.z-f.z)<85; f.pts.visible=near; if(near) f.mat.uniforms.uDark.value=night; } });
+  return {list};
+})();
+</script>
+<script>
 /* ================= 아주 작은 MQTT 클라이언트 (웹소켓) — 외부 라이브러리 없이 ================= */
 function MiniMQTT(url,opt){
   const self={url,ok:false,ws:null,buf:new Uint8Array(0),pid:1,pingT:null,retry:null,closed:false,subs:[],opt};
@@ -10805,7 +10856,7 @@ window.__gw={regionBanner,PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoa
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="1968daf2";
+(function(){ var CUR="2cf170d8";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
