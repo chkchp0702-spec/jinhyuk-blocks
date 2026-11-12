@@ -662,6 +662,12 @@ body.eco .mbtn.newdot,body.eco .mbtn.newdot::before{animation:none!important}
 @keyframes pbNope{0%,100%{transform:none}25%{transform:translateX(-4px) rotate(-8deg)}75%{transform:translateX(4px) rotate(8deg)}}
 @keyframes pbLow{0%{transform:scale(1)}30%{transform:scale(1.14);filter:brightness(1.4) drop-shadow(0 0 10px #7dffaa)}100%{transform:none}}
 @media (max-height:640px){ .act.pot.hasbot .pnm{font-size:9px;bottom:3px} .act.pot .pbadge{min-width:19px;height:19px;font-size:11px;line-height:16px;top:-5px;right:-6px} }
+/* v115: 머리 위 「!」 금빛 방패 배지 (움직임은 04zzg-qmark.js 가 3D 프레임에서) */
+.lbl .qmk{display:block;position:relative;width:26px;height:31px;margin:0 auto 3px;border-radius:46% 46% 50% 50%/38% 38% 62% 62%;background:radial-gradient(circle at 38% 28%,#fffbe0 0%,#ffe27a 30%,#f5b62a 68%,#c97d0c 100%);border:2px solid #5a3000;box-shadow:0 0 0 2px #ffe9a8 inset,0 0 10px 2px rgba(255,205,70,.85),0 3px 0 #3a1e00;transform-origin:50% 100%;will-change:transform}
+.lbl .qmk::after{content:"";position:absolute;left:4px;top:3px;width:9px;height:6px;border-radius:50%;background:rgba(255,255,255,.75);transform:rotate(-25deg)}
+.lbl .qmk .qmi{display:block;font-style:normal;font-weight:900;font-size:21px;line-height:28px;color:#4a1f00;text-shadow:0 1px 0 #fff3c0}
+.lbl .qmk.qflip{filter:brightness(.82)}
+.lbl:has(.qmk){z-index:2}
 </style>
 </head>
 <body>
