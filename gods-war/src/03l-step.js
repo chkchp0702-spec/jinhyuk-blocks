@@ -50,6 +50,6 @@ const STEP=(()=>{ let puffs=null, prints=null, pi=0, ri=0, last=-1, side=1, prev
     for(const r of rings){ if(!r.m.visible) continue; r.t+=dt; const k=r.t/r.d; if(k>=1){ r.m.visible=false; continue; } const e=1-Math.pow(1-k,2.2); r.m.scale.setScalar(.25+r.sz*e); r.m.material.opacity=r.op*(1-k)*(1-k*.3); }
     for(const p of puffs){ if(!p.m.visible) continue; p.t+=dt; const k=p.t/p.d; if(k>=1){ p.m.visible=false; continue; } const e=1-Math.pow(1-k,2); p.m.position.set(p.x+p.vx*e*.5,p.y+p.vy*e*.6,p.z+p.vz*e*.5); const s=p.sz*(.6+e*1.3); p.m.scale.set(s,s*.85,1); p.m.material.opacity=p.op*(1-k)*(k<.12?k/.12:1); }
     for(const p of prints){ if(!p.m.visible) continue; p.t+=dt; const k=p.t/p.d; if(k>=1){ p.m.visible=false; continue; } p.m.material.opacity=p.op*(k<.7?1:(1-k)/.3); } }
-  return {tick,waterAt,scan:scanWater,_w:()=>wsp};
+  return {tick,waterAt,scan:scanWater,_w:()=>wsp,puff,ground};
 })();
 </script>
