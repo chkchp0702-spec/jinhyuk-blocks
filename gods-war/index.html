@@ -183,7 +183,9 @@ body.lowhpEco #hpBar{animation:none}
 
 /* ---- 고급 UI 광택 ---- */
 .card{background:linear-gradient(180deg,rgba(52,38,92,.96),rgba(22,15,46,.98));box-shadow:0 0 0 1px rgba(255,255,255,.08) inset,0 14px 40px rgba(0,0,0,.7),0 0 30px rgba(255,207,74,.12);border-color:rgba(255,207,74,.75)}
-.card::before{content:"";position:absolute;inset:6px;border:1px solid rgba(255,207,74,.25);border-radius:16px;pointer-events:none}
+/* v126: 안쪽 금빛 테두리선을 ::before(내용과 같이 스크롤됨) 대신 outline 으로 → 창에 붙어 있음. 네 모서리 금빛 장식(배경 그림이라 스크롤해도 제자리) */
+.card::before{content:none}
+.card{outline:1px solid rgba(255,207,74,.3);outline-offset:-7px;background:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><g><path d='M1.2 27V16A14.8 14.8 0 0 1 16 1.2H27' fill='none' stroke='%23ffcf4a' stroke-width='2' stroke-linecap='round'/><path d='M5.6 1.6L9.6 5.6 5.6 9.6 1.6 5.6Z' fill='%23fff1b8' stroke='%23b8860b' stroke-width='.6'/><circle cx='30' cy='1.2' r='1.5' fill='%23ffdf7a'/><circle cx='1.2' cy='30' r='1.5' fill='%23ffdf7a'/></g></svg>"),url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><g transform='translate(32,0) scale(-1,1)'><path d='M1.2 27V16A14.8 14.8 0 0 1 16 1.2H27' fill='none' stroke='%23ffcf4a' stroke-width='2' stroke-linecap='round'/><path d='M5.6 1.6L9.6 5.6 5.6 9.6 1.6 5.6Z' fill='%23fff1b8' stroke='%23b8860b' stroke-width='.6'/><circle cx='30' cy='1.2' r='1.5' fill='%23ffdf7a'/><circle cx='1.2' cy='30' r='1.5' fill='%23ffdf7a'/></g></svg>"),url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><g transform='translate(0,32) scale(1,-1)'><path d='M1.2 27V16A14.8 14.8 0 0 1 16 1.2H27' fill='none' stroke='%23ffcf4a' stroke-width='2' stroke-linecap='round'/><path d='M5.6 1.6L9.6 5.6 5.6 9.6 1.6 5.6Z' fill='%23fff1b8' stroke='%23b8860b' stroke-width='.6'/><circle cx='30' cy='1.2' r='1.5' fill='%23ffdf7a'/><circle cx='1.2' cy='30' r='1.5' fill='%23ffdf7a'/></g></svg>"),url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><g transform='translate(32,32) scale(-1,-1)'><path d='M1.2 27V16A14.8 14.8 0 0 1 16 1.2H27' fill='none' stroke='%23ffcf4a' stroke-width='2' stroke-linecap='round'/><path d='M5.6 1.6L9.6 5.6 5.6 9.6 1.6 5.6Z' fill='%23fff1b8' stroke='%23b8860b' stroke-width='.6'/><circle cx='30' cy='1.2' r='1.5' fill='%23ffdf7a'/><circle cx='1.2' cy='30' r='1.5' fill='%23ffdf7a'/></g></svg>"),linear-gradient(180deg,rgba(52,38,92,.96),rgba(22,15,46,.98));background-repeat:no-repeat;background-position:left 4px top 4px,right 4px top 4px,left 4px bottom 4px,right 4px bottom 4px,0 0;background-size:32px 32px,32px 32px,32px 32px,32px 32px,auto}
 .card{position:relative}
 .card h2{background:linear-gradient(180deg,#fff2bf,#ffcf4a 60%,#d99a12);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none;filter:drop-shadow(0 2px 0 rgba(0,0,0,.5))}
 .row{background:linear-gradient(90deg,rgba(255,255,255,.09),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.08)}
@@ -735,7 +737,7 @@ body.eco .mbtn.newdot,body.eco .mbtn.newdot::before{animation:none!important}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v125";
+const VER="v126";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -11116,7 +11118,7 @@ window.__gw={regionBanner,PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoa
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="288635d7";
+(function(){ var CUR="1fb58cf7";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
