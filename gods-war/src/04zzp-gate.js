@@ -42,6 +42,16 @@ const GATE=(()=>{ const list=[]; if(typeof REGIONS==="undefined"||typeof REALMS=
     m.onBeforeCompile=sh=>{ sh.uniforms.uTime=TIME; sh.vertexShader="uniform float uTime;\n"+sh.vertexShader.replace("#include <begin_vertex>",
       "#include <begin_vertex>\n{ float _h=clamp((9.2-transformed.y)/4.,0.,1.); float _w=sin(uTime*2.3+transformed.y*1.4+transformed.x*.7)*.16+sin(uTime*3.7+transformed.y*2.6)*.05; transformed.z+=_w*_h*sign(transformed.z+.0001); transformed.x+=cos(uTime*1.7+transformed.y)*.05*_h; }"); };
     return m; }
+  // (v131) 밤이면 횃불 빛이 기둥·깃발·금 장식을 주황으로 물들임 — 재질 셰이더에서 횃불까지 거리로 계산(PointLight 없음, 그리기 호출 그대로)
+  const TN={value:0};
+  function tglow(m,key){ const prev=m.onBeforeCompile; m.onBeforeCompile=(sh,r)=>{ if(prev) prev(sh,r); sh.uniforms.uTN=TN; sh.uniforms.uTT=TIME;
+      sh.vertexShader="varying vec3 vTL;\n"+sh.vertexShader.replace("#include <begin_vertex>","#include <begin_vertex>\nvTL=position;");
+      sh.fragmentShader="uniform float uTN; uniform float uTT; varying vec3 vTL;\n"+sh.fragmentShader.replace("#include <emissivemap_fragment>",
+        "#include <emissivemap_fragment>\n{ vec3 d0=vTL-vec3(-"+(HW+2.2).toFixed(2)+",4.4,0.), d1=vTL-vec3("+(HW+2.2).toFixed(2)+",4.4,0.);"+
+        " float f=exp(-dot(d0,d0)*.05)+exp(-dot(d1,d1)*.05); f=f*1.15+.22*smoothstep(13.,2.,vTL.y);"+
+        " float fl=.86+.1*sin(uTT*11.3)+.06*sin(uTT*23.7+1.7);"+
+        " totalEmissiveRadiance+=diffuseColor.rgb*vec3(1.,.5,.16)*f*fl*uTN*1.6+vec3(.4,.14,.02)*f*f*uTN*.2; }"); };
+    m.customProgramCacheKey=()=>"tglow"+key; return m; }
   const m4=new THREE.Matrix4(), q4=new THREE.Quaternion(), e3=new THREE.Euler();
   function B(w,h,d,x,y,z,ry){ const g=new THREE.BoxGeometry(w,h,d); m4.compose(new THREE.Vector3(x,y,z),q4.setFromEuler(e3.set(0,ry||0,0)),new THREE.Vector3(1,1,1)); return g.applyMatrix4(m4); }
   function C(r1,r2,h,x,y,z,s){ return new THREE.CylinderGeometry(r1,r2,h,s||10).translate(x,y,z); }
@@ -71,17 +81,17 @@ const GATE=(()=>{ const list=[]; if(typeof REGIONS==="undefined"||typeof REALMS=
     if(i===2){ for(let k=0;k<3;k++) st.push(B(HW*2-k*2.2,.9,1.6,0,12.5+k*.9,0)); }                          // 인도: 층층 지붕
     if(i===0||i===3){ st.push(new THREE.CylinderGeometry(1,1,1.9,3).rotateX(-Math.PI/2).scale((HW+1.2)/.866,1.6,1).translate(0,12.85,0)); } // 에덴·올림푸스: 박공
     TORCH.forEach(([x,z])=>{ st.push(C(.22,.3,3.4,x,1.7,z,8)); st.push(C(.55,.6,.35,x,.18,z,8)); });
-    const stone=new THREE.Mesh(merge(st),STONE[i]); root.add(stone);
+    const stone=new THREE.Mesh(merge(st),tglow(STONE[i].clone(),"s"+i)); root.add(stone);
     // 금빛 띠·횃불 그릇
     const gd=[]; gd.push(B(HW*2+3.6,.22,2.5,0,9.75,0)); gd.push(B(HW*2+3.6,.22,2.5,0,11.1,0)); [-HW,HW].forEach(x=>gd.push(B(1.7,.2,1.7,x,1.08,0)));
     TORCH.forEach(([x,z])=>{ gd.push(C(.62,.28,.55,x,3.6,z,10)); gd.push(C(.66,.66,.12,x,3.88,z,10)); });
     // 세계 색 깃발 두 장(앞뒤에서 보이게 양면)
     // (v127) 진한 세계 색 바탕 + 금빛 테두리·문양 그림 + 제비꼬리 끝, 바람에 살랑(셰이더)
     const bn=[]; [-HW,HW].forEach(x=>{ const p=new THREE.PlaneGeometry(1.6,4,2,6); p.translate(x,7.2,1.22); bn.push(p); const p2=new THREE.PlaneGeometry(1.6,4,2,6); p2.rotateY(Math.PI).translate(x,7.2,-1.22); bn.push(p2); });
-    const ban=new THREE.Mesh(mergeUV(bn),banMat(i)); ban.userData.noOutline=true; root.add(ban);
+    const ban=new THREE.Mesh(mergeUV(bn),tglow(banMat(i),"b"+i)); ban.userData.noOutline=true; root.add(ban);
     // 깃대 가로막대(금)
     [-HW,HW].forEach(x=>{ [1.25,-1.25].forEach(z=>gd.push(new THREE.CylinderGeometry(.08,.08,1.9,6).rotateZ(Math.PI/2).translate(x,9.22,z))); });
-    root.add(new THREE.Mesh(merge(gd),TRIM[i]));
+    root.add(new THREE.Mesh(merge(gd),tglow(TRIM[i].clone(),"g"+i)));
     // 들보 가운데 빛나는 문양 구슬
     const orb=new THREE.Mesh(new THREE.SphereGeometry(.75,14,10),glowMat(R.c1,.85)); orb.position.set(0,10.45,1.3); root.add(orb);
     // 횃불 불꽃(셰이더 알갱이) + 바닥 불빛 웅덩이
@@ -113,10 +123,10 @@ const GATE=(()=>{ const list=[]; if(typeof REGIONS==="undefined"||typeof REALMS=
   function indoor(){ return (typeof DG!=="undefined"&&DG.on)||(typeof HM!=="undefined"&&HM.on)||(typeof DS!=="undefined"&&DS.on)||(typeof PG!=="undefined"&&PG.on); }
   let t=0;
   XTICK.push(dt=>{ if(typeof P==="undefined") return; const ind=indoor();
-    const night=clamp(1-((typeof DAY!=="undefined"&&DAY.d!=null?DAY.d:1)-.32)/.4,0,1);
+    const night=clamp(1-((typeof DAY!=="undefined"&&DAY.d!=null?DAY.d:1)-.32)/.4,0,1); TN.value+=(night-TN.value)*Math.min(1,dt*2);
     for(const g of list){ if(g.root.visible){ g.fm.uniforms.uNight.value=night; g.orb.scale.setScalar(1+Math.sin(TIME.value*2.4)*.08); } }
     t-=dt; if(t>0) return; t=.3;
     for(const g of list) g.root.visible=!ind&&Math.hypot(P.x-g.x,P.z-g.z)<120; });
-  return {list};
+  return {list,TN};
 })();
 </script>
