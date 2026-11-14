@@ -91,7 +91,7 @@
 | 72 | 비 오는 날 땅에 빗방울 동그라미 물결·젖은 땅 반짝 | 04zzi-ripple.js RIPPLE(인스턴스 1묶음, WEATHER.type 따라) — 젖은 땅 반짝은 아직 | ✅ v117 |
 | 73 | 상점에서 산 물건이 가방 버튼으로 날아가 들어가기 | 06d-shopfly.js SHOPFLY(#layers .buy 클릭 먼저 듣기, 금화 줄었을 때만) · 01-head.html .sfly·.sfcost·.sfcoin | ✅ v128 |
 | 78 | 창(.card) 안쪽 금빛 테두리선(::before)이 스크롤하면 내용과 같이 밀려 올라감 → 창에 고정 | 01-head.html .card::before | ✅ v126 |
-| 79 | 젖은 땅 반짝(비 올 때 땅 재질 살짝 윤기·하늘 비침, 높음만) | 03b-visual.js 날씨 · 04zzi-ripple.js | ⏳ |
+| 79 | 젖은 땅 반짝(비 올 때 땅 재질 살짝 윤기·하늘 비침, 높음만) | 04zzr-wetground.js WETG(땅 셰이더 onBeforeCompile, CLOUDSHADE 와 같은 방식) | ✅ v129 |
 | 81 | 성문 아치 깃발이 에덴·아스가르드에선 돌 색과 비슷해 잘 안 보임 → 진한 세계 색·문양 | 04zzp-gate.js banTex·banMat(캔버스 그림 깃발·셰이더 펄럭) | ✅ v127 |
 | 82 | 젖은 땅 반짝 다음: 밤에 수도 성문 횃불 빛이 깃발·기둥을 주황으로 물들이기(재질 발광 셰이더, PointLight 없이) | 04zzp-gate.js | ⏳ |
 | 83 | 상점 「오늘의 특가」 줄에 빛 쓸고 지나가는 반짝 띠·할인 도장 | 01-head.html .row.deal · 04q-shop.js | ⏳ |
