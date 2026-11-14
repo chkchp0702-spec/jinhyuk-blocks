@@ -11,6 +11,37 @@ const GATE=(()=>{ const list=[]; if(typeof REGIONS==="undefined"||typeof REALMS=
     const pos=new Float32Array(n*3), nor=new Float32Array(n*3); let o=0;
     for(const q of parts){ pos.set(q.attributes.position.array,o*3); nor.set(q.attributes.normal.array,o*3); o+=q.attributes.position.count; }
     const g=new THREE.BufferGeometry(); g.setAttribute("position",new THREE.BufferAttribute(pos,3)); g.setAttribute("normal",new THREE.BufferAttribute(nor,3)); g.computeBoundingSphere(); return g; }
+  function mergeUV(gs){ let n=0; const parts=gs.map(g=>{ const q=g.index?g.toNonIndexed():g; n+=q.attributes.position.count; return q; });
+    const pos=new Float32Array(n*3), nor=new Float32Array(n*3), uv=new Float32Array(n*2); let o=0;
+    for(const q of parts){ pos.set(q.attributes.position.array,o*3); nor.set(q.attributes.normal.array,o*3); uv.set(q.attributes.uv.array,o*2); o+=q.attributes.position.count; }
+    const g=new THREE.BufferGeometry(); g.setAttribute("position",new THREE.BufferAttribute(pos,3)); g.setAttribute("normal",new THREE.BufferAttribute(nor,3)); g.setAttribute("uv",new THREE.BufferAttribute(uv,2)); g.computeBoundingSphere(); return g; }
+  // 세계마다 깃발 그림: [바탕, 진한 띠, 문양]
+  const BAN=[["#8e1b2c","#5e0f1c"],["#1d4f94","#0f2d5c"],["#c4410c","#7c2408"],["#1e3fae","#122a73"]];
+  function banTex(i){ const W=96,H=240, cv=document.createElement("canvas"); cv.width=W; cv.height=H; const x=cv.getContext("2d");
+    const tail=H-46; x.beginPath(); x.moveTo(0,0); x.lineTo(W,0); x.lineTo(W,H); x.lineTo(W/2,tail); x.lineTo(0,H); x.closePath();
+    const gr=x.createLinearGradient(0,0,0,H); gr.addColorStop(0,BAN[i][0]); gr.addColorStop(1,BAN[i][1]); x.fillStyle=gr; x.fill();
+    x.save(); x.clip(); x.fillStyle="rgba(0,0,0,.28)"; x.fillRect(0,0,W,22); x.fillStyle="rgba(255,255,255,.06)"; for(let k=0;k<W;k+=12) x.fillRect(k,0,5,H); x.restore();
+    // 금빛 테두리(안쪽 두 줄)
+    x.strokeStyle="#f3c74d"; x.lineWidth=7; x.beginPath(); x.moveTo(7,22); x.lineTo(7,H-10); x.lineTo(W/2,tail+9); x.lineTo(W-7,H-10); x.lineTo(W-7,22); x.closePath(); x.stroke();
+    x.strokeStyle="#fff1b8"; x.lineWidth=2; x.beginPath(); x.moveTo(15,30); x.lineTo(15,H-26); x.lineTo(W/2,tail-3); x.lineTo(W-15,H-26); x.lineTo(W-15,30); x.closePath(); x.stroke();
+    x.fillStyle="#f3c74d"; x.fillRect(0,14,W,8);
+    // 문양(금빛 원판 위)
+    const cx=W/2, cy=96; x.fillStyle="rgba(255,225,130,.22)"; x.beginPath(); x.arc(cx,cy,32,0,7); x.fill(); x.strokeStyle="#f3c74d"; x.lineWidth=3; x.beginPath(); x.arc(cx,cy,32,0,7); x.stroke();
+    x.fillStyle="#ffd860"; x.strokeStyle="#7a5410"; x.lineWidth=2; x.lineJoin="round"; x.beginPath();
+    if(i===0){ x.rect(cx-6,cy-24,12,48); x.rect(cx-19,cy-12,38,11); }                         // 십자가
+    else if(i===1){ x.moveTo(cx,cy-26); x.lineTo(cx+15,cy-9); x.lineTo(cx+19,cy+24); x.lineTo(cx+12,cy+24); x.lineTo(cx+9,cy+2); x.lineTo(cx,cy+12); x.lineTo(cx-9,cy+2); x.lineTo(cx-12,cy+24); x.lineTo(cx-19,cy+24); x.lineTo(cx-15,cy-9); x.closePath(); // 오탈라 룬 모양
+      x.moveTo(cx,cy-15); x.lineTo(cx-8,cy-6); x.lineTo(cx,cy+3); x.lineTo(cx+8,cy-6); x.closePath(); }
+    else if(i===2){ for(let k=0;k<8;k++){ const a=k*Math.PI/4; x.moveTo(cx,cy); x.ellipse(cx+Math.cos(a)*14,cy+Math.sin(a)*14,13,6,a,0,7); } }   // 연꽃
+    else { x.moveTo(cx+8,cy-28); x.lineTo(cx-14,cy+4); x.lineTo(cx-1,cy+4); x.lineTo(cx-9,cy+28); x.lineTo(cx+15,cy-6); x.lineTo(cx+2,cy-6); x.lineTo(cx+10,cy-28); x.closePath(); } // 번개
+    x.fill(i===2?"nonzero":"evenodd"); x.stroke(); if(i===2){ x.fillStyle="#fff1b8"; x.beginPath(); x.arc(cx,cy,7,0,7); x.fill(); }
+    // 아래쪽 작은 별 셋
+    x.fillStyle="#f3c74d"; [[cx,160],[cx-18,150],[cx+18,150]].forEach(([a,b])=>{ x.beginPath(); for(let k=0;k<10;k++){ const r=k%2?2.6:6.5, an=-Math.PI/2+k*Math.PI/5; x.lineTo(a+Math.cos(an)*r,b+Math.sin(an)*r); } x.fill(); });
+    const t=new THREE.CanvasTexture(cv); t.anisotropy=2; if(THREE.SRGBColorSpace) t.colorSpace=THREE.SRGBColorSpace; return t; }
+  function banMat(i){ const m=mat({map:banTex(i),side:THREE.DoubleSide,alphaTest:.5,emissive:0xffffff,emissiveIntensity:.08});
+    if(m.emissiveMap!==undefined) m.emissiveMap=m.map;
+    m.onBeforeCompile=sh=>{ sh.uniforms.uTime=TIME; sh.vertexShader="uniform float uTime;\n"+sh.vertexShader.replace("#include <begin_vertex>",
+      "#include <begin_vertex>\n{ float _h=clamp((9.2-transformed.y)/4.,0.,1.); float _w=sin(uTime*2.3+transformed.y*1.4+transformed.x*.7)*.16+sin(uTime*3.7+transformed.y*2.6)*.05; transformed.z+=_w*_h*sign(transformed.z+.0001); transformed.x+=cos(uTime*1.7+transformed.y)*.05*_h; }"); };
+    return m; }
   const m4=new THREE.Matrix4(), q4=new THREE.Quaternion(), e3=new THREE.Euler();
   function B(w,h,d,x,y,z,ry){ const g=new THREE.BoxGeometry(w,h,d); m4.compose(new THREE.Vector3(x,y,z),q4.setFromEuler(e3.set(0,ry||0,0)),new THREE.Vector3(1,1,1)); return g.applyMatrix4(m4); }
   function C(r1,r2,h,x,y,z,s){ return new THREE.CylinderGeometry(r1,r2,h,s||10).translate(x,y,z); }
@@ -44,10 +75,13 @@ const GATE=(()=>{ const list=[]; if(typeof REGIONS==="undefined"||typeof REALMS=
     // 금빛 띠·횃불 그릇
     const gd=[]; gd.push(B(HW*2+3.6,.22,2.5,0,9.75,0)); gd.push(B(HW*2+3.6,.22,2.5,0,11.1,0)); [-HW,HW].forEach(x=>gd.push(B(1.7,.2,1.7,x,1.08,0)));
     TORCH.forEach(([x,z])=>{ gd.push(C(.62,.28,.55,x,3.6,z,10)); gd.push(C(.66,.66,.12,x,3.88,z,10)); });
-    root.add(new THREE.Mesh(merge(gd),TRIM[i]));
     // 세계 색 깃발 두 장(앞뒤에서 보이게 양면)
-    const bn=[]; [-HW,HW].forEach(x=>{ const p=new THREE.PlaneGeometry(1.4,3.6,1,1); p.translate(x,7.4,1.22); bn.push(p); const p2=new THREE.PlaneGeometry(1.4,3.6,1,1); p2.rotateY(Math.PI).translate(x,7.4,-1.22); bn.push(p2); });
-    const ban=new THREE.Mesh(merge(bn),mat({color:R.c1,side:THREE.DoubleSide,emissive:R.c1,emissiveIntensity:.12})); root.add(ban);
+    // (v127) 진한 세계 색 바탕 + 금빛 테두리·문양 그림 + 제비꼬리 끝, 바람에 살랑(셰이더)
+    const bn=[]; [-HW,HW].forEach(x=>{ const p=new THREE.PlaneGeometry(1.6,4,2,6); p.translate(x,7.2,1.22); bn.push(p); const p2=new THREE.PlaneGeometry(1.6,4,2,6); p2.rotateY(Math.PI).translate(x,7.2,-1.22); bn.push(p2); });
+    const ban=new THREE.Mesh(mergeUV(bn),banMat(i)); ban.userData.noOutline=true; root.add(ban);
+    // 깃대 가로막대(금)
+    [-HW,HW].forEach(x=>{ [1.25,-1.25].forEach(z=>gd.push(new THREE.CylinderGeometry(.08,.08,1.9,6).rotateZ(Math.PI/2).translate(x,9.22,z))); });
+    root.add(new THREE.Mesh(merge(gd),TRIM[i]));
     // 들보 가운데 빛나는 문양 구슬
     const orb=new THREE.Mesh(new THREE.SphereGeometry(.75,14,10),glowMat(R.c1,.85)); orb.position.set(0,10.45,1.3); root.add(orb);
     // 횃불 불꽃(셰이더 알갱이) + 바닥 불빛 웅덩이
