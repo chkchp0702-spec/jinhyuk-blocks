@@ -681,6 +681,16 @@ body.eco .mbtn.newdot,body.eco .mbtn.newdot::before{animation:none!important}
 .lbl .qmk .qmi{display:block;font-style:normal;font-weight:900;font-size:21px;line-height:28px;color:#4a1f00;text-shadow:0 1px 0 #fff3c0}
 .lbl .qmk.qflip{filter:brightness(.82)}
 .lbl:has(.qmk){z-index:2}
+/* v130: 상점 「오늘의 특가」 줄 — 따뜻한 주황 바탕 + 빛 띠가 쓸고 지나감 + 아이콘 모서리에 쾅 찍히는 빨간 할인 도장 + 값 버튼 금빛 (CSS만, 그리기 호출 0) */
+.row.deal{background:linear-gradient(90deg,rgba(255,96,40,.34),rgba(255,150,60,.12) 55%,rgba(255,200,120,.05));border-color:rgba(255,140,70,.95);box-shadow:inset 4px 0 0 #ff7a3d,inset 0 1px 0 rgba(255,230,190,.25),0 2px 0 rgba(0,0,0,.35),0 0 12px rgba(255,110,50,.4)}
+.row.deal:not(.rr3)::before{content:"";position:absolute;top:0;bottom:0;left:-45%;width:34%;background:linear-gradient(100deg,rgba(255,236,190,0),rgba(255,236,190,.38) 45%,rgba(255,255,255,.55) 50%,rgba(255,236,190,.38) 55%,rgba(255,236,190,0));transform:skewX(-18deg);pointer-events:none;animation:dealSweep 3.2s cubic-bezier(.5,0,.3,1) .35s infinite}
+@keyframes dealSweep{0%{left:-45%}55%,100%{left:125%}}
+.row.deal .ic{border-color:#ffb35c;box-shadow:inset 0 2px 4px rgba(0,0,0,.5),0 0 8px rgba(255,140,60,.55)}
+.row.deal .dl{position:absolute;left:1px;top:0;z-index:2;width:30px;height:30px;padding:0;border-radius:50%;display:grid;place-items:center;font-size:9.5px;font-weight:900;line-height:1;letter-spacing:-.5px;color:#fff6e0;background:radial-gradient(circle at 40% 35%,#ff5a4a,#c81e28 70%);border:2px solid #ffe0a0;box-shadow:0 0 0 1.5px #8a1018,0 2px 4px rgba(0,0,0,.5),inset 0 0 0 2px rgba(255,255,255,.18);text-shadow:0 1px 0 rgba(0,0,0,.45);transform:rotate(-16deg);animation:dealStamp .5s cubic-bezier(.3,1.6,.5,1) .15s both;pointer-events:none}
+.row.deal .dl::after{content:"-30%";position:absolute;left:50%;bottom:-7px;transform:translateX(-50%);font-size:8.5px;padding:0 3px;border-radius:4px;background:#ffd34a;color:#7a1408;box-shadow:0 1px 2px rgba(0,0,0,.45);white-space:nowrap}
+@keyframes dealStamp{0%{transform:rotate(-40deg) scale(2.4);opacity:0}60%{opacity:1}100%{transform:rotate(-16deg) scale(1);opacity:1}}
+.row.deal .buy:not([disabled]){background:linear-gradient(180deg,#ffe27a,#ffb028 60%,#f08a18);color:#4a1a00;box-shadow:inset 0 -3px 0 rgba(120,40,0,.35),inset 0 1px 0 rgba(255,255,255,.6),0 0 10px rgba(255,170,40,.55)}
+.row.deal .buy s{color:#7a2a00}
 </style>
 </head>
 <body>

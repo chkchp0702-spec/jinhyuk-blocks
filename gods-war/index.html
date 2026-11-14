@@ -681,6 +681,16 @@ body.eco .mbtn.newdot,body.eco .mbtn.newdot::before{animation:none!important}
 .lbl .qmk .qmi{display:block;font-style:normal;font-weight:900;font-size:21px;line-height:28px;color:#4a1f00;text-shadow:0 1px 0 #fff3c0}
 .lbl .qmk.qflip{filter:brightness(.82)}
 .lbl:has(.qmk){z-index:2}
+/* v130: 상점 「오늘의 특가」 줄 — 따뜻한 주황 바탕 + 빛 띠가 쓸고 지나감 + 아이콘 모서리에 쾅 찍히는 빨간 할인 도장 + 값 버튼 금빛 (CSS만, 그리기 호출 0) */
+.row.deal{background:linear-gradient(90deg,rgba(255,96,40,.34),rgba(255,150,60,.12) 55%,rgba(255,200,120,.05));border-color:rgba(255,140,70,.95);box-shadow:inset 4px 0 0 #ff7a3d,inset 0 1px 0 rgba(255,230,190,.25),0 2px 0 rgba(0,0,0,.35),0 0 12px rgba(255,110,50,.4)}
+.row.deal:not(.rr3)::before{content:"";position:absolute;top:0;bottom:0;left:-45%;width:34%;background:linear-gradient(100deg,rgba(255,236,190,0),rgba(255,236,190,.38) 45%,rgba(255,255,255,.55) 50%,rgba(255,236,190,.38) 55%,rgba(255,236,190,0));transform:skewX(-18deg);pointer-events:none;animation:dealSweep 3.2s cubic-bezier(.5,0,.3,1) .35s infinite}
+@keyframes dealSweep{0%{left:-45%}55%,100%{left:125%}}
+.row.deal .ic{border-color:#ffb35c;box-shadow:inset 0 2px 4px rgba(0,0,0,.5),0 0 8px rgba(255,140,60,.55)}
+.row.deal .dl{position:absolute;left:1px;top:0;z-index:2;width:30px;height:30px;padding:0;border-radius:50%;display:grid;place-items:center;font-size:9.5px;font-weight:900;line-height:1;letter-spacing:-.5px;color:#fff6e0;background:radial-gradient(circle at 40% 35%,#ff5a4a,#c81e28 70%);border:2px solid #ffe0a0;box-shadow:0 0 0 1.5px #8a1018,0 2px 4px rgba(0,0,0,.5),inset 0 0 0 2px rgba(255,255,255,.18);text-shadow:0 1px 0 rgba(0,0,0,.45);transform:rotate(-16deg);animation:dealStamp .5s cubic-bezier(.3,1.6,.5,1) .15s both;pointer-events:none}
+.row.deal .dl::after{content:"-30%";position:absolute;left:50%;bottom:-7px;transform:translateX(-50%);font-size:8.5px;padding:0 3px;border-radius:4px;background:#ffd34a;color:#7a1408;box-shadow:0 1px 2px rgba(0,0,0,.45);white-space:nowrap}
+@keyframes dealStamp{0%{transform:rotate(-40deg) scale(2.4);opacity:0}60%{opacity:1}100%{transform:rotate(-16deg) scale(1);opacity:1}}
+.row.deal .buy:not([disabled]){background:linear-gradient(180deg,#ffe27a,#ffb028 60%,#f08a18);color:#4a1a00;box-shadow:inset 0 -3px 0 rgba(120,40,0,.35),inset 0 1px 0 rgba(255,255,255,.6),0 0 10px rgba(255,170,40,.55)}
+.row.deal .buy s{color:#7a2a00}
 </style>
 </head>
 <body>
@@ -738,7 +748,7 @@ body.eco .mbtn.newdot,body.eco .mbtn.newdot::before{animation:none!important}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v129";
+const VER="v130";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -11197,6 +11207,20 @@ function regionBanner(name,sub,realm){ const el=$("rgban"); if(!el){ toast(name,
 window.__gw={regionBanner,PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoard,showPlay,pgNow,pgTileAt,STY,STORY,styData,styStart,styAdvance,styStep,styOpenN,styNextDays,showStory,styComic,styTarget,CQ,CQO,cqMis,cqTotal,cqAdd,showTeam,frTeleport,frFollow,SKS,skSlots,showSkills,showPatch,PATCH_NOTES,GT,GTO,DS,gtTotal,gtStage,gtDonate,gtGive,gtData,showGate,dsEnter,dsExit,dsSpawn,DS_MOBS,OR,orQuiz,orAnswer,orToday,showOracle,MT,mtGraduate,mtRole,showMentor,mtShowStar,NETX,NETR,PETS,showShop,bfOn,bfAdd,BUFFS,shopDeal,GD,GDO,gdCreate,gdJoin,gdLeave,gdClaim,gdAdd,gdMembers,gdWeekPts,gdLv,gdRanking,showGuild,gdMine,FG,showForge,fgStart,fgHit,fgDone,fgGive,fgLv,fgMul,RC,RCO,rcStart,rcEnd,rcBoard,showRace,rdSet,rdCan,WD,WDO,wdDonate,wdTotal,wdStage,wdGive,showWonder,wdData,HM,HOMES,DECO,hmEnter,hmExit,hmGift,hmAdd,hmBlessMsg,hmMsg,showHome,hmSlotCard,hmCollect,FS,startFish,fishPull,fishCaught,trapSet,trapClaim,showFish,nearWater,fishSpots,ssData,ssTasks,ssClaim,showSeason,ssMsg,ssNo,ssAdd,ssWinner,SSO,CTX,DG,dgEnter,dgFloor,dgFinish,dgPlan,showDungeon,showTitles,TITLES,showExp,expStart,expClaim,EXPO,DGR,TB,titanHit,titanDefeated,showTitan,titanGo,showPets,hatchEgg,petOnKill,comboFire,comboRecv,showCombos,PETMESH,idleSim,grantIdle,showIdleReport,ROSTER,autoFace,buildPlayer,GHOSTS,mmoProfile,showRoster,G,P,mobs,W,net,PEERS,WAR,forceWar,resolveWar,joinWar,begin,update,spawnMob,spawnAtHome,REGIONS,attack,useSkill,startTrial,die,respawn};
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
+<!--auto-update--><script>
+(function(){ var CUR="b3109066";
+  function check(){ if(!/^https?:/.test(location.protocol)) return;
+    fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
+      if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
+      var go=function(){ location.replace(location.pathname.replace(/index\.html$/,"")+"?v="+j.v); };
+      try{ var p=[]; if(navigator.serviceWorker&&navigator.serviceWorker.getRegistrations) p.push(navigator.serviceWorker.getRegistrations().then(function(rs){ return Promise.all(rs.filter(function(r){return location.href.indexOf(r.scope)===0;}).map(function(r){return r.unregister();})); }));
+        if(window.caches) p.push(caches.keys().then(function(ks){ return Promise.all(ks.map(function(c){return caches.delete(c);})); }));
+        Promise.all(p).then(go,go); }catch(e){ go(); }
+    }).catch(function(){});
+  }
+  check(); document.addEventListener("visibilitychange",function(){ if(!document.hidden) check(); });
+})();
+</script><!--/auto-update-->
 </body>
 </html>
 <script>

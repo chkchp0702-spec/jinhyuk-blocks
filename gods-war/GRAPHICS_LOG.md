@@ -94,7 +94,11 @@
 | 79 | 젖은 땅 반짝(비 올 때 땅 재질 살짝 윤기·하늘 비침, 높음만) | 04zzr-wetground.js WETG(땅 셰이더 onBeforeCompile, CLOUDSHADE 와 같은 방식) | ✅ v129 |
 | 81 | 성문 아치 깃발이 에덴·아스가르드에선 돌 색과 비슷해 잘 안 보임 → 진한 세계 색·문양 | 04zzp-gate.js banTex·banMat(캔버스 그림 깃발·셰이더 펄럭) | ✅ v127 |
 | 82 | 젖은 땅 반짝 다음: 밤에 수도 성문 횃불 빛이 깃발·기둥을 주황으로 물들이기(재질 발광 셰이더, PointLight 없이) | 04zzp-gate.js | ⏳ |
-| 83 | 상점 「오늘의 특가」 줄에 빛 쓸고 지나가는 반짝 띠·할인 도장 | 01-head.html .row.deal · 04q-shop.js | ⏳ |
+| 83 | 상점 「오늘의 특가」 줄에 빛 쓸고 지나가는 반짝 띠·할인 도장 | 01-head.html .row.deal(::before 빛 띠)·.dl 도장(CSS만) | ✅ v130 |
+| 84 | 괴물 이름표 옆 레벨 숫자 배지·정예는 금빛 해골 표시 | 03x-mobtag.js · 01-head.html | ⏳ |
+| 85 | 밤에 수도 창문·등불이 노랗게 켜지는 건물 발광(재질 emissive, 밤만) | 03b-visual.js 밤낮 · 03c-models.js | ⏳ |
+| 86 | 기술 버튼 아이콘 뒤 세계 색 소용돌이 배경·누를 때 아이콘 튀어나옴 | 01-head.html .acts · 04va-skicon.js | ⏳ |
+| 87 | 높은 데서 떨어질 때·활공 때 바람 줄무늬(스피드 라인) | 04zl-glide.js · 06-ui.js | ⏳ |
 | 80 | 내 캐릭터 공격 휘두를 때 몸 앞으로 살짝 내딛기·체중 이동(모습만) | 04zzo-lunge.js LUNGE(attack·rangedAttack 감싸기, XTICK 앞으로 숙임·내딛기) · 03l-step.js puff·ground 내보냄 | ✅ v123 |
 
 ## 기록
