@@ -612,6 +612,20 @@ body.eco .act.atk.full,body.eco .act.atk.full::before{animation:none}
 .act.skl.hasic span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;max-width:54px;font-size:8.5px;line-height:1.05;margin-top:1px;letter-spacing:-.3px;color:#fff;text-shadow:0 1px 0 rgba(20,8,30,.9),0 0 3px rgba(20,8,30,.8),1px 0 0 rgba(20,8,30,.6),-1px 0 0 rgba(20,8,30,.6)}
 .act.skl.fire .sic{transform:scale(1.25)} .act.skl.lock .sic{opacity:.6;font-size:19px} .act.skl.lock.hasic span{display:none} .act.skl.lock.hasic small{font-size:8.5px;margin-top:2px;color:#fff;text-shadow:0 1px 0 #000,0 0 3px #000} .act.skl.cool .sic{opacity:.5}
 @media (max-height:640px){ .act.skl .sic{font-size:19px} .act.skl.hasic span{font-size:7.5px;max-width:46px} }
+/* v132 기술 아이콘 뒤 세계 색 소용돌이 빛 + 누르면 아이콘이 톡 튀어나옴 */
+.act.skl.hasic .sic{position:relative;isolation:isolate} .act.skl.hasic span{position:relative;z-index:1}
+.act.skl.hasic .sic::before{content:"";position:absolute;left:50%;top:50%;width:42px;height:42px;margin:-21px 0 0 -21px;border-radius:50%;z-index:-1;pointer-events:none;
+ background:radial-gradient(circle,rgba(255,255,255,.35) 0 14%,transparent 30%),repeating-conic-gradient(from 0deg,rgba(255,255,255,.75) 0 7deg,rgba(255,255,255,0) 14deg 22deg,rgba(30,12,70,.32) 26deg 34deg,rgba(30,12,70,0) 40deg 45deg);
+ -webkit-mask:radial-gradient(circle,transparent 16%,#000 30%,rgba(0,0,0,.6) 48%,transparent 64%);mask:radial-gradient(circle,transparent 16%,#000 30%,rgba(0,0,0,.6) 48%,transparent 64%);opacity:.95;animation:sicSpin 9s linear infinite}
+.act.skl.hasic .sic::after{content:"";position:absolute;left:50%;top:50%;width:32px;height:32px;margin:-16px 0 0 -16px;border-radius:50%;z-index:-1;pointer-events:none;border:2px solid rgba(255,255,255,.75);border-left-color:transparent;border-right-color:transparent;box-shadow:0 0 6px var(--c1);animation:sicSpin 4s linear infinite reverse}
+@keyframes sicSpin{to{transform:rotate(360deg)}}
+.act.skl.cool .sic::before,.act.skl.cool .sic::after{opacity:.2;animation-play-state:paused}
+.act.skl.lock .sic::before,.act.skl.lock .sic::after{display:none}
+.act.skl.fire .sic{animation:sicPop .5s cubic-bezier(.3,1.6,.5,1)}
+.act.skl.fire .sic::before{animation:sicBurst .5s ease-out}
+@keyframes sicPop{0%{transform:scale(1)}28%{transform:translateY(-9px) scale(1.5) rotate(-10deg)}60%{transform:translateY(1px) scale(.94) rotate(4deg)}100%{transform:none}}
+@keyframes sicBurst{0%{transform:scale(1) rotate(0);opacity:1;filter:brightness(1.6)}45%{transform:scale(1.7) rotate(90deg);opacity:.95;filter:brightness(1.8)}100%{transform:scale(1) rotate(160deg);opacity:.8;filter:none}}
+@media (max-height:640px){ .act.skl.hasic .sic::before{width:40px;height:40px;margin:-20px 0 0 -20px} .act.skl.hasic .sic::after{width:28px;height:28px;margin:-14px 0 0 -14px} }
 /* v98 경험치 구슬 */ .xpfly{position:fixed;left:-7px;top:-7px;width:14px;height:14px;border-radius:50%;z-index:30;pointer-events:none;background:radial-gradient(circle at 40% 38%,#fff 0 22%,#bff4ff 40%,#4fc3ff 70%,rgba(40,120,255,0) 100%);box-shadow:0 0 0 1.5px rgba(20,70,190,.6),0 0 8px 3px rgba(110,200,255,.9),0 0 16px 5px rgba(60,120,255,.45);will-change:transform} .xpfly::after{content:"";position:absolute;left:50%;top:50%;width:4px;height:4px;margin:-2px;border-radius:50%;background:#fff;box-shadow:-5px 3px 0 -1px rgba(190,240,255,.7),-9px 6px 0 -1.5px rgba(150,210,255,.45),-12px 9px 0 -2px rgba(120,180,255,.25)} .xpfly.v{background:radial-gradient(circle at 40% 38%,#fff 0 22%,#e6d4ff 40%,#a87bff 70%,rgba(120,60,255,0) 100%);box-shadow:0 0 0 1.5px rgba(90,30,190,.6),0 0 8px 3px rgba(190,150,255,.85),0 0 16px 5px rgba(140,90,255,.4)} body.eco .xpfly{box-shadow:0 0 0 1.5px rgba(20,70,190,.6),0 0 5px 2px rgba(110,200,255,.8)}
 .bar.xp.xphit::after{content:"";position:absolute;top:-3px;bottom:-3px;right:0;width:100%;pointer-events:none;z-index:3;background:radial-gradient(ellipse 18px 9px at var(--xpe,100%) 50%,rgba(255,255,255,.95),rgba(170,230,255,.6) 45%,rgba(120,200,255,0) 100%);animation:xpHit .38s ease-out forwards} @keyframes xpHit{0%{opacity:1}100%{opacity:0}}
 .xpsp{position:absolute;width:4px;height:4px;border-radius:50%;background:#fff;box-shadow:0 0 5px 2px #9be7ff,0 0 2px #fff;pointer-events:none;z-index:4;opacity:0;animation:xpSp .8s ease-out forwards}
@@ -748,7 +762,7 @@ body.eco .mbtn.newdot,body.eco .mbtn.newdot::before{animation:none!important}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v131";
+const VER="v132";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -11217,6 +11231,20 @@ function regionBanner(name,sub,realm){ const el=$("rgban"); if(!el){ toast(name,
 window.__gw={regionBanner,PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoard,showPlay,pgNow,pgTileAt,STY,STORY,styData,styStart,styAdvance,styStep,styOpenN,styNextDays,showStory,styComic,styTarget,CQ,CQO,cqMis,cqTotal,cqAdd,showTeam,frTeleport,frFollow,SKS,skSlots,showSkills,showPatch,PATCH_NOTES,GT,GTO,DS,gtTotal,gtStage,gtDonate,gtGive,gtData,showGate,dsEnter,dsExit,dsSpawn,DS_MOBS,OR,orQuiz,orAnswer,orToday,showOracle,MT,mtGraduate,mtRole,showMentor,mtShowStar,NETX,NETR,PETS,showShop,bfOn,bfAdd,BUFFS,shopDeal,GD,GDO,gdCreate,gdJoin,gdLeave,gdClaim,gdAdd,gdMembers,gdWeekPts,gdLv,gdRanking,showGuild,gdMine,FG,showForge,fgStart,fgHit,fgDone,fgGive,fgLv,fgMul,RC,RCO,rcStart,rcEnd,rcBoard,showRace,rdSet,rdCan,WD,WDO,wdDonate,wdTotal,wdStage,wdGive,showWonder,wdData,HM,HOMES,DECO,hmEnter,hmExit,hmGift,hmAdd,hmBlessMsg,hmMsg,showHome,hmSlotCard,hmCollect,FS,startFish,fishPull,fishCaught,trapSet,trapClaim,showFish,nearWater,fishSpots,ssData,ssTasks,ssClaim,showSeason,ssMsg,ssNo,ssAdd,ssWinner,SSO,CTX,DG,dgEnter,dgFloor,dgFinish,dgPlan,showDungeon,showTitles,TITLES,showExp,expStart,expClaim,EXPO,DGR,TB,titanHit,titanDefeated,showTitan,titanGo,showPets,hatchEgg,petOnKill,comboFire,comboRecv,showCombos,PETMESH,idleSim,grantIdle,showIdleReport,ROSTER,autoFace,buildPlayer,GHOSTS,mmoProfile,showRoster,G,P,mobs,W,net,PEERS,WAR,forceWar,resolveWar,joinWar,begin,update,spawnMob,spawnAtHome,REGIONS,attack,useSkill,startTrial,die,respawn};
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
+<!--auto-update--><script>
+(function(){ var CUR="be3318d9";
+  function check(){ if(!/^https?:/.test(location.protocol)) return;
+    fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
+      if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
+      var go=function(){ location.replace(location.pathname.replace(/index\.html$/,"")+"?v="+j.v); };
+      try{ var p=[]; if(navigator.serviceWorker&&navigator.serviceWorker.getRegistrations) p.push(navigator.serviceWorker.getRegistrations().then(function(rs){ return Promise.all(rs.filter(function(r){return location.href.indexOf(r.scope)===0;}).map(function(r){return r.unregister();})); }));
+        if(window.caches) p.push(caches.keys().then(function(ks){ return Promise.all(ks.map(function(c){return caches.delete(c);})); }));
+        Promise.all(p).then(go,go); }catch(e){ go(); }
+    }).catch(function(){});
+  }
+  check(); document.addEventListener("visibilitychange",function(){ if(!document.hidden) check(); });
+})();
+</script><!--/auto-update-->
 </body>
 </html>
 <script>
