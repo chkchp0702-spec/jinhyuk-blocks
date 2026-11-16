@@ -364,6 +364,12 @@ body:has(#title) .hud,body:has(#title) .acts,body:has(#title) #minimap,body:has(
 .tFx{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
 .tRays{position:absolute;left:50%;top:15%;width:1000px;height:1000px;margin:-500px 0 0 -500px;background:repeating-conic-gradient(from 0deg,rgba(255,214,120,.17) 0deg 5deg,rgba(255,214,120,0) 5deg 15deg);-webkit-mask:radial-gradient(circle,#000 0,rgba(0,0,0,.6) 22%,rgba(0,0,0,0) 46%);mask:radial-gradient(circle,#000 0,rgba(0,0,0,.6) 22%,rgba(0,0,0,0) 46%);animation:tSpin 80s linear infinite}
 .tGlow{position:absolute;left:50%;top:15%;width:520px;height:220px;margin:-110px 0 0 -260px;border-radius:50%;background:radial-gradient(ellipse,rgba(255,190,80,.32),rgba(255,140,40,0) 70%)}
+.tIsl{position:absolute;display:block;filter:drop-shadow(0 0 14px var(--g)) drop-shadow(0 6px 6px rgba(0,0,0,.45));opacity:.92;animation:tBob var(--d) ease-in-out var(--dl) infinite;will-change:transform} /* v139 떠 있는 네 세계 섬 */
+.tIsl svg{display:block;width:100%;height:auto;overflow:visible} .tIsl::after{content:"";position:absolute;left:22%;right:22%;bottom:-8%;height:18%;border-radius:50%;background:radial-gradient(ellipse,var(--g),transparent 70%);opacity:.45}
+.tIsl .tFall{stroke-dasharray:5 6;animation:tFall 1.1s linear infinite}
+@keyframes tBob{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-9px) rotate(1.5deg)}}
+@keyframes tFall{to{stroke-dashoffset:-11}}
+@media (orientation:portrait){.tIsl{width:96px!important;top:auto!important;bottom:5%} .tIsl:nth-child(3){left:6%!important} .tIsl:nth-child(6){left:auto!important;right:6%} .tIsl:nth-child(4),.tIsl:nth-child(5){display:none}}
 .tFx s{position:absolute;bottom:-12px;left:var(--x);width:var(--z);height:var(--z);border-radius:50%;background:#fff1c2;box-shadow:0 0 6px 1px rgba(255,200,90,.9);opacity:0;animation:tUp var(--d) linear var(--dl) infinite}
 @keyframes tSpin{to{transform:rotate(360deg)}}
 @keyframes tUp{0%{transform:translate(0,0);opacity:0}12%{opacity:.95}80%{opacity:.6}100%{transform:translate(var(--dx),-105vh);opacity:0}}
