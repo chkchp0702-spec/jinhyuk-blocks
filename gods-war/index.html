@@ -705,6 +705,22 @@ body.eco .mbtn.newdot,body.eco .mbtn.newdot::before{animation:none!important}
 @keyframes dealStamp{0%{transform:rotate(-40deg) scale(2.4);opacity:0}60%{opacity:1}100%{transform:rotate(-16deg) scale(1);opacity:1}}
 .row.deal .buy:not([disabled]){background:linear-gradient(180deg,#ffe27a,#ffb028 60%,#f08a18);color:#4a1a00;box-shadow:inset 0 -3px 0 rgba(120,40,0,.35),inset 0 1px 0 rgba(255,255,255,.6),0 0 10px rgba(255,170,40,.55)}
 .row.deal .buy s{color:#7a2a00}
+/* v136 기술 이름 띠: 기술 쓰면 화면 아래쪽 가운데 세계 색 띠에 기술 이름 큰 글씨(0.85초) */
+#skname{position:fixed;left:50%;top:75%;z-index:7;pointer-events:none;display:flex;align-items:center;gap:8px;padding:5px 46px 6px;white-space:nowrap;opacity:0;transform:translate(-50%,-50%);--sc:#ffd34a;
+ background:linear-gradient(90deg,transparent,rgba(18,8,36,.84) 20%,rgba(18,8,36,.84) 80%,transparent);font-family:var(--title);overflow:hidden}
+#skname::before,#skname::after{content:"";position:absolute;left:8%;right:8%;height:2px;background:linear-gradient(90deg,transparent,var(--sc) 25%,#fff6c8 50%,var(--sc) 75%,transparent)}
+#skname::before{top:0} #skname::after{bottom:0}
+#skname b{font-size:clamp(20px,4.6vh,26px);color:#fff;letter-spacing:1px;font-weight:400;text-shadow:-2px -2px 0 #1b1030,2px -2px 0 #1b1030,-2px 2px 0 #1b1030,2px 2px 0 #1b1030,0 0 12px var(--sc)}
+#skname i{font-style:normal;font-size:clamp(20px,4.6vh,26px);filter:drop-shadow(0 0 6px var(--sc))}
+#skname em{font-style:normal;font-family:var(--font);font-size:11px;color:#1b1030;background:linear-gradient(#fff3b0,#ffc43a);border-radius:4px;padding:1px 6px;display:none}
+#skname.ult em{display:inline-block} #skname.ult b{font-size:clamp(24px,5.6vh,32px);color:#fff4c0}
+#skname .sh{position:absolute;top:0;bottom:0;width:38%;left:-40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.38),transparent);transform:skewX(-20deg)}
+#skname.on{animation:sknIn .85s cubic-bezier(.2,.8,.3,1) forwards} #skname.on .sh{animation:sknSh .55s .08s ease-out forwards}
+#skname.ult.on{animation-duration:1.2s}
+@keyframes sknIn{0%{opacity:0;transform:translate(-50%,-50%) scaleX(.25)}14%{opacity:1;transform:translate(-50%,-50%) scaleX(1.06)}24%{transform:translate(-50%,-50%) scaleX(1)}78%{opacity:1;transform:translate(-50%,-50%)}100%{opacity:0;transform:translate(-50%,calc(-50% - 10px))}}
+@keyframes sknSh{to{left:110%}}
+@media (orientation:portrait){#skname{top:58%}}
+@media (prefers-reduced-motion: reduce){#skname.on{animation:sknFade .85s forwards}#skname.on .sh{animation:none}@keyframes sknFade{0%,80%{opacity:1}100%{opacity:0}}}
 </style>
 </head>
 <body>
@@ -762,7 +778,7 @@ body.eco .mbtn.newdot,body.eco .mbtn.newdot::before{animation:none!important}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v135";
+const VER="v136";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -11493,6 +11509,29 @@ MENU_X.push({ic:"⚔",n:"난이도",id:"dfBtn",sub:()=>`${DF().ic} ${DF().n} —
 TITLES.push({id:"df1",n:"겁 없는 용사",t:1,h:"🔥 어려움 이상에서 괴물 200마리",g:()=>[G.hardK||0,200]},{id:"df2",n:"신화의 용사",t:2,h:"⚡ 신화에서 괴물 300마리",g:()=>[G.mythK||0,300]},{id:"df3",n:"신들도 놀란 자",t:3,h:"⚡ 신화에서 괴물 3000마리",g:()=>[G.mythK||0,3000]});
 </script>
 <script>
+/* ================= v136 그래픽: 기술 이름 띠 =================
+   기술이 실제로 나갔을 때만(쿨타임이 새로 걸렸는지로 판단) 화면 아래쪽 가운데에 세계·기술 색 띠 + 아이콘 + 기술 이름 큰 글씨를 0.85초 보여 줌.
+   궁극기는 「궁극기」 딱지·더 큰 글씨·1.2초. 규칙·쿨타임·피해 그대로. DOM 하나를 다시 쓰고 CSS 애니메이션 한 번(무한 아님), 그리기 호출 0. */
+const SKNAME=(function(){ let el=null;
+  function hex(c){ return "#"+(c>>>0&0xffffff).toString(16).padStart(6,"0"); }
+  function mk(){ el=document.createElement("div"); el.id="skname"; el.innerHTML='<span class="sh"></span><i></i><em>궁극기</em><b></b>'; document.body.appendChild(el); }
+  function show(S){ try{ if(!S||!S.n) return; if(!el) mk();
+      el.querySelector("i").textContent=(S.type==="line"?"🗡️":typeof skIcon==="function"?skIcon(S):"✨");
+      el.querySelector("b").textContent=S.n;
+      let col=S.color!=null?hex(S.color):"#ffd34a"; if(/^#f{5,6}|^#fffff/i.test(col)){ try{ col=RM().c1||col; }catch(e){} }
+      el.style.setProperty("--sc",col);
+      el.classList.toggle("ult",S.type==="ult");
+      el.classList.remove("on"); void el.offsetWidth; el.classList.add("on");
+    }catch(e){} }
+  if(typeof useSkill==="function"){ const _us=useSkill; useSkill=function(slot){
+      let si=-1, before=0; try{ si=skSlot(slot||0); before=P.sklCd[si]||0; }catch(e){}
+      const r=_us.apply(this,arguments);
+      try{ if(si>=0&&(P.sklCd[si]||0)>before+.01) show(RM().skills[si]); }catch(e){}
+      return r; }; }
+  return {show};
+})();
+</script>
+<script>
 /* ================= 아주 작은 MQTT 클라이언트 (웹소켓) — 외부 라이브러리 없이 ================= */
 function MiniMQTT(url,opt){
   const self={url,ok:false,ws:null,buf:new Uint8Array(0),pid:1,pingT:null,retry:null,closed:false,subs:[],opt};
@@ -11810,7 +11849,7 @@ window.__gw={regionBanner,PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoa
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="56a475c6";
+(function(){ var CUR="08ab580a";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
