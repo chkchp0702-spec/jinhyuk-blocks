@@ -64,7 +64,7 @@ function dayNight(dt,center,theme){
   const sunset=clamp(1-Math.abs(elev)*4,0,1)*.8; dayTop.lerp(new THREE.Color(0xff8a50),sunset*.5); dayBot.lerp(new THREE.Color(0xffb070),sunset*.7);
   SKY.tTop.copy(dayTop).lerp(new THREE.Color(0x070818),night); SKY.tBot.copy(dayBot).lerp(new THREE.Color(0x1a1c3a),night);
   SKY.top.lerp(SKY.tTop,dt*.9); SKY.bot.lerp(SKY.tBot,dt*.9); scene.fog.color.copy(SKY.bot); sky.position.copy(camera.position); STARS.position.copy(camera.position); STARS.material.opacity=night*.95; STARS.rotation.y+=dt*.004;
-  MOON.position.set(camera.position.x-Math.cos(ang)*300,Math.max(-40,-elev*220+30),camera.position.z-120); MOON.visible=night>.1; MOON.material.opacity=night; MOON.material.transparent=true;
+  MOON.position.set(camera.position.x-Math.cos(ang)*300,Math.max(-40,-elev*220+30),camera.position.z-120); MOON.visible=night>.1; MOON.material.opacity=night; MOON.material.transparent=true; WATER.uniforms.moonDir.value.copy(MOON.position).sub(camera.position); WATER.uniforms.mn.value=clamp((night-.15)*1.6,0,1);
   renderer.toneMappingExposure=.95-night*.25; }
 
 /* ---- 날씨: 세계마다 다른 날씨가 3분마다 바뀜(모든 폰 동일) ---- */

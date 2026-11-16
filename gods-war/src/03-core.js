@@ -190,13 +190,13 @@ function plazaTex(i){ const S=HIGH()?1024:512, k=S/1024, c=document.createElemen
 
 /* ---- 물: 물결 + 반짝임 셰이더 ---- */
 const TIME={value:0};
-const WATER=new THREE.ShaderMaterial({transparent:true,depthWrite:false,fog:true,uniforms:THREE.UniformsUtils.merge([THREE.UniformsLib.fog,{time:{value:0},deep:{value:new THREE.Color(0x1660c8)},shallow:{value:new THREE.Color(0x4fd2ff)},sunDir:{value:new THREE.Vector3(.4,.6,.3)},skyTop:{value:new THREE.Color()},skyBot:{value:new THREE.Color()},day:{value:1},hq:{value:1}}]),
+const WATER=new THREE.ShaderMaterial({transparent:true,depthWrite:false,fog:true,uniforms:THREE.UniformsUtils.merge([THREE.UniformsLib.fog,{time:{value:0},deep:{value:new THREE.Color(0x1660c8)},shallow:{value:new THREE.Color(0x4fd2ff)},sunDir:{value:new THREE.Vector3(.4,.6,.3)},skyTop:{value:new THREE.Color()},skyBot:{value:new THREE.Color()},day:{value:1},hq:{value:1},moonDir:{value:new THREE.Vector3(0,.3,-1)},mn:{value:0}}]),
   vertexShader:`attribute float sq; varying vec3 vW; varying vec2 vUv; varying float vSq;
 #include <fog_pars_vertex>
     void main(){ vUv=uv; vSq=sq; vec4 wp=modelMatrix*vec4(position,1.); vW=wp.xyz; vec4 mvPosition=viewMatrix*wp; gl_Position=projectionMatrix*mvPosition;
 #include <fog_vertex>
 }`,
-  fragmentShader:`uniform float time,day,hq; uniform vec3 deep,shallow,sunDir,skyTop,skyBot; varying vec3 vW; varying vec2 vUv; varying float vSq;
+  fragmentShader:`uniform float time,day,hq,mn; uniform vec3 deep,shallow,sunDir,skyTop,skyBot,moonDir; varying vec3 vW; varying vec2 vUv; varying float vSq;
 #include <fog_pars_fragment>
     float hs(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
     float vn(vec2 p){ vec2 i=floor(p),f=fract(p); f=f*f*(3.-2.*f); return mix(mix(hs(i),hs(i+vec2(1,0)),f.x),mix(hs(i+vec2(0,1)),hs(i+vec2(1,1)),f.x),f.y); }
@@ -209,6 +209,11 @@ const WATER=new THREE.ShaderMaterial({transparent:true,depthWrite:false,fog:true
       vec3 sd=normalize(sunDir); vec3 hh=normalize(sd+v); float sp=pow(max(dot(n,hh),0.),160.);
       float tw=step(.86-.06*hq,vn(p*7.+vec2(time*1.3,-time*.9))*vn(p*4.3-vec2(time*.7,time*1.1))*2.);
       c+=mix(vec3(.75,.82,1.)*.5,vec3(1.,.96,.85),day)*(sp*1.4+tw*.55*(.25+.75*pow(max(dot(n,hh),0.),6.)));
+      if(mn>.01){ /* v138 달빛 길: 밤엔 카메라→달 방향으로 물 위에 반짝이는 띠 */ vec3 md=normalize(moonDir); vec2 hd=normalize(vW.xz-cameraPosition.xz+vec2(.0001)); vec2 mh=normalize(md.xz+vec2(.0001)); float dist=length(vW.xz-cameraPosition.xz);
+        float al=dot(hd,mh)+(h0-.5)*.012+(n.x*mh.y-n.z*mh.x)*.03; float path=smoothstep(.978,.998,al)*smoothstep(4.,14.,dist);
+        float gl=vn(p*vec2(6.,2.4)+vec2(time*1.4,-time*.9))*vn(p*3.1-vec2(time*.6,time*1.2)); float spk=smoothstep(.28,.5,gl);
+        vec3 r2=reflect(-v,normalize(vec3(n.x*2.4,1.,n.z*2.4))); float rs=pow(max(dot(r2,md),0.),18.);
+        c=mix(c,c*.7+vec3(.05,.07,.12),mn*.35); c+=vec3(.82,.88,1.)*mn*(path*(.22+spk*1.4)+rs*.08*spk); }
       vec2 q=vUv-.5; float ed=mix(length(q)*2.,max(abs(q.x)*2.,abs(q.y)*2.),vSq); float wob=vn(p*2.5+time*.4)*.06;
       float foam=smoothstep(.84,.97,ed+wob); float band=smoothstep(.75,1.,sin((ed*11.-time*1.1)*3.14159))*smoothstep(.62,.9,ed)*(1.-foam);
       c=mix(c,vec3(.92,.97,1.)*(.4+.6*day),clamp(foam*.85+band*.35,0.,1.));
