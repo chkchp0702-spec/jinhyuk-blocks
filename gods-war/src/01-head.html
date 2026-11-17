@@ -727,6 +727,12 @@ body.eco .mbtn.newdot,body.eco .mbtn.newdot::before{animation:none!important}
 @keyframes sknSh{to{left:110%}}
 @media (orientation:portrait){#skname{top:58%}}
 @media (prefers-reduced-motion: reduce){#skname.on{animation:sknFade .85s forwards}#skname.on .sh{animation:none}@keyframes sknFade{0%,80%{opacity:1}100%{opacity:0}}}
+/* v142 보스 마무리 영화 띠 */
+#kcBars{position:fixed;inset:0;z-index:29;pointer-events:none}
+#kcBars i{position:absolute;left:0;right:0;height:0;background:linear-gradient(#000,#0a0612);transition:height .22s cubic-bezier(.2,.8,.3,1)}
+#kcBars i:first-child{top:0;box-shadow:0 2px 14px rgba(0,0,0,.5)} #kcBars i:last-child{bottom:0;box-shadow:0 -2px 14px rgba(0,0,0,.5)}
+#kcBars.on i{height:7vh;transition:height .16s cubic-bezier(.2,.8,.3,1)}
+@media (orientation:portrait){#kcBars.on i{height:6vh}}
 </style>
 </head>
 <body>
