@@ -29,6 +29,28 @@ const LOOT=(()=>{ let G0=null;
       f.m.position.set(x+(tx-x)*e, y+(ty-y)*e+Math.sin(k*Math.PI)*3.2, z+(tz-z)*e); const s=1.4-k*.6; f.m.scale.setScalar(s); f.m.material.opacity=k<.1?k*10:1;
       trail+=dt; if(HIGH()&&trail>.06){ trail=0; fxSpark(f.m.position.x,f.m.position.y-hAt(f.m.position.x,f.m.position.z),f.m.position.z,col,3); }
       if(k>.96&&!f.done){ f.done=1; fxFlash(tx,1.2,tz,col,1.8,.35); fxRing(tx,tz,col,4,.45); tone(1568,.12,"sine",0,.08); } }}); }
+  /* v145 상자 뚜껑이 열리면: 상자 입에서 부채꼴로 뻗는 등급 색 빛줄기 + 위로 천천히 솟는 반짝 가루(별 모양) */
+  let RT=null, ST=null, RG=null;
+  function rayTex(){ if(RT) return RT; const c=document.createElement("canvas"); c.width=32; c.height=128; const g=c.getContext("2d");
+    for(let y=0;y<128;y++){ const v=y/127; const a=Math.pow(v,1.6)*(v>.96?(1-v)/.04*.6+.4:1); const w=4+12*(1-v); const gr=g.createLinearGradient(16-w,0,16+w,0); gr.addColorStop(0,"rgba(255,255,255,0)"); gr.addColorStop(.5,`rgba(255,255,255,${a.toFixed(3)})`); gr.addColorStop(1,"rgba(255,255,255,0)"); g.fillStyle=gr; g.fillRect(0,y,32,1); }
+    RT=new THREE.CanvasTexture(c); RG=new THREE.PlaneGeometry(1,1); RG.translate(0,.5,0); return RT; }
+  function starTex(){ if(ST) return ST; const c=document.createElement("canvas"); c.width=c.height=64; const g=c.getContext("2d"); g.translate(32,32);
+    const rg=g.createRadialGradient(0,0,0,0,0,30); rg.addColorStop(0,"rgba(255,255,255,1)"); rg.addColorStop(.25,"rgba(255,255,255,.55)"); rg.addColorStop(1,"rgba(255,255,255,0)"); g.fillStyle=rg; g.fillRect(-32,-32,64,64);
+    g.fillStyle="#fff"; for(let i=0;i<4;i++){ g.rotate(Math.PI/4*(i?2:0)); g.beginPath(); g.moveTo(0,-30); g.lineTo(3.2,0); g.lineTo(0,30); g.lineTo(-3.2,0); g.closePath(); g.fill(); } ST=new THREE.CanvasTexture(c); return ST; }
+  function rays(cx,cy,cz,col,tier,big){ const tex=rayTex(); const g=new THREE.Group(); g.position.set(cx,cy,cz); const n=HIGH()?9:6; const mats=[];
+    const bright=(DAY.d||1)>.7; const cc=new THREE.Color(col); if(!bright) cc.lerp(new THREE.Color(0xffffff),.2); /* 밝은 낮(눈밭)엔 보통 섞기로 진한 색, 밤엔 더하기로 빛나게 */
+    for(let i=0;i<n;i++){ const m=new THREE.MeshBasicMaterial({color:cc,map:tex,transparent:true,opacity:0,depthWrite:false,blending:bright?THREE.NormalBlending:THREE.AdditiveBlending,side:THREE.DoubleSide}); mats.push(m);
+      const pv=new THREE.Object3D(); pv.rotation.y=i/n*Math.PI*2+Math.random()*.3; const r=new THREE.Mesh(RG,m); r.rotation.z=.28+((i*53)%7)/7*.45; const L=(2.6+tier*.7+((i*31)%5)*.35)*big; r.scale.set((bright?.52:.42)*big,L,1); r.userData.L=L; r.userData.noOutline=true; r.renderOrder=6; pv.add(r); g.add(pv); }
+    g.material={dispose(){ mats.forEach(m=>m.dispose()); }}; scene.add(g);
+    FX.push({m:g,t:0,d:1.7+tier*.15,tick:(f,k)=>{ g.rotation.y+=.012; const grow=1-Math.pow(1-Math.min(1,k*4),3); const op=(k<.12?k/.12:k>.55?Math.max(0,(1-k)/.45):1)*(.75+tier*.05);
+      g.children.forEach((pv,i)=>{ const r=pv.children[0]; r.scale.y=r.userData.L*grow*(1+Math.sin(f.t*9+i*1.7)*.06); r.material.opacity=Math.min(1,op*(bright?1.3:1)*(.65+.35*Math.sin(f.t*11+i*2.3))); }); }}); }
+  function glitter(cx,cy,cz,col,n,big){ const pos=new Float32Array(n*3), sp=[]; for(let i=0;i<n;i++){ const a=Math.random()*6.283, r=Math.random()*.45*big; pos[i*3]=cx+Math.cos(a)*r; pos[i*3+1]=cy+Math.random()*.3; pos[i*3+2]=cz+Math.sin(a)*r; sp.push({vx:Math.cos(a)*(.3+Math.random()*.7), vz:Math.sin(a)*(.3+Math.random()*.7), vy:1.6+Math.random()*2.4, ph:Math.random()*6.28}); }
+    const geo=new THREE.BufferGeometry(); geo.setAttribute("position",new THREE.BufferAttribute(pos,3));
+    const bright=(DAY.d||1)>.7; const cc=new THREE.Color(col).lerp(new THREE.Color(0xfff4c8),bright?.05:.35); if(bright) cc.multiplyScalar(.85);
+    const m=new THREE.Points(geo,new THREE.PointsMaterial({color:cc,map:starTex(),size:.55*big,transparent:true,opacity:0,depthWrite:false,blending:bright?THREE.NormalBlending:THREE.AdditiveBlending,sizeAttenuation:true}));
+    m.userData.noOutline=true; m.renderOrder=7; m.frustumCulled=false; scene.add(m);
+    FX.push({m,t:0,d:2.2,own:1,tick:(f,k,dt)=>{ const A=geo.attributes.position.array; for(let i=0;i<n;i++){ const s=sp[i]; s.vy*=1-dt*.9; s.vx*=1-dt*1.5; s.vz*=1-dt*1.5; A[i*3]+=(s.vx+Math.sin(f.t*3+s.ph)*.35)*dt; A[i*3+1]+=s.vy*dt; A[i*3+2]+=(s.vz+Math.cos(f.t*3+s.ph)*.35)*dt; } geo.attributes.position.needsUpdate=true;
+      m.material.opacity=(k<.08?k/.08:k>.6?(1-k)/.4:1); m.material.size=.55*big*(.8+.35*Math.sin(f.t*14)); }}); }
   function drop(x,z,tier){ try{ const R=(typeof RAR!=="undefined"&&RAR[tier])||{c:"#ffffff"}; const col=hexOf(R.c); const hi=HIGH(); const y0=hAt(x,z);
     const g=chest(col); const ang=Math.random()*6.28; const ox=Math.sin(ang)*1.2, oz=Math.cos(ang)*1.2; g.rotation.y=Math.atan2(P.x-x,P.z-z); g.position.set(x,y0,z); g.scale.setScalar(.01); scene.add(g);
     const big=1.25+tier*.15; let opened=false;
@@ -40,7 +62,7 @@ const LOOT=(()=>{ let G0=null;
       const cx=g.position.x, cz=g.position.z; g.position.y=hAt(cx,cz)+py;
       if(t>=.9&&!opened){ opened=true; beam(cx,hAt(cx,cz),cz,col,(hi?9:6)+tier*3,1.7,.55+tier*.12); fxSpark(cx,1,cz,col,hi?26+tier*10:12+tier*4); fxSpark(cx,1,cz,0xfff2c0,hi?12:6); fxRing(cx,cz,col,3+tier*1.5,.6);
         if(tier>=2){ try{ SFX.shock(cx,cz,col,4+tier,.6); }catch(e){} } if(tier>=3){ fxFlash(cx,1.5,cz,0xffe08a,4,.5); P.shake=Math.max(P.shake||0,.4); }
-        orb(cx,hAt(cx,cz)+1,cz,col,.35); tone(880,.08,"triangle"); tone(1318,.1,"triangle",.07); }
+        orb(cx,hAt(cx,cz)+1,cz,col,.35); try{ rays(cx,hAt(cx,cz)+.62*big,cz,col,tier,big*.8); glitter(cx,hAt(cx,cz)+.7*big,cz,col,(hi?26:14)+tier*4,big*.8); }catch(e){} tone(880,.08,"triangle"); tone(1318,.1,"triangle",.07); }
       const pv=g.userData.pv; if(opened){ const u=Math.min(1,(t-.9)/.25); pv.rotation.x=-1.9*(1-Math.pow(1-u,3)); g.userData.lock.visible=false; g.userData.glow.material.opacity=.9*Math.min(1,u*2)*(t>2.2?(2.6-t)/.4:1); }
       else if(t>.8){ pv.rotation.x=Math.sin(t*90)*.06; } // 덜컹덜컹
       if(t>2.2){ const v=Math.max(.01,(2.6-t)/.4); g.scale.setScalar(big*v); } }});
