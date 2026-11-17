@@ -790,7 +790,7 @@ body.eco .mbtn.newdot,body.eco .mbtn.newdot::before{animation:none!important}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v143";
+const VER="v144";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -1306,11 +1306,17 @@ function hitTint(obj,k,col){ if(!obj) return; k=Math.max(0,Math.min(1,k||0)); co
   obj._hfk=k; _HFC.set(col||0xffffff); for(const e of obj._hf){ e.m.emissive.copy(e.c).lerp(_HFC,k); e.m.emissiveIntensity=e.i+(1-e.i)*k*.9; } }
 
 /* ---- 풀·꽃·눈덩이: 인스턴스 한 번에 그리기 ---- */
+/* v144 풀숲을 걸으면 내 몸 쪽 풀이 옆으로 눕고, 지나간 자리는 천천히 일어남(풀 셰이더에 내 위치 2개만 넘김, 그리기 그대로) */
+const GRASSP={a:{value:new THREE.Vector4(0,-999,0,0)},b:{value:new THREE.Vector4(0,-999,0,0)}};
+function grassPush(dt){ const a=GRASSP.a.value, b=GRASSP.b.value; if(typeof started==="undefined"||!started||!player){ a.w=0; b.w=0; return; }
+  const air=(P.y||0)>1.6||P.ride; const gy=P.gy||0; const w=air?0:1; a.w+=(w-a.w)*Math.min(1,dt*10); a.set(P.x,gy,P.z,a.w);
+  const k=Math.min(1,dt*2.2); b.x+=(P.x-b.x)*k; b.z+=(P.z-b.z)*k; b.y=gy; if(Math.hypot(P.x-b.x,P.z-b.z)>8){ b.x=P.x; b.z=P.z; } b.w=a.w*Math.min(1,Math.hypot(P.x-b.x,P.z-b.z)/.6); }
 (function vegetation(){
   const dummy=new THREE.Object3D();
-  function sway(material){ material.onBeforeCompile=sh=>{ sh.uniforms.uTime=TIME; sh.vertexShader="uniform float uTime;\n"+sh.vertexShader.replace("#include <begin_vertex>","#include <begin_vertex>\n#ifdef USE_INSTANCING\n float _ph=instanceMatrix[3][0]*.35+instanceMatrix[3][2]*.27; transformed.x+=sin(uTime*1.8+_ph)*.22*max(position.y,0.); transformed.z+=cos(uTime*1.3+_ph)*.12*max(position.y,0.);\n#endif"); }; material.customProgramCacheKey=()=>"sway"; return material; }
-  function field(geo,material,count,realmIdx,yBase,sMin,sMax,visR){ const sx=(realmIdx===0||realmIdx===2)?1:-1, sz=(realmIdx>=2)?1:-1; const im=new THREE.InstancedMesh(geo,material,count); let n=0;
-    for(let k=0;k<count*3&&n<count;k++){ const x=sx*rnd(4,WORLD_HALF-6), z=sz*rnd(4,WORLD_HALF-6); if(Math.hypot(x,z)<REGIONS[12].r+4) continue; const cap=REGIONS[realmIdx*3]; if(Math.hypot(x-cap.x,z-cap.z)<33) continue; let bad=false; for(const rg of REGIONS){ if(!rg.cap&&Math.hypot(x-rg.x,z-rg.z)<9) bad=true; } if(bad) continue;
+  function sway(material){ material.onBeforeCompile=sh=>{ sh.uniforms.uTime=TIME; sh.vertexShader="uniform float uTime;\n"+sh.vertexShader.replace("#include <begin_vertex>","#include <begin_vertex>\n#ifdef USE_INSTANCING\n float _ph=instanceMatrix[3][0]*.35+instanceMatrix[3][2]*.27; transformed.x+=sin(uTime*1.8+_ph)*.22*max(position.y,0.); transformed.z+=cos(uTime*1.3+_ph)*.12*max(position.y,0.);\n#endif").replace("#include <project_vertex>","vec4 mvPosition=vec4(transformed,1.0);\n#ifdef USE_INSTANCING\n mvPosition=instanceMatrix*mvPosition;\n /* v144 풀 눕기: 내 몸(그리고 조금 전 지나온 자리) 쪽에서 바깥으로 눕힘 */ float _bh=max(mvPosition.y-instanceMatrix[3][1],0.);\n vec2 _d1=mvPosition.xz-uPlr.xz; float _l1=length(_d1); float _k1=uPlr.w*smoothstep(2.3,.25,_l1)*step(abs(instanceMatrix[3][1]-uPlr.y),2.5);\n vec2 _d2=mvPosition.xz-uPlr2.xz; float _l2=length(_d2); float _k2=uPlr2.w*smoothstep(1.9,.2,_l2)*step(abs(instanceMatrix[3][1]-uPlr2.y),2.5);\n mvPosition.xz+=(_d1/max(_l1,.05))*_k1*_bh*.85+(_d2/max(_l2,.05))*_k2*_bh*.6; mvPosition.y-=(_k1*.45+_k2*.3)*_bh;\n#endif\nmvPosition=modelViewMatrix*mvPosition; gl_Position=projectionMatrix*mvPosition;"); sh.uniforms.uPlr=GRASSP.a; sh.uniforms.uPlr2=GRASSP.b; sh.vertexShader="uniform vec4 uPlr; uniform vec4 uPlr2;\n"+sh.vertexShader; }; material.customProgramCacheKey=()=>"sway2"; return material; }
+  function field(geo,material,count,realmIdx,yBase,sMin,sMax,visR,clump){ const sx=(realmIdx===0||realmIdx===2)?1:-1, sz=(realmIdx>=2)?1:-1; const im=new THREE.InstancedMesh(geo,material,count); let n=0; let cx=0,cz=0,cl=0;
+    for(let k=0;k<count*3&&n<count;k++){ let x=sx*rnd(4,WORLD_HALF-6), z=sz*rnd(4,WORLD_HALF-6);
+      if(clump){ if(cl<=0){ cx=x; cz=z; cl=clump; } cl--; const a=rnd(0,6.283), r=Math.sqrt(Math.random())*3.2; x=cx+Math.cos(a)*r; z=cz+Math.sin(a)*r*.8; } /* v144 풀숲: 한 군데에 모여 난 키 큰 풀 덤불 */ if(Math.hypot(x,z)<REGIONS[12].r+4) continue; const cap=REGIONS[realmIdx*3]; if(Math.hypot(x-cap.x,z-cap.z)<33) continue; let bad=false; for(const rg of REGIONS){ if(!rg.cap&&Math.hypot(x-rg.x,z-rg.z)<9) bad=true; } if(bad) continue;
       const s=rnd(sMin,sMax); dummy.position.set(x,yBase*s+hAt(x,z),z); dummy.rotation.set(0,rnd(0,6.3),rnd(-.15,.15)); dummy.scale.set(s,s,s); dummy.updateMatrix(); im.setMatrixAt(n++,dummy.matrix); }
     im.count=n; im.receiveShadow=HIGH()&&!ECO(); im.castShadow=false; im.frustumCulled=false; scene.add(im);
     /* v34 배터리: 모든 풀·꽃을 늘 다 그리던 것(세계 전체 약 23만 삼각형)을 → 내 앞 가까운 것만 골라 그림 */
@@ -1321,11 +1327,19 @@ function hitTint(obj,k,col){ if(!obj) return; k=Math.max(0,Math.min(1,k||0)); co
     for(const im of VEG){ const V=im.userData.veg; const R=V.vis*far, R2=R*R; let k=0; const A=im.instanceMatrix.array;
       for(let i=0;i<V.n;i++){ const dx=V.xz[i*2]-P.x, dz=V.xz[i*2+1]-P.z; if(dz>back) continue; if(dx*dx+dz*dz>R2) continue; if(Math.abs(dx)>14+(back-dz)*1.2) continue; A.set(V.all.subarray(i*16,i*16+16),k*16); k++; }
       im.count=k; im.instanceMatrix.needsUpdate=true; } VEGS.x=P.x; VEGS.z=P.z; VEGS.zoom=ZOOM; }
-  window.vegTick=function(dt){ VEGS.t-=dt; if(VEGS.t>0) return; VEGS.t=.25; if(Math.hypot(P.x-VEGS.x,P.z-VEGS.z)>5||Math.abs(ZOOM-VEGS.zoom)>.15) vegCull(); };
+  window.vegTick=function(dt){ grassPush(dt); VEGS.t-=dt; if(VEGS.t>0) return; VEGS.t=.25; if(Math.hypot(P.x-VEGS.x,P.z-VEGS.z)>5||Math.abs(ZOOM-VEGS.zoom)>.15) vegCull(); };
   window.vegCount=function(){ let a=0,b=0; for(const im of VEG){ a+=im.count; b+=im.userData.veg.n; } return [a,b]; };
   const blade=new THREE.ConeGeometry(.14,1.1,4); blade.translate(0,.55,0);
   const N=HIGH()?2600:900;
   field(blade,sway(mat({color:0x6fb04a,roughness:1})),N,0,0,.8,1.6,85);          // 에덴 풀
+  /* v144 키 큰 풀 덤불(잎 5장을 바깥으로 벌려 한 덩어리) — 덤불 안을 걸으면 풀이 몸 쪽에서 옆으로 눕는 게 잘 보임 */
+  const tuft=(()=>{ const P=[],Nn=[]; const m4=new THREE.Matrix4(), q=new THREE.Quaternion(), e=new THREE.Euler();
+    for(let i=0;i<5;i++){ const c=new THREE.ConeGeometry(.12,1.25+((i*37)%5)*.12,3,1,true).toNonIndexed(); c.translate(0,(1.25+((i*37)%5)*.12)/2,0); const a=i/5*6.283+.4; e.set(Math.sin(a)*.32,0,Math.cos(a)*.32); q.setFromEuler(e); m4.compose(new THREE.Vector3(Math.sin(a)*.12,0,Math.cos(a)*.12),q,new THREE.Vector3(1,1,1)); c.applyMatrix4(m4); P.push(...c.attributes.position.array); Nn.push(...c.attributes.normal.array); }
+    const g=new THREE.BufferGeometry(); g.setAttribute("position",new THREE.Float32BufferAttribute(P,3)); g.setAttribute("normal",new THREE.Float32BufferAttribute(Nn,3)); return g; })();
+  const NT=HIGH()?1500:(ECO()?360:600);
+  field(tuft,sway(mat({color:0x5c9e3e,roughness:1,side:THREE.DoubleSide})),NT,0,0,.95,1.5,70,18);   // 에덴 풀 덤불
+  field(tuft,sway(mat({color:0xc9a03c,roughness:1,side:THREE.DoubleSide})),NT,2,0,1.1,1.8,70,18);   // 인도 황금 풀 덤불
+  field(tuft,sway(mat({color:0x6e9c4e,roughness:1,side:THREE.DoubleSide})),NT,3,0,.95,1.45,70,18);  // 올림푸스 풀 덤불
   field(new THREE.SphereGeometry(.3,6,5),mat({color:0xffd36a,emissive:0xffb020,emissiveIntensity:.5,roughness:.7}),Math.round(N*.18),0,.3,.5,1.1,70); // 에덴 황금 꽃
   field(new THREE.SphereGeometry(.5,6,5),mat({color:0xffffff,roughness:1}),Math.round(N*.5),1,.2,.6,1.8,75);   // 아스가르드 눈덩이
   field(new THREE.ConeGeometry(.2,1.3,5),mat({color:0xbfe6ff,roughness:.2,metalness:.1,transparent:true,opacity:.85}),Math.round(N*.25),1,.65,.6,1.6,90); // 얼음 결정
@@ -12016,7 +12030,7 @@ window.__gw={regionBanner,PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoa
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="47787262";
+(function(){ var CUR="e5cabb0c";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
