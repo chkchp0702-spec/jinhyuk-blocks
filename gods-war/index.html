@@ -712,6 +712,14 @@ body.eco .mbtn.newdot,body.eco .mbtn.newdot::before{animation:none!important}
 .row.deal .buy:not([disabled]){background:linear-gradient(180deg,#ffe27a,#ffb028 60%,#f08a18);color:#4a1a00;box-shadow:inset 0 -3px 0 rgba(120,40,0,.35),inset 0 1px 0 rgba(255,255,255,.6),0 0 10px rgba(255,170,40,.55)}
 .row.deal .buy s{color:#7a2a00}
 /* v136 기술 이름 띠: 기술 쓰면 화면 아래쪽 가운데 세계 색 띠에 기술 이름 큰 글씨(0.85초) */
+#petstrike{position:fixed;z-index:7;pointer-events:none;padding:3px 26px 4px;white-space:nowrap;opacity:0;transform:translate(-50%,-50%);--pc:#ffd34a;overflow:hidden;
+ background:linear-gradient(90deg,transparent,rgba(27,16,48,.86) 18%,rgba(27,16,48,.86) 82%,transparent)}
+#petstrike::before,#petstrike::after{content:"";position:absolute;left:6%;right:6%;height:2px;background:linear-gradient(90deg,transparent,var(--pc) 25%,#fff6c8 50%,var(--pc) 75%,transparent)}
+#petstrike::before{top:0} #petstrike::after{bottom:0}
+#petstrike b{font-size:clamp(14px,3.6vh,18px);color:#fff4c0;font-weight:400;letter-spacing:.5px;text-shadow:-1.5px -1.5px 0 #1b1030,1.5px -1.5px 0 #1b1030,-1.5px 1.5px 0 #1b1030,1.5px 1.5px 0 #1b1030,0 0 10px var(--pc)}
+#petstrike .sh{position:absolute;top:0;bottom:0;width:36%;left:-40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.4),transparent);transform:skewX(-20deg)}
+#petstrike.on{animation:pstIn 1.25s cubic-bezier(.2,.8,.3,1) forwards} #petstrike.on .sh{animation:sknSh .5s .1s ease-out forwards}
+@keyframes pstIn{0%{opacity:0;transform:translate(-50%,-30%) scale(.6)}14%{opacity:1;transform:translate(-50%,-50%) scale(1.12)}26%{transform:translate(-50%,-50%) scale(1)}72%{opacity:1;transform:translate(-50%,-90%) scale(1)}100%{opacity:0;transform:translate(-50%,-130%) scale(.96)}}
 #skname{position:fixed;left:50%;top:75%;z-index:7;pointer-events:none;display:flex;align-items:center;gap:8px;padding:5px 46px 6px;white-space:nowrap;opacity:0;transform:translate(-50%,-50%);--sc:#ffd34a;
  background:linear-gradient(90deg,transparent,rgba(18,8,36,.84) 20%,rgba(18,8,36,.84) 80%,transparent);font-family:var(--title);overflow:hidden}
 #skname::before,#skname::after{content:"";position:absolute;left:8%;right:8%;height:2px;background:linear-gradient(90deg,transparent,var(--sc) 25%,#fff6c8 50%,var(--sc) 75%,transparent)}
@@ -790,7 +798,7 @@ body.eco .mbtn.newdot,body.eco .mbtn.newdot::before{animation:none!important}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v145";
+const VER="v146";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -11722,6 +11730,28 @@ const FJUMP=(()=>{ let spots=null, scanT=0, wait=3, fish=null, rings=[], drops=n
 })();
 </script>
 <script>
+/* ================= v146 그래픽: 신수가 공격할 때 작은 마법진 · 4번째마다 「신수 일격」 이름 띠 =================
+   내 신수가 괴물을 공격하는 순간(tickPets 안에서 공격 시계가 새로 걸린 때) 신수 발밑에 신수 색 작은 마법진이 빙글 돌고,
+   맞은 괴물 자리에 신수 색 빛이 톡. 네 번째 공격마다 마법진이 크게 + 충격파 고리 + 신수 머리 위에 「✦ 신수 이름 ✦」 금빛 띠가 떠올랐다 사라짐.
+   피해·공격 간격·규칙 그대로(모습만). 이름 띠는 DOM 1개를 다시 씀(일격 때 한 번만 화면 위치 계산, CSS 애니메이션 한 번). 배터리 절약 모드는 큰 일격 때만 마법진. */
+const PETFX2=(()=>{ let n=0, el=null; const V=new THREE.Vector3();
+  function band(me,nm,col){ try{ if(document.hidden||typeof camera==="undefined") return; const s=me.mesh.scale.x; V.set(me.mesh.position.x,me.mesh.position.y+1.6*s+.4,me.mesh.position.z).project(camera); if(V.z>1) return;
+      const sx=Math.max(110,Math.min(innerWidth-110,(V.x+1)/2*innerWidth)), sy=Math.max(70,Math.min(innerHeight-90,(1-V.y)/2*innerHeight));
+      if(!el){ el=document.createElement("div"); el.id="petstrike"; el.innerHTML='<span class="sh"></span><b></b>'; document.body.appendChild(el); }
+      el.querySelector("b").textContent="✦ "+nm+" 일격 ✦"; el.style.left=sx+"px"; el.style.top=sy+"px"; el.style.setProperty("--pc","#"+(col>>>0&0xffffff).toString(16).padStart(6,"0"));
+      el.classList.remove("on"); void el.offsetWidth; el.classList.add("on"); }catch(e){} }
+  function fire(me){ try{ if(!me||!me.mesh||!me.mesh.visible||Math.hypot(me.x-P.x,me.z-P.z)>45) return; const D=PETS[G.pet]; if(!D) return;
+      n++; const big=n%4===0, eco=typeof ECO==="function"&&ECO(); const col=D.c===0xffffff?D.c2:D.c;
+      if(big||!eco) SFX.runeAt(me.x,me.z,col,big?3.6:2.2,big?.9:.6);
+      if(me.tx!=null){ const tx=me.tx, tz=me.tz; setTimeout(()=>{ try{ SFX.glow(tx,1.1+hAt(tx,tz),tz,col,big?1.5:.8,.3); if(big) SFX.shock(tx,tz,col,2.6,.5); }catch(e){} },120); }
+      if(big){ band(me,D.n,col); try{ tone(1318,.07,"triangle",0,.04); setTimeout(()=>{ try{ tone(1760,.09,"triangle",0,.035); }catch(e){} },70); }catch(e){} }
+    }catch(e){} }
+  if(typeof tickPets==="function"){ const _tp=tickPets; tickPets=function(dt){ const me=PETMESH.me, before=me?me.atk:0; const r=_tp.apply(this,arguments);
+      try{ const m2=PETMESH.me; if(m2&&m2===me&&m2.atk>before+.5) fire(m2); }catch(e){} return r; }; }
+  return {fire,get n(){ return n; }};
+})();
+</script>
+<script>
 /* ================= 아주 작은 MQTT 클라이언트 (웹소켓) — 외부 라이브러리 없이 ================= */
 function MiniMQTT(url,opt){
   const self={url,ok:false,ws:null,buf:new Uint8Array(0),pid:1,pingT:null,retry:null,closed:false,subs:[],opt};
@@ -12052,7 +12082,7 @@ window.__gw={regionBanner,PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoa
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="b2c680e8";
+(function(){ var CUR="87e49264";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
