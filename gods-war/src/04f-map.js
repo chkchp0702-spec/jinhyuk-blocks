@@ -45,6 +45,17 @@ function mapPin(ctx,x,y,s,col,glyph){ ctx.save(); ctx.translate(x,y); ctx.fillSt
   ctx.beginPath(); ctx.moveTo(0,0); ctx.bezierCurveTo(-s*.25,-s*.7,-s*.9,-s*1.1,-s*.9,-s*1.75); ctx.arc(0,-s*1.75,s*.9,Math.PI,0); ctx.bezierCurveTo(s*.9,-s*1.1,s*.25,-s*.7,0,0); ctx.closePath(); ctx.fillStyle=col; ctx.fill(); ctx.lineWidth=Math.max(1,s*.12); ctx.strokeStyle="rgba(0,0,0,.25)"; ctx.stroke();
   if(glyph){ ctx.font=`700 ${s*1.05}px ${MAPFONT}`; ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.fillStyle="#fff"; ctx.fillText(glyph,0,-s*1.72); } else { ctx.fillStyle="#7b1010"; ctx.beginPath(); ctx.arc(0,-s*1.75,s*.32,0,6.2832); ctx.fill(); } ctx.restore(); }
 function hexA(h,a){ const c=new THREE.Color(h); return `rgba(${c.r*255|0},${c.g*255|0},${c.b*255|0},${a})`; }
+// v148: 미니맵 괴물 해골 아이콘(한 번 그려 두고 돌려씀)
+const MMIC={}; function mmIcon(k){ if(MMIC[k]) return MMIC[k]; const c=document.createElement("canvas"); c.width=c.height=56; const g=c.getContext("2d"); const C=28;
+  const col={n:["#ff6b5e","#c8261b"],c:["#ff8a7a","#e0140a"],e:["#ffe08a","#d98a10"]}[k];
+  if(k==="e"){ g.fillStyle="#fff4c8"; g.strokeStyle="#5a3000"; g.lineWidth=2.4; for(const s of [-1,1]){ g.beginPath(); g.moveTo(C+s*7,C-11); g.lineTo(C+s*16,C-24); g.lineTo(C+s*13,C-8); g.closePath(); g.fill(); g.stroke(); } }
+  g.lineJoin="round"; g.beginPath(); g.arc(C,C-3,15,Math.PI*.82,Math.PI*2.18); g.lineTo(C+9,C+14); g.lineTo(C-9,C+14); g.closePath();
+  const gr=g.createLinearGradient(0,C-18,0,C+14); gr.addColorStop(0,col[0]); gr.addColorStop(1,col[1]); g.fillStyle=gr; g.fill();
+  g.lineWidth=k==="e"?4.5:3.6; g.strokeStyle=k==="e"?"#fff6c8":"#fff"; g.stroke(); g.lineWidth=1.4; g.strokeStyle="rgba(60,0,0,.6)"; g.stroke();
+  g.fillStyle="#2a0606"; for(const s of [-1,1]){ g.beginPath(); g.ellipse(C+s*5.8,C-2,4.3,5,s*.25,0,6.2832); g.fill(); }
+  g.beginPath(); g.moveTo(C,C+3); g.lineTo(C-2.2,C+7); g.lineTo(C+2.2,C+7); g.closePath(); g.fill();
+  g.strokeStyle="#2a0606"; g.lineWidth=1.6; for(const x of [-4,0,4]){ g.beginPath(); g.moveTo(C+x,C+10); g.lineTo(C+x,C+14); g.stroke(); }
+  return MMIC[k]=c; }
 function drawMinimap(ctxIn,size){ const big=!!ctxIn; const ctx=ctxIn||mctx; const S=big?size:fitCanvas(mm); const u=S/150; if(!MAPBASE) buildMapBase();
   ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,S,S);
   const half=big?MAPB:85, cx=big?0:P.x, cz=big?0:P.z; const k=S/(half*2); const tx=x=>(x-cx+half)*k, tz=z=>(z-cz+half)*k;
@@ -58,7 +69,13 @@ function drawMinimap(ctxIn,size){ const big=!!ctxIn; const ctx=ctxIn||mctx; cons
   // 길 안내: 파란 경로
   if(P.guide&&P.guide.x!=null){ const gx=tx(P.guide.x), gz=tz(P.guide.z); ctx.lineCap="round"; ctx.lineWidth=6*u; ctx.strokeStyle="#1557b0"; ctx.beginPath(); ctx.moveTo(tx(P.x),tz(P.z)); ctx.lineTo(gx,gz); ctx.stroke(); ctx.lineWidth=4*u; ctx.strokeStyle="#4285f4"; ctx.stroke(); }
   // 몬스터(가까운 것만 작게) · 보스
-  mobs.forEach(m=>{ if(m.war||m.titan||(m.bty!=null&&!m.mesh.visible)) return; if(!big&&Math.hypot(m.x-P.x,m.z-P.z)>70) return; if(m.boss){ mapPin(ctx,tx(m.x),tz(m.z),(big?4.2:5.2)*u,"#f29900","👑"); } else { dot(ctx,tx(m.x),tz(m.z),(big?1.3:1.8)*u,"rgba(217,48,37,.85)","#fff",.6*u); } });
+  // v148: 괴물은 작은 해골 아이콘(정예는 금테·뿔), 나를 쫓는 괴물은 붉게 깜빡, 보스 왕관 핀 뒤엔 맥박 빛
+  { const pul=.5+.5*Math.sin(performance.now()/160);
+  mobs.forEach(m=>{ if(m.war||m.titan||(m.bty!=null&&!m.mesh.visible)) return; if(!big&&Math.hypot(m.x-P.x,m.z-P.z)>70) return; const X=tx(m.x), Z=tz(m.z);
+    if(m.boss){ ctx.beginPath(); ctx.arc(X,Z-(big?7:8.8)*u,(big?6:8)*u*(1+.25*pul),0,6.2832); ctx.fillStyle=`rgba(255,170,30,${.18+.17*pul})`; ctx.fill(); mapPin(ctx,X,Z,(big?4.2:5.2)*u,"#f29900","👑"); }
+    else { const ch=!big&&m.state==="chase"; const r=(m.elite?(big?3.4:5.4):(big?2.6:4.3))*u*(ch?1+.12*pul:1);
+      if(ch){ ctx.beginPath(); ctx.arc(X,Z,r*1.45,0,6.2832); ctx.fillStyle=`rgba(255,40,30,${.12+.22*pul})`; ctx.fill(); }
+      ctx.drawImage(mmIcon(m.elite?"e":ch?"c":"n"),X-r,Z-r,r*2,r*2); } }); }
   if(typeof warActive==="function"&&warActive()){ WAR.units.forEach(un=>{ if(un.dead||(un.hidden&&!(WAR.joined&&un.side===WAR.side))) return; dot(ctx,tx(un.x),tz(un.z),1.5*u,WAR.joined?(un.side===WAR.side?"#1e8e3e":"#d93025"):(un.side==="att"?"#f29900":"#4285f4"),"#fff",.5*u); });
     const g=TERR_RINGS[WAR.cur.rg].position; const pul=1+.3*Math.sin(performance.now()/180); ctx.beginPath(); ctx.arc(tx(g.x),tz(g.z),9*u*pul,0,6.2832); ctx.fillStyle="rgba(217,48,37,.18)"; ctx.fill(); mapPin(ctx,tx(g.x),tz(g.z),(big?5:6.5)*u,"#d93025","⚔"); }
   if(typeof DG!=="undefined"&&DG.doors) DG.doors.forEach(d=>mapPin(ctx,tx(d.x),tz(d.z),(big?4.5:5)*u,"#7a4ae8","🌀"));
