@@ -741,6 +741,25 @@ body.eco .mbtn.newdot,body.eco .mbtn.newdot::before{animation:none!important}
 #kcBars i:first-child{top:0;box-shadow:0 2px 14px rgba(0,0,0,.5)} #kcBars i:last-child{bottom:0;box-shadow:0 -2px 14px rgba(0,0,0,.5)}
 #kcBars.on i{height:7vh;transition:height .16s cubic-bezier(.2,.8,.3,1)}
 @media (orientation:portrait){#kcBars.on i{height:6vh}}
+/* v147 보스 토벌 성공 금빛 배너 */
+#vict{position:fixed;left:50%;top:27%;z-index:30;pointer-events:none;transform:translate(-50%,-50%);text-align:center;opacity:0;white-space:nowrap}
+#vict.on{animation:vcIn 2.9s cubic-bezier(.2,.9,.3,1) forwards}
+#vict .vp{position:relative;padding:6px 46px 8px;background:linear-gradient(180deg,rgba(40,18,4,.0),rgba(40,18,4,.82) 22%,rgba(26,10,2,.88) 78%,rgba(26,10,2,0));overflow:hidden}
+#vict .vp::before,#vict .vp::after{content:"";position:absolute;left:4%;right:4%;height:2px;background:linear-gradient(90deg,transparent,#c8902a 18%,#fff3c0 50%,#c8902a 82%,transparent)}
+#vict .vp::before{top:3px} #vict .vp::after{bottom:3px}
+#vict .vn{display:block;font:700 clamp(11px,2.3vw,15px)/1.2 var(--title);color:#ffe7a8;letter-spacing:2px;text-shadow:0 1px 0 #3a1c02}
+#vict .vt{display:block;font:400 clamp(30px,7.4vw,50px)/1.05 var(--title);letter-spacing:3px;background:linear-gradient(180deg,#fffbe6 0%,#ffe27a 38%,#f0a92a 62%,#fff0b0 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 0 #5a2a00) drop-shadow(0 0 10px rgba(255,190,60,.55))}
+#vict .vt i{font-style:normal;color:#ffd34a;-webkit-text-fill-color:#ffd34a;font-size:.6em;vertical-align:.25em;margin:0 .25em}
+#vict .vs{display:block;font:700 clamp(11px,2.2vw,14px)/1.3 var(--title);color:#fff;opacity:.92;text-shadow:0 1px 2px #000}
+#vict .vsh{position:absolute;top:0;bottom:0;width:30%;left:-40%;background:linear-gradient(100deg,transparent,rgba(255,250,220,.45),transparent);transform:skewX(-18deg)}
+#vict.on .vsh{animation:vcShine 1.1s .35s ease-out}
+#vict .vk{position:absolute;left:50%;top:50%;width:10px;height:10px;margin:-5px;background:#fff3b0;clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);opacity:0}
+#vict.on .vk{animation:vcStar 1.05s var(--d) cubic-bezier(.15,.8,.3,1) forwards}
+@keyframes vcIn{0%{opacity:0;transform:translate(-50%,-50%) scale(2.1)}9%{opacity:1;transform:translate(-50%,-50%) scale(.94)}15%{transform:translate(-50%,-50%) scale(1.03)}20%,84%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-62%) scale(1)}}
+@keyframes vcShine{to{left:120%}}
+@keyframes vcStar{0%{opacity:1;transform:translate(0,0) scale(.4) rotate(0)}70%{opacity:1}100%{opacity:0;transform:translate(var(--x),var(--y)) scale(var(--s)) rotate(160deg)}}
+@media (orientation:portrait){#vict{top:30%}}
+@media (prefers-reduced-motion: reduce){#vict.on{animation:vcFade 2.6s forwards}#vict.on .vk,#vict.on .vsh{animation:none}@keyframes vcFade{0%,85%{opacity:1}100%{opacity:0}}}
 </style>
 </head>
 <body>
@@ -798,7 +817,7 @@ body.eco .mbtn.newdot,body.eco .mbtn.newdot::before{animation:none!important}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v146";
+const VER="v147";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -12082,7 +12101,7 @@ window.__gw={regionBanner,PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoa
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="87e49264";
+(function(){ var CUR="1c002584";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
@@ -12230,5 +12249,28 @@ const KILLCAM={t:0,d:0,slow:1,zoom:0,x:0,y:0,z:0,cool:0,boss:false,base:null};
     if(z>0.001&&!P.dead){ K.base={fov:camera.fov,pos:camera.position.clone()};
       const v=new THREE.Vector3(K.x-camera.position.x,K.y-camera.position.y,K.z-camera.position.z); const L=v.length(); if(L>0.01) camera.position.addScaledVector(v,Math.min(.18,z*1.1));
       camera.fov=K.base.fov*(1-z); camera.updateProjectionMatrix(); } };
+})();
+</script>
+<script>
+/* ================= v147: 보스 토벌 성공 — 금빛 승리 배너 + 별 폭죽 =================
+   보스를 쓰러뜨리면 원래 가운데 띠(「○○ 처치!」 토스트) 대신, 마무리 느린 화면(06e)이 끝날 무렵
+   화면 위쪽에 「✦ 토벌 성공! ✦」 금빛 큰 글씨가 쾅 내려앉고 별 조각이 사방으로 튐 · 빛줄기가 한 번 쓱.
+   아래에 보상 줄(경험치·금화)은 그대로 보여 줌. 모습만 — 보상·규칙 그대로. CSS 한 번짜리(무한 애니메이션 없음), 그리기 호출 0. */
+const VICT=(()=>{ let cur=null, tm=0;
+  function el(){ let c=document.getElementById("vict"); if(c) return c;
+    c=document.createElement("div"); c.id="vict"; document.body.appendChild(c); return c; }
+  function show(name,sub){ const c=el(); const N=ECO()?8:14; let st="";
+    for(let i=0;i<N;i++){ const a=(i/N)*6.2832+Math.random()*.3, R=90+Math.random()*90; const x=Math.cos(a)*R*1.6, y=Math.sin(a)*R*.55;
+      st+=`<b class="vk" style="--x:${x|0}px;--y:${y|0}px;--s:${(.8+Math.random()*1.1).toFixed(2)};--d:${(.08+Math.random()*.18).toFixed(2)}s"></b>`; }
+    const esc=t=>String(t).replace(/[<>&]/g,"");
+    c.innerHTML=`<div class="vp"><span class="vsh"></span><span class="vn">${esc(name)} 쓰러뜨림</span><span class="vt"><i>✦</i>토벌 성공!<i>✦</i></span>${sub?`<span class="vs">${sub}</span>`:""}</div>${st}`;
+    try{ toastT=0; $("toast").style.opacity=0; }catch(e){} c.classList.remove("on"); void c.offsetWidth; c.classList.add("on");
+    clearTimeout(tm); tm=setTimeout(()=>c.classList.remove("on"),3000);
+    try{ tone(1568,.18,"sine",.05,.035); tone(2093,.22,"sine",.16,.03); }catch(e){} }
+  const _km=killMob;
+  killMob=function(m){ cur=(m&&m.boss&&!m.titan&&!m.trialOf)?m:null; try{ return _km.apply(this,arguments); } finally{ cur=null; } };
+  const _toast=toast;
+  toast=function(msg,sub,dur){ if(cur&&msg===`${cur.n} 처치!`){ const n=cur.n; try{ setTimeout(()=>show(n,sub),ECO()?120:380); return; }catch(e){} } return _toast.apply(this,arguments); };
+  return {show};
 })();
 </script>
