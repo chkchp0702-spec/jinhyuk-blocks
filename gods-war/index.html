@@ -817,7 +817,7 @@ body.eco .mbtn.newdot,body.eco .mbtn.newdot::before{animation:none!important}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v148";
+const VER="v149";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -11788,6 +11788,31 @@ const PETFX2=(()=>{ let n=0, el=null; const V=new THREE.Vector3();
 })();
 </script>
 <script>
+/* ================= v149 그래픽: 내 캐릭터 대기 동작(숨쉬기·두리번·손 인사) =================
+   가만히 서 있으면 가슴이 천천히 오르내리며 숨쉬고, 4초 넘게 서 있으면 7~10초마다
+   ①고개를 왼쪽·오른쪽으로 두리번(몸도 살짝 따라 돎) ②손을 들어 인사(Interact 동작 한 번)를 번갈아 함.
+   애니메이션 믹서가 뼈를 움직인 "뒤"에 머리·가슴 뼈에 살짝 더하는 방식(tickMixers 감싸기) — 모델·저장·규칙 그대로, 모습만.
+   움직이거나 공격·점프·죽음·탈것·창 열림이면 바로 멈추고 처음부터. 뼈 2개 회전만이라 휴대폰 부담 거의 없음. */
+const IDLEFX=(()=>{ let t=0, next=5, act=null, at=0, nAct=0, br=0, bones=null, owner=null;
+  function findBones(){ const u=player&&player.userData; if(!u||!u.gl) return null; if(owner===player&&bones) return bones; owner=player; bones={}; player.traverse(o=>{ if(!o.isBone) return; const n=o.name.toLowerCase(); if(n==="head") bones.head=o; else if(n==="chest") bones.chest=o; else if(n==="spine") bones.spine=o; }); return bones; }
+  function calm(){ return started&&player&&player.userData.gl&&!P.dead&&!P.moving&&!P.ride&&P.y<.05&&!(P.atkAnim>0)&&!layerOpen&&player.visible; }
+  function post(dt){ try{ if(!calm()){ t=0; next=4+Math.random()*2; act=null; br=Math.max(0,br-dt*3); return; }
+      const B=findBones(); if(!B||!B.head) return; const G=player.userData.gl; if(G.cur!=="Idle_A"&&act!=="wave") { t=0; return; }
+      t+=dt; br=Math.min(1,br+dt*1.5); const now=performance.now()/1000;
+      /* 숨쉬기: 가슴이 뒤로 살짝 젖혀졌다 돌아옴(머리는 반대로 받쳐 시선 유지) */
+      const b=(Math.sin(now*2.1)*.5+.5)*br; if(B.chest){ B.chest.rotation.x-=.05*b; } B.head.rotation.x+=.035*b; if(B.spine) B.spine.position.y+=.004*b;
+      if(!act&&t>next){ act=(nAct++%3===2)?"wave":"look"; at=0; next=t+7+Math.random()*3; if(act==="wave"){ playAnim(player,"Cheer",true,.2); } }
+      if(act==="look"){ at+=dt; const D=2.8; if(at>=D){ act=null; return; } const k=at/D;
+        /* 0→왼쪽 보고 멈춤→오른쪽 보고 멈춤→앞으로. 부드러운 곡선 */
+        const s=Math.sin(k*Math.PI*2)*Math.min(1,Math.sin(k*Math.PI)*2.2); const yaw=s*.75;
+        B.head.rotation.y+=yaw; if(B.chest) B.chest.rotation.y+=yaw*.28; B.head.rotation.z+=s*.06; }
+      else if(act==="wave"){ at+=dt; if(at>2.2) act=null; }
+    }catch(e){} }
+  return {post,get act(){ return act; },get at(){ return at; }};
+})();
+{ const _tm=tickMixers; tickMixers=function(dt){ _tm(dt); IDLEFX.post(dt); }; }
+</script>
+<script>
 /* ================= 아주 작은 MQTT 클라이언트 (웹소켓) — 외부 라이브러리 없이 ================= */
 function MiniMQTT(url,opt){
   const self={url,ok:false,ws:null,buf:new Uint8Array(0),pid:1,pingT:null,retry:null,closed:false,subs:[],opt};
@@ -12117,20 +12142,6 @@ function regionBanner(name,sub,realm){ const el=$("rgban"); if(!el){ toast(name,
 window.__gw={regionBanner,PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoard,showPlay,pgNow,pgTileAt,STY,STORY,styData,styStart,styAdvance,styStep,styOpenN,styNextDays,showStory,styComic,styTarget,CQ,CQO,cqMis,cqTotal,cqAdd,showTeam,frTeleport,frFollow,SKS,skSlots,showSkills,showPatch,PATCH_NOTES,GT,GTO,DS,gtTotal,gtStage,gtDonate,gtGive,gtData,showGate,dsEnter,dsExit,dsSpawn,DS_MOBS,OR,orQuiz,orAnswer,orToday,showOracle,MT,mtGraduate,mtRole,showMentor,mtShowStar,NETX,NETR,PETS,showShop,bfOn,bfAdd,BUFFS,shopDeal,GD,GDO,gdCreate,gdJoin,gdLeave,gdClaim,gdAdd,gdMembers,gdWeekPts,gdLv,gdRanking,showGuild,gdMine,FG,showForge,fgStart,fgHit,fgDone,fgGive,fgLv,fgMul,RC,RCO,rcStart,rcEnd,rcBoard,showRace,rdSet,rdCan,WD,WDO,wdDonate,wdTotal,wdStage,wdGive,showWonder,wdData,HM,HOMES,DECO,hmEnter,hmExit,hmGift,hmAdd,hmBlessMsg,hmMsg,showHome,hmSlotCard,hmCollect,FS,startFish,fishPull,fishCaught,trapSet,trapClaim,showFish,nearWater,fishSpots,ssData,ssTasks,ssClaim,showSeason,ssMsg,ssNo,ssAdd,ssWinner,SSO,CTX,DG,dgEnter,dgFloor,dgFinish,dgPlan,showDungeon,showTitles,TITLES,showExp,expStart,expClaim,EXPO,DGR,TB,titanHit,titanDefeated,showTitan,titanGo,showPets,hatchEgg,petOnKill,comboFire,comboRecv,showCombos,PETMESH,idleSim,grantIdle,showIdleReport,ROSTER,autoFace,buildPlayer,GHOSTS,mmoProfile,showRoster,G,P,mobs,W,net,PEERS,WAR,forceWar,resolveWar,joinWar,begin,update,spawnMob,spawnAtHome,REGIONS,attack,useSkill,startTrial,die,respawn};
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
-<!--auto-update--><script>
-(function(){ var CUR="048128af";
-  function check(){ if(!/^https?:/.test(location.protocol)) return;
-    fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
-      if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
-      var go=function(){ location.replace(location.pathname.replace(/index\.html$/,"")+"?v="+j.v); };
-      try{ var p=[]; if(navigator.serviceWorker&&navigator.serviceWorker.getRegistrations) p.push(navigator.serviceWorker.getRegistrations().then(function(rs){ return Promise.all(rs.filter(function(r){return location.href.indexOf(r.scope)===0;}).map(function(r){return r.unregister();})); }));
-        if(window.caches) p.push(caches.keys().then(function(ks){ return Promise.all(ks.map(function(c){return caches.delete(c);})); }));
-        Promise.all(p).then(go,go); }catch(e){ go(); }
-    }).catch(function(){});
-  }
-  check(); document.addEventListener("visibilitychange",function(){ if(!document.hidden) check(); });
-})();
-</script><!--/auto-update-->
 </body>
 </html>
 <script>
