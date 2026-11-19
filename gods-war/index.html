@@ -725,6 +725,15 @@ body.eco .mbtn.newdot,body.eco .mbtn.newdot::before{animation:none!important}
 #skname::before,#skname::after{content:"";position:absolute;left:8%;right:8%;height:2px;background:linear-gradient(90deg,transparent,var(--sc) 25%,#fff6c8 50%,var(--sc) 75%,transparent)}
 #skname::before{top:0} #skname::after{bottom:0}
 #skname b{font-size:clamp(20px,4.6vh,26px);color:#fff;letter-spacing:1px;font-weight:400;text-shadow:-2px -2px 0 #1b1030,2px -2px 0 #1b1030,-2px 2px 0 #1b1030,2px 2px 0 #1b1030,0 0 12px var(--sc)}
+/* v156 친구 기술 이름 말풍선 */
+.pskl{position:absolute;left:0;top:0;display:none;pointer-events:none;--sc:#ffd34a;z-index:2}
+.pskl.on{display:flex;align-items:center;gap:4px;padding:2px 9px 3px 6px;border-radius:11px 11px 11px 3px;white-space:nowrap;background:linear-gradient(180deg,rgba(40,26,70,.92),rgba(18,12,36,.92));border:1.5px solid var(--sc);box-shadow:0 0 8px var(--sc),inset 0 1px 0 rgba(255,255,255,.25);translate:0 -100%;transform-origin:0 100%;animation:psklIn 1.6s ease-out forwards}
+.pskl::before{content:"";position:absolute;left:-1.5px;bottom:-7px;width:0;height:0;border-top:7px solid var(--sc);border-right:7px solid transparent}
+.pskl i{font-style:normal;font-size:13px} .pskl b{font-weight:400;font-size:13px;color:#fff;text-shadow:0 1px 0 #000,0 0 6px var(--sc);letter-spacing:.5px}
+.pskl em{display:none;font-style:normal;font-size:9px;color:#1b1030;background:linear-gradient(#fff2a8,#ffb830);border-radius:5px;padding:0 4px;margin-left:2px}
+.pskl.ult em{display:inline-block} .pskl.ult b{font-size:15px;color:#fff6c8}
+.pskl.foe{background:linear-gradient(180deg,rgba(80,18,28,.92),rgba(36,8,14,.92))}
+@keyframes psklIn{0%{opacity:0;scale:.4}12%{opacity:1;scale:1.18}22%{scale:1}78%{opacity:1}100%{opacity:0}}
 #skname i{font-style:normal;font-size:clamp(20px,4.6vh,26px);filter:drop-shadow(0 0 6px var(--sc))}
 #skname em{font-style:normal;font-family:var(--font);font-size:11px;color:#1b1030;background:linear-gradient(#fff3b0,#ffc43a);border-radius:4px;padding:1px 6px;display:none}
 #skname.ult em{display:inline-block} #skname.ult b{font-size:clamp(24px,5.6vh,32px);color:#fff4c0}
@@ -817,7 +826,7 @@ body.eco .mbtn.newdot,body.eco .mbtn.newdot::before{animation:none!important}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v155";
+const VER="v156";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -12045,6 +12054,30 @@ const LOOTFEED=(()=>{ let box=null, last=null, gRow=null, gAmt=0, gT=0;
 })();
 </script>
 <script>
+/* ================= v156 친구가 기술 쓰면 머리 옆에 기술 이름 말풍선 =================
+   - 함께하는 친구(PEERS)가 기술을 쓰면(받은 "sk" 메시지 = 원래 합체 기술용) 그 친구 머리 옆에 「💥 심판의 빛」 같은 작은 말풍선이
+     톡 튀어나와 위로 떠오르며 1.6초 뒤 사라짐. 테두리는 기술 색, 같은 편은 금빛·다른 편은 붉은 꼬리표. 궁극기는 「궁극기」 딱지.
+   - comboRecv 를 감싸서 보기만(합체 기술 규칙·메시지 형식 그대로). DOM 은 친구마다 1개 돌려씀, 45걸음 안·화면 안일 때만. 그리기 호출 0. */
+const PEERSKL=(function(){
+  const M={}; const v=new THREE.Vector3(); const LIFE=1.6;
+  function hex(c){ return "#"+(c>>>0&0xffffff).toString(16).padStart(6,"0"); }
+  function show(o,si){ try{ const R=REALMS[o.realm]; const S=R&&R.skills&&R.skills[si]; if(!S||!S.n) return;
+      let e=M[o.id]; if(!e){ e=M[o.id]={el:document.createElement("div"),t:0}; e.el.className="pskl"; e.el.innerHTML='<i></i><b></b><em>궁극기</em>'; labelsEl.appendChild(e.el); }
+      e.el.querySelector("i").textContent=typeof skIcon==="function"?skIcon(S):"✨"; e.el.querySelector("b").textContent=S.n;
+      let col=S.color!=null?hex(S.color):"#ffd34a"; if(/^#f{5,6}|^#fffff/i.test(col)) col=R.c1||col;
+      e.el.style.setProperty("--sc",col); e.el.classList.toggle("ult",S.type==="ult"); e.el.classList.toggle("foe",o.realm!==G.realm);
+      e.el.classList.remove("on"); void e.el.offsetWidth; e.el.classList.add("on"); e.t=LIFE; e.o=o;
+    }catch(err){} }
+  if(typeof comboRecv==="function"){ const _cr=comboRecv; comboRecv=function(o,d){ const r=_cr.apply(this,arguments); try{ if(d&&d.t==="sk"&&o) show(o,d.s|0); }catch(e){} return r; }; }
+  XTICK.push(function(dt){ for(const id in M){ const e=M[id]; if(e.t<=0) continue; e.t-=dt; const o=e.o;
+      if(e.t<=0||!PEERS[id]||o.dead||Math.hypot(o.x-P.x,o.z-P.z)>45){ e.t=0; e.el.style.display="none"; if(!PEERS[id]){ e.el.remove(); delete M[id]; } continue; }
+      v.set(o.x,hAt(o.x,o.z)+3.1,o.z).project(camera); if(v.z>1||Math.abs(v.x)>1.1||Math.abs(v.y)>1.1){ e.el.style.display="none"; continue; }
+      e.el.style.display=""; const k=1-e.t/LIFE; const sx=(v.x+1)/2*innerWidth+18, sy=(1-v.y)/2*innerHeight-k*26;
+      e.el.style.transform=`translate(${sx|0}px,${sy|0}px)`; } });
+  return {show};
+})();
+</script>
+<script>
 /* ================= 아주 작은 MQTT 클라이언트 (웹소켓) — 외부 라이브러리 없이 ================= */
 function MiniMQTT(url,opt){
   const self={url,ok:false,ws:null,buf:new Uint8Array(0),pid:1,pingT:null,retry:null,closed:false,subs:[],opt};
@@ -12375,7 +12408,7 @@ window.__gw={regionBanner,PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoa
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="49b94fb9";
+(function(){ var CUR="b63f2e8a";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);

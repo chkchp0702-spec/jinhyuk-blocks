@@ -725,6 +725,15 @@ body.eco .mbtn.newdot,body.eco .mbtn.newdot::before{animation:none!important}
 #skname::before,#skname::after{content:"";position:absolute;left:8%;right:8%;height:2px;background:linear-gradient(90deg,transparent,var(--sc) 25%,#fff6c8 50%,var(--sc) 75%,transparent)}
 #skname::before{top:0} #skname::after{bottom:0}
 #skname b{font-size:clamp(20px,4.6vh,26px);color:#fff;letter-spacing:1px;font-weight:400;text-shadow:-2px -2px 0 #1b1030,2px -2px 0 #1b1030,-2px 2px 0 #1b1030,2px 2px 0 #1b1030,0 0 12px var(--sc)}
+/* v156 친구 기술 이름 말풍선 */
+.pskl{position:absolute;left:0;top:0;display:none;pointer-events:none;--sc:#ffd34a;z-index:2}
+.pskl.on{display:flex;align-items:center;gap:4px;padding:2px 9px 3px 6px;border-radius:11px 11px 11px 3px;white-space:nowrap;background:linear-gradient(180deg,rgba(40,26,70,.92),rgba(18,12,36,.92));border:1.5px solid var(--sc);box-shadow:0 0 8px var(--sc),inset 0 1px 0 rgba(255,255,255,.25);translate:0 -100%;transform-origin:0 100%;animation:psklIn 1.6s ease-out forwards}
+.pskl::before{content:"";position:absolute;left:-1.5px;bottom:-7px;width:0;height:0;border-top:7px solid var(--sc);border-right:7px solid transparent}
+.pskl i{font-style:normal;font-size:13px} .pskl b{font-weight:400;font-size:13px;color:#fff;text-shadow:0 1px 0 #000,0 0 6px var(--sc);letter-spacing:.5px}
+.pskl em{display:none;font-style:normal;font-size:9px;color:#1b1030;background:linear-gradient(#fff2a8,#ffb830);border-radius:5px;padding:0 4px;margin-left:2px}
+.pskl.ult em{display:inline-block} .pskl.ult b{font-size:15px;color:#fff6c8}
+.pskl.foe{background:linear-gradient(180deg,rgba(80,18,28,.92),rgba(36,8,14,.92))}
+@keyframes psklIn{0%{opacity:0;scale:.4}12%{opacity:1;scale:1.18}22%{scale:1}78%{opacity:1}100%{opacity:0}}
 #skname i{font-style:normal;font-size:clamp(20px,4.6vh,26px);filter:drop-shadow(0 0 6px var(--sc))}
 #skname em{font-style:normal;font-family:var(--font);font-size:11px;color:#1b1030;background:linear-gradient(#fff3b0,#ffc43a);border-radius:4px;padding:1px 6px;display:none}
 #skname.ult em{display:inline-block} #skname.ult b{font-size:clamp(24px,5.6vh,32px);color:#fff4c0}
