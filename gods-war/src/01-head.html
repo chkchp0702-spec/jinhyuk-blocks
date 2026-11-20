@@ -35,6 +35,16 @@ button{font:inherit;-webkit-tap-highlight-color:transparent}
 .lbl .hp{display:block;width:64px;height:6px;margin:3px auto 0;background:rgba(0,0,0,.55);border-radius:4px;overflow:hidden}
 .lbl .hp i{display:block;height:100%;background:#ff5a5f;border-radius:4px}
 .lbl.ally{color:#9dffb8} .lbl.foe{color:#ff8d8d} .lbl.boss{font-size:19px;color:#ffcf4a}
+/* v160 친구 이름표 세계 문장 배지 */
+.pbdg{position:relative;display:inline-block;width:22px;height:25px;margin:0 4px 0 0;vertical-align:-6px;text-shadow:none}
+.pbdg::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#fff3b0,#e0a92c 55%,#8a5a10);clip-path:polygon(50% 0,100% 14%,100% 52%,50% 100%,0 52%,0 14%)}
+.pbdg.foe::before{background:linear-gradient(180deg,#ffb3a8,#e0402c 55%,#7a1010)}
+.pbdg::after{content:"";position:absolute;inset:2px;background:radial-gradient(circle at 50% 30%,var(--c1) 0%,var(--a) 55%,var(--b) 100%);clip-path:polygon(50% 0,100% 14%,100% 52%,50% 100%,0 52%,0 14%)}
+.pbdg.hi{filter:drop-shadow(0 0 3px rgba(255,220,110,.95))} .pbdg.foe.hi{filter:drop-shadow(0 0 3px rgba(255,110,90,.95))}
+.pbdg i{position:absolute;z-index:1;left:0;right:0;top:3px;font-style:normal;font-size:12px;line-height:13px;color:#fff;text-align:center;text-shadow:0 1px 0 rgba(0,0,0,.7),0 0 3px rgba(0,0,0,.5)}
+.pbdg u{position:absolute;z-index:1;left:0;right:0;top:16px;display:flex;justify-content:center;gap:1px;text-decoration:none}
+.pbdg u s{display:block;width:3px;height:3px;background:#fff6c8;transform:rotate(45deg);box-shadow:0 0 1px #000}
+.pbdg u em{position:absolute;top:-3px;right:-9px;font-style:normal;font-size:8px;line-height:9px;padding:0 2px;border-radius:4px;background:#2a1f4a;color:#ffe27a;font-weight:900}
 .lbl.dmg{z-index:2} .lbl.dmg em{display:block;font-style:normal;font-weight:900;font-size:25px;color:#fff;letter-spacing:-.5px;text-shadow:0 0 1px #000,2px 2px 0 #1b1430,-2px 2px 0 #1b1430,2px -2px 0 #1b1430,-2px -2px 0 #1b1430,0 3px 0 #1b1430,0 4px 8px rgba(0,0,0,.6);transform-origin:50% 80%;animation:dmgPop .95s cubic-bezier(.2,.8,.3,1) forwards}
 .lbl.dmg.crit em{font-size:33px;color:#ffe066;text-shadow:0 0 1px #000,2px 2px 0 #7a2a00,-2px 2px 0 #7a2a00,2px -2px 0 #7a2a00,-2px -2px 0 #7a2a00,0 3px 0 #7a2a00,0 0 16px rgba(255,150,40,.95);animation:dmgCrit 1.05s cubic-bezier(.2,.8,.3,1) forwards}
 .lbl.dmg.crit em.c::before{content:"치명타!";display:block;font-size:13px;color:#fff6c8;letter-spacing:1px;margin-bottom:-2px}

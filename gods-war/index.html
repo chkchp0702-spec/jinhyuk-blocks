@@ -35,6 +35,16 @@ button{font:inherit;-webkit-tap-highlight-color:transparent}
 .lbl .hp{display:block;width:64px;height:6px;margin:3px auto 0;background:rgba(0,0,0,.55);border-radius:4px;overflow:hidden}
 .lbl .hp i{display:block;height:100%;background:#ff5a5f;border-radius:4px}
 .lbl.ally{color:#9dffb8} .lbl.foe{color:#ff8d8d} .lbl.boss{font-size:19px;color:#ffcf4a}
+/* v160 친구 이름표 세계 문장 배지 */
+.pbdg{position:relative;display:inline-block;width:22px;height:25px;margin:0 4px 0 0;vertical-align:-6px;text-shadow:none}
+.pbdg::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#fff3b0,#e0a92c 55%,#8a5a10);clip-path:polygon(50% 0,100% 14%,100% 52%,50% 100%,0 52%,0 14%)}
+.pbdg.foe::before{background:linear-gradient(180deg,#ffb3a8,#e0402c 55%,#7a1010)}
+.pbdg::after{content:"";position:absolute;inset:2px;background:radial-gradient(circle at 50% 30%,var(--c1) 0%,var(--a) 55%,var(--b) 100%);clip-path:polygon(50% 0,100% 14%,100% 52%,50% 100%,0 52%,0 14%)}
+.pbdg.hi{filter:drop-shadow(0 0 3px rgba(255,220,110,.95))} .pbdg.foe.hi{filter:drop-shadow(0 0 3px rgba(255,110,90,.95))}
+.pbdg i{position:absolute;z-index:1;left:0;right:0;top:3px;font-style:normal;font-size:12px;line-height:13px;color:#fff;text-align:center;text-shadow:0 1px 0 rgba(0,0,0,.7),0 0 3px rgba(0,0,0,.5)}
+.pbdg u{position:absolute;z-index:1;left:0;right:0;top:16px;display:flex;justify-content:center;gap:1px;text-decoration:none}
+.pbdg u s{display:block;width:3px;height:3px;background:#fff6c8;transform:rotate(45deg);box-shadow:0 0 1px #000}
+.pbdg u em{position:absolute;top:-3px;right:-9px;font-style:normal;font-size:8px;line-height:9px;padding:0 2px;border-radius:4px;background:#2a1f4a;color:#ffe27a;font-weight:900}
 .lbl.dmg{z-index:2} .lbl.dmg em{display:block;font-style:normal;font-weight:900;font-size:25px;color:#fff;letter-spacing:-.5px;text-shadow:0 0 1px #000,2px 2px 0 #1b1430,-2px 2px 0 #1b1430,2px -2px 0 #1b1430,-2px -2px 0 #1b1430,0 3px 0 #1b1430,0 4px 8px rgba(0,0,0,.6);transform-origin:50% 80%;animation:dmgPop .95s cubic-bezier(.2,.8,.3,1) forwards}
 .lbl.dmg.crit em{font-size:33px;color:#ffe066;text-shadow:0 0 1px #000,2px 2px 0 #7a2a00,-2px 2px 0 #7a2a00,2px -2px 0 #7a2a00,-2px -2px 0 #7a2a00,0 3px 0 #7a2a00,0 0 16px rgba(255,150,40,.95);animation:dmgCrit 1.05s cubic-bezier(.2,.8,.3,1) forwards}
 .lbl.dmg.crit em.c::before{content:"치명타!";display:block;font-size:13px;color:#fff6c8;letter-spacing:1px;margin-bottom:-2px}
@@ -826,7 +836,7 @@ body.eco .mbtn.newdot,body.eco .mbtn.newdot::before{animation:none!important}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v159";
+const VER="v160";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -12201,6 +12211,24 @@ const HUDHP=(()=>{ let bar=null, tr=null, st=null, txt=null, last=-1, gh=1, hold
 })();
 </script>
 <script>
+/* ================= v160 친구 이름표 옆 세계 문장 배지 =================
+   - 함께하는 친구(PEERS) 이름 앞에 작은 방패 문장: 세계 색 그라데이션 + 세계 표시(✝ ᛟ ॐ ⚡) + 아래 계급 별(계급 단계 1~7, 별 점).
+   - 같은 편은 금빛 테, 다른 편은 붉은 테. 높은 계급(5단계부터)은 테가 은은히 빛남(애니메이션 없이 그림자만).
+   - placeLabel 을 감싸 친구 이름표 글자(html)에만 끼워 넣음 — 05-net.js·메시지 형식 그대로, 보기만. 그리기 호출 0. */
+(function(){
+  if(typeof placeLabel!=="function") return;
+  function esc(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+  function badge(o){ const R=REALMS[o.realm]; if(!R) return ""; const rk=Math.max(0,Math.min(6,o.rank|0)); const foe=o.realm!==G.realm;
+    let pips=""; const n=rk+1; for(let i=0;i<Math.min(n,4);i++) pips+="<s></s>";
+    return `<span class="pbdg${foe?" foe":""}${rk>=4?" hi":""}" style="--c1:${R.c1};--a:${R.a};--b:${R.b}"><i>${esc(R.icon||"✦")}</i><u>${pips}${n>4?`<em>${n}</em>`:""}</u></span>`; }
+  const _pl=placeLabel;
+  placeLabel=function(el,x,y,z,html){
+    if(html!==undefined&&el&&el.__pb){ const o=el.__pb; const key=o.name+" <b>"; const k=html.lastIndexOf(key); if(k>=0) html=html.slice(0,k)+badge(o)+html.slice(k); }
+    return _pl.call(this,el,x,y,z,html); };
+  XTICK.push(function(){ for(const id in PEERS){ const o=PEERS[id]; if(o&&o.lbl&&o.lbl.__pb!==o) o.lbl.__pb=o; } });
+})();
+</script>
+<script>
 /* ================= 아주 작은 MQTT 클라이언트 (웹소켓) — 외부 라이브러리 없이 ================= */
 function MiniMQTT(url,opt){
   const self={url,ok:false,ws:null,buf:new Uint8Array(0),pid:1,pingT:null,retry:null,closed:false,subs:[],opt};
@@ -12531,7 +12559,7 @@ window.__gw={regionBanner,PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoa
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="95bb9182";
+(function(){ var CUR="330bd1be";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
