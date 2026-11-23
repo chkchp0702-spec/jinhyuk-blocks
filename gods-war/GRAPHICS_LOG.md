@@ -75,7 +75,7 @@
 | 60 | 하늘에 천천히 흐르는 큰 구름 덩어리(낮)·노을 땐 분홍빛 | 03ja-skycloud.js SKYCLOUD(skyMat 셰이더에 구름, HORIZON.tick 감싸기) | ✅ v106 |
 | 61 | 대화·NPC 말풍선 디자인(꼬리 달린 말풍선·글자 하나씩 나오기) | 04zza-bubble.js(placeLabel 감싸기) · 01-head.html .lbl .bub | ✅ v107 |
 | 62 | 물약 버튼 남은 개수 배지·물약 마시면 병 흔들림 | 04zzb-potbtn.js POTBTN(usePotion 감싸기) · 01-head.html .act.pot.hasbot/.pbadge | ✅ v109 |
-| 63 | 친구(PEERS) 이름표 옆 작은 얼굴 초상(같은 찍기 방식, 가까운 2명만) | 04zz-portrait.js · 05-net.js 보기만 | ⏳ |
+| 63 | 친구(PEERS) 이름표 옆 작은 얼굴 초상(같은 찍기 방식, 가까운 2명만) | 04zzzo-peerpor.js PEERPOR(placeLabel 감싸기) | ✅ v169 |
 | 64 | 괴물이 내게 맞을 때 몸이 잠깐 하얗게 부풀었다 돌아오기(스쿼시) | 03i-hitfeel.js HITF.knock·squash · 04-game.js tickMobs(1.12배 커짐 대신) | ✅ v110 |
 | 65 | 이야기·축제 안내 띠(토스트)가 반투명이라 뒤 이름표와 글자가 겹쳐 지저분 → 진한 바탕·짧은 줄(긴 글은 두 줄 깔끔히) | 01-head.html #toast.tb::before/::after·toastPlate·#toast.lvdn::before(CSS만) | ✅ v111 |
 | 66 | 먼 곳 하늘의 새 떼(V자로 천천히 날아감, 낮만) | 03ea-birds.js BIRDS(ATMO.tick 감싸기, 인스턴스 1묶음) | ✅ v112 |
@@ -145,6 +145,10 @@
 | 129 | 수도 광장 분수·횃불 둘레 밤에 따뜻한 빛 원(바닥 데칼, PointLight 없이) | 04zzzn-lampglow.js | ✅ v168 |
 
 ## 기록
+### 11/24 02시 v169 — 친구 이름표 옆 작은 얼굴 초상
+- 무엇을: 30m 안 가장 가까운 친구 2명의 이름표 맨 앞에 그 친구 3D 캐릭터 얼굴을 찍은 동그란 초상이 붙음(같은 편 금빛 고리, 다른 편 붉은 고리 + 세계 색). 세 번째부터는 초상 없이 문장 배지만.
+- 어디를: 새 파일 04zzzo-peerpor.js — 내 초상(04zz)처럼 화면 구석에 그 친구 몸만(층 8, 안개·하늘 없이) 그려 64px 로 복사 → jpeg 글자로 <img>. 처음 가까워질 때·모습 바뀔 때 + 6초마다 한 명(절약 20초), 창 열림 땐 안 찍음. 05-net.js 그대로.
+- 확인: 844×390 발할라 궁에서 가짜 친구 3명(net.recv) — 2명 이름표에 얼굴 또렷, 1명은 배지만, 오류 0.
 ### 11/23 20시 v168 — 수도 광장 밤 불빛 웅덩이
 - 무엇을: 해가 지면 네 수도의 가로등 10개 발밑·시장 노점 3곳·가운데 분수 둘레 바닥에 세계 색이 섞인 따뜻한 주황 빛 원이 서서히 켜지고 촛불처럼 살짝 일렁임, 가로등 머리엔 부드러운 빛무리(가까우면 흐려져 화면 덮지 않음). 낮이 되면 스르르 꺼짐.
 - 어디를: 새 파일 04zzzn-lampglow.js LAMPGLOW — 바닥 판 묶음 Mesh 1개 + 빛무리 Points 1개(밤·수도 110m 안일 때만 → 그리기 +2), 하얀 눈밭에서도 보이게 더하기 대신 '미리 곱한 반투명' 섞기. PointLight 없음. 배운 것: GLSL smoothstep(큰 값, 작은 값) 거꾸로 쓰면 swiftshader 에서 안 그려짐 → 1.-smoothstep(작은,큰).
