@@ -600,6 +600,24 @@ body.eco #bossbar[data-ph="2"] .bpo{animation:none}
 .act.atk.rel{animation:atkRel .42s ease-out}
 @keyframes atkRel{0%{box-shadow:0 5px 0 rgba(0,0,0,.4),0 0 0 0 rgba(255,220,120,.95)}60%{box-shadow:0 5px 0 rgba(0,0,0,.4),0 0 0 26px rgba(255,180,60,.25)}100%{box-shadow:0 5px 0 rgba(0,0,0,.4),0 0 0 34px rgba(255,180,60,0)}}
 body.eco .act.atk.full,body.eco .act.atk.full::before{animation:none}
+/* v167 연타 콤보 불꽃 고리 */
+.act.atk .cmbR{position:absolute;inset:-15px;border-radius:50%;pointer-events:none;z-index:2;opacity:0;display:none;--f1:#ffe27a;--f2:#ff7a1a;--f3:#d8261a;
+ background:repeating-conic-gradient(from 0deg,var(--f1) 0deg,var(--f2) 9deg,var(--f3) 16deg,transparent 19deg,transparent 22deg,var(--f2) 26deg,var(--f1) 30deg);
+ -webkit-mask:radial-gradient(closest-side,transparent calc(100% - 13px),#000 calc(100% - 11px),#000 calc(100% - 5px),rgba(0,0,0,.35) calc(100% - 2px),transparent 100%);mask:radial-gradient(closest-side,transparent calc(100% - 13px),#000 calc(100% - 11px),#000 calc(100% - 5px),rgba(0,0,0,.35) calc(100% - 2px),transparent 100%);
+ filter:drop-shadow(0 0 5px var(--f2)) drop-shadow(0 0 2px rgba(0,0,0,.6))}
+.act.atk .cmbB{position:absolute;top:-24px;right:-16px;pointer-events:none;z-index:4;display:none;font-style:normal;font-weight:900;font-size:15px;line-height:1;padding:3px 7px 4px;border-radius:11px;color:#fff;
+ background:linear-gradient(180deg,#ffb23a,#e2401c);border:2px solid #fff2b8;box-shadow:0 2px 0 rgba(0,0,0,.45),0 0 10px rgba(255,140,40,.8);text-shadow:0 1px 0 rgba(80,10,0,.8)}
+.act.atk .cmbB.pop{animation:cmbPop .26s cubic-bezier(.2,1.6,.4,1)}
+@keyframes cmbPop{0%{transform:scale(1.55) rotate(-8deg)}100%{transform:scale(1) rotate(0)}}
+.act.atk.cmb1 .cmbR,.act.atk.cmb2 .cmbR,.act.atk.cmb3 .cmbR,.act.atk.cmb1 .cmbB,.act.atk.cmb2 .cmbB,.act.atk.cmb3 .cmbB{display:block}
+.act.atk.cmb1,.act.atk.cmb2,.act.atk.cmb3{border-color:#ffe9a8}
+.act.atk.cmb2 .cmbR{--f1:#ffffff;--f2:#7fd8ff;--f3:#2a6cff}
+.act.atk.cmb2 .cmbB{background:linear-gradient(180deg,#8fe2ff,#2a6cff);border-color:#e8fbff;box-shadow:0 2px 0 rgba(0,0,0,.45),0 0 12px rgba(90,190,255,.9);text-shadow:0 1px 0 rgba(0,20,80,.8)}
+.act.atk.cmb3 .cmbR{background:repeating-conic-gradient(from 0deg,#fff6b0 0deg,#ffb020 8deg,#ff3cb4 14deg,#8a3cff 18deg,transparent 21deg,transparent 23deg,#3cc8ff 27deg,#fff6b0 30deg);filter:drop-shadow(0 0 7px #d070ff) drop-shadow(0 0 2px rgba(0,0,0,.6))}
+.act.atk.cmb3 .cmbB{background:linear-gradient(180deg,#ffd84a,#c03cff);border-color:#fff;font-size:17px;box-shadow:0 2px 0 rgba(0,0,0,.45),0 0 14px rgba(220,110,255,.95)}
+.act.atk.cmbUp{animation:cmbUp .5s ease-out}
+@keyframes cmbUp{0%{box-shadow:0 5px 0 rgba(0,0,0,.4),0 0 0 0 rgba(255,240,170,1)}100%{box-shadow:0 5px 0 rgba(0,0,0,.4),0 0 0 30px rgba(255,170,60,0)}}
+@media (max-height:640px){ .act.atk .cmbR{inset:-13px} .act.atk .cmbB{top:-20px;right:-14px;font-size:13px} }
 /* v93 창 열고 닫기 애니메이션 */
 .layer{animation:layerIn .26s ease-out}
 @keyframes layerIn{from{background-color:rgba(8,4,20,0)}}
