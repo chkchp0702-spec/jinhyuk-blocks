@@ -862,7 +862,7 @@ body.eco .mbtn.newdot,body.eco .mbtn.newdot::before{animation:none!important}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v178";
+const VER="v179";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -1463,7 +1463,7 @@ const POST=(function(){
   const vs=`varying vec2 vUv; void main(){ vUv=uv; gl_Position=vec4(position.xy,0.,1.); }`;
   const bright=new THREE.ShaderMaterial({uniforms:{t:{value:null},th:{value:.82}},vertexShader:vs,fragmentShader:`uniform sampler2D t; uniform float th; varying vec2 vUv; void main(){ vec4 c=texture2D(t,vUv); float l=dot(c.rgb,vec3(.299,.587,.114)); float k=smoothstep(th,th+.18,l); gl_FragColor=vec4(c.rgb*k,1.); }`,depthTest:false,depthWrite:false});
   const blur=new THREE.ShaderMaterial({uniforms:{t:{value:null},dir:{value:new THREE.Vector2(1,0)},res:{value:new THREE.Vector2(1,1)}},vertexShader:vs,fragmentShader:`uniform sampler2D t; uniform vec2 dir,res; varying vec2 vUv; void main(){ vec2 o=dir/res; vec4 s=texture2D(t,vUv)*.227; s+=(texture2D(t,vUv+o*1.38)+texture2D(t,vUv-o*1.38))*.316; s+=(texture2D(t,vUv+o*3.23)+texture2D(t,vUv-o*3.23))*.07; s+=(texture2D(t,vUv+o*5.1)+texture2D(t,vUv-o*5.1))*.02; gl_FragColor=s; }`,depthTest:false,depthWrite:false});
-  const comp=new THREE.ShaderMaterial({uniforms:{t:{value:null},b:{value:null},str:{value:.75},hurt:{value:0},tint:{value:new THREE.Color(0xffffff)},tintA:{value:0},lift:{value:new THREE.Vector3()},gain:{value:new THREE.Vector3(1,1,1)},con:{value:0},sat:{value:1.12},vig:{value:.9}},vertexShader:vs,fragmentShader:`uniform sampler2D t,b; uniform float str,hurt,tintA,con,sat,vig; uniform vec3 tint,lift,gain; varying vec2 vUv; void main(){ vec3 c=texture2D(t,vUv).rgb; vec3 g=texture2D(b,vUv).rgb; c+=g*str; c=clamp(c*gain+lift*(1.-c),0.,1.); c=mix(c,c*c*(3.-2.*c),con); float l=dot(c,vec3(.299,.587,.114)); c=mix(vec3(l),c,sat); vec2 d=vUv-.5; float v=1.-dot(d,d)*vig; c*=v; c=mix(c,vec3(.8,.05,.1),hurt*(1.-v)*2.); c=mix(c,tint*(.6+l),tintA*(.35+(1.-v)*.8)); gl_FragColor=vec4(c,1.); }`,depthTest:false,depthWrite:false});
+  const comp=new THREE.ShaderMaterial({uniforms:{t:{value:null},b:{value:null},str:{value:.75},hurt:{value:0},tint:{value:new THREE.Color(0xffffff)},tintA:{value:0},lift:{value:new THREE.Vector3()},gain:{value:new THREE.Vector3(1,1,1)},con:{value:0},sat:{value:1.12},vig:{value:.9},frost:{value:0},ftime:{value:0}},vertexShader:vs,fragmentShader:`uniform sampler2D t,b; uniform float str,hurt,tintA,con,sat,vig,frost,ftime; uniform vec3 tint,lift,gain; varying vec2 vUv; float fh(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); } float fn(vec2 p){ vec2 i=floor(p),f=fract(p); f=f*f*(3.-2.*f); return mix(mix(fh(i),fh(i+vec2(1.,0.)),f.x),mix(fh(i+vec2(0.,1.)),fh(i+vec2(1.,1.)),f.x),f.y); } void main(){ vec3 c=texture2D(t,vUv).rgb; vec3 g=texture2D(b,vUv).rgb; c+=g*str; c=clamp(c*gain+lift*(1.-c),0.,1.); c=mix(c,c*c*(3.-2.*c),con); float l=dot(c,vec3(.299,.587,.114)); c=mix(vec3(l),c,sat); vec2 d=vUv-.5; float v=1.-dot(d,d)*vig; c*=v; c=mix(c,vec3(.8,.05,.1),hurt*(1.-v)*2.); c=mix(c,tint*(.6+l),tintA*(.35+(1.-v)*.8)); if(frost>.001){ /* v179 눈보라 성에 */ vec2 q=vUv*vec2(2.1,1.)*7.; float n1=fn(q)*.5+fn(q*2.3+3.1)*.3+fn(q*5.7+7.)*.2; vec2 ad=abs(d)*2.; float ed=max(ad.x*.96,ad.y)*.55+length(ad)*.32; float th=1.08-frost*.3; float m=smoothstep(th-.08,th+.05,ed+(n1-.5)*.3); float fern=1.-smoothstep(.0,.09,abs(fract(n1*7.+fn(q*.6)*2.)-.5)); vec2 cq=floor(q*5.); float sp=step(.986,fh(cq))*(.5+.5*sin(ftime*3.+fh(cq+1.)*30.)); vec3 fc=vec3(.80,.9,1.)*(.78+.3*n1)+fern*.16+sp*.7; c=mix(c,fc,clamp(m*(.55+fern*.25)+sp*m,0.,.82)); } gl_FragColor=vec4(c,1.); }`,depthTest:false,depthWrite:false});
   const mk=(w,h)=>{ const r=new THREE.WebGLRenderTarget(w,h,{minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter,format:THREE.RGBAFormat,depthBuffer:true,stencilBuffer:false}); r.texture.encoding=THREE.sRGBEncoding; return r; };
   const S={rt:null,a:null,b:null,w:0,h:0};
   function size(w,h){ if(S.w===w&&S.h===h) return; S.w=w;S.h=h; [S.rt,S.a,S.b].forEach(r=>r&&r.dispose()); S.rt=mk(w,h); const bw=Math.max(64,Math.round(w/4)), bh=Math.max(64,Math.round(h/4)); S.a=mk(bw,bh); S.b=mk(bw,bh); S.a.depthBuffer=S.b.depthBuffer=false; blur.uniforms.res.value.set(bw,bh); }
@@ -1493,6 +1493,7 @@ const GRADE=(function(){
     const L=LK[key]||LK[1], N=LK.night, n=key==="dg"?0:clamp((.62-((typeof DAY!=="undefined"&&DAY.d!=null)?DAY.d:1))/.3,0,1);
     tl.set(L[0][0],L[0][1],L[0][2]).lerp(NL,n); tg.set(L[1][0],L[1][1],L[1][2]).lerp(NG,n);
     const k=Math.min(1,dt*1.5); cur.l.lerp(tl,k); cur.g.lerp(tg,k); cur.c+=(L[2]+(N[2]-L[2])*n-cur.c)*k; cur.s+=(L[3]+(N[3]-L[3])*n-cur.s)*k; cur.v+=(L[4]+(N[4]-L[4])*n-cur.v)*k;
+    { const fw=(key===1&&typeof WEATHER!=="undefined"&&WEATHER.type==="blizzard"&&!(typeof DG!=="undefined"&&DG.on))?1:0; cur.f=(cur.f||0)+(fw-(cur.f||0))*Math.min(1,dt*(fw?.28:.45)); U.frost.value=cur.f<.002?0:cur.f*(.92+Math.sin(performance.now()/1900)*.08); U.ftime.value=performance.now()/1000; } /* v179: 아스가르드 눈보라 땐 화면 가장자리에 성에가 천천히 끼고, 그치면 녹음 */
     U.lift.value.copy(cur.l); U.gain.value.copy(cur.g); U.con.value=cur.c; U.sat.value=cur.s; U.vig.value=cur.v; }
   return {tick,LK,cur};
 })();
@@ -13220,7 +13221,7 @@ window.__gw={regionBanner,PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoa
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="892b233f";
+(function(){ var CUR="7d720b05";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
