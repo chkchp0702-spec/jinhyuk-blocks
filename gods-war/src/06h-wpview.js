@@ -66,6 +66,19 @@ const WPVIEW=(()=>{ let R=null, scene, cam, cv, holder=null, ped, ring, beam, du
       row.addEventListener("click",e=>{ if(e.target.closest("button")) return; show(it.t,row); tone(980,.04,"triangle"); }); });
     last=0; if(!raf) raf=requestAnimationFrame(loop); }
   if(typeof showBag==="function"){ const base=showBag; showBag=function(tab){ base.apply(this,arguments); try{ if(BAG_TAB==="eq"){ const c=layers.querySelector(".layer:not(.out) .card"); mountIn(c); } }catch(e){ console.warn(e); } }; }
-  return {setWeapon,mountIn};
+  /* v180: 상점 「⚔ 장비」 탭에도 같은 받침대 — 상점 무기가 돌며 둥실, 잠긴 「다음 등급」 줄을 누르면 다음 무기를 미리 보여 줌(그림자 실루엣 아님, 진짜 모습 + 🔒 표시) */
+  function mountShop(card){ if(!card||!init()) return; const h=card.querySelector("h3"); if(!h) return;
+    const wrap=document.createElement("div"); wrap.className="wpv shopv"; wrap.innerHTML=`<div class="box"></div><div class="inf"></div>`; h.parentNode.insertBefore(wrap,h);
+    const box=wrap.firstChild, inf=wrap.lastChild; box.appendChild(cv); const S=box.clientWidth||112; R.setSize(S,S,false); const t0=Math.min(3,G.rank|0);
+    const show=(t,row,lock)=>{ const nm=weaponOf(t); card.querySelectorAll(".row.wpsel").forEach(r=>r.classList.remove("wpsel")); if(row) row.classList.add("wpsel"); if(!nm) return;
+      const own=G.eq.w>=t||G.bag.some(it=>it.s==="w"&&it.t>=t);
+      inf.innerHTML=`${rarTag(t)}<b>${lock?"🔒 ":""}${itemName("w",t)}</b><i>${lock?`${RM().ranks[t]} 계급이 되면 살 수 있는 다음 무기예요`:own?"이미 같은 등급 무기가 있어요":"상점 무기 · 「사기」로 가방에 쏙"} · 무기 줄을 누르면 바뀌어요</i>`; box.classList.toggle("lock",!!lock); setWeapon(nm,t); };
+    const wb=card.querySelector("[data-sb='w']"), wr=wb&&wb.closest(".row"); show(t0,wr,false);
+    if(wr){ wr.style.cursor="pointer"; wr.addEventListener("click",e=>{ if(e.target.closest("button")) return; show(t0,wr,false); tone(980,.04,"triangle"); }); }
+    if(t0<3){ const lr=[...card.querySelectorAll(".row")].find(r=>r.querySelector(".ic")&&r.querySelector(".ic").textContent==="🔒"); if(lr){ lr.style.cursor="pointer"; lr.addEventListener("click",()=>{ show(t0+1,lr,true); tone(760,.05,"triangle"); }); } }
+    last=0; if(!raf) raf=requestAnimationFrame(loop); }
+  st.textContent+=`.wpv.shopv{margin:4px 0 2px}.wpv .box.lock{filter:saturate(.55) brightness(.85)}.wpv .box.lock::before{content:"🔒";position:absolute;right:6px;top:4px;font-size:16px;z-index:2;filter:drop-shadow(0 1px 2px #000)}`;
+  if(typeof showShop==="function"){ const baseS=showShop; showShop=function(tab){ baseS.apply(this,arguments); try{ if(SHOP_TAB==="eq"){ const c=layers.querySelector(".layer:not(.out) .card"); mountShop(c); } }catch(e){ console.warn(e); } }; }
+  return {setWeapon,mountIn,mountShop};
 })();
 </script>
