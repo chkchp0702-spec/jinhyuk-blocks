@@ -78,7 +78,7 @@ button{font:inherit;-webkit-tap-highlight-color:transparent}
 .bar.hp i{background:linear-gradient(90deg,#ff3d4a,#ff8a5c)} .bar.xp i{background:linear-gradient(90deg,#4aa3ff,#9be7ff)} .bar.xp{height:7px}
 .bar span{position:absolute;inset:0;font-size:10px;line-height:11px;text-align:center;text-shadow:0 1px 0 #000}
 .gold{color:var(--gold)}
-/* v65 금화가 금화 칸으로 날아감 */ .coinfly{position:fixed;left:-9px;top:-9px;width:18px;height:18px;border-radius:50%;z-index:30;pointer-events:none;background:radial-gradient(circle at 34% 30%,#fffbe0 0 14%,#ffe27a 30%,#ffbf26 62%,#b87508 100%);border:1.5px solid #7a4a00;box-shadow:0 0 6px 2px rgba(255,214,90,.75),inset 0 -2px 0 rgba(120,70,0,.45);will-change:transform} .coinfly::after{content:"";position:absolute;left:4px;top:3px;width:6px;height:8px;border:1.5px solid rgba(150,90,0,.55);border-radius:50%} .cpop{animation:cpop .32s ease-out} @keyframes cpop{0%{transform:scale(1);filter:none}35%{transform:scale(1.28);filter:drop-shadow(0 0 6px #ffd24a) brightness(1.4)}100%{transform:scale(1);filter:none}} .gold.cpop{display:inline-block;transform-origin:30% 50%}
+/* v65 금화가 금화 칸으로 날아감 */ .coinfly{position:fixed;left:-9px;top:-9px;width:18px;height:18px;border-radius:50%;z-index:30;pointer-events:none;background:radial-gradient(circle at 34% 30%,#fffbe0 0 14%,#ffe27a 30%,#ffbf26 62%,#b87508 100%);border:1.5px solid #7a4a00;box-shadow:0 0 6px 2px rgba(255,214,90,.75),inset 0 -2px 0 rgba(120,70,0,.45);will-change:transform} .coinfly::after{content:"";position:absolute;left:4px;top:3px;width:6px;height:8px;border:1.5px solid rgba(150,90,0,.55);border-radius:50%} .cpop{animation:cpop .32s ease-out} @keyframes cpop{0%{transform:scale(1);filter:none}35%{transform:scale(1.28);filter:drop-shadow(0 0 6px #ffd24a) brightness(1.4)}100%{transform:scale(1);filter:none}} .gold.cpop{display:inline-block;transform-origin:30% 50%} /* v188 금화 카운트업 */ #pgold{font-variant-numeric:tabular-nums} .cgain{position:absolute;left:100%;top:-1px;margin-left:5px;font-style:normal;z-index:31;pointer-events:none;font-weight:900;font-size:13px;color:#ffe680;text-shadow:0 0 4px rgba(255,190,40,.9),0 1px 0 #6a3d00,1px 0 0 #6a3d00,-1px 0 0 #6a3d00,0 -1px 0 #6a3d00;opacity:0;white-space:nowrap} .cgain.on{animation:cgain 1.1s ease-out forwards} .cgain.big{font-size:16px;color:#fff3b0} @keyframes cgain{0%{opacity:0;transform:translateY(6px) scale(.6)}15%{opacity:1;transform:translateY(-2px) scale(1.25)}30%{transform:translateY(-4px) scale(1)}75%{opacity:1}100%{opacity:0;transform:translateY(-16px) scale(.95)}} #pgold.cdown{animation:cdown .5s ease-out} @keyframes cdown{0%{color:#ff7a6a}100%{color:inherit}}
 /* v70 주운 물건이 가방으로 쏙 */ .pkfly{position:fixed;left:-17px;top:-17px;width:34px;height:34px;border-radius:50%;z-index:30;pointer-events:none;display:flex;align-items:center;justify-content:center;font-size:19px;line-height:1;background:radial-gradient(circle at 36% 30%,rgba(255,255,255,.95) 0 12%,var(--pkc) 46%,#1c1236 100%);box-shadow:0 0 12px 3px var(--pkc),inset 0 -3px 0 rgba(0,0,0,.35);border:2px solid #ffe7a0;will-change:transform;text-shadow:0 1px 2px rgba(0,0,0,.6)} .pkbump{animation:pkbump .42s cubic-bezier(.3,1.8,.5,1)} @keyframes pkbump{0%{transform:scale(1)}30%{transform:scale(1.25) translateY(-4px);box-shadow:0 0 16px 4px var(--pkc),inset 0 0 10px var(--pkc);border-color:var(--pkc)}100%{transform:scale(1)}} .pkplus{position:fixed;z-index:31;pointer-events:none;font-weight:900;font-size:15px;text-shadow:0 0 4px #000,0 1px 0 #000;animation:pkplus .9s ease-out forwards} @keyframes pkplus{0%{transform:translateY(4px) scale(.6);opacity:0}25%{transform:translateY(-6px) scale(1.2);opacity:1}100%{transform:translateY(-22px) scale(1);opacity:0}}
 /* v128 상점에서 산 물건이 가방으로 */ .pkfly.sfly{z-index:32} .sfcost{position:fixed;z-index:33;pointer-events:none;transform:translate(-50%,-50%);font-weight:900;font-size:16px;color:#ff6b6b;text-shadow:0 0 4px #000,0 1px 0 #000;animation:sfcost 1s ease-out forwards} @keyframes sfcost{0%{margin-top:4px;opacity:0;scale:.6}20%{margin-top:-8px;opacity:1;scale:1.2}100%{margin-top:-30px;opacity:0;scale:1}} .sfcoin{position:fixed;z-index:33;pointer-events:none;width:9px;height:9px;margin:-4px 0 0 -4px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff6c0,#ffc52e 55%,#a86a00);box-shadow:0 0 5px #ffd24a;animation:sfcoin .65s ease-out forwards} @keyframes sfcoin{0%{transform:translate(0,0) scale(.4);opacity:1}60%{opacity:1}100%{transform:translate(var(--dx),calc(var(--dy) + 14px)) scale(.9);opacity:0}}
 #titanPill{position:fixed;right:10px;top:calc(max(8px,env(safe-area-inset-top)) + 262px);z-index:5;font-size:13px;cursor:pointer;pointer-events:auto;border:1px solid rgba(255,140,80,.6);color:#ffd9b0;font-family:inherit} #netPill{font-size:12px;gap:6px} #netPill .dot{width:9px;height:9px;border-radius:50%;background:#777;display:inline-block;box-shadow:0 0 4px #000} #netPill .dot.on{background:#3fd27a;box-shadow:0 0 6px #3fd27a}
@@ -881,7 +881,7 @@ body.introOn #labels,body.introOn .hud,body.introOn #minimap,body.introOn #zoomB
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v187";
+const VER="v188";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -13434,7 +13434,7 @@ window.__gw={regionBanner,PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoa
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="0315bd21";
+(function(){ var CUR="c075d1d7";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);
@@ -13804,4 +13804,28 @@ const INTRO=(()=>{ let on=false, t=0, D=7.2, a0=0, el=null, gy=0;
 { const _lb=lvBanner; lvBanner=function(){ try{ if(INTRO.on&&el0()) el0().classList.add("quiet"); }catch(e){} return _lb.apply(this,arguments); }; }
 function el0(){ return document.getElementById("introCam"); }
 { const _u=update; update=function(dt){ _u(dt); try{ INTRO.tick(dt); }catch(e){} }; }
+</script>
+<script>
+/* ================= v188 그래픽: 금화 숫자가 굴러가며 올라감(카운트업) + "+N" 금빛 글씨 =================
+   금화가 늘면 화면 위 금화 숫자가 한 번에 바뀌지 않고 0.5~1초 동안 또르르 올라가고, 옆에 "+25" 금빛 글씨가 톡 떠올랐다 사라짐.
+   짧은 시간에 여러 번 얻으면 "+N" 이 하나로 합쳐져 커짐. 쓰면(줄면) 바로 바뀌고 숫자가 잠깐 붉게.
+   글자만 바뀜(그리기 호출 0). 실제 금화 값·저장은 그대로 — 보이는 숫자만. */
+const COINROLL={d:null,from:0,to:0,t:1,dur:.6,gain:0,gt:0,el:null,shown:""};
+(function(){
+  const C=COINROLL, _hT=hT;
+  function show(n){ const s=fmt(n); if(C.shown===s) return; C.shown=s; HUDM.pgold=s; const e=$("pgold"); if(e) e.textContent=s; }
+  function plus(n){ const g=$("pgold"); if(!g||!g.parentNode) return;
+    C.gain=(C.gt>0?C.gain:0)+n; C.gt=.65;
+    let e=C.el; if(!e||!e.isConnected){ e=C.el=document.createElement("i"); e.className="cgain"; g.parentNode.style.position="relative"; g.parentNode.appendChild(e); }
+    e.textContent="+"+fmt(C.gain); e.classList.remove("on"); void e.offsetWidth; e.classList.add("on"); e.classList.toggle("big",C.gain>=500); }
+  hT=function(id,v){ if(id!=="pgold") return _hT(id,v);
+    const g=Math.round(G.gold||0);
+    if(C.d===null){ C.d=C.from=C.to=g; C.t=1; return show(g); }
+    if(g===C.to) return;
+    if(g>C.to){ const add=g-C.to; C.from=C.d; C.to=g; C.t=0; C.dur=Math.min(1.05,.5+Math.log10(1+g-C.from)*.13); try{ plus(add); }catch(e){} }
+    else { C.d=C.from=C.to=g; C.t=1; show(g); const e=$("pgold"); if(e){ e.classList.remove("cdown"); void e.offsetWidth; e.classList.add("cdown"); } } };
+  COINROLL.tick=function(dt){ if(C.gt>0) C.gt-=dt; if(C.t>=1||C.d===null) return; C.t=Math.min(1,C.t+dt/C.dur); const k=C.t<.5?2*C.t*C.t:1-Math.pow(-2*C.t+2,2)/2;
+    C.d=C.t>=1?C.to:Math.floor(C.from+(C.to-C.from)*k); show(C.d); };
+})();
+{ const _u=update; update=function(dt){ _u(dt); try{ COINROLL.tick(Math.min(dt,.1)); }catch(e){} }; }
 </script>
