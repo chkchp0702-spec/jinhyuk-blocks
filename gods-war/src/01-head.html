@@ -805,6 +805,25 @@ body.eco .mbtn.newdot,body.eco .mbtn.newdot::before{animation:none!important}
 @keyframes vcStar{0%{opacity:1;transform:translate(0,0) scale(.4) rotate(0)}70%{opacity:1}100%{opacity:0;transform:translate(var(--x),var(--y)) scale(var(--s)) rotate(160deg)}}
 @media (orientation:portrait){#vict{top:30%}}
 @media (prefers-reduced-motion: reduce){#vict.on{animation:vcFade 2.6s forwards}#vict.on .vk,#vict.on .vsh{animation:none}@keyframes vcFade{0%,85%{opacity:1}100%{opacity:0}}}
+/* v184 첫 접속 소개 카메라 비행: 영화 띠 + 세계 이름 */
+#introCam{position:fixed;inset:0;z-index:70;pointer-events:none}
+#introCam .ibT,#introCam .ibB{position:absolute;left:0;right:0;height:12vh;background:linear-gradient(#000,#05030c);transition:transform .7s cubic-bezier(.2,.8,.2,1)}
+#introCam .ibT{top:0;transform:translateY(-100%);box-shadow:0 2px 0 rgba(255,210,110,.35)} #introCam .ibB{bottom:0;transform:translateY(100%);box-shadow:0 -2px 0 rgba(255,210,110,.35)}
+#introCam.on .ibT,#introCam.on .ibB{transform:none}
+#introCam .ibTxt{position:absolute;left:0;right:0;top:30%;text-align:center;opacity:0;transform:translateY(10px) scale(.96);transition:opacity .9s .5s,transform 1.2s .5s cubic-bezier(.2,.8,.2,1)}
+#introCam.on .ibTxt{opacity:1;transform:none} #introCam.on.quiet .ibTxt{opacity:0;transition:opacity .4s}
+#introCam .ibTxt small{display:block;font-size:13px;letter-spacing:6px;color:#ffe7a8;text-shadow:0 1px 0 #000,0 0 8px rgba(0,0,0,.8)}
+#introCam .ibTxt b{display:block;margin-top:2px;font-size:38px;font-weight:900;letter-spacing:3px;background:linear-gradient(#fff8dc,#ffd36a 55%,#e09a2a);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-stroke:1px rgba(60,30,0,.55);filter:drop-shadow(0 2px 0 #3a2200) drop-shadow(0 0 12px rgba(0,0,0,.55))}
+#introCam .ibTxt b::before,#introCam .ibTxt b::after{content:"";display:inline-block;vertical-align:middle;width:44px;height:2px;margin:0 12px;background:linear-gradient(90deg,transparent,#ffd36a);-webkit-text-stroke:0}
+#introCam .ibTxt b::after{background:linear-gradient(90deg,#ffd36a,transparent)}
+#introCam .ibTxt em{display:block;margin-top:4px;font-style:normal;font-size:14px;color:#fff;text-shadow:0 1px 0 #000,0 0 6px #000}
+#introCam .ibSkip{position:absolute;right:16px;bottom:3.2vh;font-size:12px;color:rgba(255,240,210,.85);opacity:0;transition:opacity .6s 1.2s}
+#introCam.on .ibSkip{opacity:1}
+#introCam.off{opacity:0;transition:opacity .6s}
+#labels,.hud,#minimap,#zoomBtns,#chat,.acts,#joy,#toast,#rgban{transition:opacity .6s}
+body.introOn #labels,body.introOn .hud,body.introOn #minimap,body.introOn #zoomBtns,body.introOn #chat,body.introOn .acts,body.introOn #joy,body.introOn #toast,body.introOn #rgban,body.introOn #bCtx{opacity:0!important;pointer-events:none!important}
+#introCam .ibTxt::before{content:"";position:absolute;left:50%;top:50%;width:520px;height:150px;margin:-75px 0 0 -260px;z-index:-1;background:radial-gradient(closest-side,rgba(8,4,20,.55),rgba(8,4,20,0));pointer-events:none}
+@media (orientation:portrait){ #introCam .ibTxt b{font-size:30px} #introCam .ibTxt b::before,#introCam .ibTxt b::after{width:22px;margin:0 8px} }
 </style>
 </head>
 <body>
