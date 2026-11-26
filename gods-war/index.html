@@ -862,7 +862,7 @@ body.eco .mbtn.newdot,body.eco .mbtn.newdot::before{animation:none!important}
 <script src="SkeletonUtils.js"></script>
 <script>
 /* ================= 신화 데이터: 네 세계 ================= */
-const VER="v182";
+const VER="v183";
 const REALMS=[
  { id:"eden", n:"에덴", sub:"천상의 왕국", icon:"✝", c1:"#ffd95e", c2:"#fff7d6", a:"#e9c46a", b:"#5c4a1c",
    ground:"#cfe3a8", ground2:"#b8d890", sky:"#9fd4ff", fog:"#dcefff", prop:"tree-gold",
@@ -1140,13 +1140,13 @@ function plazaTex(i){ const S=HIGH()?1024:512, k=S/1024, c=document.createElemen
 
 /* ---- 물: 물결 + 반짝임 셰이더 ---- */
 const TIME={value:0};
-const WATER=new THREE.ShaderMaterial({transparent:true,depthWrite:false,fog:true,uniforms:THREE.UniformsUtils.merge([THREE.UniformsLib.fog,{time:{value:0},deep:{value:new THREE.Color(0x1660c8)},shallow:{value:new THREE.Color(0x4fd2ff)},sunDir:{value:new THREE.Vector3(.4,.6,.3)},skyTop:{value:new THREE.Color()},skyBot:{value:new THREE.Color()},day:{value:1},hq:{value:1},moonDir:{value:new THREE.Vector3(0,.3,-1)},mn:{value:0}}]),
+const WATER=new THREE.ShaderMaterial({transparent:true,depthWrite:false,fog:true,uniforms:THREE.UniformsUtils.merge([THREE.UniformsLib.fog,{time:{value:0},deep:{value:new THREE.Color(0x1660c8)},shallow:{value:new THREE.Color(0x4fd2ff)},sunDir:{value:new THREE.Vector3(.4,.6,.3)},skyTop:{value:new THREE.Color()},skyBot:{value:new THREE.Color()},day:{value:1},hq:{value:1},moonDir:{value:new THREE.Vector3(0,.3,-1)},mn:{value:0},ss:{value:0},ssDir:{value:new THREE.Vector2(0,-1)}}]),
   vertexShader:`attribute float sq; varying vec3 vW; varying vec2 vUv; varying float vSq;
 #include <fog_pars_vertex>
     void main(){ vUv=uv; vSq=sq; vec4 wp=modelMatrix*vec4(position,1.); vW=wp.xyz; vec4 mvPosition=viewMatrix*wp; gl_Position=projectionMatrix*mvPosition;
 #include <fog_vertex>
 }`,
-  fragmentShader:`uniform float time,day,hq,mn; uniform vec3 deep,shallow,sunDir,skyTop,skyBot,moonDir; varying vec3 vW; varying vec2 vUv; varying float vSq;
+  fragmentShader:`uniform float time,day,hq,mn,ss; uniform vec2 ssDir; uniform vec3 deep,shallow,sunDir,skyTop,skyBot,moonDir; varying vec3 vW; varying vec2 vUv; varying float vSq;
 #include <fog_pars_fragment>
     float hs(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
     float vn(vec2 p){ vec2 i=floor(p),f=fract(p); f=f*f*(3.-2.*f); return mix(mix(hs(i),hs(i+vec2(1,0)),f.x),mix(hs(i+vec2(0,1)),hs(i+vec2(1,1)),f.x),f.y); }
@@ -1164,6 +1164,10 @@ const WATER=new THREE.ShaderMaterial({transparent:true,depthWrite:false,fog:true
         float gl=vn(p*vec2(6.,2.4)+vec2(time*1.4,-time*.9))*vn(p*3.1-vec2(time*.6,time*1.2)); float spk=smoothstep(.28,.5,gl);
         vec3 r2=reflect(-v,normalize(vec3(n.x*2.4,1.,n.z*2.4))); float rs=pow(max(dot(r2,md),0.),18.);
         c=mix(c,c*.7+vec3(.05,.07,.12),mn*.35); c+=vec3(.82,.88,1.)*mn*(path*(.22+spk*1.4)+rs*.08*spk); }
+      if(ss>.01){ /* v183 노을 금빛 길: 해 질 녘엔 노을 지는 지평선 쪽으로 물 위에 금빛 반짝 띠 + 물 전체가 살짝 주황빛(높음만) */ vec2 hd2=normalize(vW.xz-cameraPosition.xz+vec2(.0001)); vec2 sh2=normalize(ssDir+vec2(.0001)); float dist2=length(vW.xz-cameraPosition.xz);
+        float al2=dot(hd2,sh2)+(h0-.5)*.02+(n.x*sh2.y-n.z*sh2.x)*.05; float wide=mix(.93,.978,smoothstep(8.,40.,dist2)); float path2=smoothstep(wide,.999,al2)*smoothstep(3.,12.,dist2);
+        float g2=vn(p*vec2(5.,2.2)+vec2(time*1.6,-time*1.1))*vn(p*2.7-vec2(time*.7,time*1.3)); float spk2=smoothstep(.24,.46,g2); float twk=step(.9,vn(p*9.+vec2(-time*2.1,time*1.7)));
+        c=mix(c,c*vec3(1.1,.78,.6)+vec3(.16,.07,.02),ss*.6); c+=vec3(1.,.62,.22)*ss*path2*(.28+spk2*1.6+twk*.9)+vec3(1.,.5,.2)*ss*spk2*.05; }
       vec2 q=vUv-.5; float ed=mix(length(q)*2.,max(abs(q.x)*2.,abs(q.y)*2.),vSq); float wob=vn(p*2.5+time*.4)*.06;
       float foam=smoothstep(.84,.97,ed+wob); float band=smoothstep(.75,1.,sin((ed*11.-time*1.1)*3.14159))*smoothstep(.62,.9,ed)*(1.-foam);
       c=mix(c,vec3(.92,.97,1.)*(.4+.6*day),clamp(foam*.85+band*.35,0.,1.));
@@ -1432,6 +1436,8 @@ const STARS=(function(){ const N=1400; const g=new THREE.BufferGeometry(); const
 /* 달 */
 const MOON=sph(9,new THREE.MeshBasicMaterial({color:0xfff6d8,fog:false}),0,0,0); MOON.userData.noOutline=true; scene.add(MOON);
 
+/* v183 노을 금빛 길 시험용: SUNPATH.force=1 이면 늘 켬 */
+const SUNPATH={force:null};
 /* ---- 밤낮: 8분 주기, 모든 폰이 같은 시각 ---- */
 const DAY={len:480,d:1};
 function dayNight(dt,center,theme){
@@ -1444,7 +1450,7 @@ function dayNight(dt,center,theme){
   const sunset=clamp(1-Math.abs(elev)*4,0,1)*.8; dayTop.lerp(new THREE.Color(0xff8a50),sunset*.5); dayBot.lerp(new THREE.Color(0xffb070),sunset*.7);
   SKY.tTop.copy(dayTop).lerp(new THREE.Color(0x070818),night); SKY.tBot.copy(dayBot).lerp(new THREE.Color(0x1a1c3a),night);
   SKY.top.lerp(SKY.tTop,dt*.9); SKY.bot.lerp(SKY.tBot,dt*.9); scene.fog.color.copy(SKY.bot); sky.position.copy(camera.position); STARS.position.copy(camera.position); STARS.material.opacity=night*.95; STARS.rotation.y+=dt*.004;
-  MOON.position.set(camera.position.x-Math.cos(ang)*300,Math.max(-40,-elev*220+30),camera.position.z-120); MOON.visible=night>.1; MOON.material.opacity=night; MOON.material.transparent=true; WATER.uniforms.moonDir.value.copy(MOON.position).sub(camera.position); WATER.uniforms.mn.value=clamp((night-.15)*1.6,0,1);
+  MOON.position.set(camera.position.x-Math.cos(ang)*300,Math.max(-40,-elev*220+30),camera.position.z-120); MOON.visible=night>.1; MOON.material.opacity=night; MOON.material.transparent=true; WATER.uniforms.moonDir.value.copy(MOON.position).sub(camera.position); WATER.uniforms.mn.value=clamp((night-.15)*1.6,0,1); { const _ss=clamp(1-Math.abs(elev)*3.2,0,1)*(elev>-.25?1:0); WATER.uniforms.ss.value=(typeof SUNPATH!=='undefined'&&SUNPATH.force!=null)?SUNPATH.force:((typeof HIGH==='function'&&HIGH())?_ss:0); WATER.uniforms.ssDir.value.set(Math.cos(ang)*.22,-1); }
   renderer.toneMappingExposure=.95-night*.25; }
 
 /* ---- 날씨: 세계마다 다른 날씨가 3분마다 바뀜(모든 폰 동일) ---- */
@@ -13313,7 +13319,7 @@ window.__gw={regionBanner,PG,PLO,pgEnter,pgExit,pgBegin,pgHostStart,pgData,pgBoa
 if("serviceWorker" in navigator && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 <!--auto-update--><script>
-(function(){ var CUR="cd58d357";
+(function(){ var CUR="8884870b";
   function check(){ if(!/^https?:/.test(location.protocol)) return;
     fetch("version.json?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
       if(!j||!j.v||j.v===CUR) return; var k="upd:"+location.pathname; if(sessionStorage.getItem(k)===j.v) return; sessionStorage.setItem(k,j.v);

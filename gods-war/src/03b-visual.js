@@ -66,6 +66,8 @@ const STARS=(function(){ const N=1400; const g=new THREE.BufferGeometry(); const
 /* 달 */
 const MOON=sph(9,new THREE.MeshBasicMaterial({color:0xfff6d8,fog:false}),0,0,0); MOON.userData.noOutline=true; scene.add(MOON);
 
+/* v183 노을 금빛 길 시험용: SUNPATH.force=1 이면 늘 켬 */
+const SUNPATH={force:null};
 /* ---- 밤낮: 8분 주기, 모든 폰이 같은 시각 ---- */
 const DAY={len:480,d:1};
 function dayNight(dt,center,theme){
@@ -78,7 +80,7 @@ function dayNight(dt,center,theme){
   const sunset=clamp(1-Math.abs(elev)*4,0,1)*.8; dayTop.lerp(new THREE.Color(0xff8a50),sunset*.5); dayBot.lerp(new THREE.Color(0xffb070),sunset*.7);
   SKY.tTop.copy(dayTop).lerp(new THREE.Color(0x070818),night); SKY.tBot.copy(dayBot).lerp(new THREE.Color(0x1a1c3a),night);
   SKY.top.lerp(SKY.tTop,dt*.9); SKY.bot.lerp(SKY.tBot,dt*.9); scene.fog.color.copy(SKY.bot); sky.position.copy(camera.position); STARS.position.copy(camera.position); STARS.material.opacity=night*.95; STARS.rotation.y+=dt*.004;
-  MOON.position.set(camera.position.x-Math.cos(ang)*300,Math.max(-40,-elev*220+30),camera.position.z-120); MOON.visible=night>.1; MOON.material.opacity=night; MOON.material.transparent=true; WATER.uniforms.moonDir.value.copy(MOON.position).sub(camera.position); WATER.uniforms.mn.value=clamp((night-.15)*1.6,0,1);
+  MOON.position.set(camera.position.x-Math.cos(ang)*300,Math.max(-40,-elev*220+30),camera.position.z-120); MOON.visible=night>.1; MOON.material.opacity=night; MOON.material.transparent=true; WATER.uniforms.moonDir.value.copy(MOON.position).sub(camera.position); WATER.uniforms.mn.value=clamp((night-.15)*1.6,0,1); { const _ss=clamp(1-Math.abs(elev)*3.2,0,1)*(elev>-.25?1:0); WATER.uniforms.ss.value=(typeof SUNPATH!=='undefined'&&SUNPATH.force!=null)?SUNPATH.force:((typeof HIGH==='function'&&HIGH())?_ss:0); WATER.uniforms.ssDir.value.set(Math.cos(ang)*.22,-1); }
   renderer.toneMappingExposure=.95-night*.25; }
 
 /* ---- 날씨: 세계마다 다른 날씨가 3분마다 바뀜(모든 폰 동일) ---- */
