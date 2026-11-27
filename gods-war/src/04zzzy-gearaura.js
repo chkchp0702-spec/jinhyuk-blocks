@@ -47,6 +47,6 @@ const GEARAURA=(()=>{
     pts.geometry.attributes.position.needsUpdate=true; pts.material.opacity=op*.9; pts.material.size=(b===3?.62:.52);
   }
   XTICK.push(tick);
-  return {tick,get on(){ return !!(disk&&disk.visible); }};
+  return {tick,diskTex,dotTex,get on(){ return !!(disk&&disk.visible); }};
 })();
 </script>
